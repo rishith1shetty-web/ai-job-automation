@@ -1,0 +1,162 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T202147555211\\4431363379_Data_Analyst_Internship\\step_01_01.png",
+    "page_title": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "First name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Last name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "First name",
+        "field_type": "text"
+      },
+      {
+        "label": "Last name",
+        "field_type": "text"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      },
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "required field 6",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [
+      "Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+    ],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-06-30T20:21:58.201798"
+  },
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T202147555211\\4431363379_Data_Analyst_Internship\\step_01_02.png",
+    "page_title": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Cover letter",
+        "field_type": "textarea",
+        "has_value": false
+      }
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Cover letter",
+        "field_type": "textarea",
+        "has_value": false
+      }
+    ],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "navigation_failed",
+    "reason_for_stop": "Navigation revealed unresolved required fields: Cover letter.",
+    "captured_at": "2026-06-30T20:22:04.785727"
+  }
+]

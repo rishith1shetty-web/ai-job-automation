@@ -1,0 +1,104 @@
+{
+  "job_id": 2748,
+  "job_title": "Data Engineer Employment History Runtime Test",
+  "company": "Claroda",
+  "job_url": "https://www.linkedin.com/jobs/view/4407465910/",
+  "application_date": "2026-06-30T16:06:14.134580",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": false
+    }
+  ],
+  "contact_fields_filled": [
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "value_source": "Resume Visible Text"
+    }
+  ],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T16:02:38.746023",
+      "event": "initialized",
+      "detail": "Data Engineer Employment History Runtime Test at Claroda"
+    },
+    {
+      "time": "2026-06-30T16:02:38.746023",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 100, \"job_resume_id\": 100, \"search_batch_id\": null, \"resume_filename_from_database\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_original_filename\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"file_exists\": true, \"file_size\": 240361, \"file_hash_sha256\": \"318cd330ee14c6ef35c1048194a2abec40ac938f30765353edead57a1bf35aaa\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T160238746023\\\\4407465910_Data_Engineer_Employment_History_Runtime_Test\"}"
+    },
+    {
+      "time": "2026-06-30T16:02:53.082506",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Data Engineer | Claroda | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4407465910/\", \"captured_at\": \"2026-06-30T16:02:53.082506\"}"
+    },
+    {
+      "time": "2026-06-30T16:03:23.116025",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4407465910\", \"job_url\": \"https://www.linkedin.com/jobs/view/4407465910/\"}"
+    },
+    {
+      "time": "2026-06-30T16:04:44.428002",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T16:04:48.423868",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4407465910/"
+    },
+    {
+      "time": "2026-06-30T16:04:53.425720",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:05:12.951857",
+      "event": "needs_review",
+      "detail": "Validation error: Please enter a valid answer"
+    }
+  ]
+}

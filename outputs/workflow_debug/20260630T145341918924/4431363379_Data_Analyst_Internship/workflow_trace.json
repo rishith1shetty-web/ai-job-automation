@@ -1,0 +1,64 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "detected_page_type": "validation_error",
+    "page_hash": "996070fbecabc511650bf1eb9bc57ce851929f1abe45d8cc14ae79e5ec8c8bcf",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431363379/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 19.52,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "detected_page_type": "validation_error",
+    "page_hash": "52408ba4ed9c509fcf89d085422fee979d6301d5a3c29e474c2803c00ab9cacf",
+    "repeated_count": 1,
+    "action_attempted": "none",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431363379/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 20.81,
+    "stop_reason": "Validation error: Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+  }
+]

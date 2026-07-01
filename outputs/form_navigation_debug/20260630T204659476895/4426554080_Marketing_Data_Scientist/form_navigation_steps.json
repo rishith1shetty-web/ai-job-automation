@@ -1,0 +1,361 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T204659476895\\4426554080_Marketing_Data_Scientist\\step_01_01.png",
+    "page_title": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "First name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Last name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "required field 4",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "First name",
+        "field_type": "text"
+      },
+      {
+        "label": "Last name",
+        "field_type": "text"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      },
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "required field 6",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-06-30T20:47:07.140239"
+  },
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T204659476895\\4426554080_Marketing_Data_Scientist\\step_01_02.png",
+    "page_title": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Your LinkedIn Profile link",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Your LinkedIn Profile link",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "screening_answered_after_navigation",
+    "reason_for_stop": null,
+    "captured_at": "2026-06-30T20:47:14.182775"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T204659476895\\4426554080_Marketing_Data_Scientist\\step_02_03.png",
+    "page_title": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Your LinkedIn Profile link",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      },
+      {
+        "label": "Your LinkedIn Profile link",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-06-30T20:47:17.686624"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260630T204659476895\\4426554080_Marketing_Data_Scientist\\step_02_04.png",
+    "page_title": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Annual salary expectations? (If you do not specify clearly, your application will not be reviewed/considered.)",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years have you worked with marketing teams on statistical analysis and experimentation? Could you share some examples of the kinds of projects or campaigns you supported?",
+        "field_type": "textarea",
+        "has_value": true
+      },
+      {
+        "label": "How many years of remote working experience do you have?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Can you describe your experience working directly within or consulting for a marketing department? What types of challenges did you help solve?",
+        "field_type": "textarea",
+        "has_value": true
+      },
+      {
+        "label": "What is your proficiency level in English?",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "On a scale of 1 - 10, how would you rate your written English communications skills? And your verbal English skills? (1 = Beginner, 10 = Native speaker)",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Could you describe a key web marketing or business metric you successfully optimized in the past? How did you define or select this metric as the priority, and what data-driven approach did you use to improve it?",
+        "field_type": "textarea",
+        "has_value": true
+      },
+      {
+        "label": "Describe a situation where you were given an ambiguous business problem (e.g., \"improve customer retention\"). How did you work with stakeholders and translate that request into a concrete data science project with clear steps and deliverables?",
+        "field_type": "textarea",
+        "has_value": false
+      },
+      {
+        "label": "Describe a time that you were able to effectively increase ROAS on Google Ads Spend and how you approached this?",
+        "field_type": "textarea",
+        "has_value": true
+      },
+      {
+        "label": "International travel is our business and our passion. How many countries have you visited? If you too have a passion for international travel, we\u2019d love to learn more about it here:",
+        "field_type": "textarea",
+        "has_value": true
+      },
+      {
+        "label": "If hired, how soon can you start?",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Describe a situation where you were given an ambiguous business problem (e.g., \"improve customer retention\"). How did you work with stakeholders and translate that request into a concrete data science project with clear steps and deliverables?",
+        "field_type": "textarea",
+        "has_value": false
+      }
+    ],
+    "filled_fields": [
+      {
+        "label": "Annual salary expectations? (If you do not specify clearly, your application will not be reviewed/considered.)",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years have you worked with marketing teams on statistical analysis and experimentation? Could you share some examples of the kinds of projects or campaigns you supported?",
+        "field_type": "textarea"
+      },
+      {
+        "label": "How many years of remote working experience do you have?",
+        "field_type": "text"
+      },
+      {
+        "label": "Can you describe your experience working directly within or consulting for a marketing department? What types of challenges did you help solve?",
+        "field_type": "textarea"
+      },
+      {
+        "label": "What is your proficiency level in English?",
+        "field_type": "select"
+      },
+      {
+        "label": "On a scale of 1 - 10, how would you rate your written English communications skills? And your verbal English skills? (1 = Beginner, 10 = Native speaker)",
+        "field_type": "text"
+      },
+      {
+        "label": "Could you describe a key web marketing or business metric you successfully optimized in the past? How did you define or select this metric as the priority, and what data-driven approach did you use to improve it?",
+        "field_type": "textarea"
+      },
+      {
+        "label": "Describe a time that you were able to effectively increase ROAS on Google Ads Spend and how you approached this?",
+        "field_type": "textarea"
+      },
+      {
+        "label": "International travel is our business and our passion. How many countries have you visited? If you too have a passion for international travel, we\u2019d love to learn more about it here:",
+        "field_type": "textarea"
+      },
+      {
+        "label": "If hired, how soon can you start?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "navigation_failed",
+    "reason_for_stop": "Navigation revealed unresolved required fields: Required questions need review: Describe a situation where you were given an ambiguous business problem (e.g., \"improve customer retention\"). How did you work with stakeholders and translate that request into a concrete data science project with clear steps and deliverables?.",
+    "captured_at": "2026-06-30T20:47:29.215346"
+  }
+]

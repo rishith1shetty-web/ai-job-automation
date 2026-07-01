@@ -1,0 +1,256 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "contact_page",
+    "page_hash": "251537a5335c60cba2eaefe3c480adc7bdccd581d3bfa74c9f4eb85a6cbda9e6",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.06,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "resume_page",
+    "page_hash": "0396fb147c27588c4212a86ae15d384bd66622b1217615ae08e40a3013b8b6f8",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.35,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "resume_page",
+    "page_hash": "0396fb147c27588c4212a86ae15d384bd66622b1217615ae08e40a3013b8b6f8",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.48,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "contact_page",
+    "page_hash": "251537a5335c60cba2eaefe3c480adc7bdccd581d3bfa74c9f4eb85a6cbda9e6",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.95,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "contact_page",
+    "page_hash": "251537a5335c60cba2eaefe3c480adc7bdccd581d3bfa74c9f4eb85a6cbda9e6",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 36.25,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "resume_page",
+    "page_hash": "dfd53721738fe4cac174ffcb0e38c97540f03064729dc33acca597e94071244b",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 44.07,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "resume_page",
+    "page_hash": "dfd53721738fe4cac174ffcb0e38c97540f03064729dc33acca597e94071244b",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 44.23,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Data Analyst | AARATECH | LinkedIn",
+    "modal_title": "Apply to AARATECH",
+    "detected_page_type": "screening_questions",
+    "page_hash": "5b4ebd184db208fbecca49065413ea6447a51dccac52a662cf7a0315c09d9740",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4434103860/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "How many years of work experience do you have with Databases?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "Do You Have a Green Card or US Citizen ?",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 51.52,
+    "stop_reason": "Navigation revealed unresolved required fields: How many years of work experience do you have with Microsoft Excel?, How many years of work experience do you have with SQL?, How many years of work experience do you have with Databases?, Do You Have a Green Card or US Citizen ?."
+  }
+]

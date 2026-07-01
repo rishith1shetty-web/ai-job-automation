@@ -1,0 +1,212 @@
+[
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 273,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Phone country code",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 274,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "Mobile phone number",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 275,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 273,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Phone country code",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 274,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "Mobile phone number",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 275,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Work Authorization",
+    "field_category": "Work Authorization",
+    "confidence": "Very Low",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Do you possess unrestricted, ongoing work authorization to work for any employer in the US without requiring current or future visa sponsorship or transfers?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Work Authorization",
+      "learning_reuse": {
+        "record_id": null,
+        "times_seen": 1,
+        "times_successful": null,
+        "times_failed": 1,
+        "confidence": "Very Low"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  }
+]

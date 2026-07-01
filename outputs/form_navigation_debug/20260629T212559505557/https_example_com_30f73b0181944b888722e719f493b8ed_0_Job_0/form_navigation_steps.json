@@ -1,0 +1,39 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260629T212559505557\\https_example_com_30f73b0181944b888722e719f493b8ed_0_Job_0\\step_01_01.png",
+    "page_title": "Fake LinkedIn Job",
+    "modal_title": "",
+    "visible_buttons": [],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "none",
+    "action_result": "stopped",
+    "reason_for_stop": "Resume upload missing",
+    "captured_at": "2026-06-29T21:25:59.521693"
+  }
+]

@@ -1,0 +1,73 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "detected_page_type": "validation_error",
+    "page_hash": "996070fbecabc511650bf1eb9bc57ce851929f1abe45d8cc14ae79e5ec8c8bcf",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431363379/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 22.42,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst Internship | ConnectPrep | LinkedIn",
+    "modal_title": "Apply to ConnectPrep",
+    "detected_page_type": "resume_page",
+    "page_hash": "71b4f807552fafb45f79ed6902a5ee705377c28d40b2c7e376ed79611208e939",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4431363379/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Cover letter",
+        "field_type": "textarea",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 33.09,
+    "stop_reason": "Navigation revealed unresolved required fields: Cover letter."
+  }
+]

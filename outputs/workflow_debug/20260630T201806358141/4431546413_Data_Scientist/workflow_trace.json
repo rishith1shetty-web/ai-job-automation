@@ -1,0 +1,127 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Scientist | PrideNow | LinkedIn",
+    "modal_title": "Apply to PrideNow",
+    "detected_page_type": "contact_page",
+    "page_hash": "d9d14ce65e3c5c2237bad0f2af284c9d383a5b71fcd769eb65e2b489fd4801f3",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431546413/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.16,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Scientist | PrideNow | LinkedIn",
+    "modal_title": "Apply to PrideNow",
+    "detected_page_type": "resume_page",
+    "page_hash": "702e6d312adea5e91f9f4ae284df86b38b51ac4bc8c656b581996026ef043c15",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4431546413/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.0,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Scientist | PrideNow | LinkedIn",
+    "modal_title": "Apply to PrideNow",
+    "detected_page_type": "resume_page",
+    "page_hash": "702e6d312adea5e91f9f4ae284df86b38b51ac4bc8c656b581996026ef043c15",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431546413/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.14,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Scientist | PrideNow | LinkedIn",
+    "modal_title": "Apply to PrideNow",
+    "detected_page_type": "employment_history",
+    "page_hash": "21c3485db19ed4b172cb28bceb90fe244c5291f359840152005544188a897030",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "employment_history",
+    "current_url": "https://www.linkedin.com/jobs/view/4431546413/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "All candidates considered for this opportunity must be available to attend an in-person, onsite meet-up in Tualatin, OR as part of the hiring process. Would you be able to attend? No online option.",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 34.62,
+    "stop_reason": "Navigation revealed unresolved required fields: All candidates considered for this opportunity must be available to attend an in-person, onsite meet-up in Tualatin, OR as part of the hiring process. Would you be able to attend? No online option.."
+  }
+]

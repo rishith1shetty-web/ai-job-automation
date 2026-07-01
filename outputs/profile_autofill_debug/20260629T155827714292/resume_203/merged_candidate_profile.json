@@ -1,0 +1,102 @@
+{
+  "email": "ava.shah@example.com",
+  "current_company": "Example Analytics",
+  "address": "Pune, Maharashtra, India",
+  "github_url": "https://github.com/avashah",
+  "portfolio_url": "https://avashah.dev",
+  "last_name": "Shah",
+  "current_location": "Pune, Maharashtra, India",
+  "first_name": "Ava",
+  "linkedin_url": "https://www.linkedin.com/in/avashah",
+  "mobile_phone": "+91 98765 43210",
+  "current_job_title": "Data Scientist",
+  "phone_country_code": "+91",
+  "professional_headline": "Data Scientist",
+  "previous_companies": [],
+  "certifications": [],
+  "professional_links": {
+    "github": {
+      "value": "https://github.com/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "linkedin": {
+      "value": "https://www.linkedin.com/in/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "portfolio": {
+      "value": "https://avashah.dev",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    }
+  },
+  "field_sources": {
+    "email": {
+      "source": "Resume Visible Text",
+      "confidence": 96.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "address": {
+      "source": "Resume Visible Text",
+      "confidence": 50.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "last_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "first_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "github_url": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "linkedin_url": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "mobile_phone": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "portfolio_url": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "current_company": {
+      "source": "Resume Visible Text",
+      "confidence": 58.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "current_location": {
+      "source": "Resume Visible Text",
+      "confidence": 62.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "current_job_title": {
+      "source": "Resume Visible Text",
+      "confidence": 70.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "phone_country_code": {
+      "source": "Resume Visible Text",
+      "confidence": 92.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    },
+    "professional_headline": {
+      "source": "Resume Visible Text",
+      "confidence": 65.0,
+      "updated_at": "2026-06-29T15:58:10.951622"
+    }
+  },
+  "missing_required_after_apply": []
+}

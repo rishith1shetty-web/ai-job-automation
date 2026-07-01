@@ -1,0 +1,16 @@
+[
+  {
+    "field_label": "Summary",
+    "field_key": "description",
+    "field_type": "textarea",
+    "required": false,
+    "existing_value_present": false,
+    "record_index": 0,
+    "original_value": null,
+    "mapped_value": null,
+    "source": "Employment History",
+    "confidence": 0,
+    "estimated": false,
+    "reason": "Mapped from extracted resume employment history."
+  }
+]

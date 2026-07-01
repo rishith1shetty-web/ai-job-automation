@@ -1,0 +1,68 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 7.82,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_session_validation",
+    "elapsed_ms": 0.14,
+    "metadata": {}
+  },
+  {
+    "stage": "role_skill_location_expansion",
+    "elapsed_ms": 0.69,
+    "metadata": {}
+  },
+  {
+    "stage": "duplicate_key_loading",
+    "elapsed_ms": 13.17,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 50512.37,
+    "metadata": {
+      "query": "Data Scientist",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 45140.93,
+    "metadata": {
+      "query": "Analytics Engineer OR Data Analyst OR Machine Learning Engineer OR Data Scientist OR BI Analyst",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 43454.96,
+    "metadata": {
+      "query": "Machine Learning Engineer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 46573.8,
+    "metadata": {
+      "query": "Analytics Engineer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "match_complexity_priority_scoring",
+    "elapsed_ms": 6.8,
+    "metadata": {
+      "job_count": 4
+    }
+  },
+  {
+    "stage": "database_batch_write",
+    "elapsed_ms": 8.94,
+    "metadata": {
+      "job_count": 4
+    }
+  }
+]

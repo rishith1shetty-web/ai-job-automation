@@ -1,0 +1,88 @@
+{
+  "fields": {
+    "email": {
+      "value": "ava.shah@example.com",
+      "source": "Resume Visible Text",
+      "confidence": 96
+    },
+    "mobile_phone": {
+      "value": "+91 98765 43210",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "phone_country_code": {
+      "value": "+91",
+      "source": "Resume Visible Text",
+      "confidence": 92
+    },
+    "linkedin_url": {
+      "value": "https://www.linkedin.com/in/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "github_url": {
+      "value": "https://github.com/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "portfolio_url": {
+      "value": "https://avashah.dev",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "first_name": {
+      "value": "Ava",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "last_name": {
+      "value": "Shah",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "current_location": {
+      "value": "Pune, Maharashtra, India",
+      "source": "Resume Visible Text",
+      "confidence": 62
+    },
+    "address": {
+      "value": "Pune, Maharashtra, India",
+      "source": "Resume Visible Text",
+      "confidence": 50
+    },
+    "current_job_title": {
+      "value": "Data Scientist",
+      "source": "Resume Visible Text",
+      "confidence": 70
+    },
+    "professional_headline": {
+      "value": "Data Scientist",
+      "source": "Resume Visible Text",
+      "confidence": 65
+    },
+    "current_company": {
+      "value": "Example Analytics",
+      "source": "Resume Visible Text",
+      "confidence": 58
+    }
+  },
+  "professional_links": {
+    "linkedin": {
+      "value": "https://www.linkedin.com/in/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "github": {
+      "value": "https://github.com/avashah",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "portfolio": {
+      "value": "https://avashah.dev",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    }
+  },
+  "previous_companies": [],
+  "certifications": []
+}

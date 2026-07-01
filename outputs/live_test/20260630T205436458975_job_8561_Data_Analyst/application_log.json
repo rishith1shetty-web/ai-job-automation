@@ -1,0 +1,30 @@
+{
+  "job_id": 8561,
+  "job_title": "Data Analyst",
+  "company": "AARATECH",
+  "job_url": "https://www.linkedin.com/jobs/view/4434103860/",
+  "application_date": "2026-06-30T20:54:40.283866",
+  "dry_run": true,
+  "current_step": "automation_failed",
+  "error": "Target page, context or browser has been closed\n=========================== logs ===========================\n\"load\" event fired\n============================================================",
+  "contact_fields_detected": [],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T20:54:36.463961",
+      "event": "initialized",
+      "detail": "Data Analyst at AARATECH"
+    },
+    {
+      "time": "2026-06-30T20:54:36.464958",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 2916, \"job_resume_id\": 2916, \"search_batch_id\": \"0ac663fc-6137-4a8b-93f4-69554fe4da1d\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T205436458975\\\\4434103860_Data_Analyst\"}"
+    },
+    {
+      "time": "2026-06-30T20:54:40.283866",
+      "event": "automation_failed",
+      "detail": "Target page, context or browser has been closed\n=========================== logs ===========================\n\"load\" event fired\n============================================================"
+    }
+  ]
+}

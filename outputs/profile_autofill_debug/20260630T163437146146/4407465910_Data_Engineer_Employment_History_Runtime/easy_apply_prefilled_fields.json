@@ -1,0 +1,89 @@
+{
+  "captured_at": "2026-06-30T16:35:43.246244",
+  "fields": [
+    {
+      "time": "2026-06-30T16:34:41.730272",
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T16:34:41.792392",
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T16:34:41.843161",
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T16:34:41.892545",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T16:34:41.932256",
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T16:35:32.948636",
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": false,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "rank": 1,
+    "title": "Data Analyst",
+    "company": "iConsultera",
+    "priority_score": 58.26,
+    "priority_reason": "10.2% match, Simple complexity, 92 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 2,
+    "title": "Data Analyst (Contract)",
+    "company": "VARITE INC",
+    "priority_score": 58.05,
+    "priority_reason": "9.6% match, Simple complexity, 92 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 3,
+    "title": "Data Science Engineer",
+    "company": "Colaberry",
+    "priority_score": 56.04,
+    "priority_reason": "9.6% match, Simple complexity, 82 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst OR BI Analyst OR Analytics Engineer OR Data Engineer OR Backend Developer"
+  },
+  {
+    "rank": 4,
+    "title": "Data Analyst (SQL / Python)",
+    "company": "$15/hr Remote",
+    "priority_score": 54.85,
+    "priority_reason": "15.1% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst OR BI Analyst OR Analytics Engineer OR Data Engineer OR Backend Developer"
+  },
+  {
+    "rank": 5,
+    "title": "Data Analyst / Data Scientist",
+    "company": "Weekday AI (YC W21)",
+    "priority_score": 53.63,
+    "priority_reason": "12.1% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 6,
+    "title": "Data Analyst (Excel)",
+    "company": "$55/hr Remote",
+    "priority_score": 53.49,
+    "priority_reason": "11.7% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 7,
+    "title": "Data Analyst & AI Research Intern",
+    "company": "THYNE",
+    "priority_score": 52.64,
+    "priority_reason": "9.6% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 8,
+    "title": "Data Analyst (HR Shared Service)",
+    "company": "Home Credit India",
+    "priority_score": 52.54,
+    "priority_reason": "9.3% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 9,
+    "title": "Data Analyst Intern - Quantitative Research",
+    "company": "Bybit",
+    "priority_score": 52.44,
+    "priority_reason": "9.1% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 10,
+    "title": "Business Analyst Intern",
+    "company": "ALLEN Digital",
+    "priority_score": 51.57,
+    "priority_reason": "6.9% match, Simple complexity, 65 freshness, Easy Apply verified.",
+    "search_query_used": "Junior Data Analyst"
+  }
+]

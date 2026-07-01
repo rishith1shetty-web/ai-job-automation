@@ -1,0 +1,123 @@
+{
+  "job_id": 6609,
+  "job_title": "Data Analyst (SQL / Python)",
+  "company": "$15/hr Remote",
+  "job_url": "https://www.linkedin.com/jobs/view/4415195129/",
+  "application_date": "2026-06-30T18:48:08.941793",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": false,
+      "existing_value_present": false
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T18:47:19.325439",
+      "event": "initialized",
+      "detail": "Data Analyst (SQL / Python) at $15/hr Remote"
+    },
+    {
+      "time": "2026-06-30T18:47:19.325439",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 591, \"job_resume_id\": 591, \"search_batch_id\": \"29da170b-547f-4c8f-b047-b09a129f1350\", \"resume_filename_from_database\": \"Jhanvi Patel New Data Analyst (2).pdf\", \"resume_original_filename\": \"Jhanvi Patel New Data Analyst (2).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf\", \"file_exists\": true, \"file_size\": 420661, \"file_hash_sha256\": \"66ca4fa91bf4f3c42bb1c31c7802ff07fd5d0c35c166fdf4da42db09caff0a55\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T184719309483\\\\4415195129_Data_Analyst_SQL_Python\"}"
+    },
+    {
+      "time": "2026-06-30T18:47:33.757185",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Data Analyst (SQL / Python) | $15/hr Remote | Crossing Hurdles | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4415195129/\", \"captured_at\": \"2026-06-30T18:47:33.757185\"}"
+    },
+    {
+      "time": "2026-06-30T18:47:33.961337",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4415195129\", \"job_url\": \"https://www.linkedin.com/jobs/view/4415195129/\"}"
+    },
+    {
+      "time": "2026-06-30T18:47:34.624372",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Follow\", \"I\\u2019m interested\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T18:47:37.175760",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4415195129/"
+    },
+    {
+      "time": "2026-06-30T18:47:47.025027",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T18:47:48.080810",
+      "event": "resume_uploaded",
+      "detail": "Jhanvi Patel New Data Analyst (2).pdf"
+    },
+    {
+      "time": "2026-06-30T18:47:48.080810",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 591, \"job_resume_id\": 591, \"search_batch_id\": \"29da170b-547f-4c8f-b047-b09a129f1350\", \"resume_filename_from_database\": \"Jhanvi Patel New Data Analyst (2).pdf\", \"resume_original_filename\": \"Jhanvi Patel New Data Analyst (2).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf\", \"file_exists\": true, \"file_size\": 420661, \"file_hash_sha256\": \"66ca4fa91bf4f3c42bb1c31c7802ff07fd5d0c35c166fdf4da42db09caff0a55\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf\", \"linkedin_filename_detected_after_upload\": \"Jhanvi Patel New Data Analyst (2).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T184719309483\\\\4415195129_Data_Analyst_SQL_Python\"}"
+    },
+    {
+      "time": "2026-06-30T18:47:56.634809",
+      "event": "form_page_processed",
+      "detail": "Page 2: Next"
+    },
+    {
+      "time": "2026-06-30T18:48:04.563075",
+      "event": "form_page_processed",
+      "detail": "Page 3: Next"
+    },
+    {
+      "time": "2026-06-30T18:48:07.393951",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"Your title\", \"field_key\": \"job_title\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"Company\", \"field_key\": \"company_name\", \"field_type\": \"text\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"I currently work here\", \"field_key\": \"currently_work_here\", \"field_type\": \"checkbox\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of From\", \"field_key\": \"start_month\", \"field_type\": \"select\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of From\", \"field_key\": \"start_year\", \"field_type\": \"select\", \"required\": true, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of To\", \"field_key\": \"end_month\", \"field_type\": \"select\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of To\", \"field_key\": \"end_year\", \"field_type\": \"select\", \"required\": true, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"required field 8\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Candidate Profile / Resume\", \"confidence\": 62, \"estimated\": false, \"reason\": \"Mapped employment location with profile/resume fallback.\"}, {\"field_label\": \"Description\", \"field_key\": \"description\", \"field_type\": \"textarea\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T18:48:07.906100",
+      "event": "needs_review",
+      "detail": "Required employment fields need review: Month of From, Month of To."
+    }
+  ]
+}

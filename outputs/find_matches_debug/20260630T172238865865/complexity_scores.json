@@ -1,0 +1,142 @@
+[
+  {
+    "title": "Entry Level Data/AI Engineer",
+    "company": "CCS Global Tech",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  },
+  {
+    "title": "Entry Level Data Analyst",
+    "company": "Emonics LLC",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Scientist",
+    "company": "Zest for Tech",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data & AI Engineer",
+    "company": "RevStar",
+    "complexity_score": 60.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 2,
+    "required_fields": 4,
+    "employment_history_required": false
+  },
+  {
+    "title": "Analytics Engineer",
+    "company": "GSD Search, LLC",
+    "complexity_score": 0.0,
+    "complexity_level": "Complex",
+    "estimated_steps": 4,
+    "screening_question_count": 2,
+    "required_fields": 9,
+    "employment_history_required": false
+  },
+  {
+    "title": "Marketing Data Scientist",
+    "company": "Zicasso",
+    "complexity_score": 46.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 3,
+    "screening_question_count": 4,
+    "required_fields": 6,
+    "employment_history_required": false
+  },
+  {
+    "title": "Machine Learning Engineer / Data Scientist",
+    "company": "Jobgether",
+    "complexity_score": 32.0,
+    "complexity_level": "Complex",
+    "estimated_steps": 3,
+    "screening_question_count": 4,
+    "required_fields": 7,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Engineer, Global Live",
+    "company": "TikTok",
+    "complexity_score": 58.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 2,
+    "required_fields": 4,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Engineer",
+    "company": "BeaconFire Inc.",
+    "complexity_score": 38.0,
+    "complexity_level": "Complex",
+    "estimated_steps": 4,
+    "screening_question_count": 8,
+    "required_fields": 9,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Scientist",
+    "company": "Arkhya Tech. Inc.",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Scientist",
+    "company": "Smith Arnold Partners",
+    "complexity_score": 70.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 2,
+    "employment_history_required": false
+  },
+  {
+    "title": "Entry-Level Python / AI Engineer [32869]",
+    "company": "Stealth Startup",
+    "complexity_score": 34.0,
+    "complexity_level": "Complex",
+    "estimated_steps": 3,
+    "screening_question_count": 6,
+    "required_fields": 8,
+    "employment_history_required": false
+  },
+  {
+    "title": "AI Engineer",
+    "company": "OPPO",
+    "complexity_score": 52.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 3,
+    "required_fields": 5,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Scientist/Machine Learning Engineer",
+    "company": "CATHEXIS",
+    "complexity_score": 46.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 3,
+    "screening_question_count": 4,
+    "required_fields": 6,
+    "employment_history_required": false
+  }
+]

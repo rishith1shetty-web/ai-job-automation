@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Senior Analytics Engineer",
+    "company": "MX",
+    "complexity_score": 56.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 3,
+    "screening_question_count": 5,
+    "required_fields": 6,
+    "employment_history_required": false
+  },
+  {
+    "title": "Machine Learning Engineer",
+    "company": "R\u00e9seau des Jeunes F\u00e9ministes d'Afrique Centrale -REJEFEMAC",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "captured_at": "2026-06-29T21:17:01.437211",
+  "fields": [
+    {
+      "time": "2026-06-29T21:17:01.182848",
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-29T21:17:01.237189",
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-29T21:17:01.302587",
+      "field_label": "required field 3",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-29T21:17:01.352911",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    }
+  ]
+}

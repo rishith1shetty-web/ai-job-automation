@@ -1,0 +1,97 @@
+{
+  "job_id": 10159,
+  "job_title": "Entry Level Data Analyst",
+  "company": "Emonics LLC",
+  "job_url": "https://www.linkedin.com/jobs/view/4432905086/",
+  "application_date": "2026-06-30T21:53:46.314478",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T21:52:30.925510",
+      "event": "initialized",
+      "detail": "Entry Level Data Analyst at Emonics LLC"
+    },
+    {
+      "time": "2026-06-30T21:52:30.925510",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3458, \"job_resume_id\": 3458, \"search_batch_id\": \"a4207b49-a0a0-4c26-a714-be72d072fc65\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T215230920523\\\\4432905086_Entry_Level_Data_Analyst\"}"
+    },
+    {
+      "time": "2026-06-30T21:52:45.312092",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Entry Level Data Analyst | Emonics LLC | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4432905086/\", \"captured_at\": \"2026-06-30T21:52:45.312092\"}"
+    },
+    {
+      "time": "2026-06-30T21:52:50.343095",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4432905086\", \"job_url\": \"https://www.linkedin.com/jobs/view/4432905086/\"}"
+    },
+    {
+      "time": "2026-06-30T21:53:05.580892",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T21:53:08.907938",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4432905086/"
+    },
+    {
+      "time": "2026-06-30T21:53:26.670834",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T21:53:27.455729",
+      "event": "resume_uploaded",
+      "detail": "Rishith_Shetty_Resume (1).pdf"
+    },
+    {
+      "time": "2026-06-30T21:53:27.455729",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3458, \"job_resume_id\": 3458, \"search_batch_id\": \"a4207b49-a0a0-4c26-a714-be72d072fc65\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"linkedin_filename_detected_after_upload\": \"Rishith_Shetty_Resume (1).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T215230920523\\\\4432905086_Entry_Level_Data_Analyst\"}"
+    },
+    {
+      "time": "2026-06-30T21:53:35.808428",
+      "event": "screening_questions_answered",
+      "detail": "[{\"answer\": \"1\", \"selected_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"currency\": null, \"reason\": \"Calculated years from resume dates tied to the skill.\", \"evidence\": {\"normalized_skill\": \"Excel\", \"selected_years\": 1, \"years\": 1, \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"found\": true, \"aggressive_default_used\": false, \"evidence_used\": \"Skill appeared near dated resume experience; calculated 1 year(s).\", \"reason\": \"Calculated years from resume dates tied to the skill.\"}, \"aggressive_default_used\": false, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"evidence_used\": true, \"reasoning_summary\": \"Calculated years from resume dates tied to the skill.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with Microsoft Excel?\", \"original_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"normalized_field\": \"Excel Years\", \"category\": \"skill_years\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"0\", \"selected_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"currency\": null, \"reason\": \"No evidence for SQL was found; Aggressive Mode selected 0.\", \"evidence\": {\"normalized_skill\": \"SQL\", \"selected_years\": null, \"years\": 0, \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"found\": false, \"aggressive_default_used\": true, \"evidence_used\": \"\", \"reason\": \"No evidence for SQL was found; Aggressive Mode selected 0.\"}, \"aggressive_default_used\": true, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": true, \"reasoning_summary\": \"No evidence for SQL was found; Aggressive Mode selected 0.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with SQL?\", \"original_label\": \"How many years of work experience do you have with SQL?\", \"normalized_field\": \"SQL Years\", \"category\": \"skill_years\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"2026\", \"selected_answer\": \"2026\", \"source\": \"Resume Education\", \"confidence\": \"High\", \"currency\": null, \"reason\": \"Graduation year was found in resume education text.\", \"evidence\": {\"graduation_year\": 2026, \"source\": \"resume.education/raw_text\"}, \"aggressive_default_used\": false, \"decision_stage\": \"evidence\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": \"2026\", \"source\": \"Resume Education\", \"confidence\": \"High\", \"evidence_used\": true, \"reasoning_summary\": \"Graduation year was found in resume education text.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"Please provide your graduation Year for your highest completed degree.\", \"original_label\": \"Please provide your graduation Year for your highest completed degree.\", \"normalized_field\": \"Graduation Year\", \"category\": \"graduation_year\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}]"
+    },
+    {
+      "time": "2026-06-30T21:53:37.850857",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with SQL?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 1, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T21:53:45.259208",
+      "event": "needs_review",
+      "detail": "Validation error: Please make a selection"
+    }
+  ]
+}

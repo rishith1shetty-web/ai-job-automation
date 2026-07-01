@@ -1,0 +1,208 @@
+{
+  "job_id": 2748,
+  "job_title": "Data Engineer Employment History Runtime Test",
+  "company": "Claroda",
+  "job_url": "https://www.linkedin.com/jobs/view/4407465910/",
+  "application_date": "2026-06-30T16:27:20.327870",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": false
+    },
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": false,
+      "existing_value_present": false
+    }
+  ],
+  "contact_fields_filled": [
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "value_source": "LinkedIn Easy Apply Header"
+    },
+    {
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "value_source": "Resume Visible Text"
+    }
+  ],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T16:25:43.112663",
+      "event": "initialized",
+      "detail": "Data Engineer Employment History Runtime Test at Claroda"
+    },
+    {
+      "time": "2026-06-30T16:25:43.112663",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 100, \"job_resume_id\": 100, \"search_batch_id\": null, \"resume_filename_from_database\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_original_filename\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"file_exists\": true, \"file_size\": 240361, \"file_hash_sha256\": \"318cd330ee14c6ef35c1048194a2abec40ac938f30765353edead57a1bf35aaa\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T162543112663\\\\4407465910_Data_Engineer_Employment_History_Runtime_Test\"}"
+    },
+    {
+      "time": "2026-06-30T16:25:58.531071",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Data Engineer | Claroda | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4407465910/\", \"captured_at\": \"2026-06-30T16:25:58.531071\"}"
+    },
+    {
+      "time": "2026-06-30T16:26:16.563400",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4407465910\", \"job_url\": \"https://www.linkedin.com/jobs/view/4407465910/\"}"
+    },
+    {
+      "time": "2026-06-30T16:26:17.165224",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T16:26:20.180937",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4407465910/"
+    },
+    {
+      "time": "2026-06-30T16:26:22.248068",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:26:38.983677",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T16:26:41.549165",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:26:49.738725",
+      "event": "form_page_processed",
+      "detail": "Page 2: Next"
+    },
+    {
+      "time": "2026-06-30T16:26:50.528847",
+      "event": "resume_uploaded",
+      "detail": "Vaishnavi_Shettys_Resume.pdf"
+    },
+    {
+      "time": "2026-06-30T16:26:50.528847",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 100, \"job_resume_id\": 100, \"search_batch_id\": null, \"resume_filename_from_database\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_original_filename\": \"Vaishnavi_Shettys_Resume.pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"file_exists\": true, \"file_size\": 240361, \"file_hash_sha256\": \"318cd330ee14c6ef35c1048194a2abec40ac938f30765353edead57a1bf35aaa\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\f0b0a3d3f9a941a58127a13877bed40b.pdf\", \"linkedin_filename_detected_after_upload\": \"Vaishnavi_Shettys_Resume.pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T162543112663\\\\4407465910_Data_Engineer_Employment_History_Runtime_Test\"}"
+    },
+    {
+      "time": "2026-06-30T16:26:51.937579",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:26:59.137381",
+      "event": "form_page_processed",
+      "detail": "Page 3: Next"
+    },
+    {
+      "time": "2026-06-30T16:27:00.089461",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:27:07.628349",
+      "event": "form_page_processed",
+      "detail": "Page 4: Next"
+    },
+    {
+      "time": "2026-06-30T16:27:11.184419",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"Your title\", \"field_key\": \"job_title\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"Company\", \"field_key\": \"company_name\", \"field_type\": \"text\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"I currently work here\", \"field_key\": \"currently_work_here\", \"field_type\": \"checkbox\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": true, \"source\": \"Employment History\", \"confidence\": 86.0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of From\", \"field_key\": \"start_month\", \"field_type\": \"select\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": \"January\", \"source\": \"Employment History\", \"confidence\": 86.0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of From\", \"field_key\": \"start_year\", \"field_type\": \"select\", \"required\": true, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": 2024, \"source\": \"Employment History\", \"confidence\": 86.0, \"estimated\": false, \"reason\": \"Mapped from extracted resume employment history.\"}, {\"field_label\": \"Month of To\", \"field_key\": \"end_month\", \"field_type\": \"select\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 86.0, \"estimated\": false, \"reason\": \"Current employer; end date intentionally left blank.\"}, {\"field_label\": \"Month of To\", \"field_key\": \"end_year\", \"field_type\": \"select\", \"required\": false, \"existing_value_present\": false, \"record_index\": 0, \"action\": \"missing_value\", \"success\": false, \"mapped_value\": null, \"source\": \"Employment History\", \"confidence\": 86.0, \"estimated\": false, \"reason\": \"Current employer; end date intentionally left blank.\"}, {\"field_label\": \"required field 8\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"Description\", \"field_key\": \"description\", \"field_type\": \"textarea\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T16:27:19.093171",
+      "event": "needs_review",
+      "detail": "Validation error: Please enter a valid answer"
+    }
+  ]
+}

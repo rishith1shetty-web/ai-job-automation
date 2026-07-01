@@ -1,0 +1,395 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.453363"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for SQL was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.481476"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Python Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.471429"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.483495"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for SQL was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.481476"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Python Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.471429"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.483495"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for SQL was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.463406"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.481476"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Python Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Calculated years from resume dates tied to the skill."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-06-30T21:50:08.471429"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.473445"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.483495"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Follow Stealth Startup to stay up to date with their page.' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-06-30T21:50:08.483495"
+      }
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "captured_at": "2026-06-29T20:14:18.635993",
+  "fields": [
+    {
+      "time": "2026-06-29T20:13:57.618310",
+      "field_label": "required field 2",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-29T20:13:57.684302",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    }
+  ]
+}

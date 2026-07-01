@@ -1,0 +1,22 @@
+{
+  "operation": "apply_top",
+  "metadata": {
+    "resume_id": 2306,
+    "limit": 10,
+    "dry_run": true
+  },
+  "total_runtime_ms": 94.81,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 3.63,
+  "average_apply_time_ms": 3.63,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "job_queue_loading",
+    "elapsed_ms": 82.11,
+    "metadata": {}
+  },
+  "created_at": "2026-06-30T18:59:34.359445"
+}

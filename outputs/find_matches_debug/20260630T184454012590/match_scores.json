@@ -1,0 +1,98 @@
+[
+  {
+    "title": "Data Analyst",
+    "company": "iConsultera",
+    "match_score": 10.16,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst (Contract)",
+    "company": "VARITE INC",
+    "match_score": 9.63,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Science Engineer",
+    "company": "Colaberry",
+    "match_score": 9.6,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst (SQL / Python)",
+    "company": "$15/hr Remote",
+    "match_score": 15.12,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 100.0,
+    "matched_skills": [
+      "sql",
+      "python",
+      "etl"
+    ],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst / Data Scientist",
+    "company": "Weekday AI (YC W21)",
+    "match_score": 12.07,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst (Excel)",
+    "company": "$55/hr Remote",
+    "match_score": 11.72,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 100.0,
+    "matched_skills": [
+      "excel"
+    ],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst & AI Research Intern",
+    "company": "THYNE",
+    "match_score": 9.6,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst (HR Shared Service)",
+    "company": "Home Credit India",
+    "match_score": 9.35,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Data Analyst Intern - Quantitative Research",
+    "company": "Bybit",
+    "match_score": 9.09,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  },
+  {
+    "title": "Business Analyst Intern",
+    "company": "ALLEN Digital",
+    "match_score": 6.93,
+    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization.",
+    "semantic_match_score": 0.0,
+    "matched_skills": [],
+    "missing_skills": []
+  }
+]

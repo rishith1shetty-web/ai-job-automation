@@ -1,0 +1,7 @@
+[
+  {
+    "field": "Mobile Phone",
+    "strategy": "enter_number_only",
+    "note": "Strategy only; value must come from unified decision pipeline."
+  }
+]

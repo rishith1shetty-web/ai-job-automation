@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 591,
+  "job_resume_id": 591,
+  "search_batch_id": "29da170b-547f-4c8f-b047-b09a129f1350",
+  "resume_filename_from_database": "Jhanvi Patel New Data Analyst (2).pdf",
+  "resume_original_filename": "Jhanvi Patel New Data Analyst (2).pdf",
+  "resume_storage_path": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf",
+  "file_exists": true,
+  "file_size": 420661,
+  "file_hash_sha256": "66ca4fa91bf4f3c42bb1c31c7802ff07fd5d0c35c166fdf4da42db09caff0a55",
+  "file_passed_to_playwright": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\7b2a8e8955f44f8c8c7d1872f15f502b.pdf",
+  "linkedin_filename_detected_after_upload": null,
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260630T184719309483\\4415195129_Data_Analyst_SQL_Python"
+}

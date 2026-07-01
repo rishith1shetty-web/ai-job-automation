@@ -1,0 +1,137 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Entry-Level Data & BI Consultant | PCS Global Tech | LinkedIn",
+    "modal_title": "Apply to PCS Global Tech",
+    "detected_page_type": "contact_page",
+    "page_hash": "efb5b485203d2de72754e4cd2139513df12ad309b60e43c6127556d55c82f244",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4414200967/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 21.17,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Entry-Level Data & BI Consultant | PCS Global Tech | LinkedIn",
+    "modal_title": "Apply to PCS Global Tech",
+    "detected_page_type": "resume_page",
+    "page_hash": "e022253a1d4b2cd6b29a787f8e35bb5753f071508665ec1ec59924cdd5f4184f",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4414200967/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 28.9,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Entry-Level Data & BI Consultant | PCS Global Tech | LinkedIn",
+    "modal_title": "Apply to PCS Global Tech",
+    "detected_page_type": "resume_page",
+    "page_hash": "e022253a1d4b2cd6b29a787f8e35bb5753f071508665ec1ec59924cdd5f4184f",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4414200967/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 29.03,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Entry-Level Data & BI Consultant | PCS Global Tech | LinkedIn",
+    "modal_title": "Apply to PCS Global Tech",
+    "detected_page_type": "contact_page",
+    "page_hash": "dab3204ae8ae49d765c3f77695d13eb4abaa3988be31702d9eb812af8dc1dbec",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4414200967/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Are you open to relocation within the United States for project placement?",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "Are you open to completing 10 weeks unpaid training before being placed on client projects?",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "Have you recently completed your Bachelor\u2019s or Master\u2019s degree in a STEM-related field (such as Computer Science, Business Analytics, Mathematics, or a similar discipline)?",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 37.79,
+    "stop_reason": "Navigation revealed unresolved required fields: Are you open to relocation within the United States for project placement?, Are you open to completing 10 weeks unpaid training before being placed on client projects?, Have you recently completed your Bachelor\u2019s or Master\u2019s degree in a STEM-related field (such as Computer Science, Business Analytics, Mathematics, or a similar discipline)?."
+  }
+]

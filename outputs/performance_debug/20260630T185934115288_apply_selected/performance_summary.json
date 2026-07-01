@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 2302,
+    "job_id": 6780,
+    "dry_run": true
+  },
+  "total_runtime_ms": 27.96,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 7.3,
+  "average_apply_time_ms": 7.3,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 19.61,
+    "metadata": {}
+  },
+  "created_at": "2026-06-30T18:59:34.146504"
+}

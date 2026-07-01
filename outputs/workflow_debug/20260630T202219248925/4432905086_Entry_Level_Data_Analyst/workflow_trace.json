@@ -1,0 +1,251 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "6d702a02face3c7a173a78b77783e02d51d5daa5d26fe856b0aa991ff652aad7",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.63,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "605e99a7c9d59bcdffcab8e690b09cb0dfeb8eef837f21a3c8af980e856f7a2a",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.56,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "605e99a7c9d59bcdffcab8e690b09cb0dfeb8eef837f21a3c8af980e856f7a2a",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.73,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "6d702a02face3c7a173a78b77783e02d51d5daa5d26fe856b0aa991ff652aad7",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.01,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "6d702a02face3c7a173a78b77783e02d51d5daa5d26fe856b0aa991ff652aad7",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.3,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "399612c0896712bbd8d91b737ac87a2369feb143ec69f73c60af9a0c681365bc",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 43.09,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "399612c0896712bbd8d91b737ac87a2369feb143ec69f73c60af9a0c681365bc",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 43.24,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "screening_questions",
+    "page_hash": "6cf237061ab9a301e59d2da296eec1c068c32070d5e1b5565c3bf080719ce4ab",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4432905086/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "Please provide your graduation Year for your highest completed degree.",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 50.37,
+    "stop_reason": "Navigation revealed unresolved required fields: How many years of work experience do you have with Microsoft Excel?, How many years of work experience do you have with SQL?, Please provide your graduation Year for your highest completed degree.."
+  }
+]

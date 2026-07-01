@@ -1,0 +1,20 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Microsoft Excel?",
+    "category": "skill_years",
+    "field_type": "text",
+    "options": []
+  },
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "category": "skill_years",
+    "field_type": "text",
+    "options": []
+  },
+  {
+    "question_text": "Please provide your graduation Year for your highest completed degree.",
+    "category": "education",
+    "field_type": "text",
+    "options": []
+  }
+]

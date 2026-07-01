@@ -1,0 +1,68 @@
+[
+  {
+    "question_text": "Annual salary expectations? (If you do not specify clearly, your application will not be reviewed/considered.)",
+    "category": "salary",
+    "field_type": "text",
+    "options": []
+  },
+  {
+    "question_text": "How many years have you worked with marketing teams on statistical analysis and experimentation? Could you share some examples of the kinds of projects or campaigns you supported?",
+    "category": "skill_years",
+    "field_type": "textarea",
+    "options": []
+  },
+  {
+    "question_text": "How many years of remote working experience do you have?",
+    "category": "skill_years",
+    "field_type": "text",
+    "options": []
+  },
+  {
+    "question_text": "Can you describe your experience working directly within or consulting for a marketing department? What types of challenges did you help solve?",
+    "category": "yes_no",
+    "field_type": "textarea",
+    "options": []
+  },
+  {
+    "question_text": "What is your proficiency level in English?",
+    "category": "yes_no",
+    "field_type": "select",
+    "options": [
+      "Native or bilingual proficiency",
+      "Full professional proficiency",
+      "Professional working proficiency",
+      "Limited working proficiency",
+      "Elementary proficiency"
+    ]
+  },
+  {
+    "question_text": "On a scale of 1 - 10, how would you rate your written English communications skills? And your verbal English skills? (1 = Beginner, 10 = Native speaker)",
+    "category": "salary",
+    "field_type": "text",
+    "options": []
+  },
+  {
+    "question_text": "Could you describe a key web marketing or business metric you successfully optimized in the past? How did you define or select this metric as the priority, and what data-driven approach did you use to improve it?",
+    "category": "yes_no",
+    "field_type": "textarea",
+    "options": []
+  },
+  {
+    "question_text": "Describe a time that you were able to effectively increase ROAS on Google Ads Spend and how you approached this?",
+    "category": "yes_no",
+    "field_type": "textarea",
+    "options": []
+  },
+  {
+    "question_text": "International travel is our business and our passion. How many countries have you visited? If you too have a passion for international travel, we\u2019d love to learn more about it here:",
+    "category": "years",
+    "field_type": "textarea",
+    "options": []
+  },
+  {
+    "question_text": "If hired, how soon can you start?",
+    "category": "yes_no",
+    "field_type": "text",
+    "options": []
+  }
+]

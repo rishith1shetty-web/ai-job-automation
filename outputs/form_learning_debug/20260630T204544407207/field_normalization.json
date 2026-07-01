@@ -1,0 +1,62 @@
+[
+  {
+    "original_label": "First name",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Last name",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Degree",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "What are your base salary expectations?",
+    "normalized_field": "Salary"
+  },
+  {
+    "original_label": "If you were referred by an employee, please indicate who.",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Please indicate your relationship to your referral (if applicable).",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Which of the following office work arrangements are you willing to consider?",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  }
+]

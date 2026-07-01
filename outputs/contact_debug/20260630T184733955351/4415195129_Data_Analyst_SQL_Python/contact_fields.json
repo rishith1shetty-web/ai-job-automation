@@ -1,0 +1,135 @@
+{
+  "captured_at": "2026-06-30T18:48:06.477144",
+  "events": [
+    {
+      "time": "2026-06-30T18:47:38.722154",
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T18:47:38.774249",
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T18:47:38.826047",
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T18:47:38.876615",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T18:47:38.928754",
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-06-30T18:48:06.433795",
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": false,
+      "existing_value_present": false,
+      "value_source": null,
+      "value_found": null,
+      "reason": "No city/location was available in Candidate Profile or resume extraction.",
+      "action": "missing_candidate_profile_value",
+      "success": false,
+      "error": null
+    }
+  ],
+  "contact_fields_detected": [
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 8",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": false,
+      "existing_value_present": false
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": []
+}

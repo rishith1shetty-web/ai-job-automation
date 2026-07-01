@@ -1,0 +1,45 @@
+{
+  "job_id": 8565,
+  "job_title": "Data Scientist",
+  "company": "PrideNow",
+  "job_url": "https://www.linkedin.com/jobs/view/4431546413/",
+  "application_date": "2026-06-30T20:54:22.320601",
+  "dry_run": true,
+  "current_step": "easy_apply_unavailable",
+  "error": null,
+  "contact_fields_detected": [],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T20:54:03.387622",
+      "event": "initialized",
+      "detail": "Data Scientist at PrideNow"
+    },
+    {
+      "time": "2026-06-30T20:54:03.387622",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 2916, \"job_resume_id\": 2916, \"search_batch_id\": \"0ac663fc-6137-4a8b-93f4-69554fe4da1d\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T205403370865\\\\4431546413_Data_Scientist\"}"
+    },
+    {
+      "time": "2026-06-30T20:54:16.468550",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"PrideNow hiring Data Scientist in Tualatin, OR | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4431546413/\", \"captured_at\": \"2026-06-30T20:54:16.468550\"}"
+    },
+    {
+      "time": "2026-06-30T20:54:16.838402",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4431546413\", \"job_url\": \"https://www.linkedin.com/jobs/view/4431546413/\"}"
+    },
+    {
+      "time": "2026-06-30T20:54:22.026160",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Jobs\", \"Clear text\", \"Apply\", \"Show more\", \"Show more jobs like this\", \"More searches\", \"Language\", \"Sign in with Email\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"easy_apply_control_missing\", \"EASY_APPLY_MISMATCH\": true}"
+    },
+    {
+      "time": "2026-06-30T20:54:22.026160",
+      "event": "easy_apply_unavailable",
+      "detail": "Job was marked Easy Apply, but no supported Easy Apply control was found after page readiness checks."
+    }
+  ]
+}

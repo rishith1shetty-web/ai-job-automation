@@ -1,0 +1,122 @@
+[
+  {
+    "field": "First name",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Last name",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 6",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 8",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 6",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 6",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 6",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "required field 6",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Your title",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Company",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "I currently work here",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": "Mapped from extracted resume employment history."
+  },
+  {
+    "field": "Month of From",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": "Mapped from extracted resume employment history."
+  },
+  {
+    "field": "Month of From",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": "Mapped from extracted resume employment history."
+  },
+  {
+    "field": "Month of To",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": "Mapped from extracted resume employment history."
+  },
+  {
+    "field": "Month of To",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": "Mapped from extracted resume employment history."
+  },
+  {
+    "field": "required field 8",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Description",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  }
+]

@@ -1,0 +1,149 @@
+{
+  "job_id": 10163,
+  "job_title": "Operations Data Analyst",
+  "company": "Lantern",
+  "job_url": "https://www.linkedin.com/jobs/view/4429724187/",
+  "application_date": "2026-06-30T21:52:30.493606",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": false
+    }
+  ],
+  "contact_fields_filled": [
+    {
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "value_source": "LinkedIn Easy Apply Header"
+    }
+  ],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T21:51:30.140024",
+      "event": "initialized",
+      "detail": "Operations Data Analyst at Lantern"
+    },
+    {
+      "time": "2026-06-30T21:51:30.140024",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3458, \"job_resume_id\": 3458, \"search_batch_id\": \"a4207b49-a0a0-4c26-a714-be72d072fc65\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T215130134043\\\\4429724187_Operations_Data_Analyst\"}"
+    },
+    {
+      "time": "2026-06-30T21:51:43.986420",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Operations Data Analyst | Lantern | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4429724187/\", \"captured_at\": \"2026-06-30T21:51:43.986420\"}"
+    },
+    {
+      "time": "2026-06-30T21:51:44.142610",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4429724187\", \"job_url\": \"https://www.linkedin.com/jobs/view/4429724187/\"}"
+    },
+    {
+      "time": "2026-06-30T21:51:44.651864",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Follow\", \"I\\u2019m interested\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T21:51:47.388309",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4429724187/"
+    },
+    {
+      "time": "2026-06-30T21:51:50.044997",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": \"Mumbai, Maharashtra, India\", \"source\": \"LinkedIn Easy Apply Header\", \"confidence\": 85, \"estimated\": false, \"reason\": \"Mapped employment location from LinkedIn modal header.\"}]"
+    },
+    {
+      "time": "2026-06-30T21:51:58.410760",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T21:51:59.407268",
+      "event": "resume_uploaded",
+      "detail": "Rishith_Shetty_Resume (1).pdf"
+    },
+    {
+      "time": "2026-06-30T21:51:59.407268",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3458, \"job_resume_id\": 3458, \"search_batch_id\": \"a4207b49-a0a0-4c26-a714-be72d072fc65\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\2edea735d93f48d7929146b86f75bf94.pdf\", \"linkedin_filename_detected_after_upload\": \"Rishith_Shetty_Resume (1).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T215130134043\\\\4429724187_Operations_Data_Analyst\"}"
+    },
+    {
+      "time": "2026-06-30T21:52:00.906611",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": \"Mumbai, Maharashtra, India\", \"source\": \"LinkedIn Easy Apply Header\", \"confidence\": 85, \"estimated\": false, \"reason\": \"Mapped employment location from LinkedIn modal header.\"}]"
+    },
+    {
+      "time": "2026-06-30T21:52:08.427398",
+      "event": "screening_questions_answered",
+      "detail": "[{\"answer\": \"Yes\", \"selected_answer\": \"Yes\", \"source\": \"Resume Evidence\", \"confidence\": \"Medium\", \"currency\": null, \"reason\": \"Resume/profile evidence supports Yes.\", \"evidence\": {}, \"aggressive_default_used\": false, \"decision_stage\": \"fallback\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"fallback\", \"candidate_answer\": \"Yes\", \"source\": \"Resume Evidence\", \"confidence\": \"Medium\", \"evidence_used\": false, \"reasoning_summary\": \"Resume/profile evidence supports Yes.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"Degree\", \"original_label\": \"Degree\", \"normalized_field\": \"Education Requirement\", \"category\": \"education\", \"field_type\": \"select\", \"detected_control_type\": \"dropdown\", \"options\": [\"High School\", \"Associate's Degree\", \"Bachelor's Degree\", \"Master's Degree\", \"Master of Business Administration (M.B.A.)\", \"Juris Doctor (J.D.)\", \"Doctor of Medicine (M.D.)\", \"Doctor of Philosophy (Ph.D.)\", \"Engineer's Degree\", \"Other\"], \"mode\": \"Aggressive\"}]"
+    },
+    {
+      "time": "2026-06-30T21:52:09.947526",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": \"Mumbai, Maharashtra, India\", \"source\": \"LinkedIn Easy Apply Header\", \"confidence\": 85, \"estimated\": false, \"reason\": \"Mapped employment location from LinkedIn modal header.\"}]"
+    },
+    {
+      "time": "2026-06-30T21:52:17.348934",
+      "event": "form_page_processed",
+      "detail": "Page 3: Next"
+    },
+    {
+      "time": "2026-06-30T21:52:20.075215",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"required field 6\", \"field_key\": \"location\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"filled\", \"success\": true, \"mapped_value\": \"Mumbai, Maharashtra, India\", \"source\": \"LinkedIn Easy Apply Header\", \"confidence\": 85, \"estimated\": false, \"reason\": \"Mapped employment location from LinkedIn modal header.\"}]"
+    },
+    {
+      "time": "2026-06-30T21:52:28.408932",
+      "event": "screening_questions_answered",
+      "detail": "[{\"answer\": \"85000\", \"selected_answer\": \"85000\", \"source\": \"AI Estimated Salary\", \"confidence\": \"Estimated / Low\", \"currency\": \"USD\", \"reason\": \"No explicit salary found. Value estimated from resume, role, location, experience, and job context.\", \"evidence\": {\"answer\": \"85000\", \"currency\": \"USD\", \"estimated_base\": 85000, \"candidate_years\": 0, \"job_title\": \"Operations Data Analyst\", \"job_location\": \"Dallas, TX \\u00b7 1 week ago \\u00b7 Over 100 applicants\", \"work_type\": \"hybrid\"}, \"aggressive_default_used\": true, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"85000\", \"source\": \"AI Estimated Salary\", \"confidence\": \"Estimated / Low\", \"evidence_used\": true, \"reasoning_summary\": \"No explicit salary found. Value estimated from resume, role, location, experience, and job context.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"What are your base salary expectations?\", \"original_label\": \"What are your base salary expectations?\", \"normalized_field\": \"Salary\", \"category\": \"salary\", \"field_type\": \"select\", \"detected_control_type\": \"dropdown\", \"options\": [\"$60,000-69,000\", \"$70,000-79,000\", \"$80,000-89,000\", \"$90,000-99,000\", \"$100,000-109,000\", \">$110,000\"], \"mode\": \"Aggressive\"}, {\"answer\": \"No\", \"selected_answer\": \"No\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"currency\": null, \"reason\": \"No supporting evidence found; Aggressive Mode selected No.\", \"evidence\": {}, \"aggressive_default_used\": true, \"decision_stage\": \"fallback\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"fallback\", \"candidate_answer\": \"No\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": false, \"reasoning_summary\": \"No supporting evidence found; Aggressive Mode selected No.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"If you were referred by an employee, please indicate who.\", \"original_label\": \"If you were referred by an employee, please indicate who.\", \"normalized_field\": \"If you were referred by an employee, please indicate who.\", \"category\": \"yes_no\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"No\", \"selected_answer\": \"No\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"currency\": null, \"reason\": \"No supporting evidence found; Aggressive Mode selected No.\", \"evidence\": {}, \"aggressive_default_used\": true, \"decision_stage\": \"fallback\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"fallback\", \"candidate_answer\": \"No\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": false, \"reasoning_summary\": \"No supporting evidence found; Aggressive Mode selected No.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"Please indicate your relationship to your referral (if applicable).\", \"original_label\": \"Please indicate your relationship to your referral (if applicable).\", \"normalized_field\": \"Please indicate your relationship to your referral (if applicable).\", \"category\": \"yes_no\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"Yes\", \"selected_answer\": \"Yes\", \"source\": \"Resume Evidence\", \"confidence\": \"Medium\", \"currency\": null, \"reason\": \"Resume/profile evidence supports Yes.\", \"evidence\": {}, \"aggressive_default_used\": false, \"decision_stage\": \"fallback\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"fallback\", \"candidate_answer\": \"Yes\", \"source\": \"Resume Evidence\", \"confidence\": \"Medium\", \"evidence_used\": false, \"reasoning_summary\": \"Resume/profile evidence supports Yes.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"Which of the following office work arrangements are you willing to consider?\", \"original_label\": \"Which of the following office work arrangements are you willing to consider?\", \"normalized_field\": \"Which of the following office work arrangements are you willing to consider?\", \"category\": \"yes_no\", \"field_type\": \"select\", \"detected_control_type\": \"dropdown\", \"options\": [\"I'm local to Dallas & will work fully onsite or hybrid (3x week onsite)\", \"I'm local to Dallas but only looking for hybrid (3x week onsite)\", \"I am not local to Dallas but willing to relocate on my own\", \"I am not local to Dallas and seeking a remote role\"], \"mode\": \"Aggressive\"}]"
+    },
+    {
+      "time": "2026-06-30T21:52:29.032522",
+      "event": "needs_review",
+      "detail": "Navigation revealed unresolved required fields: Required questions need review: Are you comfortable with the location requirements for this role?."
+    }
+  ]
+}

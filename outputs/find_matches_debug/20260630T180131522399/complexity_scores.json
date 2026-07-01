@@ -1,0 +1,42 @@
+[
+  {
+    "title": "junior data scientist/java backend developer",
+    "company": "SynergisticIT",
+    "complexity_score": 70.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 2,
+    "employment_history_required": false
+  },
+  {
+    "title": "Junior Data Analyst",
+    "company": "Helic & Co",
+    "complexity_score": 74.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 2,
+    "required_fields": 3,
+    "employment_history_required": false
+  },
+  {
+    "title": "Sr. Data Analytics Engineer",
+    "company": "Jobgether",
+    "complexity_score": 58.0,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 2,
+    "required_fields": 4,
+    "employment_history_required": false
+  },
+  {
+    "title": "Data Analys",
+    "company": "Vanguardia",
+    "complexity_score": 86.0,
+    "complexity_level": "Simple",
+    "estimated_steps": 1,
+    "screening_question_count": 0,
+    "required_fields": 1,
+    "employment_history_required": false
+  }
+]

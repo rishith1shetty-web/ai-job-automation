@@ -1,0 +1,106 @@
+{
+  "job_id": 9246,
+  "job_title": "Data Entry Analyst",
+  "company": "airwar.ai",
+  "job_url": "https://www.linkedin.com/jobs/view/4431984132/",
+  "final_url": "https://www.linkedin.com/jobs/view/4431984132/",
+  "recorded_easy_apply": true,
+  "readiness": {
+    "domcontentloaded": true,
+    "networkidle": false,
+    "main_content": true,
+    "final_url": "https://www.linkedin.com/jobs/view/4431984132/"
+  },
+  "visible_button_texts": [
+    "Skip to main content",
+    "Skip to primary content",
+    "Skip to aside",
+    "Skip to footer",
+    "Home",
+    "Me",
+    "For Business",
+    "\u2026 more",
+    "Messaging\nYou are on the messaging overlay. Press enter to open the list of conversations.",
+    "Compose message",
+    "You are on the messaging overlay. Press enter to open the list of conversations."
+  ],
+  "selector_results": [
+    {
+      "name": "css_button_has_text_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "aria_label_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "linkedin_inapply_control",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_apply_now",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_apply",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_submit_application",
+      "count": 0,
+      "explicit_easy_apply": false
+    }
+  ],
+  "exact_selector_matches": [
+    {
+      "selector": "button:has-text(\"Easy Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply now\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Submit application\")",
+      "count": 0
+    }
+  ],
+  "external_apply_links": [],
+  "classification": "easy_apply_control_missing",
+  "reason": "Job was marked Easy Apply, but no supported Easy Apply control was found after page readiness checks.",
+  "captured_at": "2026-06-30T20:47:57.052044",
+  "retry_after_reload": {
+    "attempted": true,
+    "first_classification": "easy_apply_control_missing",
+    "first_reason": "Job was marked Easy Apply, but no supported Easy Apply control was found after page readiness checks.",
+    "first_page_title": "Data Entry Analyst | airwar.ai | LinkedIn"
+  },
+  "linkedin_job_id": "4431984132",
+  "phase": "application",
+  "search_phase_easy_apply_result": true,
+  "application_phase_easy_apply_result": false,
+  "EASY_APPLY_MISMATCH": true,
+  "navigation_events": [
+    {
+      "event": "application_job_navigation",
+      "page_title": "Data Entry Analyst | airwar.ai | LinkedIn",
+      "current_url": "https://www.linkedin.com/jobs/view/4431984132/",
+      "captured_at": "2026-06-30T20:47:43.796294"
+    }
+  ],
+  "failure_reason": "Job was marked Easy Apply, but no supported Easy Apply control was found after page readiness checks."
+}

@@ -1,0 +1,39 @@
+[
+  {
+    "stage": "linkedin_session_validation",
+    "elapsed_ms": 0.09,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {
+      "query": "Backend Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {
+      "query": "Python Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {
+      "query": "FastAPI Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {
+      "query": "API Developer",
+      "location": "United States"
+    }
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "profile_available": true,
+  "fields": {
+    "first_name": {
+      "value": "Rishith",
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "last_name": {
+      "value": "Analyst",
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "email": {
+      "value": "rishith1shetty@gmail.com",
+      "source": "Resume Visible Text",
+      "confidence": 96.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "mobile_phone": {
+      "value": "+91 9136010355",
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "phone_country_code": {
+      "value": "+91",
+      "source": "Resume Visible Text",
+      "confidence": 92.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "current_location": {
+      "value": null
+    },
+    "linkedin_url": {
+      "value": null
+    },
+    "portfolio_url": {
+      "value": null
+    },
+    "github_url": {
+      "value": null
+    },
+    "address": {
+      "value": null
+    },
+    "current_job_title": {
+      "value": "Data Analyst",
+      "source": "Resume Visible Text",
+      "confidence": 70.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "professional_headline": {
+      "value": "Data Analyst",
+      "source": "Resume Visible Text",
+      "confidence": 65.0,
+      "updated_at": "2026-06-30T20:03:47.425933"
+    },
+    "current_company": {
+      "value": null
+    }
+  },
+  "professional_links": {},
+  "previous_companies": [],
+  "certifications": [
+    ": Google Data Analytics Professional Certificate, Coursera (2023) Languages: English, Tulu, Hindi PROFESSIONAL EXPERIENCE Rallis India Ltd. (Tata Group), Mumbai, India Mar 2025 - May 2025 Data Analytics Intern",
+    "Processed, cleaned, and organized business data using Microsoft Excel, ensuring accuracy and consistency across operational datasets.",
+    "Supported the creation and maintenance of Power BI reports, helping visualize key data points for internal business reporting.",
+    "Performed data formatting and validation in Excel to identify and correct inconsistencies prior to reporting.",
+    "Assisted in uploading and maintaining datasets in company systems, supporting day-to-day data management and report preparation."
+  ]
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "field_label": "Please select your total years of professional experience:",
+    "field_key": "total_experience_years",
+    "field_type": "select",
+    "required": true,
+    "existing_value_present": false,
+    "record_index": 0,
+    "original_value": null,
+    "mapped_value": 4,
+    "source": "Employment History",
+    "confidence": 80,
+    "estimated": false,
+    "reason": "Calculated total professional experience from extracted employment history durations."
+  },
+  {
+    "field_label": "Please select your total additional months of experience:",
+    "field_key": "total_experience_months",
+    "field_type": "select",
+    "required": true,
+    "existing_value_present": false,
+    "record_index": 0,
+    "original_value": null,
+    "mapped_value": 0,
+    "source": "Employment History",
+    "confidence": 80,
+    "estimated": false,
+    "reason": "Calculated total professional experience from extracted employment history durations."
+  }
+]

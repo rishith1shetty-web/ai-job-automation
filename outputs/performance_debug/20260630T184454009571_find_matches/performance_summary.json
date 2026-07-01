@@ -1,0 +1,24 @@
+{
+  "operation": "find_matches",
+  "metadata": {
+    "resume_id": 591,
+    "location": "India",
+    "limit": 15
+  },
+  "total_runtime_ms": 113517.68,
+  "stage_count": 8,
+  "cache_hits": 0,
+  "cache_misses": 1,
+  "average_page_load_ms": 56542.03,
+  "average_apply_time_ms": 0,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 113083.96,
+    "metadata": {
+      "query_count": 4
+    }
+  },
+  "created_at": "2026-06-30T18:46:47.528024"
+}

@@ -1,0 +1,49 @@
+[
+  {},
+  {
+    "answer": "97749",
+    "currency": "USD",
+    "estimated_base": 97749,
+    "candidate_years": 0,
+    "job_title": "Marketing Data Scientist",
+    "job_location": "United States \u00b7 2 weeks ago \u00b7 Over 100 applicants",
+    "work_type": "remote"
+  },
+  {
+    "normalized_skill": "marketing teams on statistical analysis a",
+    "selected_years": null,
+    "years": 0,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "found": false,
+    "aggressive_default_used": true,
+    "evidence_used": "",
+    "reason": "No evidence for marketing teams on statistical analysis a was found; Aggressive Mode selected 0."
+  },
+  {
+    "normalized_skill": "remote working",
+    "selected_years": null,
+    "years": 0,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "found": false,
+    "aggressive_default_used": true,
+    "evidence_used": "",
+    "reason": "No evidence for remote working was found; Aggressive Mode selected 0."
+  },
+  {},
+  {},
+  {
+    "answer": "97749",
+    "currency": "USD",
+    "estimated_base": 97749,
+    "candidate_years": 0,
+    "job_title": "Marketing Data Scientist",
+    "job_location": "United States \u00b7 2 weeks ago \u00b7 Over 100 applicants",
+    "work_type": "remote"
+  },
+  {},
+  {},
+  {},
+  {}
+]

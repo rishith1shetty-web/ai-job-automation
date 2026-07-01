@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 3148,
+  "job_resume_id": 3148,
+  "search_batch_id": "c8ffbb88-af63-4fa0-bcbf-abdcc8d2838e",
+  "resume_filename_from_database": "Rishith_Shetty_Resume (1).pdf",
+  "resume_original_filename": "Rishith_Shetty_Resume (1).pdf",
+  "resume_storage_path": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\96a86bfdff34400aaf721d6e51218576.pdf",
+  "file_exists": true,
+  "file_size": 482166,
+  "file_hash_sha256": "d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7",
+  "file_passed_to_playwright": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\96a86bfdff34400aaf721d6e51218576.pdf",
+  "linkedin_filename_detected_after_upload": "Rishith_Shetty_Resume (1).pdf",
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260630T204259776694\\4430690585_Data_Analyst_Intern"
+}

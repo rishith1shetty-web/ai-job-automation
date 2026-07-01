@@ -1,0 +1,70 @@
+[
+  {
+    "original_label": "Cover letter",
+    "normalized_field": "Cover letter",
+    "detected_control_type": "textarea",
+    "category": "yes_no",
+    "decision_pipeline_stage_used": "fallback",
+    "selected_value": "No",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "fallback",
+        "candidate_answer": "No",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": false,
+        "reasoning_summary": "No supporting evidence found; Aggressive Mode selected No.",
+        "selected": true
+      }
+    ]
+  }
+]

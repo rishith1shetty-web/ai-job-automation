@@ -1,0 +1,23 @@
+[
+  {
+    "normalized_field": "Mobile Phone",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null
+  },
+  {
+    "normalized_field": "Company",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null
+  }
+]

@@ -1,0 +1,21 @@
+[
+  {
+    "answer": "No",
+    "selected_answer": "No",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No supporting evidence found; Aggressive Mode selected No.",
+    "evidence": {},
+    "aggressive_default_used": true,
+    "filled_successfully": true,
+    "question_text": "Do you have data analysis experience with an E-Commerce company?",
+    "category": "yes_no",
+    "field_type": "select",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "mode": "Aggressive"
+  }
+]

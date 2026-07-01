@@ -1,0 +1,18 @@
+[
+  {
+    "question_text": "Month of From",
+    "answer": "Yes",
+    "source": "Resume Evidence",
+    "confidence": "Medium",
+    "currency": null,
+    "reason": "Resume/profile evidence supports Yes."
+  },
+  {
+    "question_text": "Month of To",
+    "answer": "Yes",
+    "source": "Resume Evidence",
+    "confidence": "Medium",
+    "currency": null,
+    "reason": "Resume/profile evidence supports Yes."
+  }
+]

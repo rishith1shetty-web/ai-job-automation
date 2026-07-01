@@ -1,0 +1,27 @@
+{
+  "linkedin_job_id": "4431559079",
+  "job_url": "https://www.linkedin.com/jobs/view/4431559079/",
+  "phase": "search_card_click",
+  "card_attributes_before_click": {
+    "class": "ember-view   zKVPvETHzhPQhWFnKkmspcdOTsYYZyFtFgpcnrc occludable-update p0 relative scaffold-layout__list-item",
+    "aria_current": null,
+    "data_job_id": "4431559079"
+  },
+  "selected_job_card_active_after_click": false,
+  "opening_mode": "in_place_details_panel",
+  "navigation_events": [
+    {
+      "event": "before_job_card_click",
+      "page_title": "(4) Machine Learning Engineer Jobs in United States | LinkedIn",
+      "current_url": "https://www.linkedin.com/jobs/search/?currentJobId=4378609243&f_AL=true&keywords=Machine%20Learning%20Engineer&location=United%20States",
+      "captured_at": "2026-06-30T17:18:51.807544"
+    },
+    {
+      "event": "after_job_card_click",
+      "page_title": "(4) Machine Learning Engineer Jobs in United States | LinkedIn",
+      "current_url": "https://www.linkedin.com/jobs/search/?currentJobId=4431559079&f_AL=true&keywords=Machine%20Learning%20Engineer&location=United%20States",
+      "captured_at": "2026-06-30T17:18:53.639453"
+    }
+  ],
+  "captured_at": "2026-06-30T17:18:54.136540"
+}

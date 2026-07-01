@@ -1,0 +1,107 @@
+{
+  "linkedin_job_id": "4432692027",
+  "job_url": "https://www.linkedin.com/jobs/view/4432692027/",
+  "phase": "search",
+  "card_attributes_before_click": {
+    "class": "ember-view   zKVPvETHzhPQhWFnKkmspcdOTsYYZyFtFgpcnrc occludable-update p0 relative scaffold-layout__list-item",
+    "aria_current": null,
+    "data_job_id": "4432692027"
+  },
+  "selected_job_card_active_after_click": false,
+  "opening_mode": "in_place_details_panel",
+  "navigation_events": [
+    {
+      "event": "search_job_details_navigation",
+      "page_title": "Data Engineer, Global Live | TikTok | LinkedIn",
+      "current_url": "https://www.linkedin.com/jobs/view/4432692027/",
+      "captured_at": "2026-06-30T17:26:36.468703"
+    }
+  ],
+  "captured_at": "2026-06-30T17:26:36.468703",
+  "job_id": 0,
+  "job_title": "Data Engineer, Global Live",
+  "company": "TikTok",
+  "final_url": "https://www.linkedin.com/jobs/view/4432692027/",
+  "recorded_easy_apply": false,
+  "readiness": {
+    "domcontentloaded": true,
+    "networkidle": false,
+    "main_content": true,
+    "final_url": "https://www.linkedin.com/jobs/view/4432692027/"
+  },
+  "visible_button_texts": [
+    "Skip to main content",
+    "Skip to primary content",
+    "Skip to aside",
+    "Skip to footer",
+    "Home",
+    "Me",
+    "For Business",
+    "Save",
+    "\u2026 more",
+    "Follow",
+    "I\u2019m interested"
+  ],
+  "selector_results": [
+    {
+      "name": "css_button_has_text_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "aria_label_easy_apply",
+      "count": 1,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "linkedin_inapply_control",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_apply_now",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_apply",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_submit_application",
+      "count": 0,
+      "explicit_easy_apply": false
+    }
+  ],
+  "exact_selector_matches": [
+    {
+      "selector": "button:has-text(\"Easy Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply now\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Submit application\")",
+      "count": 0
+    }
+  ],
+  "external_apply_links": [],
+  "classification": "linkedin_easy_apply",
+  "reason": "Confirmed LinkedIn Easy Apply control.",
+  "search_phase_easy_apply_result": true,
+  "application_phase_easy_apply_result": null,
+  "EASY_APPLY_MISMATCH": false,
+  "failure_reason": null
+}

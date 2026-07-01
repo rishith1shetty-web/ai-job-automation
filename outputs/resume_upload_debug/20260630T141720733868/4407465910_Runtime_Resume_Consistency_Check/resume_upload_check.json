@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 454,
+  "job_resume_id": 454,
+  "search_batch_id": null,
+  "resume_filename_from_database": "runtime_unique_resume_20260630101620.txt",
+  "resume_original_filename": "runtime_unique_resume_20260630101620.txt",
+  "resume_storage_path": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\2dc4d802deb14ed5903ccd7f8f62a197.txt",
+  "file_exists": true,
+  "file_size": 313,
+  "file_hash_sha256": "dc77bedc8f522fde4c7365355db50e1766966dee0499c65300a1eef4911bf091",
+  "file_passed_to_playwright": "C:\\Users\\DELL\\Documents\\Codex\\2026-06-23\\build-a-python-application-that-allows\\storage\\uploads\\2dc4d802deb14ed5903ccd7f8f62a197.txt",
+  "linkedin_filename_detected_after_upload": "2dc4d802deb14ed5903ccd7f8f62a197.txt",
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": false,
+  "mismatch_detected": true,
+  "reason_if_failed": "LinkedIn shows '2dc4d802deb14ed5903ccd7f8f62a197.txt', expected 'runtime_unique_resume_20260630101620.txt'.",
+  "evidence_path": "outputs\\resume_upload_debug\\20260630T141720733868\\4407465910_Runtime_Resume_Consistency_Check"
+}

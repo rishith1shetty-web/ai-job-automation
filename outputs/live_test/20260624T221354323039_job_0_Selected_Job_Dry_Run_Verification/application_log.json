@@ -1,0 +1,42 @@
+{
+  "job_id": 0,
+  "job_title": "Selected Job Dry Run Verification",
+  "company": "Local Test Company",
+  "job_url": "https://example.com/local-verification",
+  "application_date": "2026-06-24T22:13:54.327034",
+  "dry_run": true,
+  "current_step": "dry_run_complete",
+  "error": null,
+  "events": [
+    {
+      "time": "2026-06-24T22:13:54.324043",
+      "event": "initialized",
+      "detail": "Selected Job Dry Run Verification at Local Test Company"
+    },
+    {
+      "time": "2026-06-24T22:13:54.325039",
+      "event": "job_opened",
+      "detail": "https://example.com/local-verification"
+    },
+    {
+      "time": "2026-06-24T22:13:54.326038",
+      "event": "easy_apply_clicked",
+      "detail": "https://example.com/local-verification"
+    },
+    {
+      "time": "2026-06-24T22:13:54.326038",
+      "event": "resume_uploaded",
+      "detail": "test_resume.pdf"
+    },
+    {
+      "time": "2026-06-24T22:13:54.327034",
+      "event": "review_page_reached",
+      "detail": "Form page 1"
+    },
+    {
+      "time": "2026-06-24T22:13:54.327034",
+      "event": "dry_run_complete",
+      "detail": "Dry run completed at review; Submit application was not clicked."
+    }
+  ]
+}

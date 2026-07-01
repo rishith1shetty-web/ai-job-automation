@@ -1,0 +1,81 @@
+[
+  {
+    "answer": "85000",
+    "selected_answer": "85000",
+    "source": "AI Estimated Salary",
+    "confidence": "Estimated / Low",
+    "currency": "USD",
+    "reason": "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+    "evidence": {
+      "answer": "85000",
+      "currency": "USD",
+      "estimated_base": 85000,
+      "candidate_years": 0,
+      "job_title": "Operations Data Analyst",
+      "job_location": "Dallas, TX \u00b7 1 week ago \u00b7 Over 100 applicants",
+      "work_type": "hybrid"
+    },
+    "aggressive_default_used": true,
+    "decision_stage": "estimator",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "85000",
+        "source": "AI Estimated Salary",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "What are your base salary expectations?",
+    "category": "salary",
+    "field_type": "select",
+    "options": [
+      "$60,000-69,000",
+      "$70,000-79,000",
+      "$80,000-89,000",
+      "$90,000-99,000",
+      "$100,000-109,000",
+      ">$110,000"
+    ],
+    "mode": "Aggressive"
+  }
+]

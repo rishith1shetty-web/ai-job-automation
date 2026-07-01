@@ -1,0 +1,106 @@
+{
+  "step": "needs_review",
+  "page_title": "Data Engineer | Claroda | LinkedIn",
+  "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+  "modal_found": true,
+  "visible_modal_buttons": [
+    "Cancel",
+    "Save",
+    "Add more",
+    "Back",
+    "Next"
+  ],
+  "visible_form_fields": [
+    {
+      "index": 0,
+      "tag": "INPUT",
+      "type": "text",
+      "name": null,
+      "aria_label": null,
+      "placeholder": null,
+      "required": true,
+      "has_value": true
+    },
+    {
+      "index": 1,
+      "tag": "INPUT",
+      "type": "text",
+      "name": null,
+      "aria_label": null,
+      "placeholder": null,
+      "required": false,
+      "has_value": true
+    },
+    {
+      "index": 2,
+      "tag": "INPUT",
+      "type": "checkbox",
+      "name": "urn:li:fsd_formElement:urn:li:jobs_applyformcommon_easyApplyFormElement:(4407465910,31580787690,dateRange~present)",
+      "aria_label": null,
+      "placeholder": null,
+      "required": false,
+      "has_value": false
+    },
+    {
+      "index": 3,
+      "tag": "SELECT",
+      "type": "select-one",
+      "name": "month",
+      "aria_label": null,
+      "placeholder": null,
+      "required": false,
+      "has_value": false
+    },
+    {
+      "index": 4,
+      "tag": "SELECT",
+      "type": "select-one",
+      "name": "year",
+      "aria_label": null,
+      "placeholder": null,
+      "required": true,
+      "has_value": false
+    },
+    {
+      "index": 5,
+      "tag": "SELECT",
+      "type": "select-one",
+      "name": "month",
+      "aria_label": null,
+      "placeholder": null,
+      "required": false,
+      "has_value": false
+    },
+    {
+      "index": 6,
+      "tag": "SELECT",
+      "type": "select-one",
+      "name": "year",
+      "aria_label": null,
+      "placeholder": null,
+      "required": true,
+      "has_value": false
+    },
+    {
+      "index": 7,
+      "tag": "INPUT",
+      "type": "text",
+      "name": null,
+      "aria_label": null,
+      "placeholder": null,
+      "required": false,
+      "has_value": true
+    },
+    {
+      "index": 8,
+      "tag": "TEXTAREA",
+      "type": "textarea",
+      "name": null,
+      "aria_label": "Description",
+      "placeholder": null,
+      "required": false,
+      "has_value": true
+    }
+  ],
+  "captured_at": "2026-06-29T21:27:59.266391"
+}

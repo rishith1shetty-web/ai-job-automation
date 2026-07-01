@@ -1,0 +1,71 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "detected_page_type": "contact_page",
+    "page_hash": "41843526dc9eb0414f316c1bfa35eaf33bbe9217272bf30c521eb7b4e537b125",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4426554080/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 4",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.35,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Marketing Data Scientist | Zicasso | LinkedIn",
+    "modal_title": "Apply to Zicasso",
+    "detected_page_type": "resume_page",
+    "page_hash": "8a70ebd95d67e2da6be1eb1b18cf1534a7f20cbfe829db5e1661c8a9e49bd819",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4426554080/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Your LinkedIn Profile link",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 28.17,
+    "stop_reason": "Navigation revealed unresolved required fields: Your LinkedIn Profile link."
+  }
+]

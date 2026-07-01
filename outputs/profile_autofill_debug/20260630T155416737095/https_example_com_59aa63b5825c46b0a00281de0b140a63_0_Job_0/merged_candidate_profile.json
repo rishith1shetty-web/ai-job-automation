@@ -1,0 +1,47 @@
+{
+  "profile_available": true,
+  "fields": {
+    "first_name": {
+      "value": null
+    },
+    "last_name": {
+      "value": null
+    },
+    "email": {
+      "value": null
+    },
+    "mobile_phone": {
+      "value": "5551234567"
+    },
+    "phone_country_code": {
+      "value": null
+    },
+    "current_location": {
+      "value": null
+    },
+    "linkedin_url": {
+      "value": null
+    },
+    "portfolio_url": {
+      "value": null
+    },
+    "github_url": {
+      "value": null
+    },
+    "address": {
+      "value": null
+    },
+    "current_job_title": {
+      "value": null
+    },
+    "professional_headline": {
+      "value": null
+    },
+    "current_company": {
+      "value": null
+    }
+  },
+  "professional_links": {},
+  "previous_companies": [],
+  "certifications": []
+}

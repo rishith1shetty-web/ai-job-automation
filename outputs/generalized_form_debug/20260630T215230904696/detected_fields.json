@@ -1,0 +1,452 @@
+[
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "First name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 298,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "Last name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 299,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Phone country code",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 300,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "Mobile phone number",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 301,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 302,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Very High",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 303,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Degree",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 304,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Salary",
+    "field_category": "Salary",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "What are your base salary expectations?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Salary",
+      "learning_reuse": {
+        "record_id": 305,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "If you were referred by an employee, please indicate who.",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 306,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "Please indicate your relationship to your referral (if applicable).",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 307,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Which of the following office work arrangements are you willing to consider?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 308,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Very High",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 303,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Very High",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 303,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Very High",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 303,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Very High",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 303,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  }
+]

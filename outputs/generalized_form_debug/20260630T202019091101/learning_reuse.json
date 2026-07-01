@@ -1,0 +1,44 @@
+[
+  {
+    "record_id": 121,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 122,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 123,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 121,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 122,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 123,
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0,
+    "confidence": "High"
+  }
+]

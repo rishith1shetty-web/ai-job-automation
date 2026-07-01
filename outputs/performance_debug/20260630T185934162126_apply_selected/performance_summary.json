@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 2304,
+    "job_id": 6782,
+    "dry_run": true
+  },
+  "total_runtime_ms": 0.08,
+  "stage_count": 2,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 0,
+  "average_apply_time_ms": 0,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.02,
+    "metadata": {}
+  },
+  "created_at": "2026-06-30T18:59:34.162126"
+}

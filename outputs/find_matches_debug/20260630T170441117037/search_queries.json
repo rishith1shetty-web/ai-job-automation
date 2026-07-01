@@ -1,0 +1,86 @@
+[
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "role": "Software Engineer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "primary_role_primary_location"
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "role": "Software Engineer",
+    "expanded_role": "Python Developer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "role": "Software Engineer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Junior Software Engineer",
+    "location": "United States",
+    "role": "Software Engineer",
+    "expanded_role": "Junior Software Engineer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Software Engineer",
+    "location": "Remote",
+    "role": "Software Engineer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Software Engineer",
+    "location": "Hybrid",
+    "role": "Software Engineer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Python Developer",
+    "location": "Remote",
+    "role": "Software Engineer",
+    "expanded_role": "Python Developer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Python Developer",
+    "location": "Hybrid",
+    "role": "Software Engineer",
+    "expanded_role": "Python Developer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Remote",
+    "role": "Software Engineer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Hybrid",
+    "role": "Software Engineer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Junior Software Engineer",
+    "location": "Remote",
+    "role": "Software Engineer",
+    "expanded_role": "Junior Software Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Junior Software Engineer",
+    "location": "Hybrid",
+    "role": "Software Engineer",
+    "expanded_role": "Junior Software Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  }
+]

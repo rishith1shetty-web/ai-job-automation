@@ -1,0 +1,22 @@
+{
+  "operation": "apply_top",
+  "metadata": {
+    "resume_id": 2082,
+    "limit": 10,
+    "dry_run": true
+  },
+  "total_runtime_ms": 14.58,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 3.23,
+  "average_apply_time_ms": 3.23,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 7.08,
+    "metadata": {}
+  },
+  "created_at": "2026-06-30T18:18:14.352712"
+}

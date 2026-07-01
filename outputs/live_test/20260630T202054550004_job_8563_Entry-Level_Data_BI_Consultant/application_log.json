@@ -1,0 +1,87 @@
+{
+  "job_id": 8563,
+  "job_title": "Entry-Level Data & BI Consultant",
+  "company": "PCS Global Tech",
+  "job_url": "https://www.linkedin.com/jobs/view/4414200967/",
+  "application_date": "2026-06-30T20:21:33.099319",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T20:20:54.550004",
+      "event": "initialized",
+      "detail": "Entry-Level Data & BI Consultant at PCS Global Tech"
+    },
+    {
+      "time": "2026-06-30T20:20:54.550004",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 2916, \"job_resume_id\": 2916, \"search_batch_id\": \"0ac663fc-6137-4a8b-93f4-69554fe4da1d\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T202054550004\\\\4414200967_Entry-Level_Data_BI_Consultant\"}"
+    },
+    {
+      "time": "2026-06-30T20:21:08.449766",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Entry-Level Data & BI Consultant | PCS Global Tech | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4414200967/\", \"captured_at\": \"2026-06-30T20:21:08.449766\"}"
+    },
+    {
+      "time": "2026-06-30T20:21:11.932220",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4414200967\", \"job_url\": \"https://www.linkedin.com/jobs/view/4414200967/\"}"
+    },
+    {
+      "time": "2026-06-30T20:21:12.658536",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T20:21:15.198194",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4414200967/"
+    },
+    {
+      "time": "2026-06-30T20:21:22.981989",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T20:21:23.799917",
+      "event": "resume_uploaded",
+      "detail": "Rishith_Shetty_Resume (1).pdf"
+    },
+    {
+      "time": "2026-06-30T20:21:23.799917",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 2916, \"job_resume_id\": 2916, \"search_batch_id\": \"0ac663fc-6137-4a8b-93f4-69554fe4da1d\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\cc94e9c02d8345a1970b770c00eb0641.pdf\", \"linkedin_filename_detected_after_upload\": \"Rishith_Shetty_Resume (1).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T202054550004\\\\4414200967_Entry-Level_Data_BI_Consultant\"}"
+    },
+    {
+      "time": "2026-06-30T20:21:32.061684",
+      "event": "needs_review",
+      "detail": "Navigation revealed unresolved required fields: Are you open to relocation within the United States for project placement?, Are you open to completing 10 weeks unpaid training before being placed on client projects?, Have you recently completed your Bachelor\u2019s or Master\u2019s degree in a STEM-related field (such as Computer Science, Business Analytics, Mathematics, or a similar discipline)?."
+    }
+  ]
+}

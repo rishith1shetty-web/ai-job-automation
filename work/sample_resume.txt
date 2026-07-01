@@ -1,0 +1,16 @@
+Jordan Candidate
+Software Engineer
+
+Skills
+Python, FastAPI, PostgreSQL, SQL, Docker, React, Git, AWS
+
+Experience
+Senior Software Engineer, Example Systems
+Built Python and FastAPI services backed by PostgreSQL.
+Implemented automated tests, CI/CD pipelines, and cloud deployments on AWS.
+
+Education
+Bachelor of Science in Computer Science, Example University
+
+Projects
+Created job matching tools using machine learning and data analysis.

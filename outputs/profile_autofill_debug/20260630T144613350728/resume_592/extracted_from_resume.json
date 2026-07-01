@@ -1,0 +1,55 @@
+{
+  "fields": {
+    "email": {
+      "value": "rishith1shetty@gmail.com",
+      "source": "Resume Visible Text",
+      "confidence": 96
+    },
+    "mobile_phone": {
+      "value": "9136010355",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "phone_country_code": {
+      "value": "+91",
+      "source": "Resume Visible Text",
+      "confidence": 64
+    },
+    "linkedin_url": {
+      "value": "https://www.linkedin.com/in/rishith-shetty-911249366/",
+      "source": "Embedded Hyperlink",
+      "confidence": 98
+    },
+    "first_name": {
+      "value": "in",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "last_name": {
+      "value": "responsibility",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "current_location": {
+      "value": "\u1ed9 Mumbai delivering innovative solutions through hard work and brilliance while",
+      "source": "Resume Visible Text",
+      "confidence": 62
+    },
+    "address": {
+      "value": "\u1ed9 Mumbai delivering innovative solutions through hard work and brilliance while",
+      "source": "Resume Visible Text",
+      "confidence": 50
+    }
+  },
+  "professional_links": {
+    "linkedin": {
+      "value": "https://www.linkedin.com/in/rishith-shetty-911249366/",
+      "source": "Embedded Hyperlink",
+      "confidence": 98
+    }
+  },
+  "previous_companies": [],
+  "certifications": [
+    "AIML Bachelor of Engineering (B.E.) 7.0 Google Data Analytics Professional Certificate GMS College 2020 to 2022 Coursera PCM Pre University 2023 72.5% RBK School 2020 78.5% Secondary School"
+  ]
+}

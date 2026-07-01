@@ -1,0 +1,181 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "contact_page",
+    "page_hash": "ed2c71040c72a3229a2c80b85d8d647e7b5d648d1474db4305baf7f12c0aff71",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 19.41,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "contact_page",
+    "page_hash": "31d61d6bdd572c3ede238faafa19231e99b26946ec62d7e245fa823e270eadf2",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 36.47,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "contact_page",
+    "page_hash": "31d61d6bdd572c3ede238faafa19231e99b26946ec62d7e245fa823e270eadf2",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 36.88,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "resume_page",
+    "page_hash": "9f68042d4a244eb23251fbee07b13bea11d4c906424aaffebb84a8f81cf52d06",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 44.35,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "resume_page",
+    "page_hash": "9f68042d4a244eb23251fbee07b13bea11d4c906424aaffebb84a8f81cf52d06",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 44.46,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "detected_page_type": "validation_error",
+    "page_hash": "5510c4fd1df5462e808c3a371d34a8bd5e745a6b9df43217239ad300fc28b5fe",
+    "repeated_count": 1,
+    "action_attempted": "none",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4407465910/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please upload an acceptable document format (DOC, DOCX, PDF). Change file"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 46.18,
+    "stop_reason": "Validation error: Please upload an acceptable document format (DOC, DOCX, PDF). Change file"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "role": "Backend Developer",
+    "confidence": 88.0,
+    "reason": "Detected primary role",
+    "expanded_from": "Backend Developer"
+  },
+  {
+    "role": "Python Developer",
+    "confidence": 80.0,
+    "reason": "Variation of Backend Developer",
+    "expanded_from": "Backend Developer"
+  },
+  {
+    "role": "FastAPI Developer",
+    "confidence": 80.0,
+    "reason": "Variation of Backend Developer",
+    "expanded_from": "Backend Developer"
+  },
+  {
+    "role": "API Developer",
+    "confidence": 80.0,
+    "reason": "Variation of Backend Developer",
+    "expanded_from": "Backend Developer"
+  },
+  {
+    "role": "Software Engineer",
+    "confidence": 80.0,
+    "reason": "Variation of Backend Developer",
+    "expanded_from": "Backend Developer"
+  },
+  {
+    "role": "Junior Software Engineer",
+    "confidence": 63.0,
+    "reason": "Variation of Software Engineer",
+    "expanded_from": "Software Engineer"
+  },
+  {
+    "role": "Data Analyst",
+    "confidence": 63.0,
+    "reason": "sql",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Data Scientist",
+    "confidence": 63.0,
+    "reason": "python",
+    "expanded_from": "Data Scientist"
+  },
+  {
+    "role": "Junior Data Analyst",
+    "confidence": 55.0,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Business Analyst",
+    "confidence": 55.0,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "BI Analyst",
+    "confidence": 55.0,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Reporting Analyst",
+    "confidence": 55.0,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  }
+]

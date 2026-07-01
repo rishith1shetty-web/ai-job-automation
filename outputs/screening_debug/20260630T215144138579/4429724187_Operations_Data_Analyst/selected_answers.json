@@ -1,0 +1,404 @@
+[
+  {
+    "answer": "Yes",
+    "selected_answer": "Yes",
+    "source": "Resume Evidence",
+    "confidence": "Medium",
+    "currency": null,
+    "reason": "Resume/profile evidence supports Yes.",
+    "evidence": {},
+    "aggressive_default_used": false,
+    "decision_stage": "fallback",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "fallback",
+        "candidate_answer": "Yes",
+        "source": "Resume Evidence",
+        "confidence": "Medium",
+        "evidence_used": false,
+        "reasoning_summary": "Resume/profile evidence supports Yes.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "Degree",
+    "original_label": "Degree",
+    "normalized_field": "Education Requirement",
+    "category": "education",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "High School",
+      "Associate's Degree",
+      "Bachelor's Degree",
+      "Master's Degree",
+      "Master of Business Administration (M.B.A.)",
+      "Juris Doctor (J.D.)",
+      "Doctor of Medicine (M.D.)",
+      "Doctor of Philosophy (Ph.D.)",
+      "Engineer's Degree",
+      "Other"
+    ],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "85000",
+    "selected_answer": "85000",
+    "source": "AI Estimated Salary",
+    "confidence": "Estimated / Low",
+    "currency": "USD",
+    "reason": "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+    "evidence": {
+      "answer": "85000",
+      "currency": "USD",
+      "estimated_base": 85000,
+      "candidate_years": 0,
+      "job_title": "Operations Data Analyst",
+      "job_location": "Dallas, TX \u00b7 1 week ago \u00b7 Over 100 applicants",
+      "work_type": "hybrid"
+    },
+    "aggressive_default_used": true,
+    "decision_stage": "estimator",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "85000",
+        "source": "AI Estimated Salary",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "What are your base salary expectations?",
+    "original_label": "What are your base salary expectations?",
+    "normalized_field": "Salary",
+    "category": "salary",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "$60,000-69,000",
+      "$70,000-79,000",
+      "$80,000-89,000",
+      "$90,000-99,000",
+      "$100,000-109,000",
+      ">$110,000"
+    ],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "No",
+    "selected_answer": "No",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No supporting evidence found; Aggressive Mode selected No.",
+    "evidence": {},
+    "aggressive_default_used": true,
+    "decision_stage": "fallback",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "fallback",
+        "candidate_answer": "No",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": false,
+        "reasoning_summary": "No supporting evidence found; Aggressive Mode selected No.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "If you were referred by an employee, please indicate who.",
+    "original_label": "If you were referred by an employee, please indicate who.",
+    "normalized_field": "If you were referred by an employee, please indicate who.",
+    "category": "yes_no",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "No",
+    "selected_answer": "No",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No supporting evidence found; Aggressive Mode selected No.",
+    "evidence": {},
+    "aggressive_default_used": true,
+    "decision_stage": "fallback",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "fallback",
+        "candidate_answer": "No",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": false,
+        "reasoning_summary": "No supporting evidence found; Aggressive Mode selected No.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "Please indicate your relationship to your referral (if applicable).",
+    "original_label": "Please indicate your relationship to your referral (if applicable).",
+    "normalized_field": "Please indicate your relationship to your referral (if applicable).",
+    "category": "yes_no",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "Yes",
+    "selected_answer": "Yes",
+    "source": "Resume Evidence",
+    "confidence": "Medium",
+    "currency": null,
+    "reason": "Resume/profile evidence supports Yes.",
+    "evidence": {},
+    "aggressive_default_used": false,
+    "decision_stage": "fallback",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "fallback",
+        "candidate_answer": "Yes",
+        "source": "Resume Evidence",
+        "confidence": "Medium",
+        "evidence_used": false,
+        "reasoning_summary": "Resume/profile evidence supports Yes.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "Which of the following office work arrangements are you willing to consider?",
+    "original_label": "Which of the following office work arrangements are you willing to consider?",
+    "normalized_field": "Which of the following office work arrangements are you willing to consider?",
+    "category": "yes_no",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "I'm local to Dallas & will work fully onsite or hybrid (3x week onsite)",
+      "I'm local to Dallas but only looking for hybrid (3x week onsite)",
+      "I am not local to Dallas but willing to relocate on my own",
+      "I am not local to Dallas and seeking a remote role"
+    ],
+    "mode": "Aggressive"
+  }
+]

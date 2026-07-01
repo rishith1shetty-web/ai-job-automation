@@ -1,0 +1,28 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Junior Data Analyst | Helic & Co | LinkedIn",
+    "modal_title": "Apply to Helic & Co",
+    "detected_page_type": "resume_page",
+    "page_hash": "f7a22492f2d9ec17a01acd29008707494355fc36e9e7c2a38728b6a049230b0e",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4434711006/",
+    "visible_buttons": [
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 19.68,
+    "stop_reason": null
+  }
+]

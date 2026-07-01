@@ -1,0 +1,34 @@
+[
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 50512.37,
+    "metadata": {
+      "query": "Data Scientist",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 46573.8,
+    "metadata": {
+      "query": "Analytics Engineer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 45140.93,
+    "metadata": {
+      "query": "Analytics Engineer OR Data Analyst OR Machine Learning Engineer OR Data Scientist OR BI Analyst",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 43454.96,
+    "metadata": {
+      "query": "Machine Learning Engineer",
+      "location": "United States"
+    }
+  }
+]

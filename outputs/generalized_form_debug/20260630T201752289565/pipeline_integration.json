@@ -1,0 +1,114 @@
+{
+  "engine_role": "control_detection_only",
+  "value_source": "Unified decision pipeline",
+  "decision_order": [
+    "saved_answer",
+    "learned_mapping",
+    "evidence",
+    "reasoning",
+    "estimator",
+    "fallback"
+  ],
+  "fields": [
+    {
+      "label": "First name",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Last name",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Phone country code",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Mobile phone number",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "enter_number_only"
+    },
+    {
+      "label": "Email address",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 8",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Your title",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Company",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "I currently work here",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "check_or_uncheck"
+    },
+    {
+      "label": "Month of From",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Month of From",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Month of To",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Month of To",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "required field 8",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Description",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    }
+  ]
+}

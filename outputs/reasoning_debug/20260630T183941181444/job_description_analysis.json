@@ -1,0 +1,94 @@
+[
+  {
+    "job_id": null,
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  }
+]

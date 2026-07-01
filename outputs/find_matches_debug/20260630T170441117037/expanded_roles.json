@@ -1,0 +1,26 @@
+[
+  {
+    "role": "Software Engineer",
+    "confidence": 50.0,
+    "reason": "Fallback role",
+    "expanded_from": "Software Engineer"
+  },
+  {
+    "role": "Python Developer",
+    "confidence": 45.0,
+    "reason": "Variation of Software Engineer",
+    "expanded_from": "Software Engineer"
+  },
+  {
+    "role": "Backend Developer",
+    "confidence": 45.0,
+    "reason": "Variation of Software Engineer",
+    "expanded_from": "Software Engineer"
+  },
+  {
+    "role": "Junior Software Engineer",
+    "confidence": 45.0,
+    "reason": "Variation of Software Engineer",
+    "expanded_from": "Software Engineer"
+  }
+]

@@ -1,0 +1,172 @@
+[
+  {
+    "job": {
+      "id": null,
+      "title": "Data Scientist \u2013 SQL, Python, Machine Learning, Power BI",
+      "company": "Pyramid Consulting, Inc",
+      "job_url": "https://www.linkedin.com/jobs/view/4435193314/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "If accurate, add stronger evidence for sql in the resume.",
+        "why_it_helps": "The job description appears to value sql, but the current resume evidence is weak or missing.",
+        "source": "Job Description Comparison"
+      },
+      {
+        "suggestion": "Move python higher in the skills or summary section.",
+        "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+        "source": "Matched Skill"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst (Excel) - Remote",
+      "company": "YO HR Consultancy",
+      "job_url": "https://www.linkedin.com/jobs/view/4428915445/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Move excel higher in the skills or summary section.",
+        "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+        "source": "Matched Skill"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "RK Infotech LLC",
+      "job_url": "https://www.linkedin.com/jobs/view/4422065043/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Scientist",
+      "company": "Smith Arnold Partners",
+      "job_url": "https://www.linkedin.com/jobs/view/4431969334/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst Intern",
+      "company": "Stealth Startup",
+      "job_url": "https://www.linkedin.com/jobs/view/4430690585/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst Internship",
+      "company": "ConnectPrep",
+      "job_url": "https://www.linkedin.com/jobs/view/4431363379/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Operations Data Analyst",
+      "company": "Lantern",
+      "job_url": "https://www.linkedin.com/jobs/view/4429724187/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Entry Level Data Analyst",
+      "company": "Emonics LLC",
+      "job_url": "https://www.linkedin.com/jobs/view/4432905086/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Marketing Data Scientist",
+      "company": "Zicasso",
+      "job_url": "https://www.linkedin.com/jobs/view/4426554080/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Entry Analyst",
+      "company": "airwar.ai",
+      "job_url": "https://www.linkedin.com/jobs/view/4431984132/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst/Engineer",
+      "company": "SharpAtoms",
+      "job_url": "https://www.linkedin.com/jobs/view/4430018168/"
+    },
+    "suggestions": [
+      {
+        "suggestion": "Add measurable project outcomes where possible.",
+        "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+        "source": "General Resume Evidence"
+      }
+    ]
+  }
+]

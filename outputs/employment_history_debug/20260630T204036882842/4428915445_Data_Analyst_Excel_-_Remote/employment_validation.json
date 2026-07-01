@@ -1,0 +1,24 @@
+[
+  {
+    "captured_at": "2026-06-30T20:41:12.813168",
+    "missing_fields": [
+      "Month of From",
+      "Month of To"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Month of From",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "Month of To",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please enter a valid answer"
+    ]
+  }
+]

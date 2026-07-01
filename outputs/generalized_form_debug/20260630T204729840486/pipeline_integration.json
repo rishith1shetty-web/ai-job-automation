@@ -1,0 +1,114 @@
+{
+  "engine_role": "control_detection_only",
+  "value_source": "Unified decision pipeline",
+  "decision_order": [
+    "saved_answer",
+    "learned_mapping",
+    "evidence",
+    "reasoning",
+    "estimator",
+    "fallback"
+  ],
+  "fields": [
+    {
+      "label": "First name",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Last name",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Phone country code",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Mobile phone number",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "enter_number_only"
+    },
+    {
+      "label": "Email address",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Your LinkedIn Profile link",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Your LinkedIn Profile link",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Annual salary expectations? (If you do not specify clearly, your application will not be reviewed/considered.)",
+      "normalized_field_name": "Salary",
+      "recommended_fill_strategy": "enter_number_only"
+    },
+    {
+      "label": "How many years have you worked with marketing teams on statistical analysis and experimentation? Could you share some examples of the kinds of projects or campaigns you supported?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    },
+    {
+      "label": "How many years of remote working experience do you have?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "enter_number_only"
+    },
+    {
+      "label": "Can you describe your experience working directly within or consulting for a marketing department? What types of challenges did you help solve?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    },
+    {
+      "label": "What is your proficiency level in English?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "On a scale of 1 - 10, how would you rate your written English communications skills? And your verbal English skills? (1 = Beginner, 10 = Native speaker)",
+      "normalized_field_name": "Salary",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "Could you describe a key web marketing or business metric you successfully optimized in the past? How did you define or select this metric as the priority, and what data-driven approach did you use to improve it?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    },
+    {
+      "label": "Describe a time that you were able to effectively increase ROAS on Google Ads Spend and how you approached this?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    },
+    {
+      "label": "International travel is our business and our passion. How many countries have you visited? If you too have a passion for international travel, we\u2019d love to learn more about it here:",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_longer_answer"
+    },
+    {
+      "label": "If hired, how soon can you start?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    },
+    {
+      "label": "required field 6",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "type_value"
+    }
+  ]
+}

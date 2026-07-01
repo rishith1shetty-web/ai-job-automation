@@ -1,0 +1,25 @@
+[
+  {
+    "original_label": "Are you currently located inside the United States and available to begin a local US contract/placement immediately?",
+    "normalized_field": "Are you currently located inside the United States and available to begin a local US contract/placement immediately?",
+    "detected_control_type": "dropdown",
+    "category": "yes_no",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Handled by employment-history autofill, not screening."
+  },
+  {
+    "original_label": "Do you possess unrestricted, ongoing work authorization to work for any employer in the US without requiring current or future visa sponsorship or transfers?",
+    "normalized_field": "Work Authorization",
+    "detected_control_type": "dropdown",
+    "category": "authorization",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": []
+  }
+]

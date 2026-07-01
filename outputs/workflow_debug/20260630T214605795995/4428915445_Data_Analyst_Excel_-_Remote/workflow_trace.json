@@ -1,0 +1,304 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "contact_page",
+    "page_hash": "72288bdb971a63aaf9fd5beb7482d180abb6b281b084ad1ceb4450cabb193403",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.49,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "resume_page",
+    "page_hash": "64ae2c614ca7bf2cdb098460f8bac0eb4ce856964cee7b5bf8e11dad08a7a6e1",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 28.93,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "resume_page",
+    "page_hash": "64ae2c614ca7bf2cdb098460f8bac0eb4ce856964cee7b5bf8e11dad08a7a6e1",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 29.07,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "unknown",
+    "page_hash": "de169ae6cc386f14d0d9bb1369a97dd850413c220bd5ca31217d8631a514c4cc",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "unknown",
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Remove",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Remove",
+      "Edit",
+      "Add more",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 38.86,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "unknown",
+    "page_hash": "de169ae6cc386f14d0d9bb1369a97dd850413c220bd5ca31217d8631a514c4cc",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Remove",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Remove",
+      "Edit",
+      "Add more",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 39.14,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "validation_error",
+    "page_hash": "8898272a13e35e9571c8a7ecb767430056e0c8ee7fd3a31bd015e8c4e6aae82f",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Cancel",
+        "enabled": true
+      },
+      {
+        "text": "Save",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": false
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Cancel",
+      "Save",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Month of From",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "Month of To",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please enter a valid answer"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 48.1,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Data Analyst (Excel) - Remote | YO HR Consultancy | LinkedIn",
+    "modal_title": "Apply to YO HR Consultancy",
+    "detected_page_type": "validation_error",
+    "page_hash": "8898272a13e35e9571c8a7ecb767430056e0c8ee7fd3a31bd015e8c4e6aae82f",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428915445/",
+    "visible_buttons": [
+      {
+        "text": "Cancel",
+        "enabled": true
+      },
+      {
+        "text": "Save",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": false
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Cancel",
+      "Save",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Month of From",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "Month of To",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please enter a valid answer"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 48.47,
+    "stop_reason": null
+  }
+]

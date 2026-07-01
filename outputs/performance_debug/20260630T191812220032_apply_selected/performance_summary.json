@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 2470,
+    "job_id": 7266,
+    "dry_run": true
+  },
+  "total_runtime_ms": 34.56,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 13.05,
+  "average_apply_time_ms": 13.05,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 20.4,
+    "metadata": {}
+  },
+  "created_at": "2026-06-30T19:18:12.254354"
+}

@@ -1,0 +1,522 @@
+[
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "First name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 165,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "Last name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 166,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Phone country code",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 167,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "numeric_input",
+    "evidence_used": {
+      "label": "Mobile phone number",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 168,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 169,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 170,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 8",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 171,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 170,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 170,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 170,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 6",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 170,
+        "times_seen": 5,
+        "times_successful": 5,
+        "times_failed": 0,
+        "confidence": "Very High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "Your title",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 172,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "Company",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 173,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "checkbox",
+    "evidence_used": {
+      "label": "I currently work here",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": "Mapped from extracted resume employment history.",
+      "input_type": "checkbox",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "checkbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 174,
+        "times_seen": 1,
+        "times_successful": 0,
+        "times_failed": 1,
+        "confidence": "Very Low"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Month of From",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": "Mapped from extracted resume employment history.",
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 175,
+        "times_seen": 2,
+        "times_successful": 0,
+        "times_failed": 2,
+        "confidence": "Very Low"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Month of From",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": "Mapped from extracted resume employment history.",
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 175,
+        "times_seen": 2,
+        "times_successful": 0,
+        "times_failed": 2,
+        "confidence": "Very Low"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Month of To",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": "Mapped from extracted resume employment history.",
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 176,
+        "times_seen": 2,
+        "times_successful": 0,
+        "times_failed": 2,
+        "confidence": "Very Low"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "dropdown",
+    "evidence_used": {
+      "label": "Month of To",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": "Mapped from extracted resume employment history.",
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 176,
+        "times_seen": 2,
+        "times_successful": 0,
+        "times_failed": 2,
+        "confidence": "Very Low"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textbox",
+    "evidence_used": {
+      "label": "required field 8",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 171,
+        "times_seen": 2,
+        "times_successful": 2,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    }
+  },
+  {
+    "field": "Cover Letter",
+    "detected_control_type": "textarea",
+    "evidence_used": {
+      "label": "Description",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "textarea",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textarea",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": null,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": null,
+        "confidence": "Medium"
+      }
+    }
+  }
+]

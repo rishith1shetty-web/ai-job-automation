@@ -1,0 +1,30 @@
+[
+  {
+    "original_label": "First name",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Last name",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "required field 6",
+    "normalized_field": "Cover Letter"
+  }
+]

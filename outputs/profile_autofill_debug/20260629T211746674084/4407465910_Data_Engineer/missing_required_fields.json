@@ -1,0 +1,20 @@
+{
+  "captured_at": "2026-06-29T21:17:50.634509",
+  "fields": [
+    {
+      "time": "2026-06-29T21:17:50.633511",
+      "field_label": "required field 6",
+      "contact_key": "current_location",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": false,
+      "value_source": null,
+      "action": "missing_candidate_profile_value",
+      "success": false,
+      "error": null
+    }
+  ],
+  "field_names": [
+    "required field 6"
+  ]
+}

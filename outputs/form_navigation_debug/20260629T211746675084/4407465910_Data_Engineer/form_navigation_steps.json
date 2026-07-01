@@ -1,0 +1,102 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260629T211746675084\\4407465910_Data_Engineer\\step_01_01.png",
+    "page_title": "Data Engineer | Claroda | LinkedIn",
+    "modal_title": "Apply to Claroda",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "First name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Last name",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "required field 3",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "required field 5",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "required field 6",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "filled_fields": [
+      {
+        "label": "First name",
+        "field_type": "text"
+      },
+      {
+        "label": "Last name",
+        "field_type": "text"
+      },
+      {
+        "label": "required field 3",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      },
+      {
+        "label": "required field 5",
+        "field_type": "select"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "none",
+    "action_result": "stopped",
+    "reason_for_stop": "Missing required field: required field 6",
+    "captured_at": "2026-06-29T21:17:51.470959"
+  }
+]

@@ -1,0 +1,128 @@
+[
+  {
+    "query": "Data Scientist",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Data Scientist",
+    "pass_name": "primary_role_primary_location"
+  },
+  {
+    "query": "Analytics Engineer OR Data Analyst OR Machine Learning Engineer OR Data Scientist OR BI Analyst",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Data Scientist",
+    "pass_name": "resume_generated_query"
+  },
+  {
+    "query": "Machine Learning Engineer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Machine Learning Engineer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Analytics Engineer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Analytics Engineer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "AI Engineer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "AI Engineer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Data Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Software Engineer",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Reporting Analyst",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Reporting Analyst",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "ML Engineer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "ML Engineer",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "Power BI Analyst",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Power BI Analyst",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "BI Analyst",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "BI Analyst",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "role": "Data Scientist",
+    "expanded_role": "Python Developer",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "Data Scientist",
+    "location": "Remote",
+    "role": "Data Scientist",
+    "expanded_role": "Data Scientist",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Data Scientist",
+    "location": "Hybrid",
+    "role": "Data Scientist",
+    "expanded_role": "Data Scientist",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Machine Learning Engineer",
+    "location": "Remote",
+    "role": "Data Scientist",
+    "expanded_role": "Machine Learning Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Machine Learning Engineer",
+    "location": "Hybrid",
+    "role": "Data Scientist",
+    "expanded_role": "Machine Learning Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Analytics Engineer",
+    "location": "Remote",
+    "role": "Data Scientist",
+    "expanded_role": "Analytics Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Analytics Engineer",
+    "location": "Hybrid",
+    "role": "Data Scientist",
+    "expanded_role": "Analytics Engineer",
+    "pass_name": "expanded_role_nearby_location"
+  }
+]

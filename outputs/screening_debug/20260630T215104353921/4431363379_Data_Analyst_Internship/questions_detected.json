@@ -1,0 +1,11 @@
+[
+  {
+    "question_text": "Cover letter",
+    "original_label": "Cover letter",
+    "normalized_field": "Cover letter",
+    "category": "yes_no",
+    "field_type": "textarea",
+    "detected_control_type": "textarea",
+    "options": []
+  }
+]

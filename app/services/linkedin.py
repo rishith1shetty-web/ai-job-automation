@@ -1,0 +1,4642 @@
+import json
+import logging
+import re
+import hashlib
+import mimetypes
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import quote_plus, urljoin, urlparse
+
+from playwright.sync_api import BrowserContext, Error as PlaywrightError, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+from app.config import Settings
+from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.reasoning import AIReasoningEngine
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class AutomationResult:
+    status: ApplicationStatus
+    message: str | None = None
+    log: list[dict] = field(default_factory=list)
+    current_step: str | None = None
+    evidence_path: str | None = None
+    contact_fields_detected: list[dict] = field(default_factory=list)
+    contact_fields_filled: list[dict] = field(default_factory=list)
+    missing_contact_fields: list[str] = field(default_factory=list)
+    screening_answers: list[dict] = field(default_factory=list)
+    resume_upload_diagnostics: dict = field(default_factory=dict)
+
+
+class LinkedInAutomation:
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.reasoning = AIReasoningEngine(settings)
+
+    def has_authenticated_session(self) -> bool:
+        if not self.settings.linkedin_storage_state.exists():
+            return False
+        try:
+            state = json.loads(self.settings.linkedin_storage_state.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        return any(
+            cookie.get("name") == "li_at"
+            and cookie.get("value")
+            and cookie.get("domain", "").endswith("linkedin.com")
+            for cookie in state.get("cookies", [])
+        )
+
+    def disconnect_account(self) -> None:
+        self.settings.linkedin_storage_state.unlink(missing_ok=True)
+
+    def connect_account(self) -> None:
+        if self.has_authenticated_session():
+            return
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(
+                headless=False,
+                slow_mo=self.settings.linkedin_slow_mo_ms,
+            )
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto("https://www.linkedin.com/login", wait_until="domcontentloaded")
+            try:
+                for _ in range(360):
+                    cookies = context.cookies()
+                    if page.url.startswith("https://www.linkedin.com/feed") or any(
+                        cookie.get("name") == "li_at" and cookie.get("value") for cookie in cookies
+                    ):
+                        context.storage_state(path=str(self.settings.linkedin_storage_state))
+                        return
+                    page.wait_for_timeout(500)
+                raise PlaywrightTimeoutError("LinkedIn login was not completed within 180 seconds.")
+            except PlaywrightError:
+                if self.has_authenticated_session():
+                    return
+                raise
+            finally:
+                browser.close()
+
+    def extract_logged_in_profile(self) -> dict:
+        if not self.has_authenticated_session():
+            return {"fields": {}, "professional_links": {}}
+        fields: dict[str, dict] = {}
+
+        def add(name: str, value: str | None, confidence: float) -> None:
+            value = (value or "").strip()
+            if not value:
+                return
+            fields[name] = {
+                "value": value,
+                "source": "LinkedIn Profile",
+                "confidence": confidence,
+            }
+
+        with self._browser_context() as context:
+            page = context.new_page()
+            page.goto("https://www.linkedin.com/in/me/", wait_until="domcontentloaded")
+            self._wait_for_job_page(page)
+            page.wait_for_timeout(1500)
+            profile_url = page.url.split("?")[0].rstrip("/")
+            add("linkedin_url", profile_url, 82)
+            name = self._first_text(
+                page,
+                [
+                    "main h1",
+                    ".pv-text-details__left-panel h1",
+                    ".text-heading-xlarge",
+                ],
+            )
+            if name:
+                parts = name.split()
+                add("first_name", parts[0], 72)
+                if len(parts) > 1:
+                    add("last_name", parts[-1], 72)
+            headline = self._first_text(
+                page,
+                [
+                    ".text-body-medium.break-words",
+                    ".pv-text-details__left-panel .text-body-medium",
+                ],
+            )
+            add("professional_headline", headline, 70)
+            add("current_job_title", headline, 52)
+            location = self._first_text(
+                page,
+                [
+                    ".text-body-small.inline.t-black--light.break-words",
+                    ".pv-text-details__left-panel .text-body-small",
+                ],
+            )
+            add("current_location", location, 68)
+            page_text = self._first_text(page, ["main"])
+        return {
+            "fields": fields,
+            "professional_links": {},
+            "profile_text": page_text[:4000] if "page_text" in locals() else "",
+        }
+
+    def search_jobs(
+        self,
+        resume: ResumeProfile,
+        location: str,
+        keywords: str | None,
+        limit: int,
+        collect_card_diagnostics: bool = True,
+    ) -> list[dict]:
+        query = (
+            (keywords or "").strip()
+            or resume.detected_role
+            or " ".join((resume.job_titles or resume.skills or resume.keywords)[:6])
+            or "Software Engineer"
+        )
+        url = (
+            "https://www.linkedin.com/jobs/search/"
+            f"?keywords={quote_plus(query)}&location={quote_plus(location)}&f_AL=true"
+        )
+        jobs: list[dict] = []
+        debug_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        with self._browser_context() as context:
+            page = context.new_page()
+            page.goto(url, wait_until="domcontentloaded")
+            page.wait_for_timeout(2500)
+            card_selector = (
+                "li[data-occludable-job-id], .scaffold-layout__list-item, "
+                "ul.jobs-search__results-list li, .jobs-search-results__list-item"
+            )
+            cards = page.locator(card_selector)
+            count = min(cards.count(), limit)
+            job_urls: list[str] = []
+            for index in range(count):
+                try:
+                    cards = page.locator(card_selector)
+                    if index >= cards.count():
+                        break
+                    card = cards.nth(index)
+                    if collect_card_diagnostics:
+                        card.scroll_into_view_if_needed()
+                    links = card.locator("a[href*='/jobs/view/']")
+                    if links.count() == 0:
+                        continue
+                    href = links.first.get_attribute("href")
+                    if href:
+                        job_url = urljoin("https://www.linkedin.com", href).split("?")[0]
+                        if collect_card_diagnostics:
+                            linkedin_job_id = self._linkedin_job_id(job_url, card)
+                            debug_dir = self._create_easy_apply_debug_dir(
+                                job_id=linkedin_job_id,
+                                timestamp=debug_timestamp,
+                            )
+                            self._capture_debug_screenshot(page, debug_dir, "01_job_card_click")
+                            click_diagnostic = self._inspect_job_card_click(
+                                context,
+                                page,
+                                card,
+                                links.first,
+                                job_url,
+                                linkedin_job_id,
+                                debug_dir,
+                            )
+                            self._merge_diagnostic_file(debug_dir, click_diagnostic)
+                        job_urls.append(job_url)
+                        if page.url != url:
+                            page.goto(url, wait_until="domcontentloaded")
+                            page.wait_for_timeout(1500)
+                except Exception as exc:
+                    logger.warning("Skipping LinkedIn result link %s: %s", index, exc)
+
+            for job_url in list(dict.fromkeys(job_urls))[:limit]:
+                try:
+                    page.goto(job_url, wait_until="domcontentloaded")
+                    readiness = {
+                        "domcontentloaded": True,
+                        "networkidle": False,
+                        "main_content": False,
+                        "final_url": page.url,
+                    }
+                    try:
+                        page.locator("main, .jobs-details, .job-view-layout").first.wait_for(
+                            state="visible",
+                            timeout=3000,
+                        )
+                        readiness["main_content"] = True
+                    except PlaywrightTimeoutError:
+                        pass
+                    page.wait_for_timeout(500)
+                    readiness["final_url"] = page.url
+                    linkedin_job_id = self._linkedin_job_id(job_url)
+                    debug_dir = None
+                    if collect_card_diagnostics:
+                        debug_dir = self._create_easy_apply_debug_dir(
+                            job_id=linkedin_job_id,
+                            timestamp=debug_timestamp,
+                        )
+                        self._capture_debug_screenshot(page, debug_dir, "02_job_details_page_loaded")
+                        self._capture_debug_screenshot(page, debug_dir, "03_before_easy_apply_detection")
+                    title = self._first_text(page, [".jobs-unified-top-card__job-title", ".top-card-layout__title", "h1"])
+                    company = self._first_text(
+                        page,
+                        [
+                            ".jobs-unified-top-card__company-name",
+                            ".job-details-jobs-unified-top-card__company-name",
+                            ".topcard__org-name-link",
+                            ".topcard__flavor",
+                        ],
+                    )
+                    place = self._first_text(
+                        page,
+                        [
+                            ".jobs-unified-top-card__bullet",
+                            ".job-details-jobs-unified-top-card__primary-description",
+                            ".topcard__flavor--bullet",
+                        ],
+                    )
+                    description = self._first_text(
+                        page,
+                        ["#job-details", ".jobs-description-content__text", ".show-more-less-html__markup"],
+                    )
+                    main_text = self._first_text(page, ["main"])
+                    page_title_parts = [part.strip() for part in page.title().split("|")]
+                    if not title and page_title_parts:
+                        title = page_title_parts[0]
+                    if not company and len(page_title_parts) > 1:
+                        company = page_title_parts[1]
+                    if not place and main_text:
+                        lines = [line.strip() for line in main_text.splitlines() if line.strip()]
+                        try:
+                            title_index = lines.index(title)
+                            place = lines[title_index + 1] if title_index + 1 < len(lines) else ""
+                        except ValueError:
+                            place = ""
+                    if not description:
+                        description = main_text
+                    search_job = JobOpportunity(
+                        id=0,
+                        resume_id=resume.id,
+                        title=title or "Unknown LinkedIn job",
+                        company=company or "Unknown company",
+                        location=place,
+                        job_url=job_url,
+                        description=description or "",
+                        easy_apply=False,
+                        match_score=0,
+                    )
+                    detected_locator, search_diagnostics = self._detect_easy_apply(
+                        page,
+                        search_job,
+                        readiness,
+                    )
+                    easy_apply = detected_locator is not None
+                    search_diagnostics.update(
+                        {
+                            "linkedin_job_id": linkedin_job_id,
+                            "phase": "search",
+                            "search_phase_easy_apply_result": easy_apply,
+                            "application_phase_easy_apply_result": None,
+                            "EASY_APPLY_MISMATCH": False,
+                            "failure_reason": None if easy_apply else search_diagnostics["reason"],
+                            "navigation_events": [
+                                self._navigation_state(page, "search_job_details_navigation")
+                            ],
+                        }
+                    )
+                    if debug_dir:
+                        self._capture_debug_screenshot(page, debug_dir, "04_after_easy_apply_detection")
+                        self._merge_diagnostic_file(debug_dir, search_diagnostics)
+                    if title and company:
+                        jobs.append(
+                            {
+                                "title": title,
+                                "company": company,
+                                "location": place,
+                                "description": description,
+                                "job_url": job_url,
+                                "easy_apply": easy_apply,
+                            }
+                        )
+                except Exception as exc:
+                    logger.warning("Skipping LinkedIn job %s: %s", job_url, exc)
+        return jobs
+
+    def search_jobs_many(
+        self,
+        resume: ResumeProfile,
+        variations,
+        limit_per_query: int,
+        collect_card_diagnostics: bool = False,
+    ) -> list[tuple[object, list[dict]]]:
+        debug_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        results: list[tuple[object, list[dict]]] = []
+        with self._browser_context() as context:
+            page = context.new_page()
+            for variation in variations:
+                results.append(
+                    (
+                        variation,
+                        self._search_jobs_on_page(
+                            context,
+                            page,
+                            resume,
+                            getattr(variation, "location", ""),
+                            getattr(variation, "query", None),
+                            limit_per_query,
+                            collect_card_diagnostics,
+                            debug_timestamp,
+                        ),
+                    )
+                )
+        return results
+
+    def _search_jobs_on_page(
+        self,
+        context: BrowserContext,
+        page: Page,
+        resume: ResumeProfile,
+        location: str,
+        keywords: str | None,
+        limit: int,
+        collect_card_diagnostics: bool,
+        debug_timestamp: str,
+    ) -> list[dict]:
+        query = (
+            (keywords or "").strip()
+            or resume.detected_role
+            or " ".join((resume.job_titles or resume.skills or resume.keywords)[:6])
+            or "Software Engineer"
+        )
+        url = (
+            "https://www.linkedin.com/jobs/search/"
+            f"?keywords={quote_plus(query)}&location={quote_plus(location)}&f_AL=true"
+        )
+        jobs: list[dict] = []
+        page.goto(url, wait_until="domcontentloaded")
+        try:
+            page.locator(
+                "li[data-occludable-job-id], .scaffold-layout__list-item, "
+                "ul.jobs-search__results-list li, .jobs-search-results__list-item"
+            ).first.wait_for(state="visible", timeout=3500)
+        except PlaywrightTimeoutError:
+            page.wait_for_timeout(500)
+        card_selector = (
+            "li[data-occludable-job-id], .scaffold-layout__list-item, "
+            "ul.jobs-search__results-list li, .jobs-search-results__list-item"
+        )
+        cards = page.locator(card_selector)
+        count = min(cards.count(), limit)
+        job_urls: list[str] = []
+        for index in range(count):
+            try:
+                cards = page.locator(card_selector)
+                if index >= cards.count():
+                    break
+                card = cards.nth(index)
+                if collect_card_diagnostics:
+                    card.scroll_into_view_if_needed()
+                links = card.locator("a[href*='/jobs/view/']")
+                if links.count() == 0:
+                    continue
+                href = links.first.get_attribute("href")
+                if href:
+                    job_url = urljoin("https://www.linkedin.com", href).split("?")[0]
+                    if collect_card_diagnostics:
+                        linkedin_job_id = self._linkedin_job_id(job_url, card)
+                        debug_dir = self._create_easy_apply_debug_dir(
+                            job_id=linkedin_job_id,
+                            timestamp=debug_timestamp,
+                        )
+                        self._capture_debug_screenshot(page, debug_dir, "01_job_card_click")
+                        click_diagnostic = self._inspect_job_card_click(
+                            context,
+                            page,
+                            card,
+                            links.first,
+                            job_url,
+                            linkedin_job_id,
+                            debug_dir,
+                        )
+                        self._merge_diagnostic_file(debug_dir, click_diagnostic)
+                    job_urls.append(job_url)
+                    if page.url != url:
+                        page.goto(url, wait_until="domcontentloaded")
+                        page.wait_for_timeout(500)
+            except Exception as exc:
+                logger.warning("Skipping LinkedIn result link %s: %s", index, exc)
+
+        for job_url in list(dict.fromkeys(job_urls))[:limit]:
+            try:
+                page.goto(job_url, wait_until="domcontentloaded")
+                readiness = {
+                    "domcontentloaded": True,
+                    "networkidle": False,
+                    "main_content": False,
+                    "final_url": page.url,
+                }
+                try:
+                    page.locator("main, .jobs-details, .job-view-layout").first.wait_for(
+                        state="visible",
+                        timeout=3000,
+                    )
+                    readiness["main_content"] = True
+                except PlaywrightTimeoutError:
+                    pass
+                readiness["final_url"] = page.url
+                linkedin_job_id = self._linkedin_job_id(job_url)
+                debug_dir = None
+                if collect_card_diagnostics:
+                    debug_dir = self._create_easy_apply_debug_dir(
+                        job_id=linkedin_job_id,
+                        timestamp=debug_timestamp,
+                    )
+                    self._capture_debug_screenshot(page, debug_dir, "02_job_details_page_loaded")
+                    self._capture_debug_screenshot(page, debug_dir, "03_before_easy_apply_detection")
+                title = self._first_text(page, [".jobs-unified-top-card__job-title", ".top-card-layout__title", "h1"])
+                company = self._first_text(
+                    page,
+                    [
+                        ".jobs-unified-top-card__company-name",
+                        ".job-details-jobs-unified-top-card__company-name",
+                        ".topcard__org-name-link",
+                        ".topcard__flavor",
+                    ],
+                )
+                place = self._first_text(
+                    page,
+                    [
+                        ".jobs-unified-top-card__bullet",
+                        ".job-details-jobs-unified-top-card__primary-description",
+                        ".topcard__flavor--bullet",
+                    ],
+                )
+                description = self._first_text(
+                    page,
+                    ["#job-details", ".jobs-description-content__text", ".show-more-less-html__markup"],
+                )
+                main_text = self._first_text(page, ["main"])
+                page_title_parts = [part.strip() for part in page.title().split("|")]
+                if not title and page_title_parts:
+                    title = page_title_parts[0]
+                if not company and len(page_title_parts) > 1:
+                    company = page_title_parts[1]
+                if not place and main_text:
+                    lines = [line.strip() for line in main_text.splitlines() if line.strip()]
+                    try:
+                        title_index = lines.index(title)
+                        place = lines[title_index + 1] if title_index + 1 < len(lines) else ""
+                    except ValueError:
+                        place = ""
+                if not description:
+                    description = main_text
+                search_job = JobOpportunity(
+                    id=0,
+                    resume_id=resume.id,
+                    title=title or "Unknown LinkedIn job",
+                    company=company or "Unknown company",
+                    location=place,
+                    job_url=job_url,
+                    description=description or "",
+                    easy_apply=False,
+                    match_score=0,
+                )
+                detected_locator, search_diagnostics = self._detect_easy_apply(
+                    page,
+                    search_job,
+                    readiness,
+                )
+                easy_apply = detected_locator is not None
+                search_diagnostics.update(
+                    {
+                        "linkedin_job_id": linkedin_job_id,
+                        "phase": "search",
+                        "search_phase_easy_apply_result": easy_apply,
+                        "application_phase_easy_apply_result": None,
+                        "EASY_APPLY_MISMATCH": False,
+                        "failure_reason": None if easy_apply else search_diagnostics["reason"],
+                        "navigation_events": [
+                            self._navigation_state(page, "search_job_details_navigation")
+                        ],
+                    }
+                )
+                if debug_dir:
+                    self._capture_debug_screenshot(page, debug_dir, "04_after_easy_apply_detection")
+                    self._merge_diagnostic_file(debug_dir, search_diagnostics)
+                if title and company:
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": company,
+                            "location": place,
+                            "description": description,
+                            "job_url": job_url,
+                            "easy_apply": easy_apply,
+                        }
+                    )
+            except Exception as exc:
+                logger.warning("Skipping LinkedIn job %s: %s", job_url, exc)
+        return jobs
+
+    @retry(
+        retry=retry_if_exception_type((PlaywrightTimeoutError, RuntimeError)),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(3),
+        reraise=True,
+    )
+    def apply_to_job(
+        self,
+        job: JobOpportunity,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+        dry_run: bool,
+        capture_evidence: bool = False,
+        screening_context: dict | None = None,
+    ) -> AutomationResult:
+        run_log: list[dict] = []
+        contact_events: list[dict] = []
+        screening_events: list[dict] = []
+        employment_events: list[dict] = []
+        screening_context = screening_context or {"mode": "safe", "saved_answers": []}
+        evidence_dir = self._create_evidence_dir(job) if capture_evidence else None
+        contact_debug_dir: Path | None = None
+        profile_apply_debug_dir: Path | None = None
+        form_navigation_debug_dir: Path | None = None
+        screening_debug_dir: Path | None = None
+        workflow_debug_dir: Path | None = None
+        employment_history_debug_dir: Path | None = None
+        form_steps: list[dict] = []
+        workflow_trace: list[dict] = []
+        workflow_seen_states: dict[str, int] = {}
+        workflow_started_at = datetime.utcnow()
+        current_step = "initialized"
+        resume_upload_debug_dir, resume_upload_diagnostics = self._create_resume_upload_diagnostics(job, resume)
+        self._log(run_log, current_step, f"{job.title} at {job.company}")
+        self._log(run_log, "resume_upload_check", json.dumps(resume_upload_diagnostics))
+        if resume_upload_diagnostics["mismatch_detected"] or not resume_upload_diagnostics["file_exists"]:
+            current_step = "needs_review"
+            reason = resume_upload_diagnostics["reason_if_failed"]
+            self._log(run_log, current_step, reason)
+            self._save_resume_upload_diagnostics(resume_upload_debug_dir, resume_upload_diagnostics)
+            return AutomationResult(
+                ApplicationStatus.NEEDS_REVIEW,
+                reason,
+                run_log,
+                current_step,
+                None,
+                resume_upload_diagnostics=resume_upload_diagnostics,
+            )
+        self._persist_run_log(
+            evidence_dir,
+            job,
+            dry_run,
+            current_step,
+            run_log,
+            contact_events=contact_events,
+        )
+        try:
+            with self._browser_context() as context:
+                page = context.new_page()
+                current_step = "job_opened"
+                page.goto(job.job_url, wait_until="domcontentloaded")
+                readiness = self._wait_for_job_page(page)
+                navigation = self._navigation_state(page, "application_job_navigation")
+                self._log(run_log, current_step, json.dumps(navigation))
+                self._capture_screenshot(page, evidence_dir, "01_job_page")
+                self._persist_run_log(
+                    evidence_dir,
+                    job,
+                    dry_run,
+                    current_step,
+                    run_log,
+                    contact_events=contact_events,
+                )
+
+                linkedin_job_id = self._linkedin_job_id(job.job_url)
+                contact_debug_dir = self._create_contact_debug_dir(job, linkedin_job_id)
+                profile_apply_debug_dir = self._create_profile_apply_debug_dir(job, linkedin_job_id)
+                form_navigation_debug_dir = self._create_form_navigation_debug_dir(job, linkedin_job_id)
+                screening_debug_dir = self._create_screening_debug_dir(job, linkedin_job_id)
+                workflow_debug_dir = self._create_workflow_debug_dir(job, linkedin_job_id)
+                employment_history_debug_dir = self._create_employment_history_debug_dir(job, linkedin_job_id)
+                self._save_profile_apply_debug(
+                    profile_apply_debug_dir,
+                    "merged_candidate_profile.json",
+                    self._candidate_profile_debug_payload(candidate_profile),
+                )
+                self._log(
+                    run_log,
+                    "linkedin_job_identified",
+                    json.dumps(
+                        {
+                            "linkedin_job_id": linkedin_job_id,
+                            "job_url": job.job_url,
+                        }
+                    ),
+                )
+                debug_dir = self._create_easy_apply_debug_dir(job_id=linkedin_job_id)
+                self._capture_debug_screenshot(page, debug_dir, "02_job_details_page_loaded")
+                self._capture_debug_screenshot(page, debug_dir, "03_before_easy_apply_detection")
+                easy_apply, diagnostics = self._detect_easy_apply(page, job, readiness)
+                if easy_apply is None and job.easy_apply:
+                    first_attempt = diagnostics
+                    page.reload(wait_until="domcontentloaded")
+                    readiness = self._wait_for_job_page(page)
+                    self._capture_debug_screenshot(
+                        page,
+                        debug_dir,
+                        "03b_after_reload_before_detection",
+                    )
+                    easy_apply, diagnostics = self._detect_easy_apply(page, job, readiness)
+                    diagnostics["retry_after_reload"] = {
+                        "attempted": True,
+                        "first_classification": first_attempt["classification"],
+                        "first_reason": first_attempt["reason"],
+                        "first_page_title": navigation["page_title"],
+                    }
+                application_easy_apply = easy_apply is not None
+                mismatch = bool(job.easy_apply and not application_easy_apply)
+                diagnostics.update(
+                    {
+                        "linkedin_job_id": linkedin_job_id,
+                        "phase": "application",
+                        "search_phase_easy_apply_result": job.easy_apply,
+                        "application_phase_easy_apply_result": application_easy_apply,
+                        "EASY_APPLY_MISMATCH": mismatch,
+                        "navigation_events": [navigation],
+                        "failure_reason": None if application_easy_apply else diagnostics["reason"],
+                    }
+                )
+                self._capture_debug_screenshot(page, debug_dir, "04_after_easy_apply_detection")
+                self._log(
+                    run_log,
+                    "apply_controls_inspected",
+                    json.dumps(
+                        {
+                            "buttons": diagnostics["visible_button_texts"],
+                            "selector_results": diagnostics["selector_results"],
+                            "classification": diagnostics["classification"],
+                            "EASY_APPLY_MISMATCH": mismatch,
+                        }
+                    ),
+                )
+                if easy_apply is None:
+                    current_step = "easy_apply_unavailable"
+                    reason = diagnostics["reason"]
+                    self._log(run_log, current_step, reason)
+                    self._save_easy_apply_diagnostics(page, debug_dir, diagnostics, save_html=True)
+                    self._capture_screenshot(page, evidence_dir, "failure_easy_apply_unavailable")
+                    self._persist_run_log(
+                        evidence_dir,
+                        job,
+                        dry_run,
+                        current_step,
+                        run_log,
+                        contact_events=contact_events,
+                    )
+                    return AutomationResult(
+                        ApplicationStatus.SKIPPED,
+                        reason,
+                        run_log,
+                        current_step,
+                        str(evidence_dir) if evidence_dir else None,
+                    )
+                self._save_easy_apply_diagnostics(page, debug_dir, diagnostics, save_html=False)
+                easy_apply.click()
+                modal = self._wait_for_easy_apply_modal(page)
+                if modal is None:
+                    current_step = "easy_apply_modal_unavailable"
+                    message = "Easy Apply was clicked, but the application modal did not become available."
+                    self._log(run_log, current_step, message)
+                    self._capture_screenshot(page, evidence_dir, "failure_modal_unavailable")
+                    self._save_form_diagnostics(page, None, evidence_dir, debug_dir, current_step)
+                    self._persist_run_log(
+                        evidence_dir,
+                        job,
+                        dry_run,
+                        current_step,
+                        run_log,
+                        contact_events=contact_events,
+                    )
+                    return AutomationResult(
+                        ApplicationStatus.NEEDS_REVIEW,
+                        message,
+                        run_log,
+                        current_step,
+                        str(evidence_dir) if evidence_dir else None,
+                    )
+                current_step = "easy_apply_clicked"
+                self._log(run_log, current_step, job.job_url)
+                self._capture_screenshot(page, evidence_dir, "02_easy_apply_modal")
+
+                resume_path = Path(resume.stored_path).resolve()
+                if self._upload_resume_if_needed(
+                    modal,
+                    resume_path,
+                    resume_upload_diagnostics,
+                    resume_upload_debug_dir,
+                ):
+                    current_step = "resume_uploaded"
+                    self._log(run_log, current_step, resume.filename)
+                    self._log(run_log, "resume_upload_check", json.dumps(resume_upload_diagnostics))
+                    page.wait_for_timeout(1200)
+                    self._capture_screenshot(page, evidence_dir, "03_resume_upload")
+                if resume_upload_diagnostics.get("mismatch_detected"):
+                    current_step = "needs_review"
+                    message = resume_upload_diagnostics.get("reason_if_failed") or "Resume upload mismatch detected."
+                    self._log(run_log, current_step, message)
+                    self._persist_run_log(
+                        evidence_dir,
+                        job,
+                        dry_run,
+                        current_step,
+                        run_log,
+                        contact_events=contact_events,
+                    )
+                    return AutomationResult(
+                        ApplicationStatus.NEEDS_REVIEW,
+                        message,
+                        run_log,
+                        current_step,
+                        str(evidence_dir) if evidence_dir else None,
+                        resume_upload_diagnostics=resume_upload_diagnostics,
+                    )
+
+                for form_page in range(1, 9):
+                    modal = self._current_easy_apply_modal(page)
+                    if modal is None:
+                        current_step = "easy_apply_modal_closed"
+                        message = "The Easy Apply modal closed before the workflow completed."
+                        self._log(run_log, current_step, message)
+                        self._record_form_navigation_step(
+                            page,
+                            None,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "modal_closed",
+                            "LinkedIn modal closed unexpectedly",
+                        )
+                        self._save_form_diagnostics(page, None, evidence_dir, debug_dir, current_step)
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                        )
+
+                    inspection = self._record_workflow_trace(
+                        page,
+                        modal,
+                        workflow_debug_dir,
+                        workflow_trace,
+                        workflow_seen_states,
+                        form_page,
+                        "inspect",
+                        False,
+                        None,
+                        0,
+                        workflow_started_at,
+                    )
+                    if inspection["repeated_count"] >= 3:
+                        current_step = "needs_review"
+                        message = (
+                            "Repeated workflow state detected: "
+                            f"{inspection['detected_page_type']} page repeated "
+                            f"{inspection['repeated_count']} times without meaningful navigation."
+                        )
+                        self._log(run_log, current_step, message)
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "stopped",
+                            message,
+                        )
+                        self._capture_screenshot(page, evidence_dir, "failure_repeated_workflow_state")
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                            resume_upload_diagnostics,
+                        )
+
+                    if self._upload_resume_if_needed(
+                        modal,
+                        resume_path,
+                        resume_upload_diagnostics,
+                        resume_upload_debug_dir,
+                    ):
+                        current_step = "resume_uploaded"
+                        self._log(run_log, current_step, resume.filename)
+                        self._log(run_log, "resume_upload_check", json.dumps(resume_upload_diagnostics))
+                        page.wait_for_timeout(1200)
+                        self._capture_screenshot(page, evidence_dir, "03_resume_upload")
+                    if resume_upload_diagnostics.get("mismatch_detected"):
+                        current_step = "needs_review"
+                        message = resume_upload_diagnostics.get("reason_if_failed") or "Resume upload mismatch detected."
+                        self._log(run_log, current_step, message)
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                            resume_upload_diagnostics,
+                        )
+
+                    contact_missing = self._fill_contact_fields(
+                        modal,
+                        candidate_profile,
+                        resume,
+                        contact_debug_dir,
+                        profile_apply_debug_dir,
+                        contact_events,
+                    )
+                    if contact_missing:
+                        current_step = "needs_review"
+                        message = (
+                            "Required contact fields need review: "
+                            f"{', '.join(contact_missing)}."
+                        )
+                        self._log(run_log, current_step, message)
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "stopped",
+                            f"Missing required field: {', '.join(contact_missing)}",
+                        )
+                        self._capture_screenshot(page, evidence_dir, "failure_missing_contact_fields")
+                        self._save_form_diagnostics(
+                            page,
+                            modal,
+                            evidence_dir,
+                            debug_dir,
+                            current_step,
+                        )
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                        )
+
+                    answered_screening = self._answer_screening_questions(
+                        modal,
+                        resume,
+                        job,
+                        candidate_profile,
+                        screening_context,
+                        screening_debug_dir,
+                        screening_events,
+                    )
+                    if answered_screening:
+                        current_step = "screening_questions_answered"
+                        self._log(run_log, current_step, json.dumps(answered_screening))
+                        page.wait_for_timeout(500)
+
+                    employment_missing = self._fill_employment_history_fields(
+                        modal,
+                        screening_context.get("employment_history") or [],
+                        candidate_profile,
+                        resume,
+                        screening_context.get("mode") or "safe",
+                        employment_history_debug_dir,
+                        employment_events,
+                    )
+                    if employment_events:
+                        latest_employment_events = employment_events[-10:]
+                        self._log(
+                            run_log,
+                            "employment_history_autofill",
+                            json.dumps(latest_employment_events, default=str),
+                        )
+                        page.wait_for_timeout(500)
+                    if employment_missing:
+                        current_step = "needs_review"
+                        message = "Required employment fields need review: " + ", ".join(employment_missing[:8]) + "."
+                        self._log(run_log, current_step, message)
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "stopped",
+                            message,
+                        )
+                        self._capture_screenshot(page, evidence_dir, "failure_missing_employment_fields")
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                            resume_upload_diagnostics,
+                        )
+
+                    blocker = self._detect_unanswered_custom_questions(modal)
+                    if blocker:
+                        current_step = "needs_review"
+                        self._log(run_log, current_step, blocker)
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "stopped",
+                            f"Screening question unanswered: {blocker}",
+                        )
+                        self._capture_screenshot(page, evidence_dir, "failure_needs_review")
+                        self._save_form_diagnostics(
+                            page,
+                            modal,
+                            evidence_dir,
+                            debug_dir,
+                            current_step,
+                        )
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            blocker,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                        )
+
+                    validation_messages = self._validation_messages(modal)
+                    if validation_messages and employment_events and not self._form_required_fields(modal, unresolved_only=True):
+                        validation_messages = []
+                    if validation_messages:
+                        current_step = "needs_review"
+                        message = "Validation error: " + "; ".join(validation_messages[:5])
+                        self._log(run_log, current_step, message)
+                        self._record_workflow_trace(
+                            page,
+                            modal,
+                            workflow_debug_dir,
+                            workflow_trace,
+                            workflow_seen_states,
+                            form_page,
+                            "none",
+                            False,
+                            None,
+                            0,
+                            workflow_started_at,
+                            message,
+                        )
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "none",
+                            "stopped",
+                            message,
+                        )
+                        self._capture_screenshot(page, evidence_dir, "failure_validation_error")
+                        self._save_form_diagnostics(
+                            page,
+                            modal,
+                            evidence_dir,
+                            debug_dir,
+                            current_step,
+                        )
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                            screening_events,
+                            resume_upload_diagnostics,
+                        )
+
+                    submit = modal.get_by_role(
+                        "button",
+                        name=re.compile(r"^\s*Submit application\s*$", re.I),
+                    )
+                    if submit.count() > 0 and submit.first.is_enabled():
+                        current_step = "review_page_reached"
+                        self._log(run_log, current_step, f"Form page {form_page}")
+                        self._capture_screenshot(page, evidence_dir, "04_review_step")
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            "submit_available",
+                            "dry_run_stop" if dry_run else "submit_ready",
+                            None if not dry_run else "Dry run reached submit/review stage; application not submitted.",
+                        )
+                        if dry_run:
+                            current_step = "dry_run_complete"
+                            message = "Dry run reached submit/review stage; application not submitted."
+                            self._log(run_log, current_step, message)
+                            self._persist_run_log(
+                                evidence_dir,
+                                job,
+                                dry_run,
+                                current_step,
+                                run_log,
+                                contact_events=contact_events,
+                            )
+                            return AutomationResult(
+                                ApplicationStatus.SKIPPED,
+                                message,
+                                run_log,
+                                current_step,
+                                str(evidence_dir) if evidence_dir else None,
+                                self._contact_detected(contact_events),
+                                self._contact_filled(contact_events),
+                                self._contact_missing(contact_events),
+                                screening_events,
+                            )
+
+                        submit.first.click()
+                        current_step = "submit_clicked"
+                        self._log(run_log, current_step, job.job_url)
+                        page.wait_for_timeout(2500)
+                        self._capture_screenshot(page, evidence_dir, "05_submission_confirmation")
+                        if self._confirmation_received(page):
+                            current_step = "confirmation_received"
+                            self._log(run_log, current_step, job.job_url)
+                            self._persist_run_log(
+                                evidence_dir,
+                                job,
+                                dry_run,
+                                current_step,
+                                run_log,
+                                contact_events=contact_events,
+                            )
+                            return AutomationResult(
+                                ApplicationStatus.APPLIED,
+                                None,
+                                run_log,
+                                current_step,
+                                str(evidence_dir) if evidence_dir else None,
+                                self._contact_detected(contact_events),
+                                self._contact_filled(contact_events),
+                                self._contact_missing(contact_events),
+                                screening_events,
+                            )
+
+                        current_step = "confirmation_not_detected"
+                        message = "Submit was clicked, but LinkedIn confirmation was not detected."
+                        self._log(run_log, current_step, message)
+                        self._capture_screenshot(page, evidence_dir, "failure_confirmation_not_detected")
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        return AutomationResult(
+                            ApplicationStatus.NEEDS_REVIEW,
+                            message,
+                            run_log,
+                            current_step,
+                            str(evidence_dir) if evidence_dir else None,
+                            self._contact_detected(contact_events),
+                            self._contact_filled(contact_events),
+                            self._contact_missing(contact_events),
+                        )
+
+                    navigation = self._find_navigation_button(modal)
+                    if navigation["locator"] is not None and navigation["enabled"]:
+                        button_text = navigation["text"]
+                        before_state = self._workflow_state(page, modal)
+                        self._record_form_navigation_step(
+                            page,
+                            modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            f"click_{button_text.lower()}",
+                            "attempting_click",
+                            None,
+                        )
+                        try:
+                            navigation["locator"].click(timeout=8000)
+                        except PlaywrightTimeoutError:
+                            navigation["locator"].click(timeout=3000, force=True)
+                        self._wait_for_form_transition(page, modal)
+                        after_modal = self._current_easy_apply_modal(page)
+                        after_state = self._workflow_state(page, after_modal)
+                        navigation_failure = self._navigation_failure_reason(before_state, after_state, button_text)
+                        if navigation_failure:
+                            answered_after_navigation = self._answer_screening_questions(
+                                after_modal,
+                                resume,
+                                job,
+                                candidate_profile,
+                                screening_context,
+                                screening_debug_dir,
+                                screening_events,
+                            )
+                            if answered_after_navigation:
+                                current_step = "screening_questions_answered"
+                                self._log(run_log, current_step, json.dumps(answered_after_navigation))
+                                page.wait_for_timeout(500)
+                                unresolved_after_screening = self._detect_unanswered_custom_questions(after_modal)
+                                if not unresolved_after_screening:
+                                    self._record_form_navigation_step(
+                                        page,
+                                        after_modal,
+                                        form_navigation_debug_dir,
+                                        form_steps,
+                                        form_page,
+                                        f"clicked_{button_text.lower()}",
+                                        "screening_answered_after_navigation",
+                                        None,
+                                    )
+                                    self._persist_run_log(
+                                        evidence_dir,
+                                        job,
+                                        dry_run,
+                                        current_step,
+                                        run_log,
+                                        contact_events=contact_events,
+                                    )
+                                    continue
+                                navigation_failure = f"Navigation revealed unresolved required fields: {unresolved_after_screening}"
+                            current_step = "needs_review"
+                            self._log(run_log, current_step, navigation_failure)
+                            self._record_workflow_trace(
+                                page,
+                                after_modal,
+                                workflow_debug_dir,
+                                workflow_trace,
+                                workflow_seen_states,
+                                form_page,
+                                f"click_{button_text.lower()}",
+                                False,
+                                after_state["detected_page_type"],
+                                1,
+                                workflow_started_at,
+                                navigation_failure,
+                            )
+                            self._record_form_navigation_step(
+                                page,
+                                after_modal,
+                                form_navigation_debug_dir,
+                                form_steps,
+                                form_page,
+                                f"clicked_{button_text.lower()}",
+                                "navigation_failed",
+                                navigation_failure,
+                            )
+                            self._capture_screenshot(page, evidence_dir, "failure_navigation_unchanged")
+                            self._persist_run_log(
+                                evidence_dir,
+                                job,
+                                dry_run,
+                                current_step,
+                                run_log,
+                                contact_events=contact_events,
+                            )
+                            return AutomationResult(
+                                ApplicationStatus.NEEDS_REVIEW,
+                                navigation_failure,
+                                run_log,
+                                current_step,
+                                str(evidence_dir) if evidence_dir else None,
+                                self._contact_detected(contact_events),
+                                self._contact_filled(contact_events),
+                                self._contact_missing(contact_events),
+                                screening_events,
+                                resume_upload_diagnostics,
+                            )
+                        current_step = "form_page_processed"
+                        self._log(run_log, current_step, f"Page {form_page}: {button_text}")
+                        if "review" in button_text.lower():
+                            self._capture_screenshot(page, evidence_dir, "04_review_step")
+                        self._record_form_navigation_step(
+                            page,
+                            after_modal,
+                            form_navigation_debug_dir,
+                            form_steps,
+                            form_page,
+                            f"clicked_{button_text.lower()}",
+                            "advanced_or_transitioned",
+                            None,
+                        )
+                        self._record_workflow_trace(
+                            page,
+                            after_modal,
+                            workflow_debug_dir,
+                            workflow_trace,
+                            workflow_seen_states,
+                            form_page,
+                            f"click_{button_text.lower()}",
+                            True,
+                            after_state["detected_page_type"],
+                            0,
+                            workflow_started_at,
+                        )
+                        self._persist_run_log(
+                            evidence_dir,
+                            job,
+                            dry_run,
+                            current_step,
+                            run_log,
+                            contact_events=contact_events,
+                        )
+                        continue
+
+                    if navigation["locator"] is not None and not navigation["enabled"]:
+                        reason = f"Disabled button: {navigation['text']}"
+                    else:
+                        reason = self._classify_form_stop_reason(modal)
+
+                    current_step = "needs_review"
+                    message = reason
+                    self._log(run_log, current_step, message)
+                    self._record_form_navigation_step(
+                        page,
+                        modal,
+                        form_navigation_debug_dir,
+                        form_steps,
+                        form_page,
+                        "none",
+                        "stopped",
+                        reason,
+                    )
+                    self._capture_screenshot(page, evidence_dir, "failure_form_incomplete")
+                    self._save_form_diagnostics(
+                        page,
+                        modal,
+                        evidence_dir,
+                        debug_dir,
+                        current_step,
+                    )
+                    self._persist_run_log(
+                        evidence_dir,
+                        job,
+                        dry_run,
+                        current_step,
+                        run_log,
+                        contact_events=contact_events,
+                    )
+                    return AutomationResult(
+                        ApplicationStatus.NEEDS_REVIEW,
+                        message,
+                        run_log,
+                        current_step,
+                        str(evidence_dir) if evidence_dir else None,
+                        self._contact_detected(contact_events),
+                        self._contact_filled(contact_events),
+                        self._contact_missing(contact_events),
+                    )
+
+                current_step = "needs_review"
+                modal = self._current_easy_apply_modal(page)
+                message = self._step_limit_reason(modal)
+                self._log(run_log, current_step, message)
+                self._record_workflow_trace(
+                    page,
+                    modal,
+                    workflow_debug_dir,
+                    workflow_trace,
+                    workflow_seen_states,
+                    9,
+                    "none",
+                    False,
+                    None,
+                    0,
+                    workflow_started_at,
+                    message,
+                )
+                self._capture_screenshot(page, evidence_dir, "failure_step_limit")
+                self._persist_run_log(
+                    evidence_dir,
+                    job,
+                    dry_run,
+                    current_step,
+                    run_log,
+                    contact_events=contact_events,
+                )
+                return AutomationResult(
+                    ApplicationStatus.NEEDS_REVIEW,
+                    message,
+                    run_log,
+                    current_step,
+                    str(evidence_dir) if evidence_dir else None,
+                    self._contact_detected(contact_events),
+                    self._contact_filled(contact_events),
+                    self._contact_missing(contact_events),
+                )
+        except Exception as exc:
+            current_step = "automation_failed"
+            self._log(run_log, current_step, str(exc))
+            if "page" in locals():
+                self._capture_screenshot(page, evidence_dir, "failure_exception")
+                if "debug_dir" in locals():
+                    self._save_form_diagnostics(
+                        page,
+                        self._current_easy_apply_modal(page),
+                        evidence_dir,
+                        debug_dir,
+                        current_step,
+                    )
+            self._persist_run_log(
+                evidence_dir,
+                job,
+                dry_run,
+                current_step,
+                run_log,
+                error=str(exc),
+                contact_events=contact_events,
+            )
+            return AutomationResult(
+                ApplicationStatus.FAILED,
+                str(exc),
+                run_log,
+                current_step,
+                str(evidence_dir) if evidence_dir else None,
+                self._contact_detected(contact_events),
+                self._contact_filled(contact_events),
+                self._contact_missing(contact_events),
+            )
+
+    def _wait_for_job_page(self, page: Page) -> dict:
+        readiness = {
+            "domcontentloaded": True,
+            "networkidle": False,
+            "main_content": False,
+            "final_url": page.url,
+        }
+        try:
+            page.wait_for_load_state("networkidle", timeout=10000)
+            readiness["networkidle"] = True
+        except PlaywrightTimeoutError:
+            logger.info("LinkedIn job page did not reach network idle within 10 seconds.")
+        try:
+            page.locator("main, .jobs-details, .job-view-layout").first.wait_for(
+                state="visible",
+                timeout=10000,
+            )
+            readiness["main_content"] = True
+        except PlaywrightTimeoutError:
+            logger.info("LinkedIn job main content was not confirmed within 10 seconds.")
+        page.wait_for_timeout(750)
+        readiness["final_url"] = page.url
+        return readiness
+
+    def _detect_easy_apply(self, page: Page, job: JobOpportunity, readiness: dict):
+        exact_selectors = [
+            'button:has-text("Easy Apply")',
+            'button:has-text("Apply")',
+            'button:has-text("Apply now")',
+            'button:has-text("Submit application")',
+        ]
+        exact_selector_results = [
+            {
+                "selector": selector,
+                "count": page.locator(selector).count(),
+            }
+            for selector in exact_selectors
+        ]
+        selector_definitions = [
+            (
+                "css_button_has_text_easy_apply",
+                page.locator('button:has-text("Easy Apply")'),
+                True,
+            ),
+            (
+                "role_button_easy_apply",
+                page.get_by_role("button", name=re.compile(r"^\s*Easy Apply\s*$", re.I)),
+                True,
+            ),
+            (
+                "aria_label_easy_apply",
+                page.locator("button[aria-label*='Easy Apply' i], a[aria-label*='Easy Apply' i]"),
+                True,
+            ),
+            (
+                "linkedin_inapply_control",
+                page.locator(
+                    "button[data-control-name*='inapply' i], "
+                    "a[data-control-name*='inapply' i], "
+                    "button.jobs-apply-button"
+                ),
+                True,
+            ),
+            (
+                "role_button_apply_now",
+                page.get_by_role("button", name=re.compile(r"^\s*Apply now\s*$", re.I)),
+                False,
+            ),
+            (
+                "role_button_apply",
+                page.get_by_role("button", name=re.compile(r"^\s*Apply\s*$", re.I)),
+                False,
+            ),
+            (
+                "role_button_submit_application",
+                page.get_by_role("button", name=re.compile(r"^\s*Submit application\s*$", re.I)),
+                False,
+            ),
+        ]
+        selector_results: list[dict] = []
+        confirmed_locator = None
+        for name, locator, explicit_easy_apply in selector_definitions:
+            count = locator.count()
+            selector_results.append(
+                {
+                    "name": name,
+                    "count": count,
+                    "explicit_easy_apply": explicit_easy_apply,
+                }
+            )
+            if confirmed_locator is None and explicit_easy_apply and count > 0:
+                confirmed_locator = locator.first
+
+        visible_buttons = self._visible_button_texts(page)
+        external_links = self._external_apply_links(page)
+        final_host = urlparse(page.url).hostname or ""
+        redirected_external = bool(final_host and not final_host.endswith("linkedin.com"))
+
+        if confirmed_locator is not None:
+            reason = "Confirmed LinkedIn Easy Apply control."
+            classification = "linkedin_easy_apply"
+        elif redirected_external:
+            reason = f"Job page redirected to external host: {final_host}."
+            classification = "external_redirect"
+        elif external_links:
+            reason = "Only an external application link was detected; LinkedIn Easy Apply was not confirmed."
+            classification = "external_application"
+        elif any(
+            result["count"] > 0
+            for result in selector_results
+            if result["name"] in {"role_button_apply", "role_button_apply_now"}
+        ):
+            reason = "A generic Apply button was found, but it could not be verified as LinkedIn Easy Apply."
+            classification = "unverified_apply_button"
+        elif not job.easy_apply:
+            reason = "LinkedIn page did not expose Easy Apply and the search result was not marked Easy Apply."
+            classification = "not_easy_apply"
+        else:
+            reason = "Job was marked Easy Apply, but no supported Easy Apply control was found after page readiness checks."
+            classification = "easy_apply_control_missing"
+
+        diagnostics = {
+            "job_id": job.id,
+            "job_title": job.title,
+            "company": job.company,
+            "job_url": job.job_url,
+            "final_url": page.url,
+            "recorded_easy_apply": job.easy_apply,
+            "readiness": readiness,
+            "visible_button_texts": visible_buttons,
+            "selector_results": selector_results,
+            "exact_selector_matches": exact_selector_results,
+            "external_apply_links": external_links,
+            "classification": classification,
+            "reason": reason,
+            "captured_at": datetime.utcnow().isoformat(),
+        }
+        return confirmed_locator, diagnostics
+
+    def _inspect_job_card_click(
+        self,
+        context: BrowserContext,
+        page: Page,
+        card,
+        link,
+        job_url: str,
+        linkedin_job_id: str,
+        debug_dir: Path,
+    ) -> dict:
+        before_pages = list(context.pages)
+        before_navigation = self._navigation_state(page, "before_job_card_click")
+        card_attributes = {
+            "class": card.get_attribute("class"),
+            "aria_current": card.get_attribute("aria-current"),
+            "data_job_id": card.get_attribute("data-occludable-job-id"),
+        }
+        link.click()
+        page.wait_for_timeout(1500)
+        after_pages = list(context.pages)
+        new_pages = [candidate for candidate in after_pages if candidate not in before_pages]
+        opened_page = new_pages[-1] if new_pages else page
+        try:
+            opened_page.wait_for_load_state("domcontentloaded", timeout=10000)
+        except PlaywrightTimeoutError:
+            pass
+        after_navigation = self._navigation_state(opened_page, "after_job_card_click")
+        host = urlparse(opened_page.url).hostname or ""
+        if host and not host.endswith("linkedin.com"):
+            opening_mode = "external_company_site"
+        elif new_pages:
+            opening_mode = "new_tab"
+        else:
+            opening_mode = "in_place_details_panel"
+
+        selected_state = False
+        if opened_page is page and page.url.startswith("https://www.linkedin.com/jobs/search"):
+            selected_card = page.locator(
+                f"li[data-occludable-job-id='{linkedin_job_id}'], "
+                f"[data-job-id='{linkedin_job_id}']"
+            )
+            if selected_card.count() > 0:
+                selected = selected_card.first
+                class_name = selected.get_attribute("class") or ""
+                selected_state = any(
+                    (
+                        "selected" in class_name.lower(),
+                        selected.get_attribute("aria-current") in {"true", "page"},
+                        selected.get_attribute("aria-selected") == "true",
+                    )
+                )
+        elif opened_page.url:
+            selected_state = linkedin_job_id in opened_page.url
+
+        self._capture_debug_screenshot(
+            opened_page,
+            debug_dir,
+            "02_job_details_page_loaded",
+        )
+        if new_pages:
+            opened_page.close()
+
+        return {
+            "linkedin_job_id": linkedin_job_id,
+            "job_url": job_url,
+            "phase": "search_card_click",
+            "card_attributes_before_click": card_attributes,
+            "selected_job_card_active_after_click": selected_state,
+            "opening_mode": opening_mode,
+            "navigation_events": [before_navigation, after_navigation],
+            "captured_at": datetime.utcnow().isoformat(),
+        }
+
+    def _navigation_state(self, page: Page, event: str) -> dict:
+        try:
+            title = page.title()
+        except Exception:
+            title = ""
+        return {
+            "event": event,
+            "page_title": title,
+            "current_url": page.url,
+            "captured_at": datetime.utcnow().isoformat(),
+        }
+
+    def _linkedin_job_id(self, job_url: str, card=None) -> str:
+        if card is not None:
+            for attribute in ("data-occludable-job-id", "data-job-id"):
+                value = card.get_attribute(attribute)
+                if value:
+                    match = re.search(r"\d+", value)
+                    if match:
+                        return match.group(0)
+        match = re.search(r"/jobs/view/(?:[^/?]*-)?(\d+)(?:[/?]|$)", job_url)
+        if match:
+            return match.group(1)
+        query_match = re.search(r"(?:currentJobId|jobId)=(\d+)", job_url)
+        if query_match:
+            return query_match.group(1)
+        fallback = re.sub(r"[^a-zA-Z0-9_-]+", "_", job_url).strip("_")
+        return fallback[-80:] or "unknown_job"
+
+    def _visible_button_texts(self, page: Page) -> list[str]:
+        texts = page.locator("button:visible, a[role='button']:visible").all_inner_texts()
+        return list(dict.fromkeys(text.strip() for text in texts if text.strip()))
+
+    def _external_apply_links(self, page: Page) -> list[dict]:
+        links = page.locator(
+            "a[href]:visible:has-text('Apply'), "
+            "a[href]:visible[aria-label*='Apply' i]"
+        )
+        results: list[dict] = []
+        for index in range(links.count()):
+            link = links.nth(index)
+            href = link.get_attribute("href") or ""
+            absolute_url = urljoin(page.url, href)
+            host = urlparse(absolute_url).hostname or ""
+            if host and not host.endswith("linkedin.com"):
+                results.append(
+                    {
+                        "text": link.inner_text().strip(),
+                        "url": absolute_url,
+                        "host": host,
+                    }
+                )
+        return results
+
+    def _create_easy_apply_debug_dir(
+        self,
+        job_id: str,
+        timestamp: str | None = None,
+    ) -> Path:
+        timestamp = timestamp or datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(job_id)).strip("_") or "unknown_job"
+        debug_dir = self.settings.easy_apply_debug_dir / timestamp / safe_job_id
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _capture_debug_screenshot(self, page: Page, debug_dir: Path, name: str) -> None:
+        try:
+            try:
+                page.screenshot(path=str(debug_dir / f"{name}.png"), full_page=True, timeout=5000)
+            except TypeError:
+                page.screenshot(path=str(debug_dir / f"{name}.png"), full_page=True)
+        except Exception as exc:
+            logger.warning("Could not capture Easy Apply debug screenshot: %s", exc)
+
+    def _save_easy_apply_diagnostics(
+        self,
+        page: Page,
+        debug_dir: Path,
+        diagnostics: dict,
+        save_html: bool,
+    ) -> None:
+        (debug_dir / "diagnostic.json").write_text(
+            json.dumps(diagnostics, indent=2),
+            encoding="utf-8",
+        )
+        if save_html:
+            try:
+                (debug_dir / "page.html").write_text(page.content(), encoding="utf-8")
+            except Exception as exc:
+                logger.warning("Could not save Easy Apply page HTML: %s", exc)
+
+    def _merge_diagnostic_file(self, debug_dir: Path, updates: dict) -> None:
+        path = debug_dir / "diagnostic.json"
+        existing = {}
+        if path.exists():
+            try:
+                existing = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                existing = {}
+        existing.update(updates)
+        path.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+
+    @contextmanager
+    def _browser_context(self) -> Iterator[BrowserContext]:
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.launch(
+            headless=self.settings.linkedin_headless,
+            slow_mo=self.settings.linkedin_slow_mo_ms,
+        )
+        kwargs = {}
+        if self.settings.linkedin_storage_state.exists():
+            kwargs["storage_state"] = str(self.settings.linkedin_storage_state)
+        context = browser.new_context(**kwargs)
+        try:
+            yield context
+        finally:
+            context.close()
+            browser.close()
+            playwright.stop()
+
+    def _first_text(self, page: Page, selectors: list[str]) -> str:
+        for selector in selectors:
+            locator = page.locator(selector)
+            if locator.count() > 0:
+                text = locator.first.inner_text(timeout=2000).strip()
+                if text:
+                    return text
+        return ""
+
+    def _wait_for_easy_apply_modal(self, page: Page):
+        self._dismiss_interfering_dialogs(page)
+        selectors = [
+            ".jobs-easy-apply-modal",
+            "[role='dialog'][aria-modal='true']",
+            "[data-test-modal]",
+        ]
+        for _ in range(20):
+            for selector in selectors:
+                locator = page.locator(selector)
+                modal = self._best_easy_apply_modal(locator, prefer_first=selector == ".jobs-easy-apply-modal")
+                if modal is not None:
+                    return modal
+            page.wait_for_timeout(250)
+            self._dismiss_interfering_dialogs(page)
+        return None
+
+    def _current_easy_apply_modal(self, page: Page):
+        self._dismiss_interfering_dialogs(page)
+        for selector in (
+            ".jobs-easy-apply-modal",
+            "[role='dialog'][aria-modal='true']",
+            "[data-test-modal]",
+        ):
+            locator = page.locator(selector)
+            modal = self._best_easy_apply_modal(locator, prefer_first=selector == ".jobs-easy-apply-modal")
+            if modal is not None:
+                return modal
+        return None
+
+    def _best_easy_apply_modal(self, locator, prefer_first: bool = False):
+        try:
+            count = locator.count()
+        except Exception:
+            return None
+        if count <= 0:
+            return None
+        visible_modals = []
+        for index in range(count):
+            try:
+                modal = locator.nth(index)
+                if modal.is_visible():
+                    visible_modals.append(modal)
+            except Exception:
+                continue
+        if not visible_modals:
+            return None
+        if prefer_first:
+            return visible_modals[0]
+        for modal in visible_modals:
+            if self._looks_like_easy_apply_modal(modal):
+                return modal
+        return visible_modals[0]
+
+    def _looks_like_easy_apply_modal(self, modal) -> bool:
+        title = self._modal_title(modal).lower()
+        if title.startswith("apply to "):
+            return True
+        try:
+            text = modal.inner_text(timeout=1000).lower()
+        except Exception:
+            text = ""
+        easy_apply_markers = (
+            "easy apply",
+            "submitting this application",
+            "application powered by",
+            "contact info",
+            "resume",
+        )
+        feedback_markers = ("help us improve", "sharing feedback", "question 1 of")
+        return any(marker in text for marker in easy_apply_markers) and not any(
+            marker in text for marker in feedback_markers
+        )
+
+    def _dismiss_interfering_dialogs(self, page: Page) -> None:
+        dialogs = page.locator("[role='dialog'][aria-modal='true'], [data-test-modal]")
+        try:
+            count = dialogs.count()
+        except Exception:
+            return
+        for index in range(count):
+            try:
+                dialog = dialogs.nth(index)
+                if not dialog.is_visible() or self._looks_like_easy_apply_modal(dialog):
+                    continue
+                text = dialog.inner_text(timeout=1000).lower()
+            except Exception:
+                continue
+            if not any(marker in text for marker in ("help us improve", "sharing feedback", "question 1 of")):
+                continue
+            for close_selector in (
+                "button[aria-label*='Dismiss' i]:visible",
+                "button[aria-label*='Close' i]:visible",
+                "button:has-text('×'):visible",
+                "button:has-text('X'):visible",
+            ):
+                close_button = dialog.locator(close_selector)
+                if close_button.count() > 0:
+                    try:
+                        close_button.first.click(timeout=2000)
+                        page.wait_for_timeout(500)
+                        break
+                    except Exception:
+                        continue
+
+    def _wait_for_form_transition(self, page: Page, previous_modal) -> None:
+        previous_text = ""
+        try:
+            previous_text = previous_modal.inner_text(timeout=1500)
+        except Exception:
+            pass
+        for _ in range(20):
+            page.wait_for_timeout(200)
+            modal = self._current_easy_apply_modal(page)
+            if modal is None:
+                return
+            try:
+                current_text = modal.inner_text(timeout=1000)
+            except Exception:
+                continue
+            if current_text != previous_text:
+                return
+
+    def _find_navigation_button(self, modal) -> dict:
+        if self._looks_like_employment_edit_form(modal):
+            save = modal.get_by_role("button", name=re.compile(r"^\s*Save\s*$", re.I))
+            if save.count() > 0:
+                button = save.first
+                return {
+                    "text": "Save",
+                    "locator": button,
+                    "enabled": button.is_enabled(),
+                }
+        for text in ("Next", "Continue", "Review"):
+            locator = modal.get_by_role("button", name=re.compile(rf"^\s*{text}\s*$", re.I))
+            if locator.count() > 0:
+                button = locator.first
+                return {
+                    "text": text,
+                    "locator": button,
+                    "enabled": button.is_enabled(),
+                }
+        buttons = modal.locator("button:visible")
+        for index in range(buttons.count()):
+            button = buttons.nth(index)
+            try:
+                label = re.sub(r"\s+", " ", button.inner_text().strip())
+            except Exception:
+                continue
+            if label.lower() in {"next", "continue", "review"}:
+                return {
+                    "text": label,
+                    "locator": button,
+                    "enabled": button.is_enabled(),
+                }
+        return {"text": None, "locator": None, "enabled": False}
+
+    def _looks_like_employment_edit_form(self, modal) -> bool:
+        try:
+            text = modal.inner_text(timeout=1000).lower()
+        except Exception:
+            text = ""
+        if any(term in text for term in ("i currently work here", "your title", "company", "month of from", "month of to")):
+            buttons = {button["text"].lower() for button in self._modal_buttons(modal)}
+            return "save" in buttons
+        fields = modal.locator("input:visible, textarea:visible, select:visible")
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            if self._employment_field_key(self._field_label(field, index), field):
+                buttons = {button["text"].lower() for button in self._modal_buttons(modal)}
+                return "save" in buttons
+        return False
+
+    def _classify_form_stop_reason(self, modal) -> str:
+        unresolved = self._form_required_fields(modal, unresolved_only=True)
+        if unresolved:
+            return "Missing required field: " + ", ".join(field["label"] for field in unresolved[:8])
+        validation_messages = self._validation_messages(modal)
+        if validation_messages:
+            return "Validation error: " + "; ".join(validation_messages[:5])
+        if self._resume_upload_status(modal)["resume_upload_present"] and not self._resume_upload_status(modal)["selected_resume_present"]:
+            return "Resume upload missing"
+        buttons = self._modal_buttons(modal)
+        disabled = [
+            button["text"]
+            for button in buttons
+            if button["text"].lower() in {"next", "continue", "review", "submit application"}
+            and not button["enabled"]
+        ]
+        if disabled:
+            return "Disabled button: " + ", ".join(disabled)
+        if self._looks_like_screening_page(modal):
+            return "Screening question unanswered"
+        return "Button not found: no enabled Next, Continue, Review, or Submit application control was available."
+
+    def _create_workflow_debug_dir(self, job: JobOpportunity, linkedin_job_id: str | None) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_title = re.sub(r"[^A-Za-z0-9_.-]+", "_", job.title or "job").strip("_")[:80]
+        job_key = linkedin_job_id or str(job.id)
+        debug_dir = self.settings.workflow_debug_dir / timestamp / f"{job_key}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _create_employment_history_debug_dir(self, job: JobOpportunity, linkedin_job_id: str | None) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_title = re.sub(r"[^A-Za-z0-9_.-]+", "_", job.title or "job").strip("_")[:80]
+        job_key = linkedin_job_id or str(job.id)
+        debug_dir = self.settings.employment_history_debug_dir / timestamp / f"{job_key}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _fill_employment_history_fields(
+        self,
+        modal,
+        employment_records: list[dict],
+        candidate_profile: CandidateProfile | None,
+        resume: ResumeProfile | None,
+        mode: str,
+        debug_dir: Path | None,
+        employment_events: list[dict],
+    ) -> list[str]:
+        fields = modal.locator("input:visible, textarea:visible, select:visible")
+        field_records: list[dict] = []
+        mapping_records: list[dict] = []
+        fill_records: list[dict] = []
+        estimate_records: list[dict] = []
+        validation_records: list[dict] = []
+        missing: list[str] = []
+        occurrence_by_key: dict[str, int] = {}
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            label = self._field_label(field, index)
+            key = self._employment_field_key(label, field)
+            if key is None:
+                continue
+            state = self._field_state(field)
+            occurrence = occurrence_by_key.get(key, 0)
+            occurrence_by_key[key] = occurrence + 1
+            record = employment_records[min(occurrence, max(len(employment_records) - 1, 0))] if employment_records else {}
+            field_record = {
+                "field_label": label,
+                "field_key": key,
+                "field_type": state["field_type"],
+                "required": state["required"],
+                "existing_value_present": state["has_value"],
+                "record_index": occurrence,
+            }
+            field_records.append(field_record)
+            if state["has_value"] and key != "location":
+                event = {
+                    **field_record,
+                    "action": "kept_existing_value",
+                    "success": True,
+                    "mapped_value": None,
+                    "source": "LinkedIn Prefill",
+                    "confidence": "High",
+                    "estimated": False,
+                }
+                employment_events.append(event)
+                fill_records.append(event)
+                continue
+            value_payload = self._employment_value_for_key(key, record, candidate_profile, resume, mode, employment_records)
+            if key == "location":
+                modal_location = self._extract_location_from_modal(modal)
+                if modal_location and (
+                    not value_payload.get("value")
+                    or len(modal_location) > len(str(value_payload.get("value")))
+                ):
+                    value_payload = {
+                        "value": modal_location,
+                        "source": "LinkedIn Easy Apply Header",
+                        "confidence": 85,
+                        "estimated": False,
+                        "reason": "Mapped employment location from LinkedIn modal header.",
+                    }
+            mapping_records.append(
+                {
+                    **field_record,
+                    "original_value": record.get(key),
+                    "mapped_value": value_payload.get("value"),
+                    "source": value_payload.get("source"),
+                    "confidence": value_payload.get("confidence"),
+                    "estimated": value_payload.get("estimated"),
+                    "reason": value_payload.get("reason"),
+                }
+            )
+            if value_payload.get("estimated"):
+                estimate_records.append({**field_record, **value_payload})
+            value = value_payload.get("value")
+            if value is None or str(value).strip() == "":
+                event = {
+                    **field_record,
+                    "action": "missing_value",
+                    "success": False,
+                    "mapped_value": None,
+                    "source": value_payload.get("source"),
+                    "confidence": value_payload.get("confidence"),
+                    "estimated": value_payload.get("estimated"),
+                    "reason": value_payload.get("reason") or "No employment history value available.",
+                }
+                employment_events.append(event)
+                fill_records.append(event)
+                if state["required"]:
+                    missing.append(label)
+                continue
+            try:
+                self._fill_employment_field(field, state, str(value), key)
+                event = {
+                    **field_record,
+                    "action": "filled",
+                    "success": True,
+                    "mapped_value": value,
+                    "source": value_payload.get("source"),
+                    "confidence": value_payload.get("confidence"),
+                    "estimated": value_payload.get("estimated"),
+                    "reason": value_payload.get("reason"),
+                }
+            except Exception as exc:
+                event = {
+                    **field_record,
+                    "action": "fill_failed",
+                    "success": False,
+                    "mapped_value": value,
+                    "source": value_payload.get("source"),
+                    "confidence": value_payload.get("confidence"),
+                    "estimated": value_payload.get("estimated"),
+                    "reason": str(exc),
+                }
+                if state["required"]:
+                    missing.append(label)
+            employment_events.append(event)
+            fill_records.append(event)
+
+        if field_records:
+            unresolved = self._form_required_fields(modal, unresolved_only=True)
+            validation_records.append(
+                {
+                    "captured_at": datetime.utcnow().isoformat(),
+                    "missing_fields": list(dict.fromkeys(missing)),
+                    "unresolved_required_fields": unresolved,
+                    "validation_messages": self._validation_messages(modal),
+                }
+            )
+            self._save_employment_history_debug(
+                debug_dir,
+                employment_records,
+                mapping_records,
+                fill_records,
+                estimate_records,
+                validation_records,
+            )
+        return list(dict.fromkeys(missing))
+
+    def _employment_field_key(self, label: str, field) -> str | None:
+        metadata = label.lower()
+        try:
+            metadata += " " + field.evaluate(
+                """el => [
+                    el.name,
+                    el.id,
+                    el.type,
+                    el.getAttribute('aria-label'),
+                    el.getAttribute('placeholder'),
+                    el.getAttribute('autocomplete')
+                ].filter(Boolean).join(' ')"""
+            ).lower()
+        except Exception:
+            pass
+        options = self._field_options(field)
+        has_year_options = any(re.fullmatch(r"(19|20)\d{2}", option.strip()) for option in options)
+        has_month_options = any(
+            option.strip().lower() in {
+                "january",
+                "february",
+                "march",
+                "april",
+                "may",
+                "june",
+                "july",
+                "august",
+                "september",
+                "october",
+                "november",
+                "december",
+            }
+            for option in options
+        )
+        if re.search(r"\b(company|employer|organization)\b", metadata):
+            return "company_name"
+        if re.search(r"\b(job title|title|role|position)\b", metadata):
+            return "job_title"
+        if re.search(r"total.*years.*(professional|work|career|experience)|years.*(professional|work|career).*experience", metadata):
+            return "total_experience_years"
+        if re.search(r"(additional|remaining).*months.*experience|months.*(professional|work|career).*experience", metadata):
+            return "total_experience_months"
+        if "from" in metadata and has_year_options:
+            return "start_year"
+        if "to" in metadata and has_year_options:
+            return "end_year"
+        if "from" in metadata and ("month" in metadata or has_month_options):
+            return "start_month"
+        if "from" in metadata and "year" in metadata:
+            return "start_year"
+        if "to" in metadata and ("month" in metadata or has_month_options):
+            return "end_month"
+        if "to" in metadata and "year" in metadata:
+            return "end_year"
+        if re.search(r"currently|current.*work|work.*here", metadata):
+            return "currently_work_here"
+        if re.search(r"\b(city|location)\b", metadata):
+            return "location"
+        if re.search(r"description|responsibilities|summary", metadata):
+            return "description"
+        return None
+
+    def _employment_value_for_key(
+        self,
+        key: str,
+        record: dict,
+        candidate_profile: CandidateProfile | None,
+        resume: ResumeProfile | None,
+        mode: str,
+        all_records: list[dict] | None = None,
+    ) -> dict:
+        value = record.get(key)
+        if key in {"total_experience_years", "total_experience_months"}:
+            total_months = self._total_employment_duration_months(all_records or [record])
+            years = total_months // 12
+            months = total_months % 12
+            return {
+                "value": years if key == "total_experience_years" else months,
+                "source": "Employment History",
+                "confidence": 80 if total_months else 0,
+                "estimated": False,
+                "reason": "Calculated total professional experience from extracted employment history durations.",
+            }
+        if key == "location":
+            value = self._employment_location(record) or (
+                candidate_profile.current_location if candidate_profile else None
+            ) or (self._extract_location_from_resume(resume) if resume else None)
+            return {
+                "value": value,
+                "source": "Employment History" if self._employment_location(record) else "Candidate Profile / Resume",
+                "confidence": record.get("confidence") or 62,
+                "estimated": False,
+                "reason": "Mapped employment location with profile/resume fallback.",
+            }
+        if key in {"start_month", "end_month"} and not value and record.get(key.replace("month", "year")):
+            if mode == "aggressive":
+                return {
+                    "value": "January",
+                    "source": "Aggressive Employment Estimate",
+                    "confidence": "Estimated / Low",
+                    "estimated": True,
+                    "reason": f"{key} was missing but year was available; estimated January.",
+                }
+            return {
+                "value": None,
+                "source": "Employment History",
+                "confidence": "Low",
+                "estimated": False,
+                "reason": f"{key} missing and Safe Mode does not estimate dates.",
+            }
+        if key in {"end_month", "end_year"} and record.get("currently_work_here"):
+            return {
+                "value": None,
+                "source": "Employment History",
+                "confidence": record.get("confidence") or 80,
+                "estimated": False,
+                "reason": "Current employer; end date intentionally left blank.",
+            }
+        if key == "description" and not value and mode == "aggressive" and (record.get("job_title") or record.get("company_name")):
+            generated = self._generated_employment_description(record)
+            return {
+                "value": generated,
+                "source": "Aggressive Employment Estimate",
+                "confidence": "Estimated / Low",
+                "estimated": True,
+                "reason": "Description missing; generated concise description from employment record.",
+            }
+        return {
+            "value": value,
+            "source": "Employment History",
+            "confidence": record.get("confidence") or 0,
+            "estimated": False,
+            "reason": "Mapped from extracted resume employment history.",
+        }
+
+    def _employment_location(self, record: dict) -> str | None:
+        parts = [record.get("city"), record.get("state"), record.get("country")]
+        value = ", ".join(str(part).strip() for part in parts if part and str(part).strip())
+        return value or None
+
+    def _total_employment_duration_months(self, records: list[dict]) -> int:
+        total = 0
+        for record in records:
+            try:
+                months = int(record.get("duration_months") or 0)
+            except (TypeError, ValueError):
+                months = 0
+            total += max(months, 0)
+        return total
+
+    def _generated_employment_description(self, record: dict) -> str:
+        skills = ", ".join((record.get("skills_used") or record.get("technologies_used") or [])[:5])
+        title = record.get("job_title") or "role"
+        company = record.get("company_name") or "the organization"
+        if skills:
+            return self._trim_employment_description(
+                f"Worked as {title} at {company}, contributing to responsibilities involving {skills}."
+            )
+        return self._trim_employment_description(f"Worked as {title} at {company}.")
+
+    def _trim_employment_description(self, value: str, limit: int = 1000) -> str:
+        value = re.sub(r"\s+", " ", value).strip()
+        if len(value) <= limit:
+            return value
+        trimmed = value[:limit].rsplit(" ", 1)[0].strip()
+        return trimmed or value[:limit]
+
+    def _fill_employment_field(self, field, field_state: dict, value: str, key: str) -> None:
+        if field_state["type"] in {"checkbox", "radio"}:
+            if str(value).lower() in {"true", "1", "yes", "checked"}:
+                try:
+                    field.check(force=True)
+                except Exception:
+                    field.click(force=True)
+            return
+        if field_state["field_type"] == "select":
+            options = self._field_options(field)
+            choice = self._closest_option(value, options)
+            field.select_option(label=choice)
+            return
+        field.fill(self._trim_employment_description(value) if key == "description" else value)
+        if key == "location":
+            try:
+                field.press("ArrowDown", timeout=2000)
+                field.press("Enter", timeout=2000)
+            except Exception:
+                try:
+                    field.press("Enter", timeout=2000)
+                except Exception:
+                    pass
+
+    def _save_employment_history_debug(
+        self,
+        debug_dir: Path | None,
+        employment_records: list[dict],
+        mapping_records: list[dict],
+        fill_records: list[dict],
+        estimate_records: list[dict],
+        validation_records: list[dict],
+    ) -> None:
+        if debug_dir is None:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        payloads = {
+            "employment_records.json": employment_records,
+            "employment_mapping.json": mapping_records,
+            "employment_fields_filled.json": fill_records,
+            "employment_estimates.json": estimate_records,
+            "employment_validation.json": validation_records,
+        }
+        for filename, payload in payloads.items():
+            (debug_dir / filename).write_text(
+                json.dumps(payload, indent=2, default=str),
+                encoding="utf-8",
+            )
+
+    def _record_workflow_trace(
+        self,
+        page: Page,
+        modal,
+        debug_dir: Path | None,
+        trace: list[dict],
+        seen_states: dict[str, int],
+        step_number: int,
+        action_attempted: str,
+        action_completed: bool,
+        next_page_detected: str | None,
+        retry_count: int,
+        started_at: datetime,
+        stop_reason: str | None = None,
+    ) -> dict:
+        state = self._workflow_state(page, modal)
+        page_hash = state["page_hash"]
+        if seen_states.get("__last_hash") == page_hash:
+            repeated_count = int(seen_states.get("__repeat_count", 0)) + 1
+        else:
+            repeated_count = 1
+        seen_states["__last_hash"] = page_hash
+        seen_states["__repeat_count"] = repeated_count
+        entry = {
+            "step_number": step_number,
+            "page_name": state["page_name"],
+            "modal_title": state["modal_title"],
+            "detected_page_type": state["detected_page_type"],
+            "page_hash": page_hash,
+            "repeated_count": repeated_count,
+            "action_attempted": action_attempted,
+            "action_completed": action_completed,
+            "next_page_detected": next_page_detected,
+            "current_url": state["current_url"],
+            "visible_buttons": state["visible_buttons"],
+            "enabled_buttons": state["enabled_buttons"],
+            "unresolved_required_fields": state["unresolved_required_fields"],
+            "validation_messages": state["validation_messages"],
+            "retry_count": retry_count,
+            "elapsed_time": round((datetime.utcnow() - started_at).total_seconds(), 2),
+            "stop_reason": stop_reason,
+        }
+        if repeated_count >= 3 and stop_reason is None:
+            entry["stop_reason"] = "Repeated workflow state detected."
+        trace.append(entry)
+        if debug_dir is not None:
+            debug_dir.mkdir(parents=True, exist_ok=True)
+            (debug_dir / "workflow_trace.json").write_text(
+                json.dumps(trace, indent=2, default=str),
+                encoding="utf-8",
+            )
+        return entry
+
+    def _workflow_state(self, page: Page, modal) -> dict:
+        modal_title = self._modal_title(modal) if modal is not None else ""
+        visible_buttons = self._modal_buttons(modal) if modal is not None else []
+        enabled_buttons = [button["text"] for button in visible_buttons if button.get("enabled")]
+        unresolved = self._form_required_fields(modal, unresolved_only=True) if modal is not None else []
+        validation = self._validation_messages(modal) if modal is not None else []
+        required = self._form_required_fields(modal) if modal is not None else []
+        resume_status = self._resume_upload_status(modal) if modal is not None else {}
+        page_type = self._detect_workflow_page_type(modal, required, unresolved, validation, resume_status)
+        signature = {
+            "modal_title": modal_title,
+            "page_type": page_type,
+            "buttons": visible_buttons,
+            "required": required,
+            "unresolved": unresolved,
+            "validation": validation,
+            "resume": resume_status,
+        }
+        return {
+            "page_name": self._safe_page_title(page),
+            "modal_title": modal_title,
+            "detected_page_type": page_type,
+            "current_url": getattr(page, "url", ""),
+            "visible_buttons": visible_buttons,
+            "enabled_buttons": enabled_buttons,
+            "unresolved_required_fields": unresolved,
+            "validation_messages": validation,
+            "page_hash": hashlib.sha256(
+                json.dumps(signature, sort_keys=True, default=str).encode("utf-8")
+            ).hexdigest(),
+        }
+
+    def _detect_workflow_page_type(
+        self,
+        modal,
+        required_fields: list[dict],
+        unresolved_fields: list[dict],
+        validation_messages: list[str],
+        resume_status: dict,
+    ) -> str:
+        if modal is None:
+            return "modal_closed"
+        if validation_messages:
+            return "validation_error"
+        if resume_status.get("resume_upload_present"):
+            return "resume_page"
+        labels = " ".join(field.get("label", "") for field in required_fields).lower()
+        if any(term in labels for term in ("first name", "last name", "phone", "email", "location")):
+            return "contact_page"
+        if any(term in labels for term in ("month of from", "month of to", "from", "to", "title", "company")):
+            return "employment_history"
+        if self._looks_like_screening_page(modal):
+            return "screening_questions"
+        buttons = {button["text"].lower() for button in self._modal_buttons(modal)}
+        if "submit application" in buttons or "review" in buttons:
+            return "review_page"
+        if unresolved_fields:
+            return "required_fields"
+        return "unknown"
+
+    def _navigation_failure_reason(self, before_state: dict, after_state: dict, button_text: str | None) -> str | None:
+        if after_state["validation_messages"]:
+            unresolved_labels = " ".join(
+                field.get("label", "") for field in after_state.get("unresolved_required_fields") or []
+            ).lower()
+            if any(term in unresolved_labels for term in ("month of from", "year of from", "month of to", "year of to", "company", "job title")):
+                return None
+            return "Validation error: " + "; ".join(after_state["validation_messages"][:5])
+        if before_state["page_hash"] == after_state["page_hash"]:
+            page_type = after_state["detected_page_type"]
+            unresolved = after_state["unresolved_required_fields"]
+            if unresolved:
+                labels = ", ".join(field["label"] for field in unresolved[:8])
+                return f"{page_type.replace('_', ' ').title()} did not advance after clicking {button_text}; unresolved required fields remain: {labels}."
+            return None
+        before_unresolved = len(before_state["unresolved_required_fields"])
+        after_unresolved = len(after_state["unresolved_required_fields"])
+        if after_unresolved > before_unresolved:
+            unresolved_labels = " ".join(
+                field.get("label", "") for field in after_state.get("unresolved_required_fields") or []
+            ).lower()
+            if any(
+                term in unresolved_labels
+                for term in (
+                    "month of from",
+                    "year of from",
+                    "month of to",
+                    "year of to",
+                    "company",
+                    "job title",
+                    "total years of professional experience",
+                    "total additional months of experience",
+                )
+            ):
+                return None
+            labels = ", ".join(field["label"] for field in after_state["unresolved_required_fields"][:8])
+            return f"Navigation revealed unresolved required fields: {labels}."
+        return None
+
+    def _step_limit_reason(self, modal) -> str:
+        if modal is None:
+            return "Navigation stopped because the LinkedIn modal closed before Review/Submit."
+        validation = self._validation_messages(modal)
+        if validation:
+            return "Navigation stopped because validation prevented progress: " + "; ".join(validation[:5])
+        unresolved = self._form_required_fields(modal, unresolved_only=True)
+        if unresolved:
+            return "Navigation stopped because required fields remained unresolved: " + ", ".join(
+                field["label"] for field in unresolved[:8]
+            )
+        return "Navigation stopped because the Easy Apply workflow did not reach Review/Submit before the safety step limit."
+
+    def _record_form_navigation_step(
+        self,
+        page: Page,
+        modal,
+        debug_dir: Path | None,
+        steps: list[dict],
+        step_number: int,
+        action_taken: str,
+        action_result: str,
+        reason_for_stop: str | None,
+    ) -> None:
+        if not debug_dir:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        screenshot_path = debug_dir / f"step_{step_number:02d}_{len(steps) + 1:02d}.png"
+        try:
+            try:
+                page.screenshot(path=str(screenshot_path), full_page=True, timeout=5000)
+            except TypeError:
+                page.screenshot(path=str(screenshot_path), full_page=True)
+        except Exception as exc:
+            logger.warning("Could not capture form navigation screenshot: %s", exc)
+            screenshot_path = None
+        snapshot = self._form_navigation_snapshot(
+            page,
+            modal,
+            step_number,
+            str(screenshot_path) if screenshot_path else None,
+            action_taken,
+            action_result,
+            reason_for_stop,
+        )
+        steps.append(snapshot)
+        (debug_dir / "form_navigation_steps.json").write_text(
+            json.dumps(steps, indent=2, default=str),
+            encoding="utf-8",
+        )
+
+    def _form_navigation_snapshot(
+        self,
+        page: Page,
+        modal,
+        step_number: int,
+        screenshot_path: str | None,
+        action_taken: str,
+        action_result: str,
+        reason_for_stop: str | None,
+    ) -> dict:
+        if modal is None:
+            return {
+                "step_number": step_number,
+                "screenshot_path": screenshot_path,
+                "page_title": self._safe_page_title(page),
+                "modal_title": "",
+                "visible_buttons": [],
+                "required_fields": [],
+                "unresolved_required_fields": [],
+                "filled_fields": [],
+                "validation_messages": [],
+                "selected_resume_status": {"resume_upload_present": False, "selected_resume_present": False},
+                "navigation_controls": {},
+                "action_taken": action_taken,
+                "action_result": action_result,
+                "reason_for_stop": reason_for_stop,
+                "captured_at": datetime.utcnow().isoformat(),
+            }
+        return {
+            "step_number": step_number,
+            "screenshot_path": screenshot_path,
+            "page_title": self._safe_page_title(page),
+            "modal_title": self._modal_title(modal),
+            "visible_buttons": self._modal_buttons(modal),
+            "required_fields": self._form_required_fields(modal),
+            "unresolved_required_fields": self._form_required_fields(modal, unresolved_only=True),
+            "filled_fields": self._filled_fields(modal),
+            "validation_messages": self._validation_messages(modal),
+            "selected_resume_status": self._resume_upload_status(modal),
+            "navigation_controls": self._navigation_control_summary(modal),
+            "action_taken": action_taken,
+            "action_result": action_result,
+            "reason_for_stop": reason_for_stop,
+            "captured_at": datetime.utcnow().isoformat(),
+        }
+
+    def _safe_page_title(self, page: Page) -> str:
+        try:
+            return page.title()
+        except Exception:
+            return ""
+
+    def _modal_title(self, modal) -> str:
+        for selector in ("h1:visible", "h2:visible", "h3:visible", "[role='heading']:visible"):
+            locator = modal.locator(selector)
+            if locator.count() > 0:
+                text = locator.first.inner_text().strip()
+                if text:
+                    return text
+        return ""
+
+    def _modal_buttons(self, modal) -> list[dict]:
+        buttons = modal.locator("button:visible")
+        results: list[dict] = []
+        for index in range(buttons.count()):
+            button = buttons.nth(index)
+            try:
+                text = button.inner_text().strip()
+                if text:
+                    results.append({"text": text, "enabled": button.is_enabled()})
+            except Exception:
+                continue
+        return results
+
+    def _navigation_control_summary(self, modal) -> dict:
+        summary = {}
+        for text in ("Next", "Continue", "Review", "Submit application"):
+            locator = modal.get_by_role("button", name=re.compile(rf"^\s*{re.escape(text)}\s*$", re.I))
+            summary[text] = {
+                "available": locator.count() > 0,
+                "enabled": locator.count() > 0 and locator.first.is_enabled(),
+            }
+        buttons = modal.locator("button:visible")
+        for index in range(buttons.count()):
+            button = buttons.nth(index)
+            try:
+                label = re.sub(r"\s+", " ", button.inner_text().strip())
+            except Exception:
+                continue
+            for text in summary:
+                if label.lower() == text.lower():
+                    summary[text] = {
+                        "available": True,
+                        "enabled": button.is_enabled(),
+                    }
+        return summary
+
+    def _form_required_fields(self, modal, unresolved_only: bool = False) -> list[dict]:
+        fields = modal.locator("input[required]:visible, textarea[required]:visible, select[required]:visible")
+        results: list[dict] = []
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            state = self._field_state(field)
+            if unresolved_only and state["has_value"]:
+                continue
+            results.append(
+                {
+                    "label": self._field_label(field, index),
+                    "field_type": state["field_type"],
+                    "has_value": state["has_value"],
+                }
+            )
+        return results
+
+    def _filled_fields(self, modal) -> list[dict]:
+        fields = modal.locator("input:visible, textarea:visible, select:visible")
+        results: list[dict] = []
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            state = self._field_state(field)
+            if state["has_value"]:
+                results.append(
+                    {
+                        "label": self._field_label(field, index),
+                        "field_type": state["field_type"],
+                    }
+                )
+        return results[:30]
+
+    def _validation_messages(self, modal) -> list[str]:
+        selectors = (
+            ".artdeco-inline-feedback--error:visible, "
+            ".fb-dash-form-element__error-text:visible, "
+            "[role='alert']:visible, "
+            ".error:visible"
+        )
+        try:
+            return [
+                text.strip()
+                for text in modal.locator(selectors).all_inner_texts()
+                if text.strip()
+            ]
+        except Exception:
+            return []
+
+    def _resume_upload_status(self, modal) -> dict:
+        upload_inputs = modal.locator("input[type='file']")
+        text = ""
+        try:
+            text = modal.inner_text(timeout=1000)
+        except Exception:
+            pass
+        detected = re.findall(r"[A-Za-z0-9][^\r\n]{2,}\.(?:pdf|docx?|txt)\b", text, re.I)
+        detected_filename = detected[-1].strip() if detected else None
+        return {
+            "resume_upload_present": upload_inputs.count() > 0,
+            "selected_resume_present": bool(detected_filename),
+            "detected_filename": detected_filename,
+        }
+
+    def _upload_resume_if_needed(
+        self,
+        modal,
+        resume_path: Path,
+        diagnostics: dict | None = None,
+        diagnostics_dir: Path | None = None,
+    ) -> bool:
+        status = self._resume_upload_status(modal)
+        if diagnostics is not None:
+            diagnostics["linkedin_filename_detected_after_upload"] = status.get("detected_filename")
+            if diagnostics.get("upload_success") and not diagnostics.get("mismatch_detected"):
+                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+                return False
+        if not status["resume_upload_present"]:
+            if diagnostics is not None:
+                diagnostics["reason_if_failed"] = diagnostics.get("reason_if_failed") or "No resume upload input was present on this form step."
+                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+            return False
+        upload_inputs = modal.locator("input[type='file']")
+        if status["selected_resume_present"] and upload_inputs.count() == 0:
+            if diagnostics is not None:
+                detected_filename = status.get("detected_filename")
+                expected_filename = diagnostics.get("resume_original_filename")
+                diagnostics["upload_completed"] = True
+                diagnostics["upload_success"] = self._filenames_match(expected_filename, detected_filename)
+                diagnostics["mismatch_detected"] = not diagnostics["upload_success"]
+                diagnostics["reason_if_failed"] = (
+                    None
+                    if diagnostics["upload_success"]
+                    else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
+                )
+                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+            return False
+        uploaded = False
+        for index in range(upload_inputs.count()):
+            if diagnostics is not None:
+                diagnostics["upload_started"] = True
+                diagnostics["file_passed_to_playwright"] = str(resume_path)
+            upload_inputs.nth(index).set_input_files(
+                self._resume_upload_payload(resume_path, diagnostics)
+            )
+            uploaded = True
+        if diagnostics is not None:
+            refreshed_status = self._resume_upload_status(modal)
+            detected_filename = refreshed_status.get("detected_filename")
+            expected_filename = diagnostics.get("resume_original_filename")
+            diagnostics["linkedin_filename_detected_after_upload"] = detected_filename
+            diagnostics["upload_completed"] = uploaded
+            diagnostics["upload_success"] = bool(uploaded) and (
+                detected_filename is None or self._filenames_match(expected_filename, detected_filename)
+            )
+            diagnostics["mismatch_detected"] = bool(detected_filename) and not self._filenames_match(expected_filename, detected_filename)
+            diagnostics["reason_if_failed"] = (
+                None
+                if diagnostics["upload_success"] and not diagnostics["mismatch_detected"]
+                else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
+            )
+            self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+        return uploaded
+
+    def _create_resume_upload_diagnostics(self, job: JobOpportunity, resume: ResumeProfile) -> tuple[Path, dict]:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        linkedin_job_id = self._linkedin_job_id(job.job_url) or str(job.id)
+        safe_title = re.sub(r"[^A-Za-z0-9_.-]+", "_", job.title or "job").strip("_")[:80]
+        debug_dir = self.settings.resume_upload_debug_dir / timestamp / f"{linkedin_job_id}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        raw_path = Path(resume.stored_path) if resume.stored_path else Path()
+        storage_path = raw_path.resolve() if resume.stored_path else raw_path
+        file_exists = bool(resume.stored_path) and storage_path.exists() and storage_path.is_file()
+        mismatch = job.resume_id != resume.id
+        reason = None
+        if mismatch:
+            reason = f"Job resume_id {job.resume_id} does not match active resume_id {resume.id}."
+        elif not file_exists:
+            reason = f"Resume file for resume_id {resume.id} is missing: {storage_path}."
+        diagnostics = {
+            "active_resume_id": resume.id,
+            "job_resume_id": job.resume_id,
+            "search_batch_id": job.search_batch_id,
+            "resume_filename_from_database": resume.filename,
+            "resume_original_filename": resume.filename,
+            "resume_storage_path": str(storage_path),
+            "file_exists": file_exists,
+            "file_size": storage_path.stat().st_size if file_exists else None,
+            "file_hash_sha256": self._sha256(storage_path) if file_exists else None,
+            "file_passed_to_playwright": str(storage_path) if file_exists and not mismatch else None,
+            "linkedin_filename_detected_after_upload": None,
+            "upload_started": False,
+            "upload_completed": False,
+            "upload_success": False,
+            "mismatch_detected": mismatch,
+            "reason_if_failed": reason,
+            "evidence_path": str(debug_dir),
+        }
+        self._save_resume_upload_diagnostics(debug_dir, diagnostics)
+        return debug_dir, diagnostics
+
+    def _save_resume_upload_diagnostics(self, debug_dir: Path | None, diagnostics: dict | None) -> None:
+        if debug_dir is None or diagnostics is None:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        (debug_dir / "resume_upload_check.json").write_text(
+            json.dumps(diagnostics, indent=2, default=str),
+            encoding="utf-8",
+        )
+
+    def _sha256(self, path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    def _filenames_match(self, expected: str | None, detected: str | None) -> bool:
+        if not expected or not detected:
+            return False
+        return Path(expected).name.strip().lower() == Path(detected).name.strip().lower()
+
+    def _resume_upload_payload(self, resume_path: Path, diagnostics: dict | None):
+        if diagnostics is None:
+            return str(resume_path)
+        original_filename = diagnostics.get("resume_original_filename") or resume_path.name
+        mime_type = mimetypes.guess_type(original_filename)[0] or "application/octet-stream"
+        return {
+            "name": Path(original_filename).name,
+            "mimeType": mime_type,
+            "buffer": resume_path.read_bytes(),
+        }
+
+    def _looks_like_screening_page(self, modal) -> bool:
+        try:
+            text = modal.inner_text(timeout=1000).lower()
+        except Exception:
+            return False
+        return any(term in text for term in ("screening", "question", "authorization", "sponsorship", "years of experience"))
+
+    def _fill_contact_fields(
+        self,
+        modal,
+        candidate_profile: CandidateProfile | None,
+        resume: ResumeProfile | None,
+        contact_debug_dir: Path | None,
+        profile_apply_debug_dir: Path | None,
+        contact_events: list[dict],
+    ) -> list[str]:
+        fields = modal.locator("input:visible, textarea:visible, select:visible")
+        missing: list[str] = []
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            label = self._field_label(field, index)
+            contact_key = self._contact_field_key(label, field)
+            if contact_key is None:
+                continue
+            field_state = self._field_state(field)
+            event = {
+                "time": datetime.utcnow().isoformat(),
+                "field_label": label,
+                "contact_key": contact_key,
+                "field_type": field_state["field_type"],
+                "required": field_state["required"],
+                "existing_value_present": field_state["has_value"],
+                "value_source": None,
+                "value_found": None,
+                "reason": None,
+                "action": "detected",
+                "success": None,
+                "error": None,
+            }
+            if field_state["has_value"]:
+                event["action"] = "kept_existing_value"
+                event["success"] = True
+                event["reason"] = "LinkedIn Easy Apply already had a value; existing value was preserved."
+                contact_events.append(event)
+                continue
+
+            value, value_source, confidence = self._candidate_contact_value(candidate_profile, resume, contact_key)
+            if contact_key == "current_location":
+                modal_location = self._extract_location_from_modal(modal)
+                if modal_location and (not value or value_source == "Resume Visible Text"):
+                    value, value_source, confidence = modal_location, "LinkedIn Easy Apply Header", 85
+            if not value:
+                event["action"] = "missing_candidate_profile_value"
+                event["success"] = False
+                event["reason"] = self._missing_contact_reason(contact_key, candidate_profile, resume)
+                contact_events.append(event)
+                if field_state["required"]:
+                    missing.append(label)
+                continue
+
+            event["value_source"] = value_source
+            event["value_found"] = value
+            event["confidence"] = confidence
+            try:
+                fill_action = self._fill_contact_field(field, field_state, value, contact_key)
+                event["action"] = fill_action
+                event["success"] = True
+                event["reason"] = (
+                    f"Filled from {value_source}."
+                    if fill_action == "filled"
+                    else f"Filled from {value_source} and selected a LinkedIn typeahead suggestion."
+                )
+            except Exception as exc:
+                event["action"] = "fill_failed"
+                event["success"] = False
+                event["error"] = str(exc)
+                event["reason"] = f"Value was available from {value_source}, but filling failed."
+                if field_state["required"]:
+                    missing.append(label)
+            contact_events.append(event)
+
+        self._save_contact_debug(contact_debug_dir, contact_events)
+        self._save_easy_apply_profile_debug(profile_apply_debug_dir, contact_events)
+        return list(dict.fromkeys(missing))
+
+    def _contact_field_key(self, label: str, field) -> str | None:
+        metadata = label.lower()
+        try:
+            metadata += " " + field.evaluate(
+                """el => [
+                    el.name,
+                    el.id,
+                    el.type,
+                    el.getAttribute('aria-label'),
+                    el.getAttribute('placeholder'),
+                    el.getAttribute('autocomplete')
+                ].filter(Boolean).join(' ')"""
+            ).lower()
+        except Exception:
+            pass
+        if "first" in metadata and "name" in metadata:
+            return "first_name"
+        if "last" in metadata and "name" in metadata:
+            return "last_name"
+        if "email" in metadata:
+            return "email"
+        if "country" in metadata and ("code" in metadata or "phone" in metadata):
+            return "phone_country_code"
+        if "phone" in metadata or "mobile" in metadata:
+            return "mobile_phone"
+        if any(term in metadata for term in ("city", "location", "current address")):
+            return "current_location"
+        if "linkedin" in metadata:
+            return "linkedin_url"
+        if "portfolio" in metadata or "website" in metadata:
+            return "portfolio_url"
+        if "github" in metadata:
+            return "github_url"
+        return None
+
+    def _candidate_contact_value(
+        self,
+        candidate_profile: CandidateProfile | None,
+        resume: ResumeProfile | None,
+        contact_key: str,
+    ) -> tuple[str | None, str | None, float | None]:
+        if candidate_profile is not None:
+            value = getattr(candidate_profile, contact_key, None)
+            if value is not None and str(value).strip():
+                metadata = (candidate_profile.field_sources or {}).get(contact_key, {})
+                return (
+                    str(value).strip(),
+                    metadata.get("source") or "Candidate Profile",
+                    metadata.get("confidence") or 100,
+                )
+        if contact_key == "current_location" and resume is not None:
+            location = self._extract_location_from_resume(resume)
+            if location:
+                return location, "Resume Visible Text", 62
+        return None, None, None
+
+    def _missing_contact_reason(
+        self,
+        contact_key: str,
+        candidate_profile: CandidateProfile | None,
+        resume: ResumeProfile | None,
+    ) -> str:
+        if contact_key == "current_location":
+            profile_location = candidate_profile.current_location if candidate_profile else None
+            resume_location = self._extract_location_from_resume(resume) if resume else None
+            if not profile_location and not resume_location:
+                return "No city/location was available in Candidate Profile or resume extraction."
+            return "A location candidate existed but could not be used."
+        return "No value was available in Candidate Profile or supported fallbacks."
+
+    def _extract_location_from_modal(self, modal) -> str | None:
+        try:
+            text = modal.inner_text(timeout=1000)
+        except Exception:
+            return None
+        location_pattern = re.compile(
+            r"\b([A-Z][A-Za-z .'-]+,\s*(?:[A-Z][A-Za-z .'-]+,\s*)?(?:India|United States|USA|Canada|United Kingdom|UK|Germany|France|Australia))\b"
+        )
+        for line in text.splitlines():
+            cleaned = re.sub(r"\s+", " ", line).strip()
+            if "@" in cleaned or len(cleaned) > 90:
+                continue
+            match = location_pattern.search(cleaned)
+            if match:
+                return match.group(1).strip()
+        match = location_pattern.search(text)
+        return match.group(1).strip() if match else None
+
+    def _field_state(self, field) -> dict:
+        try:
+            return field.evaluate(
+                """el => {
+                    const tag = el.tagName.toLowerCase();
+                    const type = (el.type || tag).toLowerCase();
+                    let value = '';
+                    if (type === 'checkbox' || type === 'radio') {
+                        value = el.checked ? (el.value || 'checked') : '';
+                    } else if (tag === 'select') {
+                        const selected = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+                        const selectedText = selected ? String(selected.textContent || '').trim() : '';
+                        value = el.value || '';
+                        const placeholderPattern = /^(|select an option|please select|choose an option|select)$/i;
+                        if (el.selectedIndex <= 0 && placeholderPattern.test(selectedText || String(value).trim())) {
+                            value = '';
+                        }
+                    } else {
+                        value = el.value || '';
+                    }
+                    return {
+                        tag,
+                        type,
+                        field_type: tag === 'select' ? 'select' : type,
+                        required: Boolean(el.required || el.getAttribute('aria-required') === 'true'),
+                        has_value: Boolean(String(value).trim())
+                    };
+                }"""
+            )
+        except Exception:
+            return {
+                "tag": "input",
+                "type": "text",
+                "field_type": "input",
+                "required": False,
+                "has_value": False,
+            }
+
+    def _fill_contact_field(self, field, field_state: dict, value: str, contact_key: str | None = None) -> str:
+        if field_state["field_type"] == "select":
+            try:
+                field.select_option(label=value)
+                return "filled"
+            except Exception:
+                field.select_option(value=value)
+                return "filled"
+        field.fill(value)
+        if contact_key == "current_location":
+            try:
+                field.press("ArrowDown", timeout=2000)
+                field.press("Enter", timeout=2000)
+                return "filled_typeahead"
+            except Exception:
+                try:
+                    field.press("Enter", timeout=2000)
+                    return "filled_typeahead"
+                except Exception:
+                    return "filled"
+        return "filled"
+
+    def _save_contact_debug(
+        self,
+        contact_debug_dir: Path | None,
+        contact_events: list[dict],
+    ) -> None:
+        if not contact_debug_dir:
+            return
+        contact_debug_dir.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "captured_at": datetime.utcnow().isoformat(),
+            "events": contact_events,
+            "contact_fields_detected": self._contact_detected(contact_events),
+            "contact_fields_filled": self._contact_filled(contact_events),
+            "missing_contact_fields": self._contact_missing(contact_events),
+        }
+        (contact_debug_dir / "contact_fields.json").write_text(
+            json.dumps(payload, indent=2),
+            encoding="utf-8",
+        )
+
+    def _save_easy_apply_profile_debug(
+        self,
+        profile_apply_debug_dir: Path | None,
+        contact_events: list[dict],
+    ) -> None:
+        if not profile_apply_debug_dir:
+            return
+        prefilled = [
+            event
+            for event in contact_events
+            if event["action"] == "kept_existing_value"
+        ]
+        missing = [
+            event
+            for event in contact_events
+            if event["required"]
+            and event["action"] in {"missing_candidate_profile_value", "fill_failed"}
+        ]
+        self._save_profile_apply_debug(
+            profile_apply_debug_dir,
+            "easy_apply_prefilled_fields.json",
+            {
+                "captured_at": datetime.utcnow().isoformat(),
+                "fields": prefilled,
+            },
+        )
+        self._save_profile_apply_debug(
+            profile_apply_debug_dir,
+            "missing_required_fields.json",
+            {
+                "captured_at": datetime.utcnow().isoformat(),
+                "fields": missing,
+                "field_names": [event["field_label"] for event in missing],
+            },
+        )
+
+    def _contact_detected(self, contact_events: list[dict]) -> list[dict]:
+        return [
+            {
+                "field_label": event["field_label"],
+                "contact_key": event["contact_key"],
+                "field_type": event["field_type"],
+                "required": event["required"],
+                "existing_value_present": event["existing_value_present"],
+            }
+            for event in contact_events
+        ]
+
+    def _contact_filled(self, contact_events: list[dict]) -> list[dict]:
+        return [
+            {
+                "field_label": event["field_label"],
+                "contact_key": event["contact_key"],
+                "value_source": event["value_source"],
+            }
+            for event in contact_events
+            if event["action"] in {"filled", "filled_typeahead"} and event["success"]
+        ]
+
+    def _contact_missing(self, contact_events: list[dict]) -> list[str]:
+        return list(
+            dict.fromkeys(
+                event["field_label"]
+                for event in contact_events
+                if event["action"] in {"missing_candidate_profile_value", "fill_failed"}
+                and event["required"]
+            )
+        )
+
+    def _detect_unanswered_custom_questions(self, modal) -> str | None:
+        required_inputs = modal.locator(
+            "input[required]:visible, textarea[required]:visible, select[required]:visible"
+        )
+        unanswered: list[str] = []
+        for index in range(required_inputs.count()):
+            field = required_inputs.nth(index)
+            if not self._field_state(field)["has_value"]:
+                unanswered.append(self._field_label(field, index))
+        if unanswered:
+            labels = ", ".join(unanswered[:8])
+            return f"Required questions need review: {labels}."
+        return None
+
+    def _answer_screening_questions(
+        self,
+        modal,
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        debug_dir: Path | None,
+        screening_events: list[dict],
+    ) -> list[dict]:
+        mode = (screening_context.get("mode") or "safe").lower()
+        fields = modal.locator("input[required]:visible, textarea[required]:visible, select[required]:visible")
+        selected: list[dict] = []
+        detected: list[dict] = []
+        field_traces: list[dict] = []
+        for index in range(fields.count()):
+            field = fields.nth(index)
+            state = self._field_state(field)
+            if state["has_value"]:
+                continue
+            question = self._screening_question_text(field, index)
+            category = self._screening_question_category(question)
+            normalized_field = self._normalized_screening_field(question, category)
+            detected_control_type = self._screening_control_type(state)
+            if self._employment_field_key(question, field) and not self._should_screening_handle_field(question, category):
+                field_traces.append(
+                    {
+                        "original_label": question,
+                        "normalized_field": normalized_field,
+                        "detected_control_type": detected_control_type,
+                        "category": category,
+                        "decision_pipeline_stage_used": None,
+                        "selected_value": None,
+                        "written_successfully": False,
+                        "reason_if_left_blank": "Handled by employment-history autofill, not screening.",
+                    }
+                )
+                continue
+            options = self._field_options(field)
+            detected.append(
+                {
+                    "question_text": question,
+                    "original_label": question,
+                    "normalized_field": normalized_field,
+                    "category": category,
+                    "field_type": state["field_type"],
+                    "detected_control_type": detected_control_type,
+                    "options": options,
+                }
+            )
+            answer = self._select_screening_answer(
+                question,
+                category,
+                state,
+                options,
+                resume,
+                job,
+                candidate_profile,
+                screening_context,
+            )
+            if answer is None:
+                blank_reason = self._screening_blank_reason(question, category, mode)
+                event = {
+                    "question_text": question,
+                    "original_label": question,
+                    "normalized_field": normalized_field,
+                    "category": category,
+                    "field_type": state["field_type"],
+                    "detected_control_type": detected_control_type,
+                    "options": options,
+                    "selected_answer": None,
+                    "source": None,
+                    "confidence": "None",
+                    "reason": blank_reason,
+                    "mode": mode.title(),
+                    "aggressive_default_used": False,
+                    "filled_successfully": False,
+                    "decision_stage": None,
+                }
+                screening_events.append(event)
+                field_traces.append(self._screening_field_trace(event, blank_reason))
+                continue
+            try:
+                self._fill_screening_field(field, state, answer["answer"], options)
+                answer["filled_successfully"] = True
+                write_reason = None
+            except Exception as exc:
+                answer["filled_successfully"] = False
+                answer["error"] = str(exc)
+                write_reason = f"Write failed: {exc}"
+            answer.update(
+                {
+                    "question_text": question,
+                    "original_label": question,
+                    "normalized_field": normalized_field,
+                    "category": category,
+                    "field_type": state["field_type"],
+                    "detected_control_type": detected_control_type,
+                    "options": options,
+                    "mode": mode.title(),
+                }
+            )
+            screening_events.append(answer)
+            field_traces.append(self._screening_field_trace(answer, write_reason))
+            selected.append(answer)
+        self._save_screening_debug(debug_dir, detected, screening_events, field_traces)
+        self._save_reasoning_debug(job, resume, screening_events)
+        return selected
+
+    def _should_screening_handle_field(self, question: str, category: str) -> bool:
+        if category in {
+            "skill_years",
+            "salary",
+            "authorization",
+            "clearance",
+            "legal",
+            "certification",
+            "notice",
+            "education",
+            "skill",
+        }:
+            return True
+        text = question.lower()
+        return bool(re.search(r"\b(bachelor|master|degree|graduation year|green card|citizen|relocat\w*|unpaid training)\b", text))
+
+    def _screening_control_type(self, field_state: dict) -> str:
+        field_type = str(field_state.get("field_type") or "").lower()
+        input_type = str(field_state.get("type") or "").lower()
+        if field_type == "select":
+            return "dropdown"
+        if input_type in {"radio", "checkbox"}:
+            return input_type
+        if input_type in {"number", "tel"}:
+            return "numeric_input"
+        if field_type == "textarea":
+            return "textarea"
+        return "textbox"
+
+    def _normalized_screening_field(self, question: str, category: str) -> str:
+        if category == "skill_years":
+            skill = self._extract_skill_from_experience_question(question)
+            return f"{skill or 'Skill'} Years"
+        if category == "graduation_year":
+            return "Graduation Year"
+        if category == "authorization":
+            return "Work Authorization"
+        if category == "education":
+            return "Education Requirement"
+        if category == "location":
+            return "Location"
+        if category == "salary":
+            return "Salary"
+        return re.sub(r"\s+", " ", question).strip()[:120] or category.replace("_", " ").title()
+
+    def _screening_blank_reason(self, question: str, category: str, mode: str) -> str:
+        if category in {"authorization", "legal", "clearance", "certification"}:
+            return "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review."
+        if mode != "aggressive":
+            return "Safe Mode did not have a saved or high-confidence answer."
+        return "No supported evidence or fallback produced an answer."
+
+    def _screening_field_trace(self, event: dict, reason_if_left_blank: str | None = None) -> dict:
+        return {
+            "original_label": event.get("original_label") or event.get("question_text"),
+            "normalized_field": event.get("normalized_field"),
+            "detected_control_type": event.get("detected_control_type") or event.get("field_type"),
+            "category": event.get("category"),
+            "decision_pipeline_stage_used": event.get("decision_stage"),
+            "selected_value": event.get("selected_answer"),
+            "written_successfully": bool(event.get("filled_successfully")),
+            "reason_if_left_blank": None if event.get("filled_successfully") else (reason_if_left_blank or event.get("reason")),
+            "source": event.get("source"),
+            "confidence": event.get("confidence"),
+            "decision_pipeline": event.get("decision_pipeline") or [],
+        }
+
+    def _select_screening_answer(
+        self,
+        question: str,
+        category: str,
+        field_state: dict,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+    ) -> dict | None:
+        mode = (screening_context.get("mode") or "safe").lower()
+        pipeline: list[dict] = []
+        saved = self._screening_decision_from_saved(question, category, screening_context)
+        self._record_screening_pipeline_stage(pipeline, "saved_answer", saved)
+        if saved:
+            return self._finalize_screening_decision(saved, "saved_answer", pipeline)
+
+        if category in {"authorization", "legal", "clearance", "certification"}:
+            return None
+
+        stages = [
+            (
+                "learned_mapping",
+                lambda: self._screening_decision_from_learned_mapping(question, category, field_state, options, screening_context),
+            ),
+            (
+                "evidence",
+                lambda: self._screening_decision_from_evidence(question, category, resume, options),
+            ),
+            (
+                "reasoning",
+                lambda: self._screening_decision_from_reasoning(
+                    question,
+                    category,
+                    options,
+                    resume,
+                    job,
+                    candidate_profile,
+                    screening_context,
+                    mode,
+                ),
+            ),
+            (
+                "estimator",
+                lambda: self._screening_decision_from_estimator(
+                    question,
+                    category,
+                    resume,
+                    job,
+                    candidate_profile,
+                    screening_context,
+                    mode,
+                ),
+            ),
+            (
+                "fallback",
+                lambda: self._screening_decision_from_fallback(
+                    question,
+                    category,
+                    field_state,
+                    options,
+                    resume,
+                    job,
+                    mode,
+                ),
+            ),
+        ]
+        for stage_name, stage in stages:
+            candidate = stage()
+            self._record_screening_pipeline_stage(pipeline, stage_name, candidate)
+            if candidate:
+                return self._finalize_screening_decision(candidate, stage_name, pipeline)
+        return None
+
+    def _screening_decision_from_saved(
+        self,
+        question: str,
+        category: str,
+        screening_context: dict,
+    ) -> dict | None:
+        saved = self._matching_saved_screening_answer(question, category, screening_context.get("saved_answers") or [])
+        if not saved:
+            return None
+        return {
+            "answer": saved["answer"],
+            "selected_answer": saved["answer"],
+            "source": saved.get("source") or "Candidate Knowledge Base",
+            "confidence": saved.get("confidence") or "High",
+            "currency": saved.get("currency"),
+            "reason": "Reused saved candidate-specific screening answer.",
+            "evidence": saved.get("evidence") or {},
+            "aggressive_default_used": False,
+        }
+
+    def _screening_decision_from_learned_mapping(
+        self,
+        question: str,
+        category: str,
+        field_state: dict,
+        options: list[str],
+        screening_context: dict,
+    ) -> dict | None:
+        return None
+
+    def _screening_decision_from_evidence(
+        self,
+        question: str,
+        category: str,
+        resume: ResumeProfile,
+        options: list[str] | None = None,
+    ) -> dict | None:
+        options = options or []
+        if category == "graduation_year":
+            year = self._extract_graduation_year(resume)
+            if not year:
+                return None
+            return self._screening_event(
+                str(year),
+                "Resume Education",
+                "High",
+                "Graduation year was found in resume education text.",
+                False,
+                evidence={"graduation_year": year, "source": "resume.education/raw_text"},
+            )
+        if category == "education" and options and not self._looks_yes_no_options(options):
+            degree_option = self._degree_option_from_resume(resume, options)
+            if degree_option:
+                return self._screening_event(
+                    degree_option,
+                    "Resume Education",
+                    "High",
+                    "Degree option was selected from resume education evidence.",
+                    False,
+                    evidence={"degree_option": degree_option, "education": resume.education or [], "raw_text_match": resume.raw_text},
+                )
+        if category != "salary":
+            return None
+        explicit = self._extract_salary_from_text(resume.raw_text)
+        if not explicit:
+            return None
+        return self._screening_event(
+            explicit["value"],
+            "Resume",
+            "High",
+            "Salary value was explicitly mentioned in the resume.",
+            False,
+            currency=explicit.get("currency"),
+            evidence=explicit,
+        )
+
+    def _screening_decision_from_reasoning(
+        self,
+        question: str,
+        category: str,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        mode: str,
+    ) -> dict | None:
+        if category not in {"skill", "education", "yes_no"} and not self._looks_yes_no_options(options):
+            return None
+        reasoning = self.reasoning.answer_question(
+            question=question,
+            resume=resume,
+            job=job,
+            candidate_profile=candidate_profile,
+            employment_history=screening_context.get("employment_history") or [],
+            candidate_knowledge=screening_context.get("saved_answers") or [],
+            recruiter_memory=screening_context.get("recruiter_memory") or [],
+            mode=mode,
+            options=options,
+        )
+        if not reasoning.answer or not reasoning.evidence_used:
+            return None
+        event = reasoning.to_event(aggressive_default_used=False)
+        event["reasoning_used"] = True
+        return event
+
+    def _screening_decision_from_estimator(
+        self,
+        question: str,
+        category: str,
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        mode: str,
+    ) -> dict | None:
+        if category == "salary":
+            if mode != "aggressive":
+                return None
+            estimate = self._estimate_salary(question, resume, job, candidate_profile)
+            if not estimate:
+                return None
+            return self._screening_event(
+                estimate["answer"],
+                "AI Estimated Salary",
+                "Estimated / Low",
+                "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+                True,
+                currency=estimate["currency"],
+                evidence=estimate,
+            )
+        if category == "skill_years":
+            return self._skill_experience_screening_answer(
+                question,
+                resume,
+                candidate_profile,
+                screening_context,
+                mode,
+            )
+        if mode != "aggressive":
+            return None
+        if category == "notice":
+            value = screening_context.get("notice_period_default") or "30 days"
+            return self._screening_event(value, "Aggressive Default", "Estimated / Low", "Used configured notice period default.", True)
+        if category == "location":
+            location = (
+                (candidate_profile.current_location if candidate_profile else None)
+                or self._extract_location_from_resume(resume)
+                or job.location
+            )
+            if location:
+                return self._screening_event(location, "Candidate Profile", "Medium", "Used candidate or job location.", False)
+            return None
+        if category == "years":
+            years = self._estimated_years_of_experience(resume)
+            return self._screening_event(str(years), "Aggressive Default", "Estimated / Low", "Years were not explicit enough; used conservative default.", True)
+        return None
+
+    def _screening_decision_from_fallback(
+        self,
+        question: str,
+        category: str,
+        field_state: dict,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        mode: str,
+    ) -> dict | None:
+        if mode != "aggressive":
+            return None
+        yes_no_control = self._looks_yes_no_options(options) or str(field_state.get("type") or "").lower() in {"radio", "checkbox"}
+        if (category in {"skill", "education", "yes_no"} and yes_no_control) or self._looks_yes_no_options(options):
+            yes_supported = self._question_supported_by_resume(question, resume)
+            answer = "Yes" if yes_supported else "No"
+            source = "Resume Evidence" if yes_supported else "Aggressive Default"
+            confidence = "Medium" if yes_supported else "Estimated / Low"
+            reason = "Resume/profile evidence supports Yes." if yes_supported else "No supporting evidence found; Aggressive Mode selected No."
+            return self._screening_event(answer, source, confidence, reason, not yes_supported)
+        if category not in {"yes_no", "education", "graduation_year", "authorization", "legal", "clearance", "certification"} and field_state.get("field_type") in {"text", "textarea", "input"}:
+            generated = self._generated_short_screening_answer(question, resume, job)
+            if generated:
+                return self._screening_event(generated, "AI Generated", "Estimated / Low", "Generated concise answer from resume and job context.", True)
+        return None
+
+    def _record_screening_pipeline_stage(self, pipeline: list[dict], stage_name: str, candidate: dict | None) -> None:
+        pipeline.append(
+            {
+                "stage": stage_name,
+                "candidate_answer": candidate.get("selected_answer") if candidate else None,
+                "source": candidate.get("source") if candidate else None,
+                "confidence": candidate.get("confidence") if candidate else None,
+                "evidence_used": bool((candidate or {}).get("evidence")),
+                "reasoning_summary": candidate.get("reason") if candidate else None,
+                "selected": bool(candidate),
+            }
+        )
+
+    def _finalize_screening_decision(self, candidate: dict, stage_name: str, pipeline: list[dict]) -> dict:
+        candidate.setdefault("evidence", {})
+        candidate.setdefault("source", stage_name)
+        candidate.setdefault("confidence", "Unknown")
+        candidate.setdefault("reason", "")
+        candidate["decision_stage"] = stage_name
+        candidate["decision_pipeline"] = pipeline
+        return candidate
+
+    def _salary_screening_answer(
+        self,
+        question: str,
+        field_state: dict,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        mode: str,
+    ) -> dict | None:
+        explicit = self._extract_salary_from_text(resume.raw_text)
+        if explicit:
+            return self._screening_event(
+                explicit["value"],
+                "Resume",
+                "High",
+                "Salary value was explicitly mentioned in the resume.",
+                False,
+                currency=explicit.get("currency"),
+                evidence=explicit,
+            )
+        if mode != "aggressive":
+            return None
+        estimate = self._estimate_salary(question, resume, job, candidate_profile)
+        if not estimate:
+            return None
+        return self._screening_event(
+            estimate["answer"],
+            "AI Estimated Salary",
+            "Estimated / Low",
+            "No explicit salary found. Value estimated from resume, role, location, experience, and job context.",
+            True,
+            currency=estimate["currency"],
+            evidence=estimate,
+        )
+
+    def _screening_event(
+        self,
+        answer: str,
+        source: str,
+        confidence: str,
+        reason: str,
+        aggressive_default_used: bool,
+        *,
+        currency: str | None = None,
+        evidence: dict | None = None,
+    ) -> dict:
+        return {
+            "answer": str(answer),
+            "selected_answer": str(answer),
+            "source": source,
+            "confidence": confidence,
+            "currency": currency,
+            "reason": reason,
+            "evidence": evidence or {},
+            "aggressive_default_used": aggressive_default_used,
+        }
+
+    def _screening_question_category(self, question: str) -> str:
+        text = question.lower()
+        if self._extract_skill_from_experience_question(question):
+            return "skill_years"
+        if re.search(r"graduation\s+year|year\s+of\s+graduation|completed\s+degree.*year|degree.*completed.*year", text):
+            return "graduation_year"
+        if re.search(r"salary|compensation|hourly|ctc|pay rate|rate", text):
+            return "salary"
+        if re.search(r"visa|sponsor|authorization|authorized|work permit", text):
+            return "authorization"
+        if re.search(r"security clearance|government clearance|clearance", text):
+            return "clearance"
+        if re.search(r"criminal|background|disability|veteran|legal declaration", text):
+            return "legal"
+        if re.search(r"certification|certified|license", text):
+            return "certification"
+        if re.search(r"notice period|start date|join", text):
+            return "notice"
+        if re.search(r"city|location|where are you located|current location", text):
+            return "location"
+        if re.search(r"degree|bachelor|master|education|computer science|statistics|analytics", text):
+            return "education"
+        if re.search(r"years|how many", text):
+            return "years"
+        if any(skill.lower() in text for skill in ("sql", "python", "excel", "power bi", "tableau", "fastapi", "react", "tensorflow")):
+            return "skill"
+        return "yes_no"
+
+    def _screening_question_text(self, field, index: int) -> str:
+        try:
+            text = field.evaluate(
+                """(el, fallback) => {
+                    const id = el.id;
+                    const byFor = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                    const wrapping = el.closest('label');
+                    const fieldElement = el.closest('.fb-dash-form-element, .artdeco-text-input');
+                    const fieldLabel = fieldElement?.querySelector(':scope > label, :scope > .artdeco-text-input--label, :scope > .fb-dash-form-element__label');
+                    let previous = el.previousElementSibling;
+                    let previousLabel = '';
+                    for (let i = 0; previous && i < 5; i += 1) {
+                        if (previous.matches?.('label, .artdeco-text-input--label, .fb-dash-form-element__label')) {
+                            previousLabel = previous.innerText || '';
+                            break;
+                        }
+                        previous = previous.previousElementSibling;
+                    }
+                    const fieldset = el.closest('fieldset');
+                    const legend = fieldset?.querySelector(':scope > legend');
+                    return (
+                        byFor?.innerText ||
+                        wrapping?.innerText ||
+                        fieldLabel?.innerText ||
+                        previousLabel ||
+                        legend?.innerText ||
+                        el.getAttribute('aria-label') ||
+                        el.getAttribute('name') ||
+                        el.getAttribute('placeholder') ||
+                        fallback
+                    ).trim();
+                }""",
+                f"required field {index + 1}",
+            )
+            return re.sub(r"\s+", " ", text).strip()
+        except Exception:
+            return self._field_label(field, index)
+
+    def _field_options(self, field) -> list[str]:
+        try:
+            return [
+                option.strip()
+                for option in field.evaluate(
+                    """el => {
+                        if (el.tagName.toLowerCase() === 'select') {
+                            return Array.from(el.options).map(option => option.textContent || option.value || '');
+                        }
+                        const group = el.closest('fieldset, .jobs-easy-apply-form-section__grouping, div');
+                        return Array.from(group?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || [])
+                            .map(input => {
+                                const id = input.id;
+                                const label = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                                return label?.innerText || input.value || '';
+                            });
+                    }"""
+                )
+                if option and not re.match(r"^\s*select an option\s*$", option, re.I)
+            ]
+        except Exception:
+            return []
+
+    def _fill_screening_field(self, field, field_state: dict, answer: str, options: list[str]) -> None:
+        if field_state["field_type"] == "select":
+            choice = self._closest_option(answer, options)
+            field.select_option(label=choice)
+            return
+        if field_state["type"] in {"radio", "checkbox"}:
+            selected = self._click_choice_control(field, answer, options)
+            if not selected:
+                field.check()
+            return
+        field.fill(str(answer))
+
+    def _click_choice_control(self, field, answer: str, options: list[str]) -> bool:
+        try:
+            return bool(
+                field.evaluate(
+                    """(el, answer) => {
+                        const normalize = value => String(value || '')
+                            .replace(/\\s+/g, ' ')
+                            .trim()
+                            .toLowerCase();
+                        const targetText = normalize(answer);
+                        const container = el.closest('fieldset, .jobs-easy-apply-form-section__grouping, .fb-dash-form-element, .artdeco-card, div') || el.parentElement;
+                        const controls = Array.from(container?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || [el]);
+                        const labelFor = input => {
+                            const id = input.id;
+                            const byFor = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                            return byFor?.innerText || input.closest('label')?.innerText || input.value || '';
+                        };
+                        const target = controls.find(input => normalize(labelFor(input)) === targetText)
+                            || controls.find(input => normalize(labelFor(input)).includes(targetText) || targetText.includes(normalize(labelFor(input))));
+                        if (!target) {
+                            return false;
+                        }
+                        target.focus();
+                        target.click();
+                        target.dispatchEvent(new Event('input', { bubbles: true }));
+                        target.dispatchEvent(new Event('change', { bubbles: true }));
+                        return Boolean(target.checked);
+                    }""",
+                    answer,
+                )
+            )
+        except Exception:
+            return False
+
+    def _closest_option(self, answer: str, options: list[str]) -> str:
+        if not options:
+            return answer
+        answer_lower = answer.lower()
+        for option in options:
+            if option.lower() == answer_lower:
+                return option
+        for option in options:
+            if answer_lower in option.lower() or option.lower() in answer_lower:
+                return option
+        return options[0]
+
+    def _degree_option_from_resume(self, resume: ResumeProfile, options: list[str]) -> str | None:
+        text = json.dumps(resume.education or [], default=str).lower() + "\n" + (resume.raw_text or "").lower()
+        if not text.strip():
+            return None
+        option_map = [
+            (("doctor", "phd", "ph.d"), ("doctor", "phd", "ph.d")),
+            (("master", "m.sc", "msc", "mtech", "m.tech", "mba"), ("master", "mba", "ms ", "m.s", "postgraduate")),
+            (("bachelor", "b.e", "be ", "btech", "b.tech", "b.sc", "bsc", "undergraduate", "engineering"), ("bachelor", "undergraduate", "bs ", "b.s", "be ", "b.e", "btech", "b.tech")),
+            (("associate", "diploma"), ("associate", "diploma")),
+            (("high school", "secondary"), ("high school", "secondary")),
+        ]
+        for resume_terms, option_terms in option_map:
+            if any(term in text for term in resume_terms):
+                for option in options:
+                    option_lower = option.lower()
+                    if any(term in option_lower for term in option_terms):
+                        return option
+        return None
+
+    def _matching_saved_screening_answer(self, question: str, category: str, answers: list[dict]) -> dict | None:
+        normalized = self._normalize_screening_question(question)
+        for answer in answers:
+            if answer.get("normalized_question") == normalized:
+                return answer
+        if category == "skill_years":
+            skill = self._extract_skill_from_experience_question(question)
+            if skill:
+                for answer in answers:
+                    evidence = answer.get("evidence") or {}
+                    if (
+                        answer.get("category") == "skill_years"
+                        and str(evidence.get("normalized_skill") or "").lower() == skill.lower()
+                    ):
+                        return answer
+        if category == "salary":
+            for answer in answers:
+                if answer.get("category") == "salary":
+                    return answer
+        return None
+
+    def _normalize_screening_question(self, question: str) -> str:
+        normalized = re.sub(r"[^a-z0-9]+", " ", question.lower()).strip()
+        aliases = {
+            "will you require visa sponsorship": "work sponsorship",
+            "do you require sponsorship": "work sponsorship",
+            "do you need employment sponsorship": "work sponsorship",
+            "desired salary": "expected salary",
+            "expected ctc": "expected salary",
+            "compensation expectation": "expected salary",
+        }
+        return aliases.get(normalized, normalized[:512])
+
+    def _skill_experience_screening_answer(
+        self,
+        question: str,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        mode: str,
+    ) -> dict | None:
+        skill = self._extract_skill_from_experience_question(question)
+        if not skill:
+            return None
+        estimate = self._estimate_skill_years(skill, resume, candidate_profile)
+        if estimate["found"] and estimate["confidence"] in {"High", "Medium"}:
+            return self._screening_event(
+                str(estimate["years"]),
+                estimate["source"],
+                estimate["confidence"],
+                estimate["reason"],
+                False,
+                evidence=estimate,
+            )
+        if mode != "aggressive":
+            return None
+        if estimate["found"]:
+            estimate["years"] = max(1, int(estimate["years"] or 1))
+            estimate["aggressive_default_used"] = True
+            return self._screening_event(
+                str(estimate["years"]),
+                estimate["source"],
+                "Estimated",
+                estimate["reason"],
+                True,
+                evidence=estimate,
+            )
+        estimate.update(
+            {
+                "years": 0,
+                "source": "Aggressive Default",
+                "confidence": "Estimated / Low",
+                "aggressive_default_used": True,
+                "reason": f"No evidence for {skill} was found; Aggressive Mode selected 0.",
+            }
+        )
+        return self._screening_event(
+            "0",
+            "Aggressive Default",
+            "Estimated / Low",
+            estimate["reason"],
+            True,
+            evidence=estimate,
+        )
+
+    def _extract_skill_from_experience_question(self, question: str) -> str | None:
+        text = re.sub(r"\s+", " ", question or "").strip()
+        lowered = text.lower()
+        if not re.search(r"years?|how long|experience", lowered):
+            return None
+        aliases = {
+            "Microsoft Excel": ["microsoft excel", "ms excel", "excel"],
+            "Excel": ["excel"],
+            "Python": ["python (programming language)", "python programming language", "python"],
+            "SQL": ["sql", "structured query language"],
+            "Databases": ["databases", "database", "relational databases", "rdbms"],
+            "Power BI": ["power bi", "powerbi"],
+            "Tableau": ["tableau"],
+            "FastAPI": ["fastapi", "fast api"],
+            "React": ["react.js", "reactjs", "react"],
+            "TensorFlow": ["tensorflow", "tensor flow"],
+        }
+        for canonical, variants in aliases.items():
+            if any(re.search(rf"\b{re.escape(variant)}\b", lowered) for variant in variants):
+                if canonical == "Microsoft Excel":
+                    return "Excel"
+                return canonical
+        patterns = [
+            r"(?:with|using|used)\s+([A-Za-z][A-Za-z0-9+#./ -]{1,40})\??",
+            r"years\s+of\s+([A-Za-z][A-Za-z0-9+#./ -]{1,40})\s+experience",
+            r"([A-Za-z][A-Za-z0-9+#./ -]{1,40})\s+experience\s+in\s+years",
+        ]
+        stop_words = {"work", "professional", "relevant", "total", "overall"}
+        for pattern in patterns:
+            match = re.search(pattern, text, re.I)
+            if not match:
+                continue
+            candidate = re.sub(r"[^A-Za-z0-9+#. ]+", " ", match.group(1)).strip()
+            candidate = re.sub(r"\s+", " ", candidate)
+            if candidate and candidate.lower() not in stop_words:
+                return candidate[:80]
+        return None
+
+    def _estimate_skill_years(
+        self,
+        skill: str,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+    ) -> dict:
+        skill_pattern = self._skill_pattern(skill)
+        evidence_texts = self._skill_evidence_texts(resume, candidate_profile)
+        raw_text = resume.raw_text or ""
+        dated_years = self._skill_years_from_dated_context(
+            skill_pattern,
+            "\n".join(
+                [
+                    raw_text,
+                    "\n".join(json.dumps(item, default=str) for item in resume.experience or []),
+                ]
+            ),
+        )
+        if dated_years:
+            return {
+                "normalized_skill": skill,
+                "selected_years": dated_years,
+                "years": dated_years,
+                "source": "Resume Experience Dates",
+                "confidence": "High",
+                "found": True,
+                "aggressive_default_used": False,
+                "evidence_used": f"Skill appeared near dated resume experience; calculated {dated_years} year(s).",
+                "reason": "Calculated years from resume dates tied to the skill.",
+            }
+        if self._skill_in_structured_resume(skill_pattern, resume.experience):
+            years = self._estimated_years_of_experience(resume) or 1
+            return {
+                "normalized_skill": skill,
+                "selected_years": years,
+                "years": years,
+                "source": "Resume Experience",
+                "confidence": "Medium",
+                "found": True,
+                "aggressive_default_used": False,
+                "evidence_used": "Skill appeared in professional experience.",
+                "reason": "Estimated from professional experience because exact skill dates were not available.",
+            }
+        if self._skill_in_texts(skill_pattern, evidence_texts["projects"]):
+            return {
+                "normalized_skill": skill,
+                "selected_years": 1,
+                "years": 1,
+                "source": "Resume Projects",
+                "confidence": "Estimated",
+                "found": True,
+                "aggressive_default_used": True,
+                "evidence_used": "Skill appeared in resume project text.",
+                "reason": "Skill appeared only in projects; used conservative 1 year estimate.",
+            }
+        if self._skill_in_texts(skill_pattern, evidence_texts["skills"]):
+            return {
+                "normalized_skill": skill,
+                "selected_years": 1,
+                "years": 1,
+                "source": "Resume Skills",
+                "confidence": "Estimated",
+                "found": True,
+                "aggressive_default_used": True,
+                "evidence_used": "Skill appeared in resume skills or technologies.",
+                "reason": "Skill appeared in skills section; used conservative 1 year estimate.",
+            }
+        if self._skill_in_texts(skill_pattern, evidence_texts["profile"]):
+            return {
+                "normalized_skill": skill,
+                "selected_years": 1,
+                "years": 1,
+                "source": "Candidate Profile",
+                "confidence": "Estimated",
+                "found": True,
+                "aggressive_default_used": True,
+                "evidence_used": "Skill appeared in Candidate Profile text.",
+                "reason": "Skill appeared in Candidate Profile; used conservative 1 year estimate.",
+            }
+        return {
+            "normalized_skill": skill,
+            "selected_years": None,
+            "years": None,
+            "source": None,
+            "confidence": "None",
+            "found": False,
+            "aggressive_default_used": False,
+            "evidence_used": "",
+            "reason": f"No evidence for {skill} was found.",
+        }
+
+    def _skill_pattern(self, skill: str) -> re.Pattern:
+        aliases = {
+            "Excel": r"(?:microsoft\s+excel|ms\s+excel|excel)",
+            "Python": r"(?:python(?:\s+\(programming language\))?)",
+            "SQL": r"(?:sql|structured\s+query\s+language)",
+            "Databases": r"(?:databases?|relational\s+databases?|rdbms|sql|mysql|postgres(?:ql)?|sql\s+server)",
+            "Power BI": r"(?:power\s*bi|powerbi)",
+            "Tableau": r"tableau",
+        }
+        pattern = aliases.get(skill, re.escape(skill))
+        return re.compile(rf"\b{pattern}\b", re.I)
+
+    def _extract_graduation_year(self, resume: ResumeProfile) -> int | None:
+        education_text = json.dumps(resume.education or [], default=str)
+        candidates: list[int] = []
+        for text in [education_text, resume.raw_text or ""]:
+            for match in re.finditer(r"(?:graduat\w*|degree|bachelor|master|university|college|education).{0,80}\b((?:19|20)\d{2})\b", text, re.I | re.S):
+                candidates.append(int(match.group(1)))
+            for match in re.finditer(r"\b((?:19|20)\d{2})\b.{0,80}(?:graduat\w*|degree|bachelor|master|university|college|education)", text, re.I | re.S):
+                candidates.append(int(match.group(1)))
+        if not candidates:
+            return None
+        current_year = datetime.utcnow().year
+        plausible = [year for year in candidates if 1970 <= year <= current_year + 8]
+        return max(plausible) if plausible else None
+
+    def _skill_evidence_texts(
+        self,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+    ) -> dict[str, list[str]]:
+        profile_parts = []
+        if candidate_profile is not None:
+            profile_parts = [
+                candidate_profile.current_job_title or "",
+                candidate_profile.professional_headline or "",
+                candidate_profile.current_company or "",
+                " ".join(candidate_profile.previous_companies or []),
+            ]
+        project_lines = [
+            line
+            for line in (resume.raw_text or "").splitlines()
+            if re.search(r"project|built|developed|created|implemented", line, re.I)
+        ]
+        return {
+            "skills": list(resume.skills or [])
+            + list(resume.technologies or [])
+            + list(resume.keywords or []),
+            "projects": project_lines,
+            "profile": profile_parts,
+        }
+
+    def _skill_in_structured_resume(self, skill_pattern: re.Pattern, items: list[dict]) -> bool:
+        return any(skill_pattern.search(json.dumps(item, default=str)) for item in items or [])
+
+    def _skill_in_texts(self, skill_pattern: re.Pattern, texts: list[str]) -> bool:
+        return any(skill_pattern.search(str(text)) for text in texts or [])
+
+    def _skill_years_from_dated_context(self, skill_pattern: re.Pattern, text: str) -> int | None:
+        if not text or not skill_pattern.search(text):
+            return None
+        sentences = re.split(r"[\n\r]+", text)
+        years: list[int] = []
+        for sentence in sentences:
+            if not skill_pattern.search(sentence):
+                continue
+            years.extend(self._years_from_date_ranges(sentence))
+        return max(years) if years else None
+
+    def _years_from_date_ranges(self, text: str) -> list[int]:
+        current_year = datetime.utcnow().year
+        results: list[int] = []
+        month = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*"
+        patterns = [
+            rf"(?:{month}\s+)?(20\d{{2}})\s*(?:-|to|–|—)\s*(?:present|current|now|(?:{month}\s+)?(20\d{{2}}))",
+            r"\b(20\d{2})\s*(?:-|to|–|—)\s*(present|current|now|20\d{2})\b",
+        ]
+        for pattern in patterns:
+            for match in re.finditer(pattern, text, re.I):
+                start = int(match.group(1))
+                raw_end = match.group(2) if len(match.groups()) > 1 else None
+                end = current_year if not raw_end or re.search(r"present|current|now", str(raw_end), re.I) else int(raw_end)
+                if end >= start:
+                    results.append(max(1, end - start))
+        return results
+
+    def _looks_yes_no_options(self, options: list[str]) -> bool:
+        lowered = {option.lower() for option in options}
+        return bool({"yes", "no"} & lowered)
+
+    def _question_supported_by_resume(self, question: str, resume: ResumeProfile) -> bool:
+        question_text = question.lower()
+        evidence = " ".join(
+            [
+                resume.raw_text or "",
+                " ".join(resume.skills or []),
+                " ".join(resume.technologies or []),
+                " ".join(resume.domain_expertise or []),
+                " ".join(resume.job_titles or []),
+            ]
+        ).lower()
+        tokens = [
+            token
+            for token in re.findall(r"[a-z][a-z0-9+#.]{2,}", question_text)
+            if token not in {"have", "with", "experience", "related", "field", "degree", "company", "data"}
+        ]
+        if any(token in evidence for token in tokens):
+            return True
+        if "degree" in question_text and resume.education:
+            return True
+        return False
+
+    def _estimated_years_of_experience(self, resume: ResumeProfile) -> int:
+        text = resume.raw_text or ""
+        matches = [int(value) for value in re.findall(r"(\d{1,2})\+?\s+years?", text, re.I)]
+        return max(matches) if matches else 0
+
+    def _extract_location_from_resume(self, resume: ResumeProfile) -> str | None:
+        for keyword in ("Mumbai", "Pune", "Bengaluru", "Delhi", "New York", "Austin", "San Francisco"):
+            if keyword.lower() in (resume.raw_text or "").lower():
+                return keyword
+        return None
+
+    def _generated_short_screening_answer(self, question: str, resume: ResumeProfile, job: JobOpportunity) -> str:
+        skills = ", ".join((resume.skills or resume.technologies or [])[:5])
+        role = resume.detected_role or job.title
+        if skills:
+            return f"My background in {role} includes hands-on experience with {skills}, which aligns with this role."
+        return f"My experience aligns with the {job.title} role and I am interested in contributing to {job.company}."
+
+    def _extract_salary_from_text(self, text: str) -> dict | None:
+        patterns = [
+            (r"(?:INR|Rs\.?|₹)\s?([\d,.]+)", "INR"),
+            (r"(?:USD|\$)\s?([\d,.]+)", "USD"),
+            (r"(?:CAD)\s?([\d,.]+)", "CAD"),
+            (r"(?:GBP|£)\s?([\d,.]+)", "GBP"),
+            (r"(?:EUR|€)\s?([\d,.]+)", "EUR"),
+        ]
+        for pattern, currency in patterns:
+            match = re.search(pattern, text or "", re.I)
+            if match:
+                return {"value": re.sub(r"[^\d]", "", match.group(1)), "currency": currency}
+        return None
+
+    def _estimate_salary(
+        self,
+        question: str,
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+    ) -> dict:
+        currency = self._currency_for_location(job.location or (candidate_profile.current_location if candidate_profile else "") or "")
+        title = (job.title or resume.detected_role or "").lower()
+        years = self._estimated_years_of_experience(resume)
+        base_by_currency = {
+            "USD": 85000,
+            "INR": 900000,
+            "CAD": 85000,
+            "GBP": 55000,
+            "EUR": 65000,
+        }
+        base = base_by_currency.get(currency, 85000)
+        if any(term in title for term in ("senior", "lead", "manager", "principal")):
+            base = int(base * 1.45)
+        elif any(term in title for term in ("intern", "junior", "entry")):
+            base = int(base * 0.45)
+        elif any(term in title for term in ("data scientist", "machine learning", "engineer")):
+            base = int(base * 1.15)
+        base = int(base + min(years, 10) * base * 0.04)
+        if re.search(r"current", question, re.I):
+            base = int(base * 0.9)
+        if re.search(r"range", question, re.I):
+            answer = f"{int(base * 0.9)}-{int(base * 1.1)}"
+        else:
+            answer = str(base)
+        return {
+            "answer": answer,
+            "currency": currency,
+            "estimated_base": base,
+            "candidate_years": years,
+            "job_title": job.title,
+            "job_location": job.location,
+            "work_type": self._work_type(job),
+        }
+
+    def _currency_for_location(self, location: str) -> str:
+        text = (location or "").lower()
+        if "india" in text or any(city in text for city in ("pune", "mumbai", "bengaluru", "delhi")):
+            return "INR"
+        if "canada" in text:
+            return "CAD"
+        if "united kingdom" in text or "uk" in text or "london" in text:
+            return "GBP"
+        if "europe" in text or any(country in text for country in ("germany", "france", "netherlands", "spain")):
+            return "EUR"
+        return "USD"
+
+    def _work_type(self, job: JobOpportunity) -> str:
+        text = f"{job.title} {job.location} {job.description}".lower()
+        if "remote" in text:
+            return "remote"
+        if "hybrid" in text:
+            return "hybrid"
+        return "onsite"
+
+    def _save_screening_debug(
+        self,
+        debug_dir: Path | None,
+        detected: list[dict],
+        events: list[dict],
+        field_traces: list[dict] | None = None,
+    ) -> None:
+        if not debug_dir:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        selected = [event for event in events if event.get("selected_answer")]
+        all_detected = detected or [
+            {
+                "question_text": event.get("question_text"),
+                "original_label": event.get("original_label") or event.get("question_text"),
+                "normalized_field": event.get("normalized_field"),
+                "category": event.get("category"),
+                "field_type": event.get("field_type"),
+                "detected_control_type": event.get("detected_control_type") or event.get("field_type"),
+                "options": event.get("options", []),
+            }
+            for event in events
+            if event.get("question_text")
+        ]
+        defaults = [event for event in selected if event.get("aggressive_default_used")]
+        generated = [event for event in selected if event.get("source") in {"AI Generated", "AI Estimated Salary"}]
+        skill_questions = [
+            {
+                "original_question": event.get("question_text"),
+                "normalized_skill": (event.get("evidence") or {}).get("normalized_skill"),
+                "field_type": event.get("field_type"),
+                "mode_used": event.get("mode"),
+            }
+            for event in events
+            if event.get("category") == "skill_years"
+        ]
+        skill_estimates = [
+            {
+                "original_question": event.get("question_text"),
+                "normalized_skill": (event.get("evidence") or {}).get("normalized_skill"),
+                "selected_years": event.get("selected_answer"),
+                "source": event.get("source"),
+                "confidence": event.get("confidence"),
+                "evidence_used": (event.get("evidence") or {}).get("evidence_used"),
+                "mode_used": event.get("mode"),
+                "aggressive_default_used": event.get("aggressive_default_used"),
+                "reason": event.get("reason"),
+            }
+            for event in selected
+            if event.get("category") == "skill_years"
+        ]
+        needs_review = [event for event in events if not event.get("selected_answer")]
+        confidence = [
+            {
+                "question_text": event.get("question_text"),
+                "answer": event.get("selected_answer"),
+                "source": event.get("source"),
+                "confidence": event.get("confidence"),
+                "currency": event.get("currency"),
+                "reason": event.get("reason"),
+            }
+            for event in events
+        ]
+        files = {
+            "questions_detected.json": all_detected,
+            "evidence_used.json": [event.get("evidence", {}) for event in selected],
+            "selected_answers.json": selected,
+            "aggressive_defaults_used.json": defaults,
+            "generated_text_answers.json": generated,
+            "skill_experience_questions.json": skill_questions,
+            "skill_experience_estimates.json": skill_estimates,
+            "needs_review.json": needs_review,
+            "confidence_scores.json": confidence,
+            "field_decision_trace.json": field_traces or [self._screening_field_trace(event) for event in events],
+        }
+        for filename, payload in files.items():
+            (debug_dir / filename).write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+    def _save_reasoning_debug(self, job: JobOpportunity, resume: ResumeProfile, events: list[dict]) -> None:
+        reasoning_events = [event for event in events if event.get("reasoning_used")]
+        if not reasoning_events:
+            return
+        debug_dir = self.reasoning.create_debug_dir(job)
+        metadata = job.job_description_metadata or self.reasoning.analyze_job_description(job)
+        comparison = self.reasoning.compare_resume_to_job(resume, job)
+        files = {
+            "job_description_analysis.json": metadata,
+            "semantic_matches.json": comparison,
+            "reasoning_steps.json": reasoning_events,
+            "confidence_scores.json": [
+                {
+                    "question": event.get("question_text"),
+                    "answer": event.get("selected_answer"),
+                    "confidence": event.get("confidence"),
+                    "reasoning_type": event.get("reasoning_type"),
+                }
+                for event in reasoning_events
+            ],
+            "evidence_used.json": [
+                (event.get("evidence") or {}).get("evidence_used", [])
+                for event in reasoning_events
+            ],
+            "question_reasoning.json": reasoning_events,
+        }
+        for filename, payload in files.items():
+            (debug_dir / filename).write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+    def _field_label(self, field, index: int) -> str:
+        try:
+            return field.evaluate(
+                """(el, fallback) => {
+                    const id = el.id;
+                    const byFor = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                    const wrapping = el.closest('label');
+                    const fieldElement = el.closest('.fb-dash-form-element, .artdeco-text-input');
+                    const fieldLabel = fieldElement?.querySelector(':scope > label, :scope > .artdeco-text-input--label, :scope > .fb-dash-form-element__label');
+                    const fieldset = el.closest('fieldset');
+                    const legend = fieldset?.querySelector(':scope > legend');
+                    const parentLabel = el.parentElement?.querySelector('label, .artdeco-text-input--label, .fb-dash-form-element__label');
+                    let previous = el.previousElementSibling;
+                    let previousLabel = '';
+                    for (let i = 0; previous && i < 4; i += 1) {
+                        if (previous.matches?.('label, .artdeco-text-input--label, .fb-dash-form-element__label')) {
+                            previousLabel = previous.innerText || '';
+                            break;
+                        }
+                        previous = previous.previousElementSibling;
+                    }
+                    return (
+                        byFor?.innerText ||
+                        wrapping?.innerText ||
+                        fieldLabel?.innerText ||
+                        parentLabel?.innerText ||
+                        previousLabel ||
+                        legend?.innerText ||
+                        el.getAttribute('aria-label') ||
+                        el.getAttribute('name') ||
+                        el.getAttribute('placeholder') ||
+                        fallback
+                    ).trim();
+                }""",
+                f"required field {index + 1}",
+            )
+        except Exception:
+            return f"required field {index + 1}"
+
+    def _save_form_diagnostics(
+        self,
+        page: Page,
+        modal,
+        evidence_dir: Path | None,
+        debug_dir: Path,
+        step: str,
+    ) -> None:
+        try:
+            buttons = (
+                modal.locator("button:visible").all_inner_texts()
+                if modal is not None
+                else []
+            )
+            inputs = (
+                modal.locator("input:visible, textarea:visible, select:visible").evaluate_all(
+                    """elements => elements.map((el, index) => ({
+                        index,
+                        tag: el.tagName,
+                        type: el.type || null,
+                        name: el.name || null,
+                        aria_label: el.getAttribute('aria-label'),
+                        placeholder: el.getAttribute('placeholder'),
+                        required: el.required || false,
+                        has_value: el.type === 'checkbox' || el.type === 'radio'
+                            ? el.checked
+                            : Boolean(el.value)
+                    }))"""
+                )
+                if modal is not None
+                else []
+            )
+            payload = {
+                "step": step,
+                "page_title": page.title(),
+                "current_url": page.url,
+                "modal_found": modal is not None,
+                "visible_modal_buttons": [text.strip() for text in buttons if text.strip()],
+                "visible_form_fields": inputs,
+                "captured_at": datetime.utcnow().isoformat(),
+            }
+            (debug_dir / "form_diagnostic.json").write_text(
+                json.dumps(payload, indent=2),
+                encoding="utf-8",
+            )
+            if modal is not None:
+                (debug_dir / "form_modal.html").write_text(
+                    modal.evaluate("el => el.outerHTML"),
+                    encoding="utf-8",
+                )
+            if evidence_dir:
+                self._capture_screenshot(page, evidence_dir, f"failure_{step}")
+        except Exception as exc:
+            logger.warning("Could not save form diagnostics: %s", exc)
+
+    def _confirmation_received(self, page: Page) -> bool:
+        confirmation_text = re.compile(
+            r"application (?:was )?sent|application submitted|your application|applied",
+            re.I,
+        )
+        return page.get_by_text(confirmation_text).count() > 0
+
+    def _create_evidence_dir(self, job: JobOpportunity) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:60] or "job"
+        evidence_dir = self.settings.live_test_output_dir / f"{timestamp}_job_{job.id}_{safe_title}"
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+        (self.settings.live_test_output_dir / "screenshots" / evidence_dir.name).mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        return evidence_dir
+
+    def _create_contact_debug_dir(self, job: JobOpportunity, linkedin_job_id: str) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(linkedin_job_id)).strip("_")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:40] or "job"
+        contact_dir = self.settings.contact_debug_dir / timestamp / f"{safe_job_id or job.id}_{safe_title}"
+        contact_dir.mkdir(parents=True, exist_ok=True)
+        return contact_dir
+
+    def _create_profile_apply_debug_dir(self, job: JobOpportunity, linkedin_job_id: str) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(linkedin_job_id)).strip("_")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:40] or "job"
+        debug_dir = self.settings.profile_autofill_debug_dir / timestamp / f"{safe_job_id or job.id}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _create_form_navigation_debug_dir(self, job: JobOpportunity, linkedin_job_id: str) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(linkedin_job_id)).strip("_")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:40] or "job"
+        debug_dir = self.settings.form_navigation_debug_dir / timestamp / f"{safe_job_id or job.id}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _create_screening_debug_dir(self, job: JobOpportunity, linkedin_job_id: str) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(linkedin_job_id)).strip("_")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:40] or "job"
+        debug_dir = self.settings.screening_debug_dir / timestamp / f"{safe_job_id or job.id}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _save_profile_apply_debug(self, debug_dir: Path | None, filename: str, payload: dict) -> None:
+        if not debug_dir:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        (debug_dir / filename).write_text(
+            json.dumps(payload, indent=2, default=str),
+            encoding="utf-8",
+        )
+
+    def _candidate_profile_debug_payload(self, candidate_profile: CandidateProfile | None) -> dict:
+        if candidate_profile is None:
+            return {"profile_available": False}
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "mobile_phone",
+            "phone_country_code",
+            "current_location",
+            "linkedin_url",
+            "portfolio_url",
+            "github_url",
+            "address",
+            "current_job_title",
+            "professional_headline",
+            "current_company",
+        ]
+        return {
+            "profile_available": True,
+            "fields": {
+                field: {
+                    "value": getattr(candidate_profile, field, None),
+                    **((candidate_profile.field_sources or {}).get(field, {})),
+                }
+                for field in fields
+            },
+            "professional_links": candidate_profile.professional_links or {},
+            "previous_companies": candidate_profile.previous_companies or [],
+            "certifications": candidate_profile.certifications or [],
+        }
+
+    def _capture_screenshot(self, page: Page, evidence_dir: Path | None, name: str) -> None:
+        if not evidence_dir:
+            return
+        try:
+            screenshot_dir = self.settings.live_test_output_dir / "screenshots" / evidence_dir.name
+            try:
+                page.screenshot(path=str(screenshot_dir / f"{name}.png"), full_page=True, timeout=5000)
+            except TypeError:
+                page.screenshot(path=str(screenshot_dir / f"{name}.png"), full_page=True)
+        except Exception as exc:
+            logger.warning("Could not capture %s screenshot: %s", name, exc)
+
+    def _persist_run_log(
+        self,
+        evidence_dir: Path | None,
+        job: JobOpportunity,
+        dry_run: bool,
+        current_step: str,
+        run_log: list[dict],
+        error: str | None = None,
+        contact_events: list[dict] | None = None,
+    ) -> None:
+        if not evidence_dir:
+            return
+        contact_events = contact_events or []
+        payload = {
+            "job_id": job.id,
+            "job_title": job.title,
+            "company": job.company,
+            "job_url": job.job_url,
+            "application_date": datetime.utcnow().isoformat(),
+            "dry_run": dry_run,
+            "current_step": current_step,
+            "error": error,
+            "contact_fields_detected": self._contact_detected(contact_events),
+            "contact_fields_filled": self._contact_filled(contact_events),
+            "missing_contact_fields": self._contact_missing(contact_events),
+            "events": run_log,
+        }
+        (evidence_dir / "application_log.json").write_text(
+            json.dumps(payload, indent=2),
+            encoding="utf-8",
+        )
+
+    def _log(self, run_log: list[dict], event: str, detail: str) -> None:
+        run_log.append({"time": datetime.utcnow().isoformat(), "event": event, "detail": detail})

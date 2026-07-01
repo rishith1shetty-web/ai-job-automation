@@ -1,0 +1,143 @@
+{
+  "job_id": 9242,
+  "job_title": "Data Analyst Intern",
+  "company": "Stealth Startup",
+  "job_url": "https://www.linkedin.com/jobs/view/4430690585/",
+  "application_date": "2026-06-30T20:44:02.188451",
+  "dry_run": true,
+  "current_step": "dry_run_complete",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-06-30T20:42:59.776694",
+      "event": "initialized",
+      "detail": "Data Analyst Intern at Stealth Startup"
+    },
+    {
+      "time": "2026-06-30T20:42:59.776694",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3148, \"job_resume_id\": 3148, \"search_batch_id\": \"c8ffbb88-af63-4fa0-bcbf-abdcc8d2838e\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\96a86bfdff34400aaf721d6e51218576.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\96a86bfdff34400aaf721d6e51218576.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T204259776694\\\\4430690585_Data_Analyst_Intern\"}"
+    },
+    {
+      "time": "2026-06-30T20:43:13.689804",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Data Analyst Intern | Stealth Startup | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4430690585/\", \"captured_at\": \"2026-06-30T20:43:13.689804\"}"
+    },
+    {
+      "time": "2026-06-30T20:43:13.857461",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4430690585\", \"job_url\": \"https://www.linkedin.com/jobs/view/4430690585/\"}"
+    },
+    {
+      "time": "2026-06-30T20:43:14.374549",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-06-30T20:43:16.962747",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4430690585/"
+    },
+    {
+      "time": "2026-06-30T20:43:24.816868",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-06-30T20:43:25.664912",
+      "event": "resume_uploaded",
+      "detail": "Rishith_Shetty_Resume (1).pdf"
+    },
+    {
+      "time": "2026-06-30T20:43:25.664912",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 3148, \"job_resume_id\": 3148, \"search_batch_id\": \"c8ffbb88-af63-4fa0-bcbf-abdcc8d2838e\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\96a86bfdff34400aaf721d6e51218576.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\96a86bfdff34400aaf721d6e51218576.pdf\", \"linkedin_filename_detected_after_upload\": \"Rishith_Shetty_Resume (1).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260630T204259776694\\\\4430690585_Data_Analyst_Intern\"}"
+    },
+    {
+      "time": "2026-06-30T20:43:33.792829",
+      "event": "form_page_processed",
+      "detail": "Page 2: Next"
+    },
+    {
+      "time": "2026-06-30T20:43:42.343418",
+      "event": "form_page_processed",
+      "detail": "Page 3: Next"
+    },
+    {
+      "time": "2026-06-30T20:43:50.425662",
+      "event": "screening_questions_answered",
+      "detail": "[{\"answer\": \"1\", \"selected_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"currency\": null, \"reason\": \"Calculated years from resume dates tied to the skill.\", \"evidence\": {\"normalized_skill\": \"Excel\", \"selected_years\": 1, \"years\": 1, \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"found\": true, \"aggressive_default_used\": false, \"evidence_used\": \"Skill appeared near dated resume experience; calculated 1 year(s).\", \"reason\": \"Calculated years from resume dates tied to the skill.\"}, \"aggressive_default_used\": false, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"evidence_used\": true, \"reasoning_summary\": \"Calculated years from resume dates tied to the skill.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with Microsoft Excel?\", \"category\": \"skill_years\", \"field_type\": \"text\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"0\", \"selected_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"currency\": null, \"reason\": \"No evidence for SQL was found; Aggressive Mode selected 0.\", \"evidence\": {\"normalized_skill\": \"SQL\", \"selected_years\": null, \"years\": 0, \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"found\": false, \"aggressive_default_used\": true, \"evidence_used\": \"\", \"reason\": \"No evidence for SQL was found; Aggressive Mode selected 0.\"}, \"aggressive_default_used\": true, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": true, \"reasoning_summary\": \"No evidence for SQL was found; Aggressive Mode selected 0.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with SQL?\", \"category\": \"skill_years\", \"field_type\": \"text\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"1\", \"selected_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"currency\": null, \"reason\": \"Calculated years from resume dates tied to the skill.\", \"evidence\": {\"normalized_skill\": \"Python\", \"selected_years\": 1, \"years\": 1, \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"found\": true, \"aggressive_default_used\": false, \"evidence_used\": \"Skill appeared near dated resume experience; calculated 1 year(s).\", \"reason\": \"Calculated years from resume dates tied to the skill.\"}, \"aggressive_default_used\": false, \"decision_stage\": \"estimator\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"learned_mapping\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"evidence\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"reasoning\", \"candidate_answer\": null, \"source\": null, \"confidence\": null, \"evidence_used\": false, \"reasoning_summary\": null, \"selected\": false}, {\"stage\": \"estimator\", \"candidate_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"evidence_used\": true, \"reasoning_summary\": \"Calculated years from resume dates tied to the skill.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with Python (Programming Language)?\", \"category\": \"skill_years\", \"field_type\": \"text\", \"options\": [], \"mode\": \"Aggressive\"}]"
+    },
+    {
+      "time": "2026-06-30T20:43:52.397493",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with SQL?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 1, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with Python (Programming Language)?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 2, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T20:43:59.942111",
+      "event": "form_page_processed",
+      "detail": "Page 5: Review"
+    },
+    {
+      "time": "2026-06-30T20:44:01.044014",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with SQL?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 1, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with Python (Programming Language)?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 2, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"Follow Stealth Startup to stay up to date with their page.\", \"field_key\": \"company_name\", \"field_type\": \"checkbox\", \"required\": false, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-06-30T20:44:01.586384",
+      "event": "review_page_reached",
+      "detail": "Form page 6"
+    },
+    {
+      "time": "2026-06-30T20:44:02.188451",
+      "event": "dry_run_complete",
+      "detail": "Dry run reached submit/review stage; application not submitted."
+    }
+  ]
+}

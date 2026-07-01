@@ -1,0 +1,142 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very High",
+    "times_seen": 5,
+    "times_successful": 5,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very High",
+    "times_seen": 5,
+    "times_successful": 5,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very High",
+    "times_seen": 5,
+    "times_successful": 5,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very High",
+    "times_seen": 5,
+    "times_successful": 5,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very High",
+    "times_seen": 5,
+    "times_successful": 5,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 1,
+    "times_successful": 0,
+    "times_failed": 1
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 2,
+    "times_successful": 0,
+    "times_failed": 2
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 2,
+    "times_successful": 0,
+    "times_failed": 2
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 2,
+    "times_successful": 0,
+    "times_failed": 2
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 2,
+    "times_successful": 0,
+    "times_failed": 2
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null
+  }
+]

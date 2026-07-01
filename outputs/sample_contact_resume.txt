@@ -1,0 +1,10 @@
+Ava Shah
+Pune, Maharashtra, India
+ava.shah@example.com | +91 98765 43210
+LinkedIn: https://www.linkedin.com/in/avashah
+GitHub: https://github.com/avashah
+Portfolio: https://avashah.dev
+
+Data Scientist at Example Analytics
+Skills: Python, SQL, machine learning, pandas, Power BI
+Education: B.Tech Computer Science

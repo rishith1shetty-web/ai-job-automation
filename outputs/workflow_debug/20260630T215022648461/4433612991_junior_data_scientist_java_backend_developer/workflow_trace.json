@@ -1,0 +1,185 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "contact_page",
+    "page_hash": "193a5dc251978cbd4c0ae513148ae4302e16a9bad24c3c344a4772af63884694",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.66,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "resume_page",
+    "page_hash": "195b29d968a16e0d10beca3d08ca919ea16406964563fce7db7668169c40bb09",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.33,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "resume_page",
+    "page_hash": "195b29d968a16e0d10beca3d08ca919ea16406964563fce7db7668169c40bb09",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.48,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "screening_questions",
+    "page_hash": "72cd77846164c2399df4de12442f8df416345a153f56c6708a34d4d3166bc55a",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 33.98,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "screening_questions",
+    "page_hash": "72cd77846164c2399df4de12442f8df416345a153f56c6708a34d4d3166bc55a",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 34.12,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "junior data scientist/java backend developer | SynergisticIT | LinkedIn",
+    "modal_title": "Apply to SynergisticIT",
+    "detected_page_type": "validation_error",
+    "page_hash": "bf40786260b76b375703a7d802ba3590cc6270313691f709bbea5ef33eb5b5db",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4433612991/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 40.91,
+    "stop_reason": "Validation error: Please make a selection"
+  }
+]

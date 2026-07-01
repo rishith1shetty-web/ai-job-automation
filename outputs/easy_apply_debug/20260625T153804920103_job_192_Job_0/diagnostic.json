@@ -1,0 +1,54 @@
+{
+  "job_id": 192,
+  "job_title": "Job 0",
+  "company": "Example",
+  "job_url": "https://example.com/876ca73b31ea42149d8226cce50223ba/0",
+  "final_url": "https://www.linkedin.com/jobs/view/123",
+  "recorded_easy_apply": true,
+  "readiness": {
+    "domcontentloaded": true,
+    "networkidle": true,
+    "main_content": true,
+    "final_url": "https://www.linkedin.com/jobs/view/123"
+  },
+  "visible_button_texts": [
+    "Easy Apply",
+    "Save"
+  ],
+  "selector_results": [
+    {
+      "name": "role_button_easy_apply",
+      "count": 1,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "aria_label_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "linkedin_inapply_control",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_apply_now",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_apply",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_submit_application",
+      "count": 1,
+      "explicit_easy_apply": false
+    }
+  ],
+  "external_apply_links": [],
+  "classification": "linkedin_easy_apply",
+  "reason": "Confirmed LinkedIn Easy Apply control.",
+  "captured_at": "2026-06-25T15:38:04.921101"
+}

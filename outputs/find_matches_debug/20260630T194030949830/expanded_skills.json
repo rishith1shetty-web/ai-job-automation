@@ -1,0 +1,28 @@
+[
+  {
+    "skill": "python",
+    "expansions": [
+      "Python Developer",
+      "Pandas",
+      "NumPy",
+      "Scikit-learn"
+    ]
+  },
+  {
+    "skill": "fastapi",
+    "expansions": [
+      "FastAPI Developer",
+      "Backend Developer",
+      "API Developer"
+    ]
+  },
+  {
+    "skill": "sql",
+    "expansions": [
+      "SQL Analyst",
+      "MySQL",
+      "PostgreSQL",
+      "SQL Server"
+    ]
+  }
+]

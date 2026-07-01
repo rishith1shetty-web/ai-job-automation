@@ -1,0 +1,10 @@
+[
+  {
+    "captured_at": "2026-06-30T20:21:55.609206",
+    "missing_fields": [],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please upload an acceptable document format (JPG, JPEG, GIF, PNG). Change file"
+    ]
+  }
+]
