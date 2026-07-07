@@ -21,6 +21,7 @@ def init_db() -> None:
     migrations = [
         "ALTER TYPE applicationstatus ADD VALUE IF NOT EXISTS 'NEEDS_REVIEW'",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS technologies JSONB DEFAULT '[]'::jsonb NOT NULL",
+        "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS domain_expertise JSONB DEFAULT '[]'::jsonb NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS detected_role VARCHAR(255)",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS role_suggestions JSONB DEFAULT '[]'::jsonb NOT NULL",
@@ -35,6 +36,20 @@ def init_db() -> None:
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS resume_upload_evidence_path VARCHAR(1024)",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS search_batch_id VARCHAR(36)",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS search_timestamp TIMESTAMP WITHOUT TIME ZONE",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'completed' NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS manual_keywords TEXT",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS requested_limit INTEGER DEFAULT 50 NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS current_search_variation TEXT",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS jobs_collected INTEGER DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS easy_apply_count INTEGER DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS duplicates_removed INTEGER DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS latest_status_message TEXT",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS error_message TEXT",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS debug_path VARCHAR(1024)",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITHOUT TIME ZONE",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS finished_at TIMESTAMP WITHOUT TIME ZONE",
+        "ALTER TABLE job_search_batches ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS complexity_score DOUBLE PRECISION DEFAULT 50 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS priority_score DOUBLE PRECISION DEFAULT 0 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS complexity_level VARCHAR(30)",
@@ -42,10 +57,21 @@ def init_db() -> None:
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS screening_question_count INTEGER DEFAULT 0 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS required_fields INTEGER DEFAULT 0 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS employment_history_required BOOLEAN DEFAULT FALSE NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS application_friction_score DOUBLE PRECISION DEFAULT 50 NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS completion_likelihood_score DOUBLE PRECISION DEFAULT 50 NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS unsupported_field_count INTEGER DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS external_form_risk DOUBLE PRECISION DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS manual_review_risk DOUBLE PRECISION DEFAULT 0 NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS form_provider VARCHAR(100)",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS friction_reasons JSONB DEFAULT '[]'::jsonb NOT NULL",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS recommended_apply_priority VARCHAR(30)",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS apply_priority_reason TEXT",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS freshness_score DOUBLE PRECISION DEFAULT 50 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS search_query_used TEXT",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS role_detected VARCHAR(255)",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS expanded_role VARCHAR(255)",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS search_role VARCHAR(255)",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS role_priority VARCHAR(50)",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS priority_reason TEXT",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS match_reason TEXT",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS job_description_metadata JSONB DEFAULT '{}'::jsonb NOT NULL",
@@ -63,11 +89,15 @@ def init_db() -> None:
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS technical_match_score DOUBLE PRECISION DEFAULT 0 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS industry_match_score DOUBLE PRECISION DEFAULT 0 NOT NULL",
         "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS confidence_score VARCHAR(50)",
+        "ALTER TABLE job_opportunities ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
+        "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
+        "ALTER TABLE apply_top_batches ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS reasoning_type VARCHAR(100)",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS reasoning_summary TEXT",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS confidence_score VARCHAR(50)",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS evidence_sources JSONB DEFAULT '[]'::jsonb NOT NULL",
         "ALTER TABLE candidate_profiles ADD COLUMN IF NOT EXISTS address VARCHAR(512)",
+        "ALTER TABLE candidate_profiles ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
         "ALTER TABLE candidate_profiles ADD COLUMN IF NOT EXISTS current_job_title VARCHAR(255)",
         "ALTER TABLE candidate_profiles ADD COLUMN IF NOT EXISTS professional_headline VARCHAR(512)",
         "ALTER TABLE candidate_profiles ADD COLUMN IF NOT EXISTS current_company VARCHAR(255)",
@@ -92,6 +122,13 @@ def init_db() -> None:
         "CREATE INDEX IF NOT EXISTS ix_job_opportunities_search_batch_id ON job_opportunities (search_batch_id)",
         "CREATE INDEX IF NOT EXISTS ix_job_opportunities_search_timestamp ON job_opportunities (search_timestamp)",
         "CREATE INDEX IF NOT EXISTS ix_job_opportunities_priority_score ON job_opportunities (priority_score)",
+        "CREATE INDEX IF NOT EXISTS ix_job_search_batches_status ON job_search_batches (status)",
+        "CREATE INDEX IF NOT EXISTS ix_job_search_batches_portal ON job_search_batches (portal)",
+        "CREATE INDEX IF NOT EXISTS ix_job_opportunities_portal ON job_opportunities (portal)",
+        "CREATE INDEX IF NOT EXISTS ix_application_records_portal ON application_records (portal)",
+        "CREATE INDEX IF NOT EXISTS ix_apply_top_batches_portal ON apply_top_batches (portal)",
+        "CREATE INDEX IF NOT EXISTS ix_resume_profiles_portal ON resume_profiles (portal)",
+        "CREATE INDEX IF NOT EXISTS ix_candidate_profiles_portal ON candidate_profiles (portal)",
         "CREATE INDEX IF NOT EXISTS ix_candidate_profiles_is_default ON candidate_profiles (is_default)",
         """
         CREATE TABLE IF NOT EXISTS screening_automation_settings (
@@ -180,6 +217,63 @@ def init_db() -> None:
         "CREATE INDEX IF NOT EXISTS ix_generalized_form_metadata_normalized ON generalized_form_field_metadata (normalized_field_name)",
         "CREATE INDEX IF NOT EXISTS ix_generalized_form_metadata_category ON generalized_form_field_metadata (field_category)",
         "CREATE INDEX IF NOT EXISTS ix_generalized_form_metadata_control ON generalized_form_field_metadata (detected_control_type)",
+        """
+        CREATE TABLE IF NOT EXISTS apply_top_batches (
+            id VARCHAR(36) PRIMARY KEY,
+            resume_id INTEGER REFERENCES resume_profiles(id),
+            search_batch_id VARCHAR(36),
+            status VARCHAR(50) DEFAULT 'queued' NOT NULL,
+            dry_run BOOLEAN DEFAULT TRUE NOT NULL,
+            screening_mode VARCHAR(30),
+            application_limit INTEGER DEFAULT 10 NOT NULL,
+            total_count INTEGER DEFAULT 0 NOT NULL,
+            current_index INTEGER DEFAULT 0 NOT NULL,
+            current_job_id INTEGER REFERENCES job_opportunities(id),
+            current_title VARCHAR(255),
+            current_company VARCHAR(255),
+            completed_count INTEGER DEFAULT 0 NOT NULL,
+            skipped_count INTEGER DEFAULT 0 NOT NULL,
+            failed_count INTEGER DEFAULT 0 NOT NULL,
+            needs_review_count INTEGER DEFAULT 0 NOT NULL,
+            timed_out_count INTEGER DEFAULT 0 NOT NULL,
+            latest_status_message TEXT,
+            error_message TEXT,
+            debug_path VARCHAR(1024),
+            job_results JSONB DEFAULT '[]'::jsonb NOT NULL,
+            started_at TIMESTAMP WITHOUT TIME ZONE,
+            finished_at TIMESTAMP WITHOUT TIME ZONE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+            updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_apply_top_batches_resume_id ON apply_top_batches (resume_id)",
+        "ALTER TABLE apply_top_batches ADD COLUMN IF NOT EXISTS application_limit INTEGER DEFAULT 10 NOT NULL",
+        """
+        DO $$
+        BEGIN
+            IF EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'apply_top_batches' AND column_name = 'limit'
+            ) THEN
+                ALTER TABLE apply_top_batches ALTER COLUMN "limit" DROP NOT NULL;
+                ALTER TABLE apply_top_batches ALTER COLUMN "limit" SET DEFAULT 10;
+            END IF;
+        END $$;
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_apply_top_batches_search_batch_id ON apply_top_batches (search_batch_id)",
+        "CREATE INDEX IF NOT EXISTS ix_apply_top_batches_status ON apply_top_batches (status)",
+        """
+        CREATE TABLE IF NOT EXISTS portal_runtime_state (
+            id INTEGER PRIMARY KEY,
+            active_portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL,
+            updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
+        )
+        """,
+        """
+        INSERT INTO portal_runtime_state (id, active_portal, updated_at)
+        VALUES (1, 'linkedin', now())
+        ON CONFLICT (id) DO NOTHING
+        """,
         """
         DO $$
         BEGIN

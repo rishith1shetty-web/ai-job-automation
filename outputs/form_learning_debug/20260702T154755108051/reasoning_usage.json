@@ -1,0 +1,77 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'First name' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T15:47:55.098078"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Last name' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T15:47:55.100074"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T15:47:55.102067"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T15:47:55.104062"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T15:47:55.107054"
+      }
+    ]
+  }
+]

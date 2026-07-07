@@ -1,0 +1,4902 @@
+[
+  {
+    "job_id": null,
+    "title": "Backend Developer 1",
+    "company": "Example Company 1",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 2",
+    "company": "Example Company 2",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 3",
+    "company": "Example Company 3",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 4",
+    "company": "Example Company 4",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 5",
+    "company": "Example Company 5",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 6",
+    "company": "Example Company 6",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 7",
+    "company": "Example Company 7",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 8",
+    "company": "Example Company 8",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 9",
+    "company": "Example Company 9",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 10",
+    "company": "Example Company 10",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 11",
+    "company": "Example Company 11",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 12",
+    "company": "Example Company 12",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 13",
+    "company": "Example Company 13",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 14",
+    "company": "Example Company 14",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 15",
+    "company": "Example Company 15",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 16",
+    "company": "Example Company 16",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 17",
+    "company": "Example Company 17",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 18",
+    "company": "Example Company 18",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 19",
+    "company": "Example Company 19",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 20",
+    "company": "Example Company 20",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 21",
+    "company": "Example Company 21",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 22",
+    "company": "Example Company 22",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 23",
+    "company": "Example Company 23",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 24",
+    "company": "Example Company 24",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 25",
+    "company": "Example Company 25",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 26",
+    "company": "Example Company 26",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 27",
+    "company": "Example Company 27",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 28",
+    "company": "Example Company 28",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 29",
+    "company": "Example Company 29",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 30",
+    "company": "Example Company 30",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 31",
+    "company": "Example Company 31",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 32",
+    "company": "Example Company 32",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 33",
+    "company": "Example Company 33",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 34",
+    "company": "Example Company 34",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 35",
+    "company": "Example Company 35",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 36",
+    "company": "Example Company 36",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 37",
+    "company": "Example Company 37",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 38",
+    "company": "Example Company 38",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 39",
+    "company": "Example Company 39",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 40",
+    "company": "Example Company 40",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 41",
+    "company": "Example Company 41",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 42",
+    "company": "Example Company 42",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 43",
+    "company": "Example Company 43",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 44",
+    "company": "Example Company 44",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 45",
+    "company": "Example Company 45",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 46",
+    "company": "Example Company 46",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 47",
+    "company": "Example Company 47",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 48",
+    "company": "Example Company 48",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 49",
+    "company": "Example Company 49",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  },
+  {
+    "job_id": null,
+    "title": "Backend Developer 50",
+    "company": "Example Company 50",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  }
+]

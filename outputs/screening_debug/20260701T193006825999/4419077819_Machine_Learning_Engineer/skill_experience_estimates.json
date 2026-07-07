@@ -1,0 +1,35 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Tableau?",
+    "normalized_skill": "Tableau",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": false,
+    "reason": "Reused saved candidate-specific screening answer."
+  },
+  {
+    "original_question": "How many years of work experience do you have with Machine Tools?",
+    "normalized_skill": "Machine Tools",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": true,
+    "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+  },
+  {
+    "original_question": "How many years of work experience do you have with Amazon Web Services (AWS)?",
+    "normalized_skill": "Amazon Web Services",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": true,
+    "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "rank": 1,
+    "title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures)",
+    "company": "Alphanumeric Systems",
+    "priority_score": 48.29,
+    "priority_reason": "13.9% match, Medium complexity, 68% completion likelihood, 82 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 2,
+    "title": "Data Analyst",
+    "company": "ATC",
+    "priority_score": 48.27,
+    "priority_reason": "11.7% match, Medium complexity, 68% completion likelihood, 92 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 3,
+    "title": "Junior Business Intelligence Analyst- Digital",
+    "company": "Steve Madden",
+    "priority_score": 46.55,
+    "priority_reason": "7.8% match, Medium complexity, 68% completion likelihood, 92 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 4,
+    "title": "Data Analyst",
+    "company": "Stio\u00ae",
+    "priority_score": 45.66,
+    "priority_reason": "11.9% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 5,
+    "title": "Data Analyst",
+    "company": "Vernovis",
+    "priority_score": 45.36,
+    "priority_reason": "11.2% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 6,
+    "title": "Data Analys",
+    "company": "Activ Gym",
+    "priority_score": 41.2,
+    "priority_reason": "10.8% match, Medium complexity, 68% completion likelihood, 25 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 7,
+    "title": "Data Scientist",
+    "company": "Klyra Physio",
+    "priority_score": 41.15,
+    "priority_reason": "10.7% match, Medium complexity, 68% completion likelihood, 25 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 8,
+    "title": "Operations Analyst - Entry to Mid Level",
+    "company": "Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f",
+    "priority_score": 39.37,
+    "priority_reason": "6.8% match, Medium complexity, 68% completion likelihood, 25 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst OR Machine Learning Engineer OR Analytics Engineer OR BI Analyst OR Backend Developer"
+  }
+]

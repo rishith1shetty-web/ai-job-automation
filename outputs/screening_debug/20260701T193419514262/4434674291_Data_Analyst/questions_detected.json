@@ -1,0 +1,23 @@
+[
+  {
+    "question_text": "How many ears of experience do you have with SQL queries?",
+    "original_label": "How many ears of experience do you have with SQL queries?",
+    "normalized_field": "SQL Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": []
+  },
+  {
+    "question_text": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "original_label": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "normalized_field": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "category": "skill",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ]
+  }
+]

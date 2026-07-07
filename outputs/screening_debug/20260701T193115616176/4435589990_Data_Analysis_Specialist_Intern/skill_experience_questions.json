@@ -1,0 +1,14 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_skill": "Excel",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  },
+  {
+    "original_question": "How many years of work experience do you have with SQL?",
+    "normalized_skill": "SQL",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  }
+]

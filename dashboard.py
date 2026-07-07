@@ -1,8 +1,12 @@
 import os
 
+import time
+
 import pandas as pd
 import requests
 import streamlit as st
+
+from app.services.dashboard_tables import build_unique_display_frame
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 GET_TIMEOUT_SECONDS = 30
@@ -35,6 +39,16 @@ def api_error_message(action: str, exc: Exception) -> str:
         return f"{action} timed out. The backend may still be working; refresh in a moment."
     if isinstance(exc, requests.ConnectionError):
         return f"{action} could not reach FastAPI. Check that the backend is running."
+    if isinstance(exc, requests.HTTPError) and exc.response is not None:
+        try:
+            payload = exc.response.json()
+            detail = payload.get("detail")
+            if detail:
+                return f"{action} failed: {detail}"
+        except Exception:
+            text = exc.response.text.strip()
+            if text:
+                return f"{action} failed: {text}"
     return f"{action} failed: {exc}"
 
 
@@ -56,6 +70,53 @@ def show_table(rows, *, column_config=None, height: int = TABLE_HEIGHT) -> None:
     )
 
 
+def apply_top_status_card(batch: dict | None) -> None:
+    if not batch:
+        return
+    st.subheader("Apply Top 10 batch status")
+    status = str(batch.get("status") or "unknown").replace("_", " ").title()
+    st.info(batch.get("latest_status_message") or status)
+    metrics = st.columns(5)
+    metrics[0].metric("Status", status)
+    metrics[1].metric("Current job", f"{batch.get('current_index') or 0}/{batch.get('total_count') or 0}")
+    metrics[2].metric("Completed", batch.get("completed_count") or 0)
+    metrics[3].metric("Needs review", batch.get("needs_review_count") or 0)
+    metrics[4].metric("Failed/Timed out", (batch.get("failed_count") or 0) + (batch.get("timed_out_count") or 0))
+    if batch.get("current_title") or batch.get("current_company"):
+        st.caption(f"Now processing: {batch.get('current_title') or 'Unknown'} at {batch.get('current_company') or 'Unknown'}")
+    if batch.get("debug_path"):
+        st.caption(f"Debug log: {batch['debug_path']}")
+    if batch.get("error_message"):
+        st.error(batch["error_message"])
+    if batch.get("job_results"):
+        show_table(batch["job_results"], height=260)
+
+
+def search_batch_status_card(batch: dict | None) -> None:
+    if not batch:
+        return
+    status = str(batch.get("status") or "unknown").replace("_", " ").title()
+    st.subheader("Find Matches batch status")
+    if batch.get("status") == "failed":
+        st.error(batch.get("error_message") or "Search failed in backend.")
+    else:
+        st.info(batch.get("latest_status_message") or status)
+        requested = int(batch.get("requested_limit") or 0)
+        found = int(batch.get("jobs_collected") or batch.get("job_count") or 0)
+        if batch.get("status") == "completed" and requested and found < requested:
+            st.warning(f"Found {found} jobs out of requested {requested} based on current LinkedIn results.")
+    metrics = st.columns(5)
+    metrics[0].metric("Status", status)
+    metrics[1].metric("Jobs collected", batch.get("jobs_collected") or batch.get("job_count") or 0)
+    metrics[2].metric("Easy Apply", batch.get("easy_apply_count") or 0)
+    metrics[3].metric("Duplicates removed", batch.get("duplicates_removed") or 0)
+    metrics[4].metric("Requested", batch.get("requested_limit") or 0)
+    if batch.get("current_search_variation"):
+        st.caption(f"Current search variation: {batch['current_search_variation']}")
+    if batch.get("debug_path"):
+        st.caption(f"Debug log: {batch['debug_path']}")
+
+
 try:
     candidate_profile = cached_get("/candidate-profile")
 except Exception:
@@ -64,17 +125,47 @@ try:
     screening_settings = cached_get("/screening/settings")
 except Exception:
     screening_settings = {"mode": "safe", "notice_period_default": "30 days"}
+try:
+    active_status = cached_get("/portal/active")
+except Exception:
+    active_status = {"active_portal": "linkedin", "linkedin_connected": False, "dice_connected": False}
+active_portal = str(active_status.get("active_portal") or "linkedin").lower()
+selected_portal = active_portal
+portal_choice = active_portal.title()
 
 
 with st.sidebar:
     st.header("Candidate")
-    try:
-        linkedin_connected = cached_get("/linkedin/status")["connected"]
-    except Exception:
-        linkedin_connected = False
-    if linkedin_connected:
-        st.success("LinkedIn connected")
-        if st.button("Disconnect LinkedIn", use_container_width=True):
+    linkedin_connected = bool(active_status.get("linkedin_connected"))
+    dice_connected = bool(active_status.get("dice_connected"))
+    st.subheader("Active Portal")
+    target_portal = st.radio(
+        "Choose Active Portal",
+        ["LinkedIn", "Dice"],
+        index=1 if active_portal == "dice" else 0,
+    ).lower()
+    if target_portal != active_portal:
+        st.warning(
+            f"You are currently using {active_portal.title()}. "
+            f"Switching to {target_portal.title()} will disconnect the other portal session."
+        )
+        if st.button(f"Switch to {target_portal.title()}", type="primary", use_container_width=True):
+            with st.spinner(f"Switching to {target_portal.title()}..."):
+                try:
+                    api_request("POST", f"/portal/active/{target_portal}")
+                    clear_cached_reads()
+                    st.success(f"Active portal switched to {target_portal.title()}")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(api_error_message("Portal switch", exc))
+    st.caption(f"Current active portal: {active_portal.title()}")
+
+    if active_portal == "linkedin":
+        if linkedin_connected:
+            st.success("LinkedIn connected")
+        else:
+            st.info("LinkedIn not connected")
+        if linkedin_connected and st.button("Disconnect LinkedIn", use_container_width=True):
             with st.spinner("Disconnecting LinkedIn session..."):
                 try:
                     api_request("POST", "/linkedin/disconnect")
@@ -83,6 +174,20 @@ with st.sidebar:
                     st.rerun()
                 except Exception as exc:
                     st.error(api_error_message("LinkedIn disconnect", exc))
+    else:
+        if dice_connected:
+            st.success("Dice connected")
+        else:
+            st.info("Dice not connected")
+        if dice_connected and st.button("Disconnect Dice", use_container_width=True):
+            with st.spinner("Disconnecting Dice session..."):
+                try:
+                    api_request("POST", "/dice/disconnect")
+                    clear_cached_reads()
+                    st.success("Dice disconnected")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(api_error_message("Dice disconnect", exc))
 
     uploaded = st.file_uploader("Resume", type=["pdf", "docx", "txt"])
     if st.button("Analyze resume", type="primary", disabled=uploaded is None, use_container_width=True):
@@ -104,7 +209,7 @@ with st.sidebar:
                 status.update(label="Resume analysis failed", state="error")
                 st.error(api_error_message("Resume analysis", exc))
 
-    if st.button(
+    if active_portal == "linkedin" and st.button(
         "LinkedIn connected" if linkedin_connected else "Connect LinkedIn",
         disabled=linkedin_connected,
         use_container_width=True,
@@ -120,6 +225,23 @@ with st.sidebar:
             except Exception as exc:
                 status.update(label="LinkedIn connection failed", state="error")
                 st.error(api_error_message("LinkedIn connection", exc))
+
+    if active_portal == "dice" and st.button(
+        "Dice connected" if dice_connected else "Connect Dice",
+        disabled=dice_connected,
+        use_container_width=True,
+    ):
+        with st.status("Opening Dice login. Complete login in the browser window...", expanded=True) as status:
+            try:
+                st.write("Waiting until Dice login is verified...")
+                api_request("POST", "/dice/connect", timeout=660)
+                clear_cached_reads()
+                status.update(label="Dice session saved", state="complete")
+                st.success("Dice session saved")
+                st.rerun()
+            except Exception as exc:
+                status.update(label="Dice connection failed", state="error")
+                st.error(api_error_message("Dice connection", exc))
 
     st.divider()
     st.subheader("Candidate profile")
@@ -164,6 +286,7 @@ if resume:
         {
             "Rank": range(1, len(role_suggestions) + 1),
             "Suggested role": [item["role"] for item in role_suggestions],
+            "Category": [str(item.get("role_category") or "").replace("_", " ").title() for item in role_suggestions],
             "Confidence": [item["confidence"] for item in role_suggestions],
         }
     )
@@ -180,6 +303,17 @@ if resume:
             ),
         },
     )
+    role_groups = {
+        "Primary Role": [item["role"] for item in role_suggestions if item.get("role_category") == "primary_role"],
+        "Strong Fit Roles": [item["role"] for item in role_suggestions if item.get("role_category") == "strong_fit_roles"],
+        "Related Roles": [item["role"] for item in role_suggestions if item.get("role_category") == "related_roles"],
+        "Stretch Roles": [item["role"] for item in role_suggestions if item.get("role_category") == "stretch_roles"],
+    }
+    if any(role_groups.values()):
+        group_cols = st.columns(4)
+        for col, (label, values) in zip(group_cols, role_groups.items()):
+            col.caption(label)
+            col.write(", ".join(values) if values else "None")
     st.markdown("**Generated LinkedIn search query**")
     st.code(
         resume.get("generated_search_query")
@@ -189,11 +323,13 @@ if resume:
     if resume["domain_expertise"]:
         st.caption(f"Domain expertise: {', '.join(resume['domain_expertise'])}")
 
+st.info(f"Active Portal: {portal_choice}")
+
 search_batches = []
 selected_batch_id = None
 if resume:
     try:
-        search_batches = cached_get(f"/jobs/search-batches?resume_id={resume['id']}")
+        search_batches = cached_get(f"/jobs/search-batches?resume_id={resume['id']}&portal={selected_portal}")
     except Exception:
         search_batches = []
 if search_batches:
@@ -208,12 +344,25 @@ if search_batches:
         key=f"search_batch_{resume['id']}_{len(batch_ids)}",
         format_func=lambda batch_id: (
             f"{batch_by_id[batch_id]['created_at'][:19].replace('T', ' ')} | "
+            f"{str(batch_by_id[batch_id].get('portal') or 'linkedin').title()} | "
             f"{batch_by_id[batch_id]['location']} | "
             f"{batch_by_id[batch_id]['job_count']} jobs"
         ),
     )
     selected_batch = batch_by_id[selected_batch_id]
     st.caption(f"Search query: {selected_batch['search_query']}")
+    if selected_batch.get("status") in {"queued", "running"}:
+        try:
+            selected_batch = api_request("GET", f"/jobs/search-batches/{selected_batch_id}", timeout=GET_TIMEOUT_SECONDS)
+            batch_by_id[selected_batch_id] = selected_batch
+        except Exception:
+            pass
+    if selected_batch.get("status") in {"queued", "running", "failed"}:
+        search_batch_status_card(selected_batch)
+    if selected_batch.get("status") in {"queued", "running"}:
+        clear_cached_reads()
+        time.sleep(2)
+        st.rerun()
 elif resume:
     st.caption("No saved search batches yet. Existing legacy jobs remain available.")
 
@@ -229,6 +378,7 @@ try:
     summary_path = f"/dashboard/summary?resume_id={resume['id']}" if resume else "/dashboard/summary"
     if selected_batch_id:
         summary_path += f"&search_batch_id={selected_batch_id}"
+    summary_path += f"&portal={selected_portal}"
     summary.update(cached_get(summary_path))
 except Exception:
     st.info("Start the FastAPI service to load live data.")
@@ -301,36 +451,54 @@ with tab_matches:
         else location_choice
     )
     search_disabled = resume is None
-    if action_col.button("Find matches", type="primary", disabled=search_disabled, use_container_width=True):
-        with st.status("Finding and ranking LinkedIn matches...", expanded=True) as status:
+    custom_search_limit = action_col.number_input(
+        "Custom limit",
+        min_value=1,
+        max_value=100,
+        value=100,
+        step=5,
+        disabled=search_disabled,
+    )
+    requested_search_limit = None
+    if action_col.button("Find 20", disabled=search_disabled, use_container_width=True):
+        requested_search_limit = 20
+    if action_col.button("Find 50", type="primary", disabled=search_disabled, use_container_width=True):
+        requested_search_limit = 50
+    if action_col.button("Find 100", disabled=search_disabled, use_container_width=True):
+        requested_search_limit = 100
+    if action_col.button("Find custom", disabled=search_disabled, use_container_width=True):
+        requested_search_limit = min(100, int(custom_search_limit))
+    if requested_search_limit is not None:
+        with st.status(f"Starting background {portal_choice} search...", expanded=True) as status:
             try:
-                st.write("Searching LinkedIn jobs...")
-                jobs = api_request(
+                st.write(f"Creating a search batch for up to {requested_search_limit} matches...")
+                batch = api_request(
                     "POST",
                     "/jobs/search",
                     json={
                         "resume_id": resume["id"],
                         "location": location,
                         "keywords": keywords,
-                        "limit": 25,
+                        "limit": requested_search_limit,
+                        "portal": selected_portal,
                     },
+                    timeout=GET_TIMEOUT_SECONDS,
                 )
-                st.write("Loading the new search batch...")
+                st.write("Search is running in the background.")
                 clear_cached_reads()
-                refreshed_batches = cached_get(f"/jobs/search-batches?resume_id={resume['id']}")
-                if refreshed_batches:
-                    st.session_state.new_search_batch_id = refreshed_batches[0]["id"]
-                status.update(label=f"Saved a new search batch with {len(jobs)} ranked jobs.", state="complete")
-                st.success(f"Saved a new search batch with {len(jobs)} ranked jobs.")
+                st.session_state.new_search_batch_id = batch["id"]
+                status.update(label="Search batch started", state="complete")
+                st.success("Search batch started. The dashboard will show progress.")
                 st.rerun()
             except Exception as exc:
-                status.update(label="Job search failed", state="error")
-                st.error(api_error_message("Job search", exc))
+                status.update(label="Could not start search batch", state="error")
+                st.error(api_error_message("Start search batch", exc))
 
     try:
         jobs_path = f"/jobs?resume_id={resume['id']}" if resume else "/jobs"
         if selected_batch_id:
             jobs_path += f"&search_batch_id={selected_batch_id}"
+        jobs_path += f"&portal={selected_portal}"
         jobs = cached_get(jobs_path)
     except Exception:
         jobs = []
@@ -338,14 +506,28 @@ with tab_matches:
     if jobs:
         frame = pd.DataFrame(jobs)
         desired_columns = [
+            "title",
+            "company",
+            "portal",
+            "form_provider",
+            "job_url",
+            "search_role",
+            "role_priority",
+            "location",
+            "easy_apply",
             "match_score",
             "complexity_score",
             "priority_score",
+            "application_friction_score",
+            "completion_likelihood_score",
             "complexity_level",
+            "recommended_apply_priority",
             "estimated_steps",
             "screening_question_count",
             "required_fields",
+            "unsupported_field_count",
             "employment_history_required",
+            "form_provider",
             "freshness_score",
             "semantic_match_score",
             "technical_match_score",
@@ -357,55 +539,63 @@ with tab_matches:
             "strength_summary",
             "weakness_summary",
             "recommendation_summary",
-            "easy_apply",
-            "title",
-            "company",
-            "location",
             "search_query_used",
             "match_reason",
             "priority_reason",
+            "apply_priority_reason",
+            "friction_reasons",
             "status",
             "job_url",
         ]
-        display = frame[[column for column in desired_columns if column in frame.columns]].copy()
-        display = display.rename(
-            columns={
-                "match_score": "Match",
-                "complexity_score": "Complexity Score",
-                "priority_score": "Priority Score",
-                "complexity_level": "Complexity",
-                "estimated_steps": "Estimated Steps",
-                "screening_question_count": "Screening Questions",
-                "required_fields": "Required Fields",
-                "employment_history_required": "Employment History",
-                "freshness_score": "Freshness",
-                "semantic_match_score": "Semantic Match",
-                "technical_match_score": "Technical Match",
-                "industry_match_score": "Industry Match",
-                "confidence_score": "Confidence",
-                "matched_skills": "Matched Skills",
-                "missing_skills": "Missing Skills",
-                "overall_match_summary": "AI Summary",
-                "strength_summary": "Strengths",
-                "weakness_summary": "Weaknesses",
-                "recommendation_summary": "Recommendations",
-                "easy_apply": "Easy Apply",
-                "title": "Title",
-                "company": "Company",
-                "location": "Location",
-                "search_query_used": "Search Query",
-                "match_reason": "Reason Matched",
-                "priority_reason": "Reason Priority",
-                "status": "Status",
-                "job_url": "Job URL",
-            }
-        )
+        matched_jobs_rename_map = {
+            "match_score": "Match",
+            "complexity_score": "Complexity Score",
+            "priority_score": "Priority Score",
+            "application_friction_score": "Friction",
+            "completion_likelihood_score": "Completion Likelihood",
+            "complexity_level": "Complexity",
+            "recommended_apply_priority": "Apply Priority",
+            "estimated_steps": "Estimated Steps",
+            "screening_question_count": "Screening Questions",
+            "required_fields": "Required Fields",
+            "unsupported_field_count": "Unsupported Fields",
+            "employment_history_required": "Employment History",
+            "form_provider": "Form Provider",
+            "freshness_score": "Freshness",
+            "semantic_match_score": "Semantic Match",
+            "technical_match_score": "Technical Match",
+            "industry_match_score": "Industry Match",
+            "confidence_score": "Confidence",
+            "matched_skills": "Matched Skills",
+            "missing_skills": "Missing Skills",
+            "overall_match_summary": "AI Summary",
+            "strength_summary": "Strengths",
+            "weakness_summary": "Weaknesses",
+            "recommendation_summary": "Recommendations",
+            "easy_apply": "Easy Apply",
+            "title": "Title",
+            "company": "Company",
+            "portal": "Portal",
+            "location": "Location",
+            "search_query_used": "Search Query",
+            "search_role": "Search Role",
+            "role_priority": "Role Priority",
+            "match_reason": "Reason Matched",
+            "priority_reason": "Reason Priority",
+            "apply_priority_reason": "Apply Priority Reason",
+            "friction_reasons": "Friction Reasons",
+            "status": "Status",
+            "job_url": "Job URL",
+        }
+        display = build_unique_display_frame(frame, desired_columns, matched_jobs_rename_map)
         show_table(
             display,
             column_config={
                 "Match": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.1f%%"),
                 "Complexity Score": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.1f"),
                 "Priority Score": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.1f"),
+                "Friction": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.1f"),
+                "Completion Likelihood": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.1f%%"),
                 "Freshness": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f"),
                 "Semantic Match": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f%%"),
                 "Technical Match": st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f%%"),
@@ -413,9 +603,44 @@ with tab_matches:
                 "Job URL": st.column_config.LinkColumn(display_text="Open"),
             },
         )
+        export_columns = [
+            "title",
+            "company",
+            "portal",
+            "location",
+            "search_role",
+            "role_priority",
+            "match_score",
+            "application_friction_score",
+            "recommended_apply_priority",
+            "job_url",
+        ]
+        export_frame = build_unique_display_frame(
+            frame,
+            export_columns,
+            {
+                "title": "Title",
+                "company": "Company",
+                "portal": "Portal",
+                "location": "Location",
+                "search_role": "Search Role",
+                "role_priority": "Role Priority",
+                "match_score": "Match",
+                "application_friction_score": "Friction",
+                "recommended_apply_priority": "Apply Priority",
+                "job_url": "Job URL",
+            },
+        )
+        st.download_button(
+            "Export matched jobs CSV",
+            data=export_frame.to_csv(index=False).encode("utf-8"),
+            file_name="matched_jobs.csv",
+            mime="text/csv",
+            disabled=export_frame.empty,
+        )
 
         job_by_label = {
-            f"{job['title']} | {job['company']} | {job['match_score']:.1f}%"
+            f"{str(job.get('portal') or 'linkedin').title()} | {job['title']} | {job['company']} | {job['match_score']:.1f}%"
             + (" | Easy Apply" if job["easy_apply"] else ""): job
             for job in jobs
         }
@@ -430,7 +655,7 @@ with tab_matches:
                 f"Selected job: {selected_job['title']} at {selected_job['company']}"
             )
 
-        selected_col, bulk_col, dry_run_col = st.columns([1, 1, 2])
+        selected_col, top10_col, top20_col, all_col, dry_run_col = st.columns([1.3, 1, 1, 1, 1.2])
         dry_run = dry_run_col.toggle("Dry run", value=True)
         screening_mode = (screening_settings.get("mode") or "safe").lower()
         if selected_col.button(
@@ -470,32 +695,69 @@ with tab_matches:
                         "evidence_path": None,
                     }
 
-        if bulk_col.button(
-            "Apply to top 10",
-            disabled=resume is None,
-            use_container_width=True,
-        ):
-            with st.status("Processing top Easy Apply jobs...", expanded=True) as status:
-                try:
-                    st.write("Running the application workflow...")
-                    results = api_request(
-                        "POST",
-                        "/applications/apply-top",
-                        json={
-                            "resume_id": resume["id"],
-                            "limit": 10,
-                            "dry_run": dry_run,
-                            "search_batch_id": selected_batch_id,
-                            "screening_mode": screening_mode,
-                        },
-                    )
-                    clear_cached_reads()
-                    status.update(label=f"Processed {len(results)} applications", state="complete")
-                    st.success(f"Processed {len(results)} applications")
-                    st.rerun()
-                except Exception as exc:
-                    status.update(label="Application run failed", state="error")
-                    st.error(api_error_message("Application run", exc))
+        if len(jobs) > 50:
+            st.caption("Apply All is safety-capped at 50 ranked jobs per batch.")
+        bulk_actions = [
+            (top10_col, "Apply Top 10", 10),
+            (top20_col, "Apply Top 20", 20),
+            (all_col, "Apply All", min(len(jobs), 50)),
+        ]
+        for column, label, application_limit in bulk_actions:
+            if column.button(
+                label,
+                disabled=resume is None or application_limit <= 0,
+                use_container_width=True,
+            ):
+                with st.status(f"Starting {label} batch...", expanded=True) as status:
+                    try:
+                        st.write("Starting background workflow...")
+                        batch = api_request(
+                            "POST",
+                            "/applications/apply-top/start",
+                            json={
+                                "resume_id": resume["id"],
+                                "limit": application_limit,
+                                "dry_run": dry_run,
+                                "search_batch_id": selected_batch_id,
+                                "screening_mode": screening_mode,
+                                "portal": selected_portal,
+                            },
+                            timeout=30,
+                        )
+                        clear_cached_reads()
+                        st.session_state.apply_top_batch_id = batch["id"]
+                        status.update(label=f"{label} batch started", state="complete")
+                        st.success(f"{label} is running in the background. Use Refresh Batch Status to inspect progress.")
+                        st.rerun()
+                    except Exception as exc:
+                        status.update(label=f"Could not start {label} batch", state="error")
+                        st.error(api_error_message(f"Start {label}", exc))
+
+        batch_id = st.session_state.get("apply_top_batch_id")
+        latest_batch = None
+        if batch_id:
+            try:
+                latest_batch = api_request("GET", f"/applications/apply-top/batches/{batch_id}", timeout=GET_TIMEOUT_SECONDS)
+            except Exception as exc:
+                st.warning(api_error_message("Refresh batch status", exc))
+        elif resume:
+            try:
+                latest_path = f"/applications/apply-top/latest?resume_id={resume['id']}"
+                latest_path += f"&portal={selected_portal}"
+                latest_batch = api_request("GET", latest_path, timeout=GET_TIMEOUT_SECONDS)
+                if latest_batch:
+                    st.session_state.apply_top_batch_id = latest_batch["id"]
+            except Exception:
+                latest_batch = None
+        if latest_batch:
+            refresh_col, clear_col = st.columns([1, 4])
+            if refresh_col.button("Refresh Batch Status", use_container_width=True):
+                clear_cached_reads()
+                st.rerun()
+            if latest_batch.get("status") in {"completed", "failed"} and clear_col.button("Hide Batch Status"):
+                st.session_state.pop("apply_top_batch_id", None)
+                st.rerun()
+            apply_top_status_card(latest_batch)
 
         selected_result = st.session_state.get("selected_application_result")
         if selected_result:
@@ -539,6 +801,7 @@ with tab_history:
         application_path = f"/applications?resume_id={resume['id']}" if resume else "/applications"
         if selected_batch_id:
             application_path += f"&search_batch_id={selected_batch_id}"
+        application_path += f"&portal={selected_portal}"
         applications = cached_get(application_path)
     except Exception:
         applications = []

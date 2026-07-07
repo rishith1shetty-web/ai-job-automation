@@ -7,6 +7,7 @@ from app.models import ApplicationStatus
 
 class ResumeProfileOut(BaseModel):
     id: int
+    portal: str = "linkedin"
     filename: str
     skills: list[str]
     experience: list[dict]
@@ -30,6 +31,7 @@ class JobOut(BaseModel):
     resume_id: int
     search_batch_id: str | None
     search_timestamp: datetime | None
+    portal: str = "linkedin"
     title: str
     company: str
     location: str | None
@@ -44,10 +46,21 @@ class JobOut(BaseModel):
     screening_question_count: int = 0
     required_fields: int = 0
     employment_history_required: bool = False
+    application_friction_score: float = 50
+    completion_likelihood_score: float = 50
+    unsupported_field_count: int = 0
+    external_form_risk: float = 0
+    manual_review_risk: float = 0
+    form_provider: str | None = None
+    friction_reasons: list[str] = []
+    recommended_apply_priority: str | None = None
+    apply_priority_reason: str | None = None
     freshness_score: float = 50
     search_query_used: str | None = None
     role_detected: str | None = None
     expanded_role: str | None = None
+    search_role: str | None = None
+    role_priority: str | None = None
     priority_reason: str | None = None
     match_reason: str | None = None
     job_description_metadata: dict = {}
@@ -76,12 +89,25 @@ class SearchBatchOut(BaseModel):
     resume_id: int
     search_query: str
     location: str
+    portal: str = "linkedin"
+    status: str = "completed"
+    requested_limit: int = 50
+    current_search_variation: str | None = None
+    jobs_collected: int = 0
+    easy_apply_count: int = 0
+    duplicates_removed: int = 0
+    latest_status_message: str | None = None
+    error_message: str | None = None
+    debug_path: str | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
     created_at: datetime
     job_count: int = 0
-    easy_apply_count: int = 0
+    updated_at: datetime | None = None
 
 
 class CandidateProfileBase(BaseModel):
+    portal: str | None = None
     first_name: str | None = None
     last_name: str | None = None
     email: str | None = None
@@ -108,6 +134,7 @@ class CandidateProfileIn(CandidateProfileBase):
 
 class CandidateProfileOut(CandidateProfileBase):
     id: int
+    portal: str = "linkedin"
     is_default: bool
     missing_required_fields: list[str]
     is_complete: bool
@@ -155,6 +182,7 @@ class CandidateEmploymentHistoryOut(CandidateEmploymentHistoryBase):
 class ApplicationRecordOut(BaseModel):
     id: int
     job_id: int
+    portal: str = "linkedin"
     status: ApplicationStatus
     application_date: datetime
     attempt_count: int
@@ -178,13 +206,46 @@ class ApplicationHistoryOut(ApplicationRecordOut):
     job_title: str
     company: str
     job_url: str
+    job_portal: str = "linkedin"
+
+
+class ApplyTopBatchOut(BaseModel):
+    id: str
+    resume_id: int
+    search_batch_id: str | None
+    portal: str = "linkedin"
+    status: str
+    dry_run: bool
+    screening_mode: str | None
+    limit: int
+    total_count: int
+    current_index: int
+    current_job_id: int | None
+    current_title: str | None
+    current_company: str | None
+    completed_count: int
+    skipped_count: int
+    failed_count: int
+    needs_review_count: int
+    timed_out_count: int
+    latest_status_message: str | None
+    error_message: str | None
+    debug_path: str | None
+    job_results: list[dict]
+    started_at: datetime | None
+    finished_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SearchRequest(BaseModel):
     resume_id: int
     location: str = "United States"
     keywords: str | None = None
-    limit: int = 25
+    limit: int = 100
+    portal: str | None = None
 
 
 class ApplyRequest(BaseModel):
@@ -193,6 +254,7 @@ class ApplyRequest(BaseModel):
     dry_run: bool | None = None
     search_batch_id: str | None = None
     screening_mode: str | None = None
+    portal: str | None = None
 
 
 class ApplySelectedRequest(BaseModel):

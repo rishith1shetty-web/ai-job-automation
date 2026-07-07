@@ -1,0 +1,25 @@
+{
+  "operation": "find_matches",
+  "metadata": {
+    "resume_id": 4720,
+    "location": "United States",
+    "limit": 50
+  },
+  "total_runtime_ms": 362713.01,
+  "stage_count": 8,
+  "cache_hits": 0,
+  "cache_misses": 1,
+  "average_page_load_ms": 179405.27,
+  "average_apply_time_ms": 0,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 358810.41,
+    "metadata": {
+      "query_count": 8,
+      "limit_per_query": 9
+    }
+  },
+  "created_at": "2026-07-02T20:16:38.138541"
+}

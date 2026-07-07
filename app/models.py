@@ -22,6 +22,7 @@ class ResumeProfile(Base):
     __tablename__ = "resume_profiles"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
     filename: Mapped[str] = mapped_column(String(255))
     stored_path: Mapped[str] = mapped_column(String(1024))
     raw_text: Mapped[str] = mapped_column(Text)
@@ -47,6 +48,7 @@ class CandidateProfile(Base):
     __tablename__ = "candidate_profiles"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
     first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -218,8 +220,22 @@ class JobSearchBatch(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     resume_id: Mapped[int] = mapped_column(ForeignKey("resume_profiles.id"), index=True)
     search_query: Mapped[str] = mapped_column(Text)
+    manual_keywords: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str] = mapped_column(String(255))
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
+    status: Mapped[str] = mapped_column(String(50), default="completed", index=True)
+    requested_limit: Mapped[int] = mapped_column(Integer, default=50)
+    current_search_variation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    jobs_collected: Mapped[int] = mapped_column(Integer, default=0)
+    easy_apply_count: Mapped[int] = mapped_column(Integer, default=0)
+    duplicates_removed: Mapped[int] = mapped_column(Integer, default=0)
+    latest_status_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    debug_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     resume: Mapped[ResumeProfile] = relationship(back_populates="search_batches")
     jobs: Mapped[list["JobOpportunity"]] = relationship(back_populates="search_batch")
@@ -245,6 +261,7 @@ class JobOpportunity(Base):
     )
     search_timestamp: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
     company: Mapped[str] = mapped_column(String(255))
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     job_url: Mapped[str] = mapped_column(String(2048))
@@ -259,10 +276,21 @@ class JobOpportunity(Base):
     screening_question_count: Mapped[int] = mapped_column(Integer, default=0)
     required_fields: Mapped[int] = mapped_column(Integer, default=0)
     employment_history_required: Mapped[bool] = mapped_column(Boolean, default=False)
+    application_friction_score: Mapped[float] = mapped_column(Float, default=50)
+    completion_likelihood_score: Mapped[float] = mapped_column(Float, default=50)
+    unsupported_field_count: Mapped[int] = mapped_column(Integer, default=0)
+    external_form_risk: Mapped[float] = mapped_column(Float, default=0)
+    manual_review_risk: Mapped[float] = mapped_column(Float, default=0)
+    form_provider: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    friction_reasons: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    recommended_apply_priority: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    apply_priority_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     freshness_score: Mapped[float] = mapped_column(Float, default=50)
     search_query_used: Mapped[str | None] = mapped_column(Text, nullable=True)
     role_detected: Mapped[str | None] = mapped_column(String(255), nullable=True)
     expanded_role: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    search_role: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    role_priority: Mapped[str | None] = mapped_column(String(50), nullable=True)
     priority_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     match_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     job_description_metadata: Mapped[dict] = mapped_column(JSONB, default=dict)
@@ -296,6 +324,7 @@ class ApplicationRecord(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     job_id: Mapped[int] = mapped_column(ForeignKey("job_opportunities.id"), index=True)
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
     status: Mapped[ApplicationStatus] = mapped_column(SqlEnum(ApplicationStatus), index=True)
     application_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     attempt_count: Mapped[int] = mapped_column(default=1)
@@ -313,3 +342,42 @@ class ApplicationRecord(Base):
     run_log: Mapped[list[dict]] = mapped_column(JSONB, default=list)
 
     job: Mapped[JobOpportunity] = relationship(back_populates="applications")
+
+
+class ApplyTopBatch(Base):
+    __tablename__ = "apply_top_batches"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    resume_id: Mapped[int] = mapped_column(ForeignKey("resume_profiles.id"), index=True)
+    search_batch_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    portal: Mapped[str] = mapped_column(String(50), default="linkedin", index=True)
+    status: Mapped[str] = mapped_column(String(50), default="queued", index=True)
+    dry_run: Mapped[bool] = mapped_column(Boolean, default=True)
+    screening_mode: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    limit: Mapped[int] = mapped_column("application_limit", Integer, default=10)
+    total_count: Mapped[int] = mapped_column(Integer, default=0)
+    current_index: Mapped[int] = mapped_column(Integer, default=0)
+    current_job_id: Mapped[int | None] = mapped_column(ForeignKey("job_opportunities.id"), nullable=True)
+    current_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    current_company: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    completed_count: Mapped[int] = mapped_column(Integer, default=0)
+    skipped_count: Mapped[int] = mapped_column(Integer, default=0)
+    failed_count: Mapped[int] = mapped_column(Integer, default=0)
+    needs_review_count: Mapped[int] = mapped_column(Integer, default=0)
+    timed_out_count: Mapped[int] = mapped_column(Integer, default=0)
+    latest_status_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    debug_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    job_results: Mapped[list[dict]] = mapped_column(JSONB, default=list)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class PortalRuntimeState(Base):
+    __tablename__ = "portal_runtime_state"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    active_portal: Mapped[str] = mapped_column(String(50), default="linkedin")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

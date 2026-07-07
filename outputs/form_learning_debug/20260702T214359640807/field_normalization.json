@@ -1,0 +1,14 @@
+[
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Mobile Phone"
+  },
+  {
+    "original_label": "SQL Experience (Years)",
+    "normalized_field": "SQL Years"
+  },
+  {
+    "original_label": "Company",
+    "normalized_field": "Company"
+  }
+]

@@ -1,0 +1,97 @@
+{
+  "job_id": 14198,
+  "job_title": "Junior Data Management and Quantitative Analyst",
+  "company": "Eliassen Group",
+  "job_url": "https://www.linkedin.com/jobs/view/4398241743/",
+  "application_date": "2026-07-02T19:11:46.115172",
+  "dry_run": true,
+  "current_step": "needs_review",
+  "error": null,
+  "contact_fields_detected": [
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": [],
+  "events": [
+    {
+      "time": "2026-07-02T19:10:59.711437",
+      "event": "initialized",
+      "detail": "Junior Data Management and Quantitative Analyst at Eliassen Group"
+    },
+    {
+      "time": "2026-07-02T19:10:59.711437",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 4524, \"job_resume_id\": 4524, \"search_batch_id\": \"cdd03627-819c-4d19-9b16-7e0c1fb0a79a\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\206727e44eba4f9892c9783cca6efec3.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\206727e44eba4f9892c9783cca6efec3.pdf\", \"linkedin_filename_detected_after_upload\": null, \"upload_started\": false, \"upload_completed\": false, \"upload_success\": false, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260702T191059706174\\\\4398241743_Junior_Data_Management_and_Quantitative_Analyst\"}"
+    },
+    {
+      "time": "2026-07-02T19:11:14.359510",
+      "event": "job_opened",
+      "detail": "{\"event\": \"application_job_navigation\", \"page_title\": \"Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn\", \"current_url\": \"https://www.linkedin.com/jobs/view/4398241743/\", \"captured_at\": \"2026-07-02T19:11:14.359510\"}"
+    },
+    {
+      "time": "2026-07-02T19:11:14.497520",
+      "event": "linkedin_job_identified",
+      "detail": "{\"linkedin_job_id\": \"4398241743\", \"job_url\": \"https://www.linkedin.com/jobs/view/4398241743/\"}"
+    },
+    {
+      "time": "2026-07-02T19:11:15.203234",
+      "event": "apply_controls_inspected",
+      "detail": "{\"buttons\": [\"Skip to search\", \"Skip to main content\", \"Skip to primary content\", \"Skip to aside\", \"Skip to footer\", \"Home\", \"Me\", \"For Business\", \"Save\", \"\\u2026 more\", \"Follow\", \"I\\u2019m interested\", \"Messaging\\nYou are on the messaging overlay. Press enter to open the list of conversations.\", \"Compose message\", \"You are on the messaging overlay. Press enter to open the list of conversations.\"], \"selector_results\": [{\"name\": \"css_button_has_text_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_easy_apply\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"aria_label_easy_apply\", \"count\": 1, \"explicit_easy_apply\": true}, {\"name\": \"linkedin_inapply_control\", \"count\": 0, \"explicit_easy_apply\": true}, {\"name\": \"role_button_apply_now\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_apply\", \"count\": 0, \"explicit_easy_apply\": false}, {\"name\": \"role_button_submit_application\", \"count\": 0, \"explicit_easy_apply\": false}], \"classification\": \"linkedin_easy_apply\", \"EASY_APPLY_MISMATCH\": false}"
+    },
+    {
+      "time": "2026-07-02T19:11:17.842151",
+      "event": "easy_apply_clicked",
+      "detail": "https://www.linkedin.com/jobs/view/4398241743/"
+    },
+    {
+      "time": "2026-07-02T19:11:26.341709",
+      "event": "form_page_processed",
+      "detail": "Page 1: Next"
+    },
+    {
+      "time": "2026-07-02T19:11:27.163160",
+      "event": "resume_uploaded",
+      "detail": "Rishith_Shetty_Resume (1).pdf"
+    },
+    {
+      "time": "2026-07-02T19:11:27.163160",
+      "event": "resume_upload_check",
+      "detail": "{\"active_resume_id\": 4524, \"job_resume_id\": 4524, \"search_batch_id\": \"cdd03627-819c-4d19-9b16-7e0c1fb0a79a\", \"resume_filename_from_database\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_original_filename\": \"Rishith_Shetty_Resume (1).pdf\", \"resume_storage_path\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\206727e44eba4f9892c9783cca6efec3.pdf\", \"file_exists\": true, \"file_size\": 482166, \"file_hash_sha256\": \"d0a8a5fde7e2e84a54187b5c5f5bd066ced543b94471797e6a30f575b1217ef7\", \"file_passed_to_playwright\": \"C:\\\\Users\\\\DELL\\\\Documents\\\\Codex\\\\2026-06-23\\\\build-a-python-application-that-allows\\\\storage\\\\uploads\\\\206727e44eba4f9892c9783cca6efec3.pdf\", \"linkedin_filename_detected_after_upload\": \"Rishith_Shetty_Resume (1).pdf\", \"upload_started\": true, \"upload_completed\": true, \"upload_success\": true, \"mismatch_detected\": false, \"reason_if_failed\": null, \"evidence_path\": \"outputs\\\\resume_upload_debug\\\\20260702T191059706174\\\\4398241743_Junior_Data_Management_and_Quantitative_Analyst\"}"
+    },
+    {
+      "time": "2026-07-02T19:11:35.699147",
+      "event": "screening_questions_answered",
+      "detail": "[{\"answer\": \"0\", \"selected_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"currency\": null, \"reason\": \"Reused saved candidate-specific screening answer.\", \"evidence\": {\"found\": false, \"years\": 0, \"reason\": \"No evidence for SQL was found; Aggressive Mode selected 0.\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": \"\", \"selected_years\": null, \"normalized_skill\": \"SQL\", \"saved_from_question\": \"How many years of work experience do you have with SQL?\", \"aggressive_default_used\": true}, \"aggressive_default_used\": false, \"decision_stage\": \"saved_answer\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": \"0\", \"source\": \"Aggressive Default\", \"confidence\": \"Estimated / Low\", \"evidence_used\": true, \"reasoning_summary\": \"Reused saved candidate-specific screening answer.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with SQL?\", \"original_label\": \"How many years of work experience do you have with SQL?\", \"normalized_field\": \"SQL Years\", \"category\": \"skill_years\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}, {\"answer\": \"1\", \"selected_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"currency\": null, \"reason\": \"Reused saved candidate-specific screening answer.\", \"evidence\": {\"found\": true, \"years\": 1, \"reason\": \"Calculated years from resume dates tied to the skill.\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"evidence_used\": \"Skill appeared near dated resume experience; calculated 1 year(s).\", \"selected_years\": 1, \"normalized_skill\": \"Excel\", \"saved_from_question\": \"How many years of work experience do you have with Microsoft Excel?\", \"aggressive_default_used\": false}, \"aggressive_default_used\": false, \"decision_stage\": \"saved_answer\", \"decision_pipeline\": [{\"stage\": \"saved_answer\", \"candidate_answer\": \"1\", \"source\": \"Resume Experience Dates\", \"confidence\": \"High\", \"evidence_used\": true, \"reasoning_summary\": \"Reused saved candidate-specific screening answer.\", \"selected\": true}], \"filled_successfully\": true, \"question_text\": \"How many years of work experience do you have with Microsoft Excel?\", \"original_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"normalized_field\": \"Excel Years\", \"category\": \"skill_years\", \"field_type\": \"text\", \"detected_control_type\": \"textbox\", \"options\": [], \"mode\": \"Aggressive\"}]"
+    },
+    {
+      "time": "2026-07-02T19:11:37.538765",
+      "event": "employment_history_autofill",
+      "detail": "[{\"field_label\": \"How many years of work experience do you have with SQL?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 0, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}, {\"field_label\": \"How many years of work experience do you have with Microsoft Excel?\", \"field_key\": \"total_experience_years\", \"field_type\": \"text\", \"required\": true, \"existing_value_present\": true, \"record_index\": 1, \"action\": \"kept_existing_value\", \"success\": true, \"mapped_value\": null, \"source\": \"LinkedIn Prefill\", \"confidence\": \"High\", \"estimated\": false}]"
+    },
+    {
+      "time": "2026-07-02T19:11:45.122641",
+      "event": "needs_review",
+      "detail": "Validation error: Please make a selection"
+    }
+  ]
+}

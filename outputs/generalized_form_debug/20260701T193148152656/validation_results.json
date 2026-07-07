@@ -1,0 +1,44 @@
+[
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_field": "Excel Years",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_field": "Excel Years",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "success": true,
+    "validation_message": null
+  }
+]

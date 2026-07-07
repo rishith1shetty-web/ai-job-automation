@@ -1,0 +1,135 @@
+{
+  "captured_at": "2026-07-02T15:48:55.348792",
+  "events": [
+    {
+      "time": "2026-07-02T15:48:13.813026",
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-02T15:48:13.891890",
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-02T15:48:13.947742",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-02T15:48:31.701087",
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-02T15:48:31.752235",
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-02T15:48:31.802515",
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    }
+  ],
+  "contact_fields_detected": [
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Phone country code",
+      "contact_key": "phone_country_code",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true
+    },
+    {
+      "field_label": "Mobile phone number",
+      "contact_key": "mobile_phone",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true
+    }
+  ],
+  "contact_fields_filled": [],
+  "missing_contact_fields": []
+}

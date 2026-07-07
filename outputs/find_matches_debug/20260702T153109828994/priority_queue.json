@@ -1,0 +1,98 @@
+[
+  {
+    "rank": 1,
+    "title": "Data Analyst",
+    "company": "AARATECH",
+    "priority_score": 47.82,
+    "priority_reason": "12.9% match, Medium complexity, 68% completion likelihood, 82 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 2,
+    "title": "Data Entr Analys",
+    "company": "Job Vacancy in Bangladesh",
+    "priority_score": 47.64,
+    "priority_reason": "10.3% match, Medium complexity, 68% completion likelihood, 92 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 3,
+    "title": "Data Scientist",
+    "company": "TickPick",
+    "priority_score": 44.77,
+    "priority_reason": "9.9% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 4,
+    "title": "Data Scientist",
+    "company": "M Science",
+    "priority_score": 44.73,
+    "priority_reason": "9.8% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 5,
+    "title": "Data Scientist",
+    "company": "Remote",
+    "priority_score": 44.57,
+    "priority_reason": "9.5% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 6,
+    "title": "Senior Data Scientist",
+    "company": "Pyramid Consulting, Inc",
+    "priority_score": 44.49,
+    "priority_reason": "9.3% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Scientist"
+  },
+  {
+    "rank": 7,
+    "title": "All-Source Intelligence Analyst",
+    "company": "Zendr",
+    "priority_score": 44.13,
+    "priority_reason": "8.5% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 8,
+    "title": "Junior Data Analys",
+    "company": "Rassembl\u00e9s nous r\u00e9ussirons ensemble",
+    "priority_score": 40.71,
+    "priority_reason": "9.8% match, Medium complexity, 68% completion likelihood, 25 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst"
+  }
+]

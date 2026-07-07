@@ -1,0 +1,23 @@
+[
+  {
+    "id": null,
+    "original_label": "Current Package",
+    "normalized_field": "Salary",
+    "field_category": "Salary",
+    "field_type": null,
+    "company": "A",
+    "role": "Analyst",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null,
+    "times_used": 0,
+    "success_rate": 100.0,
+    "confidence": "Medium",
+    "validation_examples": [],
+    "last_successful_value_source": "Candidate Knowledge Base",
+    "suggested_value_source": "Candidate Knowledge Base / AI Reasoning",
+    "reasoning_summary": "Normalized 'Current Package' to 'Salary' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+    "first_seen": "2026-07-03 14:02:42.757161",
+    "last_seen": "2026-07-03 14:02:42.757161"
+  }
+]

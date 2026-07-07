@@ -1,0 +1,194 @@
+{
+  "requested_limit": 100,
+  "target_count": 100,
+  "unique_jobs_found": 43,
+  "ranked_jobs_returned": 43,
+  "easy_apply_jobs_found": 43,
+  "duplicate_jobs_skipped": 57,
+  "search_variations_used": [
+    "Data Analyst",
+    "Data Analyst OR BI Analyst OR Analytics Engineer OR Data Engineer OR Backend Developer",
+    "Business Intelligence Analyst",
+    "Junior Data Analyst",
+    "Business Analyst",
+    "BI Analyst",
+    "Reporting Analyst",
+    "Power BI Analyst",
+    "Python Developer",
+    "SQL Analyst",
+    "Data Analyst",
+    "Data Analyst",
+    "Business Intelligence Analyst",
+    "Business Intelligence Analyst",
+    "Junior Data Analyst"
+  ],
+  "jobs_found_per_variation": [
+    {
+      "query": "Data Analyst",
+      "location": "United States",
+      "raw_count": 4,
+      "unique_added": 4,
+      "duplicates_removed": 0,
+      "easy_apply_added": 4
+    },
+    {
+      "query": "Data Analyst OR BI Analyst OR Analytics Engineer OR Data Engineer OR Backend Developer",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 3,
+      "duplicates_removed": 4,
+      "easy_apply_added": 3
+    },
+    {
+      "query": "Business Intelligence Analyst",
+      "location": "United States",
+      "raw_count": 6,
+      "unique_added": 4,
+      "duplicates_removed": 2,
+      "easy_apply_added": 4
+    },
+    {
+      "query": "Junior Data Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 3,
+      "duplicates_removed": 4,
+      "easy_apply_added": 3
+    },
+    {
+      "query": "Business Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 7,
+      "duplicates_removed": 0,
+      "easy_apply_added": 7
+    },
+    {
+      "query": "BI Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 1,
+      "duplicates_removed": 6,
+      "easy_apply_added": 1
+    },
+    {
+      "query": "Reporting Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 0,
+      "duplicates_removed": 7,
+      "easy_apply_added": 0
+    },
+    {
+      "query": "Power BI Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 1,
+      "duplicates_removed": 6,
+      "easy_apply_added": 1
+    },
+    {
+      "query": "Python Developer",
+      "location": "United States",
+      "raw_count": 6,
+      "unique_added": 6,
+      "duplicates_removed": 0,
+      "easy_apply_added": 6
+    },
+    {
+      "query": "SQL Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 7,
+      "duplicates_removed": 0,
+      "easy_apply_added": 7
+    },
+    {
+      "query": "Data Analyst",
+      "location": "Remote",
+      "raw_count": 7,
+      "unique_added": 2,
+      "duplicates_removed": 5,
+      "easy_apply_added": 2
+    },
+    {
+      "query": "Data Analyst",
+      "location": "Hybrid",
+      "raw_count": 7,
+      "unique_added": 0,
+      "duplicates_removed": 7,
+      "easy_apply_added": 0
+    },
+    {
+      "query": "Business Intelligence Analyst",
+      "location": "Remote",
+      "raw_count": 7,
+      "unique_added": 4,
+      "duplicates_removed": 3,
+      "easy_apply_added": 4
+    },
+    {
+      "query": "Business Intelligence Analyst",
+      "location": "Hybrid",
+      "raw_count": 7,
+      "unique_added": 0,
+      "duplicates_removed": 7,
+      "easy_apply_added": 0
+    },
+    {
+      "query": "Junior Data Analyst",
+      "location": "Remote",
+      "raw_count": 7,
+      "unique_added": 1,
+      "duplicates_removed": 6,
+      "easy_apply_added": 1
+    }
+  ],
+  "returned_count": 43,
+  "final_job_urls": [
+    "https://www.linkedin.com/jobs/view/4436363708/",
+    "https://www.linkedin.com/jobs/view/4413766040/",
+    "https://www.linkedin.com/jobs/view/4398241743/",
+    "https://www.linkedin.com/jobs/view/4436118439/",
+    "https://www.linkedin.com/jobs/view/4435210636/",
+    "https://www.linkedin.com/jobs/view/4434679619/",
+    "https://www.linkedin.com/jobs/view/4436340086/",
+    "https://www.linkedin.com/jobs/view/4433105553/",
+    "https://www.linkedin.com/jobs/view/4435259092/",
+    "https://www.linkedin.com/jobs/view/4434612265/",
+    "https://www.linkedin.com/jobs/view/4434674291/",
+    "https://www.linkedin.com/jobs/view/4434606570/",
+    "https://www.linkedin.com/jobs/view/4434650551/",
+    "https://www.linkedin.com/jobs/view/4433009514/",
+    "https://www.linkedin.com/jobs/view/4434692176/",
+    "https://www.linkedin.com/jobs/view/4416709014/",
+    "https://www.linkedin.com/jobs/view/4430684783/",
+    "https://www.linkedin.com/jobs/view/4428958543/",
+    "https://www.linkedin.com/jobs/view/4433308853/",
+    "https://www.linkedin.com/jobs/view/4431292770/",
+    "https://www.linkedin.com/jobs/view/4434604868/",
+    "https://www.linkedin.com/jobs/view/4422067008/",
+    "https://www.linkedin.com/jobs/view/4422115779/",
+    "https://www.linkedin.com/jobs/view/4434345545/",
+    "https://www.linkedin.com/jobs/view/4435321117/",
+    "https://www.linkedin.com/jobs/view/4432237399/",
+    "https://www.linkedin.com/jobs/view/4431855231/",
+    "https://www.linkedin.com/jobs/view/4428718236/",
+    "https://www.linkedin.com/jobs/view/4433234764/",
+    "https://www.linkedin.com/jobs/view/4431273761/",
+    "https://www.linkedin.com/jobs/view/4429557045/",
+    "https://www.linkedin.com/jobs/view/4426610076/",
+    "https://www.linkedin.com/jobs/view/4431003473/",
+    "https://www.linkedin.com/jobs/view/4364970084/",
+    "https://www.linkedin.com/jobs/view/4432405187/",
+    "https://www.linkedin.com/jobs/view/4426434102/",
+    "https://www.linkedin.com/jobs/view/4426858851/",
+    "https://www.linkedin.com/jobs/view/4432918755/",
+    "https://www.linkedin.com/jobs/view/4433118588/",
+    "https://www.linkedin.com/jobs/view/4379248286/",
+    "https://www.linkedin.com/jobs/view/4436412441/",
+    "https://www.linkedin.com/jobs/view/4433130224/",
+    "https://www.linkedin.com/jobs/view/4416718499/"
+  ],
+  "reason_if_below_target": "LinkedIn returned fewer valid unique Easy Apply jobs than requested after duplicate suppression."
+}

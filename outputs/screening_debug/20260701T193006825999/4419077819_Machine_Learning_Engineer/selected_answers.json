@@ -1,0 +1,198 @@
+[
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": false,
+      "years": 0,
+      "reason": "No evidence for Tableau was found; Aggressive Mode selected 0.",
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "evidence_used": "",
+      "selected_years": null,
+      "normalized_skill": "Tableau",
+      "saved_from_question": "How many years of work experience do you have with Tableau?",
+      "aggressive_default_used": true
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with Tableau?",
+    "original_label": "How many years of work experience do you have with Tableau?",
+    "normalized_field": "Tableau Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0.",
+    "evidence": {
+      "normalized_skill": "Machine Tools",
+      "selected_years": null,
+      "years": 0,
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "found": false,
+      "aggressive_default_used": true,
+      "evidence_used": "",
+      "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+    },
+    "aggressive_default_used": true,
+    "decision_stage": "estimator",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "No evidence for Machine Tools was found; Aggressive Mode selected 0.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with Machine Tools?",
+    "original_label": "How many years of work experience do you have with Machine Tools?",
+    "normalized_field": "Machine Tools Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0.",
+    "evidence": {
+      "normalized_skill": "Amazon Web Services",
+      "selected_years": null,
+      "years": 0,
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "found": false,
+      "aggressive_default_used": true,
+      "evidence_used": "",
+      "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+    },
+    "aggressive_default_used": true,
+    "decision_stage": "estimator",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with Amazon Web Services (AWS)?",
+    "original_label": "How many years of work experience do you have with Amazon Web Services (AWS)?",
+    "normalized_field": "Amazon Web Services Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  }
+]

@@ -1,0 +1,51 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 2.05,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_session_validation",
+    "elapsed_ms": 0.13,
+    "metadata": {}
+  },
+  {
+    "stage": "role_skill_location_expansion",
+    "elapsed_ms": 0.72,
+    "metadata": {}
+  },
+  {
+    "stage": "duplicate_key_loading",
+    "elapsed_ms": 2.64,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 293542.51,
+    "metadata": {
+      "query_count": 8,
+      "limit_per_query": 9
+    }
+  },
+  {
+    "stage": "match_complexity_priority_scoring",
+    "elapsed_ms": 14.53,
+    "metadata": {
+      "job_count": 37
+    }
+  },
+  {
+    "stage": "job_description_reasoning",
+    "elapsed_ms": 3452.8,
+    "metadata": {
+      "job_count": 37
+    }
+  },
+  {
+    "stage": "database_batch_write",
+    "elapsed_ms": 58.07,
+    "metadata": {
+      "job_count": 37
+    }
+  }
+]

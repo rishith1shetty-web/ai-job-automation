@@ -1,0 +1,22 @@
+[
+  [
+    {
+      "source": "Knowledge Base",
+      "reasoning_type": "Knowledge Base Match",
+      "concept": "excel",
+      "snippet": "[{\"id\": 9, \"question_text\": \"excel years experience\", \"normalized_question\": \"excel years experience\", \"category\":"
+    },
+    {
+      "source": "Employment",
+      "reasoning_type": "Employment Match",
+      "concept": "excel",
+      "snippet": " data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemented by academic training in machine learning and data an"
+    },
+    {
+      "source": "Direct Resume",
+      "reasoning_type": "Direct Resume Match",
+      "concept": "excel",
+      "snippet": "data processing, data cleaning, data validation, and\\nreporting using microsoft excel and power bi, complemented by academic training in machine learning and data an"
+    }
+  ]
+]

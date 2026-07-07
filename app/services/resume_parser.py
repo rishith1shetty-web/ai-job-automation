@@ -210,6 +210,93 @@ ROLE_PROFILES = {
         "searches": ["Data Analyst"],
         "domains": ["Data Analytics", "Business Intelligence"],
     },
+    "Healthcare Data Analyst": {
+        "signals": {
+            "healthcare": 7,
+            "clinical": 6,
+            "patient": 4,
+            "ehr": 5,
+            "emr": 5,
+            "hipaa": 4,
+            "medical": 3,
+            "hospital": 3,
+            "claims": 3,
+            "sql": 2,
+            "excel": 2,
+            "power bi": 2,
+            "tableau": 2,
+            "reporting": 2,
+            "dashboard": 2,
+        },
+        "titles": ["healthcare data analyst", "clinical data analyst"],
+        "searches": ["Healthcare Data Analyst"],
+        "domains": ["Healthcare Analytics", "Clinical Analytics"],
+    },
+    "Clinical Data Analyst": {
+        "signals": {
+            "clinical data": 7,
+            "clinical": 5,
+            "healthcare": 4,
+            "patient": 4,
+            "clinical trial": 4,
+            "ehr": 4,
+            "emr": 4,
+            "sql": 2,
+            "reporting": 2,
+            "quality metrics": 3,
+        },
+        "titles": ["clinical data analyst"],
+        "searches": ["Clinical Data Analyst"],
+        "domains": ["Clinical Analytics", "Healthcare Analytics"],
+    },
+    "Healthcare BI Analyst": {
+        "signals": {
+            "healthcare": 5,
+            "clinical": 3,
+            "power bi": 4,
+            "tableau": 4,
+            "dashboard": 3,
+            "dashboards": 3,
+            "reporting": 3,
+            "business intelligence": 3,
+            "sql": 2,
+        },
+        "titles": ["healthcare bi analyst", "healthcare business intelligence analyst"],
+        "searches": ["Healthcare BI Analyst"],
+        "domains": ["Healthcare Analytics", "Business Intelligence"],
+    },
+    "Reporting Analyst": {
+        "signals": {
+            "reporting": 5,
+            "reports": 3,
+            "dashboard": 3,
+            "dashboards": 3,
+            "excel": 2,
+            "sql": 2,
+            "power bi": 3,
+            "tableau": 3,
+            "metrics": 2,
+            "kpi": 2,
+        },
+        "titles": ["reporting analyst"],
+        "searches": ["Reporting Analyst"],
+        "domains": ["Reporting", "Business Intelligence"],
+    },
+    "SQL Analyst": {
+        "signals": {
+            "sql analyst": 7,
+            "sql": 5,
+            "database": 3,
+            "databases": 3,
+            "queries": 3,
+            "reporting": 2,
+            "data analysis": 2,
+            "excel": 1,
+        },
+        "titles": ["sql analyst"],
+        "searches": ["SQL Analyst"],
+        "domains": ["Data Analytics", "SQL Reporting"],
+    },
     "Data Scientist": {
         "signals": {
             "data science": 6,
@@ -224,6 +311,10 @@ ROLE_PROFILES = {
             "shap": 3,
             "bayesian optimization": 3,
             "mlflow": 2,
+            "nlp": 3,
+            "natural language processing": 3,
+            "computer vision": 3,
+            "deep learning": 3,
         },
         "titles": [
             "data scientist",
@@ -252,6 +343,54 @@ ROLE_PROFILES = {
         "titles": ["machine learning engineer", "ml engineer", "ai engineer"],
         "searches": ["Machine Learning Engineer"],
         "domains": ["Artificial Intelligence", "Machine Learning"],
+    },
+    "AI Engineer": {
+        "signals": {
+            "ai engineer": 7,
+            "artificial intelligence": 5,
+            "generative ai": 5,
+            "llm": 4,
+            "rag": 4,
+            "machine learning": 4,
+            "python": 2,
+            "model deployment": 3,
+            "deep learning": 4,
+        },
+        "titles": ["ai engineer", "artificial intelligence engineer", "ai/ml engineer"],
+        "searches": ["AI Engineer"],
+        "domains": ["Artificial Intelligence", "Machine Learning"],
+    },
+    "NLP Engineer": {
+        "signals": {
+            "nlp": 7,
+            "natural language processing": 7,
+            "llm": 4,
+            "transformer": 4,
+            "bert": 4,
+            "spacy": 3,
+            "text classification": 4,
+            "python": 2,
+            "machine learning": 3,
+        },
+        "titles": ["nlp engineer", "natural language processing engineer"],
+        "searches": ["NLP Engineer"],
+        "domains": ["Natural Language Processing", "Artificial Intelligence"],
+    },
+    "Computer Vision Engineer": {
+        "signals": {
+            "computer vision": 7,
+            "opencv": 4,
+            "image processing": 4,
+            "object detection": 4,
+            "cnn": 3,
+            "yolo": 3,
+            "pytorch": 3,
+            "tensorflow": 3,
+            "python": 2,
+        },
+        "titles": ["computer vision engineer", "cv engineer"],
+        "searches": ["Computer Vision Engineer"],
+        "domains": ["Computer Vision", "Artificial Intelligence"],
     },
     "Analytics Engineer": {
         "signals": {
@@ -912,14 +1051,42 @@ class ResumeParser:
         scored_roles: list[dict] = []
         for role, definition in ROLE_PROFILES.items():
             score, evidence = self._score_role(definition, source_text)
+            if role in {"Healthcare Data Analyst", "Clinical Data Analyst", "Healthcare BI Analyst"}:
+                if not self._has_healthcare_data_analyst_evidence(source_text):
+                    score = 0.0
+                    evidence = ["healthcare role blocked: no explicit healthcare analytics evidence"]
+            if role == "Computer Vision Engineer" and not self._has_computer_vision_evidence(source_text):
+                score = 0.0
+                evidence = ["computer vision role blocked: no explicit computer vision evidence"]
+            elif role == "Computer Vision Engineer" and not self._has_computer_vision_role_evidence(source_text):
+                score *= 0.55
+                evidence.append("computer vision demoted: evidence is project/skill based, not a role title or work experience")
+            if role == "Data Analyst" and self._has_data_analyst_core_evidence(source_text):
+                score += 10
+                evidence.append("core data analyst evidence")
+            if role == "Data Analyst" and self._has_healthcare_data_analyst_evidence(source_text):
+                score += 18
+                evidence.append("healthcare analytics supports broad data analyst primary")
+            if role == "Backend Developer" and not self._has_backend_evidence(source_text):
+                score *= 0.35
+                if score:
+                    evidence.append("backend role demoted: no API/server framework evidence")
             scored_roles.append({"role": role, "score": score, "evidence": evidence})
 
         scored_roles.sort(key=lambda item: item["score"], reverse=True)
-        if not scored_roles or scored_roles[0]["score"] <= 0:
+        positive_roles = [item for item in scored_roles if item["score"] > 0]
+        if not positive_roles:
             fallback = self._fallback_role(profile)
-            suggestions = [{"role": fallback, "confidence": 42.0, "evidence": ["resume title"]}]
+            suggestions = [
+                {
+                    "role": fallback,
+                    "confidence": 42.0,
+                    "role_category": "primary_role",
+                    "evidence": ["resume title"],
+                }
+            ]
         else:
-            top_roles = scored_roles[:5]
+            top_roles = positive_roles[:8]
             best_score = top_roles[0]["score"]
             second_score = top_roles[1]["score"] if len(top_roles) > 1 else 0
             ambiguity = second_score / best_score if best_score else 0
@@ -933,17 +1100,43 @@ class ResumeParser:
                 confidence = min(confidence, previous_confidence - 1.0)
                 confidence = max(30.0, confidence)
                 previous_confidence = confidence
+                role_category = (
+                    "primary_role"
+                    if index == 0
+                    else "strong_fit_roles"
+                    if confidence >= 70
+                    else "related_roles"
+                    if confidence >= 60
+                    else "stretch_roles"
+                )
                 suggestions.append(
                     {
                         "role": item["role"],
                         "confidence": round(confidence, 1),
+                        "role_category": role_category,
                         "evidence": item["evidence"][:8],
                     }
                 )
 
         detected_role = suggestions[0]["role"]
         confidence = suggestions[0]["confidence"]
-        generated = [item["role"] for item in suggestions]
+        generated = []
+        domain_specific_roles = {
+            "Healthcare Data Analyst",
+            "Clinical Data Analyst",
+            "Healthcare BI Analyst",
+            "Computer Vision Engineer",
+            "NLP Engineer",
+        }
+        for item in suggestions:
+            if item.get("role_category") != "stretch_roles":
+                generated.append(item["role"])
+            elif item["role"] in domain_specific_roles and item.get("confidence", 0) >= 58:
+                generated.append(item["role"])
+            elif item["role"] not in domain_specific_roles and item.get("confidence", 0) >= 50:
+                generated.append(item["role"])
+        if detected_role not in generated:
+            generated.insert(0, detected_role)
         generated_query = " OR ".join(
             "BI Analyst" if role == "Business Intelligence Analyst" else role for role in generated
         )
@@ -963,6 +1156,12 @@ class ResumeParser:
                 "generated_search_query": generated_query,
                 "role_confidence": round(confidence, 1),
                 "matched_role_signals": suggestions[0].get("evidence", []),
+                "role_groups": {
+                    "primary_role": [item["role"] for item in suggestions if item.get("role_category") == "primary_role"],
+                    "strong_fit_roles": [item["role"] for item in suggestions if item.get("role_category") == "strong_fit_roles"],
+                    "related_roles": [item["role"] for item in suggestions if item.get("role_category") == "related_roles"],
+                    "stretch_roles": [item["role"] for item in suggestions if item.get("role_category") == "stretch_roles"],
+                },
             }
         )
         return profile
@@ -992,6 +1191,142 @@ class ResumeParser:
             "technologies": flatten(profile.get("technologies") or []),
             "raw": raw_text.lower(),
         }
+
+    def _has_backend_evidence(self, sources: dict[str, str]) -> bool:
+        backend_text = " ".join(
+            [
+                sources.get("titles", ""),
+                sources.get("experience", ""),
+                sources.get("projects", ""),
+                sources.get("skills", ""),
+                sources.get("technologies", ""),
+            ]
+        )
+        strong_backend_terms = [
+            "backend",
+            "back end",
+            "fastapi",
+            "django",
+            "flask",
+            "spring boot",
+            "node.js",
+            "rest api",
+            "rest apis",
+            "api development",
+            "server",
+            "microservice",
+            "microservices",
+        ]
+        return any(self._contains_term(backend_text, term) for term in strong_backend_terms)
+
+    def _has_healthcare_data_analyst_evidence(self, sources: dict[str, str]) -> bool:
+        high_signal_text = " ".join(
+            [
+                sources.get("titles", ""),
+                sources.get("experience", ""),
+                sources.get("projects", ""),
+                sources.get("skills", ""),
+                sources.get("technologies", ""),
+            ]
+        )
+        raw_text = sources.get("raw", "")
+        profile_text = f"{high_signal_text} {raw_text}"
+        healthcare = any(
+            self._contains_term(profile_text, term)
+            for term in [
+                "healthcare",
+                "clinical",
+                "clinical data",
+                "patient",
+                "ehr",
+                "emr",
+                "hipaa",
+                "hospital",
+                "medical",
+                "claims",
+                "pharma",
+                "pharmaceutical",
+            ]
+        )
+        strong_healthcare = any(
+            self._contains_term(high_signal_text, term)
+            for term in [
+                "healthcare",
+                "clinical",
+                "clinical data",
+                "patient",
+                "ehr",
+                "emr",
+                "hipaa",
+                "hospital",
+                "claims",
+            ]
+        )
+        analytics = any(
+            self._contains_term(profile_text, term)
+            for term in ["data analyst", "data analysis", "sql", "excel", "power bi", "tableau", "reporting", "dashboard"]
+        )
+        explicit_healthcare_title = any(
+            self._contains_term(sources.get("titles", ""), term)
+            for term in ["healthcare data analyst", "clinical data analyst", "healthcare bi analyst"]
+        )
+        return analytics and (explicit_healthcare_title or (healthcare and strong_healthcare))
+
+    def _has_computer_vision_evidence(self, sources: dict[str, str]) -> bool:
+        high_signal_text = " ".join(
+            [
+                sources.get("titles", ""),
+                sources.get("experience", ""),
+                sources.get("projects", ""),
+                sources.get("skills", ""),
+                sources.get("technologies", ""),
+            ]
+        )
+        explicit_title = any(
+            self._contains_term(sources.get("titles", ""), term)
+            for term in ["computer vision engineer", "cv engineer"]
+        )
+        strong_terms = [
+            "computer vision",
+            "opencv",
+            "image processing",
+            "object detection",
+            "image segmentation",
+            "semantic segmentation",
+            "yolo",
+            "cnn",
+            "convolutional neural network",
+        ]
+        hits = [term for term in strong_terms if self._contains_term(high_signal_text, term)]
+        model_evidence = any(
+            self._contains_term(high_signal_text, term)
+            for term in ["tensorflow", "pytorch", "deep learning", "machine learning", "model deployment"]
+        )
+        return explicit_title or len(hits) >= 2 or (self._contains_term(high_signal_text, "computer vision") and model_evidence)
+
+    def _has_computer_vision_role_evidence(self, sources: dict[str, str]) -> bool:
+        return any(
+            self._contains_term(sources.get("titles", ""), term)
+            for term in [
+                "computer vision engineer",
+                "cv engineer",
+            ]
+        )
+
+    def _has_data_analyst_core_evidence(self, sources: dict[str, str]) -> bool:
+        profile_text = " ".join(
+            [
+                sources.get("titles", ""),
+                sources.get("experience", ""),
+                sources.get("projects", ""),
+                sources.get("skills", ""),
+                sources.get("technologies", ""),
+                sources.get("raw", ""),
+            ]
+        )
+        signals = ["data analyst", "data analysis", "sql", "excel", "power bi", "tableau", "reporting", "dashboard"]
+        hits = [term for term in signals if self._contains_term(profile_text, term)]
+        return len(hits) >= 3
 
     def _score_role(self, definition: dict, sources: dict[str, str]) -> tuple[float, list[str]]:
         score = 0.0
@@ -1056,7 +1391,7 @@ class ResumeParser:
 
     def _extract_job_titles(self, text: str) -> list[str]:
         title_patterns = [
-            r"\b(?:senior|sr\.?|lead|principal|staff|junior|jr\.?)?\s*(software engineer|software engineering intern|data analyst|data scientist|data science analyst|machine learning engineer|ml engineer|analytics engineer|business intelligence analyst|bi analyst|research intern|product manager|project manager|business analyst|devops engineer|frontend developer|backend developer|full stack developer)\b",
+            r"\b(?:senior|sr\.?|lead|principal|staff|junior|jr\.?)?\s*(software engineer|software engineering intern|data analyst|healthcare data analyst|clinical data analyst|healthcare bi analyst|data scientist|data science analyst|machine learning engineer|ml engineer|ai/ml engineer|ai engineer|artificial intelligence engineer|nlp engineer|natural language processing engineer|computer vision engineer|cv engineer|analytics engineer|business intelligence analyst|bi analyst|reporting analyst|sql analyst|power bi analyst|research intern|product manager|project manager|business analyst|devops engineer|frontend developer|backend developer|full stack developer)\b",
             r"\banalyst\s*[-–]\s*digital and data science\b",
         ]
         matches: list[tuple[int, str]] = []

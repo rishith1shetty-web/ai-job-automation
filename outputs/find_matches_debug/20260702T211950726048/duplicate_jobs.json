@@ -1,0 +1,38 @@
+[
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Already present in previous batch for this resume",
+    "search_query_used": "Backend Developer",
+    "search_role": "Backend Developer",
+    "role_priority": "primary"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Already present in previous batch for this resume",
+    "search_query_used": "Python Developer",
+    "search_role": "Python Developer",
+    "role_priority": "related"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Already present in previous batch for this resume",
+    "search_query_used": "Software Engineer",
+    "search_role": "Software Engineer",
+    "role_priority": "related"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Already present in previous batch for this resume",
+    "search_query_used": "Data Analyst",
+    "search_role": "Data Analyst",
+    "role_priority": "related"
+  }
+]

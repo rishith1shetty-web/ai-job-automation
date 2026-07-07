@@ -1,0 +1,26 @@
+[
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 6.87,
+    "metadata": {
+      "job_id": 20534,
+      "index": 1
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 9.88,
+    "metadata": {
+      "job_id": 20535,
+      "index": 2
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 45.07,
+    "metadata": {
+      "job_id": 20533,
+      "index": 3
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "batch_id": "2e5054c2-57b4-4e0a-be84-786bba6c0b82",
+  "resume_id": 4093,
+  "search_batch_id": null,
+  "started_at": "2026-07-01 20:27:13.745243",
+  "finished_at": "2026-07-01 20:27:13.832010",
+  "status": "completed",
+  "dry_run": true,
+  "screening_mode": "aggressive",
+  "limit": 2,
+  "total_count": 2,
+  "current_job_number": 2,
+  "current_job_id": null,
+  "current_title": null,
+  "current_company": null,
+  "completed_count": 2,
+  "skipped_count": 2,
+  "failed_count": 0,
+  "needs_review_count": 0,
+  "timed_out_count": 0,
+  "latest_status_message": "Batch complete: 2/2 processed, 0 needs review, 0 failed, 0 timed out.",
+  "error_message": null,
+  "jobs": [
+    {
+      "error": "Dry run completed.",
+      "title": "Job 0",
+      "job_id": 12032,
+      "status": "reached_review",
+      "company": "Example",
+      "duration": 0.02,
+      "job_index": 1,
+      "current_step": "dry_run_complete",
+      "evidence_path": "outputs/live_test/test",
+      "application_record_id": 583
+    },
+    {
+      "error": "Dry run completed.",
+      "title": "Job 1",
+      "job_id": 12033,
+      "status": "reached_review",
+      "company": "Example",
+      "duration": 0.01,
+      "job_index": 2,
+      "current_step": "dry_run_complete",
+      "evidence_path": "outputs/live_test/test",
+      "application_record_id": 584
+    }
+  ],
+  "updated_at": "2026-07-01T20:27:13.835002"
+}

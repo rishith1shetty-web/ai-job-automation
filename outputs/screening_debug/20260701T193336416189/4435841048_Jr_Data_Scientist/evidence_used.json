@@ -1,0 +1,44 @@
+[
+  {
+    "evidence_used": [
+      {
+        "source": "Job Description",
+        "reasoning_type": "Job Description Match",
+        "concept": "united states",
+        "snippet": "[\"tech consulting\\n\\njr data scientist\\n\\nmaryland, united states \\u00b7 3 hours ago \\u00b7 66 applicants\\n\\npromoted by hirer \\u00b7 no response"
+      }
+    ],
+    "job_description_evidence": {
+      "domain": null,
+      "bi_tools": [],
+      "industry": null,
+      "databases": [],
+      "frameworks": [],
+      "soft_skills": [],
+      "technologies": [],
+      "certifications": [],
+      "cloud_platforms": [],
+      "required_skills": [],
+      "preferred_skills": [
+        "plus"
+      ],
+      "responsibilities": [
+        "Maryland, United States \u00b7 3 hours ago \u00b7 66 applicants",
+        "Promoted by hirer \u00b7 No response insights available yet",
+        "Use AI to assess how you fit",
+        "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+        "Job search smarter with Premium",
+        "See jobs where you\u2019d be a top applicant",
+        "Message hiring managers with InMail",
+        "Get personalized cover letter and resume tips"
+      ],
+      "years_of_experience": null,
+      "management_experience": true,
+      "programming_languages": [],
+      "education_requirements": []
+    },
+    "matched_skills": [],
+    "missing_skills": [],
+    "reasoning_type": "Semantic Inference"
+  }
+]

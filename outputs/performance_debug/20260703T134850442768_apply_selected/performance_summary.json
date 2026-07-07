@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 5796,
+    "job_id": 22033,
+    "dry_run": true
+  },
+  "total_runtime_ms": 20.19,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 8.33,
+  "average_apply_time_ms": 8.33,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 10.61,
+    "metadata": {}
+  },
+  "created_at": "2026-07-03T13:48:50.463711"
+}

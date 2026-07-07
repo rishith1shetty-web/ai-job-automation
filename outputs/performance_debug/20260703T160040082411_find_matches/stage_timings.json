@@ -1,0 +1,48 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 2.68,
+    "metadata": {}
+  },
+  {
+    "stage": "portal_session_validation",
+    "elapsed_ms": 0.43,
+    "metadata": {
+      "portals": "dice"
+    }
+  },
+  {
+    "stage": "duplicate_key_loading",
+    "elapsed_ms": 6.19,
+    "metadata": {}
+  },
+  {
+    "stage": "dice_find_matches_page_loading",
+    "elapsed_ms": 77443.53,
+    "metadata": {
+      "query_count": 8,
+      "limit_per_query": 9
+    }
+  },
+  {
+    "stage": "match_complexity_priority_scoring",
+    "elapsed_ms": 48.73,
+    "metadata": {
+      "job_count": 38
+    }
+  },
+  {
+    "stage": "job_description_reasoning",
+    "elapsed_ms": 2545.22,
+    "metadata": {
+      "job_count": 38
+    }
+  },
+  {
+    "stage": "database_batch_write",
+    "elapsed_ms": 44.19,
+    "metadata": {
+      "job_count": 38
+    }
+  }
+]

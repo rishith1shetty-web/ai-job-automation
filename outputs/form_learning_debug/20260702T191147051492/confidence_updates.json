@@ -1,0 +1,51 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 2,
+    "times_successful": 2,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "High",
+    "times_seen": 4,
+    "times_successful": 4,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Excel Years",
+    "confidence": "High",
+    "times_seen": 4,
+    "times_successful": 4,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "High",
+    "times_seen": 4,
+    "times_successful": 4,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Excel Years",
+    "confidence": "High",
+    "times_seen": 4,
+    "times_successful": 4,
+    "times_failed": 0
+  }
+]

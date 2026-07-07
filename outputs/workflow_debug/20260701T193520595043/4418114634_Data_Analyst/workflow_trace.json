@@ -1,0 +1,182 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Vernovis | LinkedIn",
+    "modal_title": "Apply to Vernovis",
+    "detected_page_type": "contact_page",
+    "page_hash": "886e3783906a4e995d847f743423de28de29e9107a94c9d404c904cf31d719d2",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4418114634/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.78,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Vernovis | LinkedIn",
+    "modal_title": "Apply to Vernovis",
+    "detected_page_type": "resume_page",
+    "page_hash": "f836244a04e6c8619f075d82dab8151da0a7bb8d4f8d1909ec96c98863b6f207",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4418114634/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.35,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | Vernovis | LinkedIn",
+    "modal_title": "Apply to Vernovis",
+    "detected_page_type": "resume_page",
+    "page_hash": "f836244a04e6c8619f075d82dab8151da0a7bb8d4f8d1909ec96c98863b6f207",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4418114634/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.49,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | Vernovis | LinkedIn",
+    "modal_title": "Apply to Vernovis",
+    "detected_page_type": "review_page",
+    "page_hash": "78337f1b14827ec9bc037f32b1226caa389eee462de6d691c4e24d074b18e43d",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": true,
+    "next_page_detected": "review_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4418114634/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 34.63,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | Vernovis | LinkedIn",
+    "modal_title": "Apply to Vernovis",
+    "detected_page_type": "review_page",
+    "page_hash": "78337f1b14827ec9bc037f32b1226caa389eee462de6d691c4e24d074b18e43d",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4418114634/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 34.89,
+    "stop_reason": null
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 5403,
+    "job_id": 19841,
+    "dry_run": true
+  },
+  "total_runtime_ms": 18.3,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 7.64,
+  "average_apply_time_ms": 7.64,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 9.62,
+    "metadata": {}
+  },
+  "created_at": "2026-07-02T22:29:35.788970"
+}

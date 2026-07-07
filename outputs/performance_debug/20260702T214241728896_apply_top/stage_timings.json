@@ -1,0 +1,41 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.03,
+    "metadata": {}
+  },
+  {
+    "stage": "job_queue_loading",
+    "elapsed_ms": 2.64,
+    "metadata": {}
+  },
+  {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 8.79,
+    "metadata": {}
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 6.49,
+    "metadata": {
+      "job_id": 18345,
+      "index": 1
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 10.3,
+    "metadata": {
+      "job_id": 18346,
+      "index": 2
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 16.04,
+    "metadata": {
+      "job_id": 18344,
+      "index": 3
+    }
+  }
+]

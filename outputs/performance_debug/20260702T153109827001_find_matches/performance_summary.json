@@ -1,0 +1,25 @@
+{
+  "operation": "find_matches",
+  "metadata": {
+    "resume_id": 4426,
+    "location": "New York, NY",
+    "limit": 25
+  },
+  "total_runtime_ms": 170680.25,
+  "stage_count": 8,
+  "cache_hits": 0,
+  "cache_misses": 1,
+  "average_page_load_ms": 84923.86,
+  "average_apply_time_ms": 0,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 169847.65,
+    "metadata": {
+      "query_count": 4,
+      "limit_per_query": 9
+    }
+  },
+  "created_at": "2026-07-02T15:34:00.507311"
+}

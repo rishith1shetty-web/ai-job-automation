@@ -1,0 +1,186 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.237506"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.253461"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.249444"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.255459"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.251466"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.257450"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.237506"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.253461"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.249444"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.255459"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.251466"
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:35:06.257450"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many ears of experience do you have with SQL queries?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:35:06.259417"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Knowledge Base Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for excel, power bi, tableau, dashboard development was found in Knowledge Base, Employment, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:35:06.261412"
+      }
+    ]
+  }
+]

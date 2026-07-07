@@ -1,0 +1,44 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Python (Programming Language)?",
+    "original_label": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_field": "Python Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": []
+  },
+  {
+    "question_text": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+    "original_label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+    "normalized_field": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+    "category": "years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": []
+  },
+  {
+    "question_text": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+    "original_label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+    "normalized_field": "digital health Years",
+    "category": "skill_years",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ]
+  },
+  {
+    "question_text": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+    "original_label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+    "normalized_field": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+    "category": "yes_no",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ]
+  }
+]

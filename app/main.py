@@ -1,26 +1,29 @@
 import json
 import logging
 import re
+import threading
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
-from sqlalchemy import desc, func, select
+from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile
+from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.database import get_db, init_db
+from app.database import SessionLocal, get_db, init_db
 from app.logging_config import configure_logging
 from app.models import (
     ApplicationRecord,
     ApplicationStatus,
+    ApplyTopBatch,
     CandidateProfile,
     CandidateEmploymentHistory,
     FormFieldLearning,
     GeneralizedFormFieldMetadata,
     JobOpportunity,
     JobSearchBatch,
+    PortalRuntimeState,
     ResumeProfile,
     ScreeningAutomationSetting,
     ScreeningKnowledgeAnswer,
@@ -28,6 +31,7 @@ from app.models import (
 from app.schemas import (
     ApplicationHistoryOut,
     ApplicationRecordOut,
+    ApplyTopBatchOut,
     ApplyRequest,
     ApplySelectedRequest,
     CandidateProfileIn,
@@ -49,6 +53,7 @@ from app.services.form_learning import FormLearningEngine
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.matcher import MatchScorer
 from app.services.performance import PerformanceRecorder, latest_performance_summary
+from app.services.portals.dice_portal import DicePortalAdapter
 from app.services.reasoning import AIReasoningEngine
 from app.services.resume_intelligence import ResumeIntelligenceEngine
 from app.services.resume_parser import ResumeParser
@@ -58,6 +63,68 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 app = FastAPI(title="LinkedIn AI Job Matcher", version="0.1.0")
 SEARCH_PLAN_CACHE: dict[tuple, tuple[list, dict]] = {}
+
+
+def normalize_portal(value: str | None) -> str:
+    portal = (value or "linkedin").strip().lower()
+    if portal == "both":
+        raise HTTPException(status_code=400, detail="Single active portal mode supports LinkedIn or Dice only.")
+    if portal not in {"linkedin", "dice"}:
+        raise HTTPException(status_code=400, detail="Portal must be LinkedIn or Dice.")
+    return portal
+
+
+def search_portals(value: str | None) -> list[str]:
+    return [normalize_portal(value)]
+
+
+def dice_adapter() -> DicePortalAdapter:
+    return DicePortalAdapter(settings)
+
+
+def active_portal_state(db: Session) -> PortalRuntimeState:
+    state = db.get(PortalRuntimeState, 1)
+    if state is None:
+        state = PortalRuntimeState(id=1, active_portal="linkedin")
+        db.add(state)
+        db.commit()
+        db.refresh(state)
+    return state
+
+
+def get_active_portal(db: Session) -> str:
+    return normalize_portal(active_portal_state(db).active_portal)
+
+
+def set_active_portal(db: Session, portal: str) -> PortalRuntimeState:
+    requested = normalize_portal(portal)
+    state = active_portal_state(db)
+    state.active_portal = requested
+    state.updated_at = datetime.utcnow()
+    db.add(state)
+    db.commit()
+    db.refresh(state)
+    return state
+
+
+def disconnect_inactive_portal(active: str) -> None:
+    active = normalize_portal(active)
+    if active == "linkedin":
+        dice_adapter().disconnect()
+    elif active == "dice":
+        LinkedInAutomation(settings).disconnect_account()
+
+
+def request_portal_or_active(db: Session, portal: str | None = None) -> str:
+    return normalize_portal(portal or get_active_portal(db))
+
+
+def require_active_portal(db: Session, portal: str | None = None) -> str:
+    requested = request_portal_or_active(db, portal)
+    active = get_active_portal(db)
+    if requested != active:
+        raise HTTPException(status_code=409, detail=f"Active portal is {active.title()}. Switch portals before using {requested.title()}.")
+    return active
 
 
 def resolve_search_query(resume: ResumeProfile, manual_keywords: str | None) -> str:
@@ -70,30 +137,52 @@ def resolve_search_query(resume: ResumeProfile, manual_keywords: str | None) -> 
     return " OR ".join(search_terms)
 
 
-def latest_search_batch(db: Session, resume_id: int) -> JobSearchBatch | None:
-    return db.scalar(
-        select(JobSearchBatch)
-        .where(JobSearchBatch.resume_id == resume_id)
-        .order_by(desc(JobSearchBatch.created_at))
-        .limit(1)
-    )
+def latest_search_batch(db: Session, resume_id: int, portal: str | None = None) -> JobSearchBatch | None:
+    statement = select(JobSearchBatch).where(JobSearchBatch.resume_id == resume_id)
+    if portal:
+        statement = statement.where(JobSearchBatch.portal == normalize_portal(portal))
+    return db.scalar(statement.order_by(desc(JobSearchBatch.created_at)).limit(1))
 
 
-def default_candidate_profile(db: Session) -> CandidateProfile | None:
+def default_candidate_profile(db: Session, portal: str | None = None) -> CandidateProfile | None:
+    requested = request_portal_or_active(db, portal)
     return db.scalar(
         select(CandidateProfile)
         .where(CandidateProfile.is_default.is_(True))
+        .where(CandidateProfile.portal == requested)
         .order_by(desc(CandidateProfile.updated_at), desc(CandidateProfile.created_at))
         .limit(1)
     )
+
+
+def get_or_create_candidate_profile(db: Session, portal: str | None = None) -> CandidateProfile:
+    requested = request_portal_or_active(db, portal)
+    profile = default_candidate_profile(db, requested)
+    if profile is None:
+        profile = CandidateProfile(is_default=True, portal=requested)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    return profile
 
 
 def normalized_screening_question(question: str) -> str:
     normalized = re.sub(r"[^a-z0-9]+", " ", question.lower()).strip()
     replacements = {
         "will you require visa sponsorship": "work sponsorship",
+        "will you now or in the future require sponsorship": "work sponsorship",
         "do you require sponsorship": "work sponsorship",
         "do you need employment sponsorship": "work sponsorship",
+        "are you legally authorized to work in the united states": "us work authorization",
+        "are you authorized to work in the united states": "us work authorization",
+        "are you eligible to work in the united states": "us work authorization",
+        "do you have a green card": "us work authorization",
+        "are you a us citizen": "us work authorization",
+        "are you a u s citizen": "us work authorization",
+        "are you willing to relocate": "relocation willingness",
+        "are you open to relocation": "relocation willingness",
+        "are you comfortable commuting to this job s location": "commute willingness",
+        "are you comfortable working in a hybrid setting": "work mode preference",
         "expected ctc": "expected salary",
         "desired salary": "expected salary",
         "compensation expectation": "expected salary",
@@ -255,8 +344,32 @@ def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/portal/active")
+def get_active_portal_status(db: Session = Depends(get_db)) -> dict:
+    active = get_active_portal(db)
+    disconnect_inactive_portal(active)
+    return {
+        "active_portal": active,
+        "linkedin_connected": (
+            LinkedInAutomation(settings).has_authenticated_session()
+            if active == "linkedin"
+            else False
+        ),
+        "dice_connected": dice_adapter().is_connected() if active == "dice" else False,
+    }
+
+
+@app.post("/portal/active/{portal}")
+def switch_active_portal(portal: str, db: Session = Depends(get_db)) -> dict:
+    requested = normalize_portal(portal)
+    disconnect_inactive_portal(requested)
+    state = set_active_portal(db, requested)
+    return {"active_portal": state.active_portal, "status": "active"}
+
+
 @app.post("/resumes", response_model=ResumeProfileOut)
 def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db)) -> ResumeProfile:
+    active = get_active_portal(db)
     parser = ResumeParser(settings)
     stored_path = parser.save_upload(upload)
     raw_text = parser.extract_text(stored_path)
@@ -264,6 +377,7 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
         raise HTTPException(status_code=400, detail="Could not extract text from resume.")
     profile = parser.parse(raw_text)
     resume = ResumeProfile(
+        portal=active,
         filename=upload.filename or Path(stored_path).name,
         stored_path=str(stored_path.resolve()),
         raw_text=raw_text,
@@ -284,12 +398,12 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
     db.commit()
     db.refresh(resume)
 
-    candidate = default_candidate_profile(db) or CandidateProfile(is_default=True)
+    candidate = get_or_create_candidate_profile(db, active)
     db.add(candidate)
     resume_profile = parser.extract_candidate_profile(raw_text, parser.extract_hyperlinks(stored_path))
     merge_candidate_profile(candidate, resume_profile)
     linkedin_profile = None
-    if LinkedInAutomation(settings).has_authenticated_session():
+    if active == "linkedin" and LinkedInAutomation(settings).has_authenticated_session():
         try:
             linkedin_profile = LinkedInAutomation(settings).extract_logged_in_profile()
             merge_candidate_profile(candidate, linkedin_profile)
@@ -310,7 +424,13 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
 
 @app.get("/resumes/latest", response_model=ResumeProfileOut)
 def latest_resume(db: Session = Depends(get_db)) -> ResumeProfile:
-    resume = db.scalar(select(ResumeProfile).order_by(desc(ResumeProfile.created_at)).limit(1))
+    active = get_active_portal(db)
+    resume = db.scalar(
+        select(ResumeProfile)
+        .where(ResumeProfile.portal == active)
+        .order_by(desc(ResumeProfile.created_at))
+        .limit(1)
+    )
     if not resume:
         raise HTTPException(status_code=404, detail="No resume has been analyzed.")
     return resume
@@ -328,6 +448,9 @@ def get_resume(resume_id: int, db: Session = Depends(get_db)) -> ResumeProfile:
 def connect_linkedin() -> dict:
     automation = LinkedInAutomation(settings)
     automation.connect_account()
+    dice_adapter().disconnect()
+    with SessionLocal() as db:
+        set_active_portal(db, "linkedin")
     return {"status": "connected", "storage_state": str(settings.linkedin_storage_state)}
 
 
@@ -342,15 +465,31 @@ def disconnect_linkedin() -> dict:
     return {"status": "disconnected"}
 
 
+@app.post("/dice/connect")
+def connect_dice() -> dict:
+    result = dice_adapter().connect()
+    if result.get("status") != "connected":
+        raise HTTPException(status_code=409, detail=result.get("reason") or "Dice login was not verified.")
+    LinkedInAutomation(settings).disconnect_account()
+    with SessionLocal() as db:
+        set_active_portal(db, "dice")
+    return result
+
+
+@app.get("/dice/status")
+def dice_status() -> dict:
+    return {"connected": dice_adapter().is_connected()}
+
+
+@app.post("/dice/disconnect")
+def disconnect_dice() -> dict:
+    dice_adapter().disconnect()
+    return {"status": "disconnected"}
+
+
 @app.get("/candidate-profile", response_model=CandidateProfileOut)
 def get_candidate_profile(db: Session = Depends(get_db)) -> CandidateProfile:
-    profile = default_candidate_profile(db)
-    if not profile:
-        profile = CandidateProfile(is_default=True)
-        db.add(profile)
-        db.commit()
-        db.refresh(profile)
-    return profile
+    return get_or_create_candidate_profile(db)
 
 
 def save_extracted_employment_history(
@@ -481,12 +620,7 @@ def add_employment_history(
     payload: CandidateEmploymentHistoryIn,
     db: Session = Depends(get_db),
 ) -> CandidateEmploymentHistory:
-    candidate = default_candidate_profile(db)
-    if candidate is None:
-        candidate = CandidateProfile(is_default=True)
-        db.add(candidate)
-        db.commit()
-        db.refresh(candidate)
+    candidate = get_or_create_candidate_profile(db)
     record = CandidateEmploymentHistory(candidate_profile_id=candidate.id)
     update_employment_record(record, payload)
     db.add(record)
@@ -540,11 +674,10 @@ def save_candidate_profile(
     payload: CandidateProfileIn,
     db: Session = Depends(get_db),
 ) -> CandidateProfile:
-    profile = default_candidate_profile(db)
-    if not profile:
-        profile = CandidateProfile(is_default=True)
-        db.add(profile)
+    profile = get_or_create_candidate_profile(db)
     for field, value in payload.model_dump().items():
+        if field == "portal":
+            continue
         if field in {"field_sources", "missing_required_after_apply"}:
             continue
         if isinstance(value, str):
@@ -611,12 +744,7 @@ def save_screening_knowledge(
     payload: ScreeningKnowledgeAnswerIn,
     db: Session = Depends(get_db),
 ) -> ScreeningKnowledgeAnswer:
-    candidate = default_candidate_profile(db)
-    if candidate is None:
-        candidate = CandidateProfile(is_default=True)
-        db.add(candidate)
-        db.commit()
-        db.refresh(candidate)
+    candidate = get_or_create_candidate_profile(db)
     normalized = normalized_screening_question(payload.question_text)
     existing = db.scalar(
         select(ScreeningKnowledgeAnswer)
@@ -653,8 +781,337 @@ def delete_screening_knowledge(answer_id: int, db: Session = Depends(get_db)) ->
     return {"status": "deleted"}
 
 
-@app.post("/jobs/search", response_model=list[JobOut])
-def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[JobOpportunity]:
+def _search_batch_out(db: Session, batch: JobSearchBatch) -> dict:
+    job_count = (
+        db.scalar(select(func.count(JobOpportunity.id)).where(JobOpportunity.search_batch_id == batch.id))
+        or 0
+    )
+    easy_apply_count = (
+        db.scalar(
+            select(func.count(JobOpportunity.id)).where(
+                JobOpportunity.search_batch_id == batch.id,
+                JobOpportunity.easy_apply.is_(True),
+            )
+        )
+        or 0
+    )
+    return {
+        "id": batch.id,
+        "resume_id": batch.resume_id,
+        "search_query": batch.search_query,
+        "location": batch.location,
+        "portal": batch.portal,
+        "status": batch.status,
+        "requested_limit": batch.requested_limit,
+        "current_search_variation": batch.current_search_variation,
+        "jobs_collected": max(batch.jobs_collected or 0, job_count),
+        "easy_apply_count": max(batch.easy_apply_count or 0, easy_apply_count),
+        "duplicates_removed": batch.duplicates_removed,
+        "latest_status_message": batch.latest_status_message,
+        "error_message": batch.error_message,
+        "debug_path": batch.debug_path,
+        "started_at": batch.started_at,
+        "finished_at": batch.finished_at,
+        "created_at": batch.created_at,
+        "updated_at": batch.updated_at,
+        "job_count": job_count,
+    }
+
+
+def _create_find_matches_debug_dir(batch_id: str) -> Path:
+    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+    debug_dir = settings.find_matches_batch_debug_dir / timestamp / batch_id
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    return debug_dir
+
+
+def _write_find_matches_batch_debug(debug_dir: Path | None, filename: str, payload: dict) -> None:
+    if not debug_dir:
+        return
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    (debug_dir / filename).write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+
+def _search_conflict_context(
+    db: Session,
+    request: SearchRequest,
+    resume: ResumeProfile | None,
+    *,
+    condition: str,
+    message: str,
+) -> dict:
+    active = get_active_portal(db)
+    request_portal_raw = request.portal
+    try:
+        resolved_request_portal = normalize_portal(request.portal or active)
+    except HTTPException:
+        resolved_request_portal = str(request.portal)
+    linkedin_connected = LinkedInAutomation(settings).has_authenticated_session()
+    dice_connected = dice_adapter().is_connected()
+    authenticated_portals = []
+    if linkedin_connected:
+        authenticated_portals.append("linkedin")
+    if dice_connected:
+        authenticated_portals.append("dice")
+    latest_batch = None
+    if resume is not None:
+        batch_portal = resolved_request_portal if resolved_request_portal in {"linkedin", "dice"} else None
+        batch = latest_search_batch(db, resume.id, batch_portal)
+        if batch:
+            latest_batch = {
+                "id": batch.id,
+                "portal": batch.portal,
+                "status": batch.status,
+                "requested_limit": batch.requested_limit,
+                "jobs_collected": batch.jobs_collected,
+                "latest_status_message": batch.latest_status_message,
+                "error_message": batch.error_message,
+                "created_at": batch.created_at,
+                "updated_at": batch.updated_at,
+            }
+    return {
+        "condition": condition,
+        "message": message,
+        "active_portal": active,
+        "request_portal": request_portal_raw,
+        "resolved_request_portal": resolved_request_portal,
+        "resume_id": request.resume_id,
+        "resume_portal": resume.portal if resume else None,
+        "session_status": {
+            "linkedin_connected": linkedin_connected,
+            "dice_connected": dice_connected,
+        },
+        "authenticated_portal": authenticated_portals,
+        "search_batch_state": latest_batch,
+        "requested_location": request.location,
+        "requested_limit": request.limit,
+    }
+
+
+def _raise_search_conflict(
+    db: Session,
+    request: SearchRequest,
+    resume: ResumeProfile | None,
+    *,
+    condition: str,
+    message: str,
+) -> None:
+    context = _search_conflict_context(db, request, resume, condition=condition, message=message)
+    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+    debug_dir = settings.find_matches_batch_debug_dir / timestamp / "search_conflict"
+    _write_find_matches_batch_debug(debug_dir, "search_conflict.json", context)
+    logger.warning("Find Matches conflict: %s", json.dumps(context, default=str))
+    detail = (
+        f"{message} "
+        f"(condition={condition}; active_portal={context['active_portal']}; "
+        f"request_portal={context['resolved_request_portal']}; "
+        f"resume_portal={context['resume_portal']}; "
+        f"linkedin_connected={context['session_status']['linkedin_connected']}; "
+        f"dice_connected={context['session_status']['dice_connected']}; "
+        f"debug_path={debug_dir})"
+    )
+    raise HTTPException(status_code=409, detail=detail)
+
+
+def _create_search_batch(request: SearchRequest, db: Session) -> JobSearchBatch:
+    resume = db.get(ResumeProfile, request.resume_id)
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found.")
+    active = get_active_portal(db)
+    portal = request_portal_or_active(db, request.portal)
+    if portal != active:
+        _raise_search_conflict(
+            db,
+            request,
+            resume,
+            condition="requested_portal_not_active",
+            message=f"Find Matches is set to {portal.title()}, but the active portal is {active.title()}. Switch active portal before searching.",
+        )
+    if resume.portal != portal:
+        _raise_search_conflict(
+            db,
+            request,
+            resume,
+            condition="resume_portal_mismatch",
+            message=(
+                f"The active resume belongs to {resume.portal.title()}, but Find Matches is running in {portal.title()} mode. "
+                f"Analyze/upload the resume again while {portal.title()} is the active portal."
+            ),
+        )
+    portals = search_portals(portal)
+    if "linkedin" in portals and not settings.linkedin_storage_state.exists():
+        _raise_search_conflict(
+            db,
+            request,
+            resume,
+            condition="linkedin_session_missing",
+            message="LinkedIn is the active search portal, but no LinkedIn session file was found. Connect LinkedIn before searching.",
+        )
+    if "dice" in portals and not dice_adapter().is_connected():
+        _raise_search_conflict(
+            db,
+            request,
+            resume,
+            condition="dice_session_missing_or_unverified",
+            message="Dice is the active search portal, but the saved Dice session is missing or not verified. Connect Dice before searching Dice jobs.",
+        )
+    batch = JobSearchBatch(
+        id=str(uuid4()),
+        resume_id=resume.id,
+        search_query=resolve_search_query(resume, request.keywords),
+        manual_keywords=request.keywords,
+        location=request.location,
+        portal=portal,
+        status="queued",
+        requested_limit=request.limit,
+        jobs_collected=0,
+        easy_apply_count=0,
+        duplicates_removed=0,
+        latest_status_message="Search queued.",
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+    )
+    db.add(batch)
+    db.commit()
+    db.refresh(batch)
+    return batch
+
+
+def _update_search_batch(
+    db: Session,
+    batch: JobSearchBatch,
+    *,
+    status: str | None = None,
+    current_search_variation: str | None = None,
+    jobs_collected: int | None = None,
+    easy_apply_count: int | None = None,
+    duplicates_removed: int | None = None,
+    latest_status_message: str | None = None,
+    error_message: str | None = None,
+    debug_path: str | None = None,
+    started_at: datetime | None = None,
+    finished_at: datetime | None = None,
+) -> None:
+    if status is not None:
+        batch.status = status
+    if current_search_variation is not None:
+        batch.current_search_variation = current_search_variation
+    if jobs_collected is not None:
+        batch.jobs_collected = jobs_collected
+    if easy_apply_count is not None:
+        batch.easy_apply_count = easy_apply_count
+    if duplicates_removed is not None:
+        batch.duplicates_removed = duplicates_removed
+    if latest_status_message is not None:
+        batch.latest_status_message = latest_status_message
+    if error_message is not None:
+        batch.error_message = error_message
+    if debug_path is not None:
+        batch.debug_path = debug_path
+    if started_at is not None:
+        batch.started_at = started_at
+    if finished_at is not None:
+        batch.finished_at = finished_at
+    batch.updated_at = datetime.utcnow()
+    db.add(batch)
+    db.commit()
+
+
+@app.post("/jobs/search", response_model=SearchBatchOut)
+def search_jobs(
+    request: SearchRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> dict:
+    batch = _create_search_batch(request, db)
+    background_tasks.add_task(_run_find_matches_batch, batch.id)
+    return _search_batch_out(db, batch)
+
+
+def _run_find_matches_batch(batch_id: str) -> None:
+    debug_dir = _create_find_matches_debug_dir(batch_id)
+    with SessionLocal() as db:
+        batch = db.get(JobSearchBatch, batch_id)
+        if not batch:
+            return
+        _update_search_batch(
+            db,
+            batch,
+            status="running",
+            latest_status_message=f"Starting {batch.portal.title()} job search.",
+            debug_path=str(debug_dir),
+            started_at=datetime.utcnow(),
+        )
+        _write_find_matches_batch_debug(
+            debug_dir,
+            "batch_started.json",
+            {
+                "batch_id": batch.id,
+                "resume_id": batch.resume_id,
+                "location": batch.location,
+                "portal": batch.portal,
+                "requested_limit": batch.requested_limit,
+                "started_at": batch.started_at,
+            },
+        )
+        try:
+            request = SearchRequest(
+                resume_id=batch.resume_id,
+                location=batch.location,
+                keywords=batch.manual_keywords,
+                limit=batch.requested_limit,
+                portal=batch.portal,
+            )
+            ranked = _search_jobs_sync(request, db, batch=batch, batch_debug_dir=debug_dir)
+            _update_search_batch(
+                db,
+                batch,
+                status="completed",
+                current_search_variation="",
+                jobs_collected=len(ranked),
+                easy_apply_count=sum(1 for job in ranked if job.easy_apply),
+                latest_status_message=(
+                    f"Found {len(ranked)} jobs out of requested {batch.requested_limit} based on current {batch.portal.title()} results."
+                    if len(ranked) < int(batch.requested_limit or 0)
+                    else f"Search complete. Saved {len(ranked)} ranked jobs."
+                ),
+                finished_at=datetime.utcnow(),
+            )
+            _write_find_matches_batch_debug(
+                debug_dir,
+                "batch_completed.json",
+                {
+                    "batch_id": batch.id,
+                    "status": "completed",
+                    "jobs_collected": len(ranked),
+                    "easy_apply_count": sum(1 for job in ranked if job.easy_apply),
+                    "finished_at": batch.finished_at,
+                },
+            )
+        except Exception as exc:
+            logger.exception("Find Matches batch %s failed", batch.id)
+            _update_search_batch(
+                db,
+                batch,
+                status="failed",
+                error_message=str(exc),
+                latest_status_message="Search failed in backend.",
+                finished_at=datetime.utcnow(),
+            )
+            _write_find_matches_batch_debug(
+                debug_dir,
+                "batch_failed.json",
+                {"batch_id": batch.id, "status": "failed", "error": str(exc)},
+            )
+
+
+def _search_jobs_sync(
+    request: SearchRequest,
+    db: Session,
+    *,
+    batch: JobSearchBatch | None = None,
+    batch_debug_dir: Path | None = None,
+) -> list[JobOpportunity]:
     recorder = PerformanceRecorder(
         settings,
         "find_matches",
@@ -665,13 +1122,57 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
             resume = db.get(ResumeProfile, request.resume_id)
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found.")
-        with recorder.stage("linkedin_session_validation"):
-            if not settings.linkedin_storage_state.exists():
-                raise HTTPException(status_code=409, detail="Connect LinkedIn before searching for jobs.")
+        active = get_active_portal(db)
+        portal = request_portal_or_active(db, request.portal)
+        if portal != active:
+            _raise_search_conflict(
+                db,
+                request,
+                resume,
+                condition="requested_portal_not_active",
+                message=f"Find Matches is set to {portal.title()}, but the active portal is {active.title()}. Switch active portal before searching.",
+            )
+        if resume.portal != portal:
+            _raise_search_conflict(
+                db,
+                request,
+                resume,
+                condition="resume_portal_mismatch",
+                message=(
+                    f"Resume belongs to {resume.portal.title()}, but the active search portal is {portal.title()}. "
+                    f"Analyze/upload the resume again while {portal.title()} is the active portal."
+                ),
+            )
+        portals = search_portals(portal)
+        with recorder.stage("portal_session_validation", portals=",".join(portals)):
+            if "linkedin" in portals and not settings.linkedin_storage_state.exists():
+                _raise_search_conflict(
+                    db,
+                    request,
+                    resume,
+                    condition="linkedin_session_missing",
+                    message="LinkedIn is the active search portal, but no LinkedIn session file was found. Connect LinkedIn before searching.",
+                )
+            if "dice" in portals and not dice_adapter().is_connected():
+                _raise_search_conflict(
+                    db,
+                    request,
+                    resume,
+                    condition="dice_session_missing_or_unverified",
+                    message="Dice is the active search portal, but the saved Dice session is missing or not verified. Connect Dice before searching Dice jobs.",
+                )
 
         engine = FindMatchesEngine(settings)
         debug_dir = engine.create_debug_dir()
+        if batch is not None:
+            _update_search_batch(
+                db,
+                batch,
+                latest_status_message="Building search variations.",
+                debug_path=str(batch_debug_dir) if batch_debug_dir else batch.debug_path,
+            )
         cache_key = (
+            portal,
             resume.id,
             resume.created_at.isoformat() if resume.created_at else "",
             request.location,
@@ -687,18 +1188,33 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
             SEARCH_PLAN_CACHE[cache_key] = (search_variations, search_plan)
             recorder.cache("search_plan", False, resume_id=resume.id)
         search_query = search_plan["display_query"] or resolve_search_query(resume, request.keywords)
-        search_timestamp = datetime.utcnow()
-        search_batch = JobSearchBatch(
-            id=str(uuid4()),
-            resume_id=resume.id,
-            search_query=search_query,
-            location=request.location,
-            created_at=search_timestamp,
-        )
-        db.add(search_batch)
-        db.commit()
+        if batch is None:
+            search_timestamp = datetime.utcnow()
+            search_batch = JobSearchBatch(
+                id=str(uuid4()),
+                resume_id=resume.id,
+                search_query=search_query,
+                manual_keywords=request.keywords,
+                location=request.location,
+                portal=portal,
+                status="running",
+                requested_limit=request.limit,
+                created_at=search_timestamp,
+                updated_at=search_timestamp,
+            )
+            db.add(search_batch)
+            db.commit()
+        else:
+            search_batch = batch
+            search_batch.search_query = search_query
+            search_batch.manual_keywords = request.keywords
+            search_batch.location = request.location
+            search_batch.portal = normalize_portal(request.portal)
+            search_batch.requested_limit = request.limit
+            search_timestamp = search_batch.created_at or datetime.utcnow()
+            db.add(search_batch)
+            db.commit()
 
-        linkedin = LinkedInAutomation(settings)
         engine.write_debug(debug_dir, "search_queries.json", search_plan["queries"])
         engine.write_debug(debug_dir, "expanded_roles.json", search_plan["expanded_roles"])
         engine.write_debug(debug_dir, "expanded_skills.json", search_plan["expanded_skills"])
@@ -709,6 +1225,7 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
         seen_keys: set[str] = set()
         duplicate_jobs: list[dict] = []
         jobs_found: list[dict] = []
+        jobs_per_variation: list[dict] = []
         with recorder.stage("duplicate_key_loading"):
             previous_jobs = list(
                 db.scalars(select(JobOpportunity).where(JobOpportunity.resume_id == resume.id)).all()
@@ -726,31 +1243,103 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                 )
                 if key
             }
-        selected_variations = search_variations[:4]
-        if hasattr(linkedin, "search_jobs_many"):
-            with recorder.stage("linkedin_find_matches_page_loading", query_count=len(selected_variations)):
-                variation_results = linkedin.search_jobs_many(
-                    resume,
-                    selected_variations,
-                    5,
-                    collect_card_diagnostics=False,
-                )
-        else:
-            variation_results = []
-            for variation in selected_variations:
-                with recorder.stage("linkedin_find_matches_page_loading", query=variation.query, location=variation.location):
-                    try:
-                        raw_jobs = linkedin.search_jobs(
+        collection_plan = engine.collection_plan(target_count, len(search_variations))
+        selected_variations = search_variations[: collection_plan["selected_variation_count"]]
+        limit_per_query = collection_plan["limit_per_query"]
+        if batch is not None:
+            _update_search_batch(
+                db,
+                batch,
+                status="running",
+                current_search_variation=selected_variations[0].query if selected_variations else "",
+                latest_status_message=(
+                    f"Collecting jobs from {len(selected_variations)} search variations."
+                    if selected_variations
+                    else "No search variations were generated."
+                ),
+            )
+        engine.write_debug(
+            debug_dir,
+            "search_collection_plan.json",
+            {
+                "requested_limit": request.limit,
+                "target_count": target_count,
+                "available_variations": len(search_variations),
+                "selected_variations": len(selected_variations),
+                "limit_per_query": limit_per_query,
+            },
+        )
+        variation_results: list[tuple[str, object, list[dict]]] = []
+        for portal in portals:
+            adapter = LinkedInAutomation(settings) if portal == "linkedin" else dice_adapter()
+            with recorder.stage(
+                f"{portal}_find_matches_page_loading",
+                query_count=len(selected_variations),
+                limit_per_query=limit_per_query,
+            ):
+                if portal == "linkedin":
+                    if hasattr(adapter, "search_jobs_many"):
+                        portal_results = adapter.search_jobs_many(
                             resume,
-                            variation.location,
-                            variation.query,
-                            5,
+                            selected_variations,
+                            limit_per_query,
                             collect_card_diagnostics=False,
                         )
-                    except TypeError:
-                        raw_jobs = linkedin.search_jobs(resume, variation.location, variation.query, 5)
-                variation_results.append((variation, raw_jobs))
-        for variation, raw_jobs in variation_results:
+                    else:
+                        portal_results = []
+                        for variation in selected_variations:
+                            try:
+                                raw_jobs = adapter.search_jobs(
+                                    resume,
+                                    variation.location,
+                                    variation.query,
+                                    limit_per_query,
+                                    collect_card_diagnostics=False,
+                                )
+                            except TypeError:
+                                raw_jobs = adapter.search_jobs(resume, variation.location, variation.query, limit_per_query)
+                            portal_results.append((variation, raw_jobs))
+                else:
+                    dice_progress_totals = {"jobs": 0, "easy_apply": 0}
+
+                    def dice_progress_callback(variation, raw_jobs, index, total):
+                        dice_progress_totals["jobs"] += len(raw_jobs)
+                        dice_progress_totals["easy_apply"] += sum(1 for item in raw_jobs if item.get("easy_apply"))
+                        if batch is not None:
+                            _update_search_batch(
+                                db,
+                                batch,
+                                current_search_variation=variation.query,
+                                jobs_collected=dice_progress_totals["jobs"],
+                                easy_apply_count=dice_progress_totals["easy_apply"],
+                                latest_status_message=(
+                                    f"Dice search {index}/{total}: {variation.query} "
+                                    f"returned {len(raw_jobs)} jobs."
+                                ),
+                            )
+
+                    portal_results = []
+                    portal_results = adapter.search_jobs_many(
+                        resume,
+                        selected_variations,
+                        limit_per_query,
+                        progress_callback=dice_progress_callback,
+                    )
+            for variation, raw_jobs in portal_results:
+                variation_results.append((portal, variation, raw_jobs))
+        for portal, variation, raw_jobs in variation_results:
+            before_variation_count = len(jobs)
+            before_duplicate_count = len(duplicate_jobs)
+            if batch is not None:
+                _update_search_batch(
+                    db,
+                    batch,
+                    current_search_variation=variation.query,
+                    jobs_collected=len(jobs),
+                    easy_apply_count=sum(1 for item in jobs if item.easy_apply),
+                    duplicates_removed=len(duplicate_jobs),
+                    latest_status_message=f"Processing {portal.title()} search variation: {variation.query}",
+                )
             for raw in raw_jobs:
                 keys = [key for key in engine.duplicate_key(raw) if key]
                 duplicate_reason = None
@@ -766,11 +1355,14 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                             "job_url": raw.get("job_url"),
                             "reason": duplicate_reason,
                             "search_query_used": variation.query,
+                            "search_role": variation.search_role,
+                            "role_priority": variation.role_priority,
                         }
                     )
                     continue
                 seen_keys.update(keys)
                 enriched = engine.enrich_raw_job(raw, variation)
+                enriched["portal"] = raw.get("portal") or portal
                 job = JobOpportunity(
                     resume_id=resume.id,
                     search_batch_id=search_batch.id,
@@ -785,7 +1377,10 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                         "company": job.company,
                         "job_url": job.job_url,
                         "easy_apply": job.easy_apply,
+                        "portal": job.portal,
                         "search_query_used": job.search_query_used,
+                        "search_role": job.search_role,
+                        "role_priority": job.role_priority,
                         "location": job.location,
                     }
                 )
@@ -793,10 +1388,42 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                     break
             engine.write_debug(debug_dir, "jobs_found.json", jobs_found)
             engine.write_debug(debug_dir, "duplicate_jobs.json", duplicate_jobs)
+            jobs_per_variation.append(
+                {
+                    "query": variation.query,
+                    "location": variation.location,
+                    "portal": portal,
+                    "search_role": variation.search_role,
+                    "role_priority": variation.role_priority,
+                    "raw_count": len(raw_jobs),
+                    "unique_added": len(jobs) - before_variation_count,
+                    "duplicates_removed": len(duplicate_jobs) - before_duplicate_count,
+                    "easy_apply_added": sum(1 for item in jobs[before_variation_count:] if item.easy_apply),
+                }
+            )
+            engine.write_debug(debug_dir, "jobs_per_variation.json", jobs_per_variation)
+            if batch is not None:
+                _update_search_batch(
+                    db,
+                    batch,
+                    current_search_variation=variation.query,
+                    jobs_collected=len(jobs),
+                    easy_apply_count=sum(1 for item in jobs if item.easy_apply),
+                    duplicates_removed=len(duplicate_jobs),
+                    latest_status_message=(
+                        f"Collected {len(jobs)} unique jobs; removed {len(duplicate_jobs)} duplicates."
+                    ),
+                )
             if len(jobs) >= target_count or sum(1 for item in jobs if item.easy_apply) >= target_count:
                 break
 
         scorer = MatchScorer(settings)
+        if batch is not None:
+            _update_search_batch(
+                db,
+                batch,
+                latest_status_message=f"Scoring and ranking {len(jobs)} collected jobs.",
+            )
         with recorder.stage("match_complexity_priority_scoring", job_count=len(jobs)):
             ranked = engine.apply_priority_scores(scorer.score_jobs(resume, jobs))
         reasoning = AIReasoningEngine(settings)
@@ -842,8 +1469,69 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
             db.add(job)
         with recorder.stage("database_batch_write", job_count=len(ranked)):
             db.commit()
+        if batch is not None:
+            _update_search_batch(
+                db,
+                batch,
+                jobs_collected=len(ranked),
+                easy_apply_count=sum(1 for job in ranked if job.easy_apply),
+                duplicates_removed=len(duplicate_jobs),
+                latest_status_message=f"Saved {len(ranked[:target_count])} ranked jobs.",
+            )
         engine.write_debug(debug_dir, "jobs_found.json", jobs_found)
         engine.write_debug(debug_dir, "duplicate_jobs.json", duplicate_jobs)
+        engine.write_debug(
+            debug_dir,
+            "search_summary.json",
+            {
+                "requested_limit": request.limit,
+                "target_count": target_count,
+                "unique_jobs_found": len(jobs),
+                "ranked_jobs_returned": min(len(ranked), target_count),
+                "easy_apply_jobs_found": sum(1 for item in jobs if item.easy_apply),
+                "duplicate_jobs_skipped": len(duplicate_jobs),
+                "search_variations_used": [
+                    {
+                        "portal": portal,
+                        "query": variation.query,
+                        "location": variation.location,
+                        "search_role": variation.search_role,
+                        "role_priority": variation.role_priority,
+                    }
+                    for portal in portals
+                    for variation in selected_variations
+                ],
+                "jobs_found_per_variation": jobs_per_variation,
+                "returned_count": min(len(ranked), target_count),
+                "final_job_urls": [job.job_url for job in ranked[:target_count]],
+                "reason_if_below_target": (
+                    "LinkedIn returned fewer valid unique Easy Apply jobs than requested after duplicate suppression."
+                    if len(ranked) < target_count and portal == "linkedin"
+                    else "Selected portal(s) returned fewer valid unique jobs than requested after duplicate suppression."
+                    if len(ranked) < target_count
+                    else None
+                ),
+            },
+        )
+        engine.write_debug(
+            debug_dir,
+            "final_job_urls.json",
+            [
+                {
+                    "rank": index,
+                    "title": job.title,
+                    "company": job.company,
+                    "portal": job.portal,
+                    "job_url": job.job_url,
+                    "search_role": job.search_role,
+                    "role_priority": job.role_priority,
+                    "easy_apply": job.easy_apply,
+                    "match_score": job.match_score,
+                    "priority_score": job.priority_score,
+                }
+                for index, job in enumerate(ranked[:target_count], start=1)
+            ],
+        )
         engine.write_debug(
             debug_dir,
             "match_scores.json",
@@ -851,6 +1539,7 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                 {
                     "title": job.title,
                     "company": job.company,
+                    "portal": job.portal,
                     "match_score": job.match_score,
                     "match_reason": job.match_reason,
                     "semantic_match_score": job.semantic_match_score,
@@ -871,12 +1560,22 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                 {
                     "title": job.title,
                     "company": job.company,
+                    "portal": job.portal,
                     "complexity_score": job.complexity_score,
                     "complexity_level": job.complexity_level,
                     "estimated_steps": job.estimated_steps,
                     "screening_question_count": job.screening_question_count,
                     "required_fields": job.required_fields,
                     "employment_history_required": job.employment_history_required,
+                    "application_friction_score": job.application_friction_score,
+                    "completion_likelihood_score": job.completion_likelihood_score,
+                    "unsupported_field_count": job.unsupported_field_count,
+                    "external_form_risk": job.external_form_risk,
+                    "manual_review_risk": job.manual_review_risk,
+                    "form_provider": job.form_provider,
+                    "friction_reasons": job.friction_reasons,
+                    "recommended_apply_priority": job.recommended_apply_priority,
+                    "apply_priority_reason": job.apply_priority_reason,
                 }
                 for job in ranked
             ],
@@ -889,9 +1588,16 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
                     "rank": index,
                     "title": job.title,
                     "company": job.company,
+                    "portal": job.portal,
                     "priority_score": job.priority_score,
                     "priority_reason": job.priority_reason,
+                    "completion_likelihood_score": job.completion_likelihood_score,
+                    "application_friction_score": job.application_friction_score,
+                    "recommended_apply_priority": job.recommended_apply_priority,
+                    "apply_priority_reason": job.apply_priority_reason,
                     "search_query_used": job.search_query_used,
+                    "search_role": job.search_role,
+                    "role_priority": job.role_priority,
                 }
                 for index, job in enumerate(ranked, start=1)
             ],
@@ -905,17 +1611,16 @@ def search_jobs(request: SearchRequest, db: Session = Depends(get_db)) -> list[J
 def list_jobs(
     resume_id: int | None = None,
     search_batch_id: str | None = None,
+    portal: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[JobOpportunity]:
-    statement = select(JobOpportunity).order_by(
-        desc(JobOpportunity.priority_score),
-        desc(JobOpportunity.match_score),
-        desc(JobOpportunity.easy_apply),
-    )
+    active = request_portal_or_active(db, portal)
+    statement = select(JobOpportunity).order_by(*_job_apply_ordering())
+    statement = statement.where(JobOpportunity.portal == active)
     if resume_id:
         statement = statement.where(JobOpportunity.resume_id == resume_id)
         if search_batch_id is None:
-            latest_batch = latest_search_batch(db, resume_id)
+            latest_batch = latest_search_batch(db, resume_id, active)
             if latest_batch:
                 search_batch_id = latest_batch.id
     if search_batch_id:
@@ -926,38 +1631,29 @@ def list_jobs(
 @app.get("/jobs/search-batches", response_model=list[SearchBatchOut])
 def list_search_batches(
     resume_id: int,
+    portal: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[dict]:
+    requested = request_portal_or_active(db, portal)
+    statement = select(JobSearchBatch).where(JobSearchBatch.resume_id == resume_id)
+    statement = statement.where(JobSearchBatch.portal == requested)
     batches = list(
         db.scalars(
-            select(JobSearchBatch)
-            .where(JobSearchBatch.resume_id == resume_id)
-            .order_by(desc(JobSearchBatch.created_at))
+            statement.order_by(desc(JobSearchBatch.created_at))
         ).all()
     )
     return [
-        {
-            "id": batch.id,
-            "resume_id": batch.resume_id,
-            "search_query": batch.search_query,
-            "location": batch.location,
-            "created_at": batch.created_at,
-            "job_count": db.scalar(
-                select(func.count(JobOpportunity.id)).where(
-                    JobOpportunity.search_batch_id == batch.id
-                )
-            )
-            or 0,
-            "easy_apply_count": db.scalar(
-                select(func.count(JobOpportunity.id)).where(
-                    JobOpportunity.search_batch_id == batch.id,
-                    JobOpportunity.easy_apply.is_(True),
-                )
-            )
-            or 0,
-        }
+        _search_batch_out(db, batch)
         for batch in batches
     ]
+
+
+@app.get("/jobs/search-batches/{batch_id}", response_model=SearchBatchOut)
+def get_search_batch(batch_id: str, db: Session = Depends(get_db)) -> dict:
+    batch = db.get(JobSearchBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Search batch not found.")
+    return _search_batch_out(db, batch)
 
 
 @app.post("/applications/apply-top", response_model=list[ApplicationRecordOut])
@@ -972,6 +1668,9 @@ def apply_top_jobs(request: ApplyRequest, db: Session = Depends(get_db)) -> list
             resume = db.get(ResumeProfile, request.resume_id)
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found.")
+        active = require_active_portal(db, request.portal)
+        if resume.portal != active:
+            raise HTTPException(status_code=409, detail=f"Resume belongs to {resume.portal.title()}, not {active.title()}.")
         dry_run = settings.auto_apply_dry_run if request.dry_run is None else request.dry_run
         limit = min(request.limit, settings.max_applications_per_run)
         search_batch_id = request.search_batch_id
@@ -980,8 +1679,10 @@ def apply_top_jobs(request: ApplyRequest, db: Session = Depends(get_db)) -> list
                 batch = db.get(JobSearchBatch, search_batch_id)
                 if not batch or batch.resume_id != resume.id:
                     raise HTTPException(status_code=404, detail="Search batch not found for this resume.")
+                if batch.portal != active:
+                    raise HTTPException(status_code=409, detail=f"Search batch belongs to {batch.portal.title()}, but active portal is {active.title()}.")
             else:
-                batch = latest_search_batch(db, resume.id)
+                batch = latest_search_batch(db, resume.id, active)
                 search_batch_id = batch.id if batch else None
             job_statement = (
                 select(JobOpportunity)
@@ -990,19 +1691,16 @@ def apply_top_jobs(request: ApplyRequest, db: Session = Depends(get_db)) -> list
             )
             if search_batch_id:
                 job_statement = job_statement.where(JobOpportunity.search_batch_id == search_batch_id)
+            job_statement = job_statement.where(JobOpportunity.portal == active)
             jobs = list(
                 db.scalars(
-                    job_statement.order_by(
-                        desc(JobOpportunity.priority_score),
-                        desc(JobOpportunity.match_score),
-                        desc(JobOpportunity.easy_apply),
-                    ).limit(limit)
+                    job_statement.order_by(*_job_apply_ordering()).limit(limit)
                 ).all()
             )
         automation = LinkedInAutomation(settings)
         records: list[ApplicationRecord] = []
         with recorder.stage("candidate_profile_loading"):
-            candidate_profile = default_candidate_profile(db)
+            candidate_profile = default_candidate_profile(db, active)
             screening_setting = default_screening_setting(db)
             screening_mode = (request.screening_mode or screening_setting.mode or "safe").lower()
             screening_context = {
@@ -1032,6 +1730,40 @@ def apply_top_jobs(request: ApplyRequest, db: Session = Depends(get_db)) -> list
         recorder.save()
 
 
+@app.post("/applications/apply-top/start", response_model=ApplyTopBatchOut)
+def start_apply_top_batch(
+    request: ApplyRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> ApplyTopBatch:
+    batch = _create_apply_top_batch(request, db)
+    background_tasks.add_task(_run_apply_top_batch, batch.id)
+    return batch
+
+
+@app.get("/applications/apply-top/batches/{batch_id}", response_model=ApplyTopBatchOut)
+def get_apply_top_batch(batch_id: str, db: Session = Depends(get_db)) -> ApplyTopBatch:
+    batch = db.get(ApplyTopBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Apply Top 10 batch not found.")
+    return batch
+
+
+@app.get("/applications/apply-top/latest", response_model=ApplyTopBatchOut | None)
+def get_latest_apply_top_batch(
+    resume_id: int,
+    portal: str | None = None,
+    db: Session = Depends(get_db),
+) -> ApplyTopBatch | None:
+    active = request_portal_or_active(db, portal)
+    statement = (
+        select(ApplyTopBatch)
+        .where(ApplyTopBatch.resume_id == resume_id)
+        .where(ApplyTopBatch.portal == active)
+    )
+    return db.scalar(statement.order_by(desc(ApplyTopBatch.created_at)).limit(1))
+
+
 @app.post("/applications/apply-selected", response_model=ApplicationRecordOut)
 def apply_selected_job(
     request: ApplySelectedRequest,
@@ -1047,10 +1779,15 @@ def apply_selected_job(
             resume = db.get(ResumeProfile, request.resume_id)
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found.")
+        active = get_active_portal(db)
+        if resume.portal != active:
+            raise HTTPException(status_code=409, detail=f"Resume belongs to {resume.portal.title()}, not {active.title()}.")
         with recorder.stage("job_loading"):
             job = db.get(JobOpportunity, request.job_id)
         if not job or job.resume_id != resume.id:
             raise HTTPException(status_code=404, detail="Selected job was not found for this resume.")
+        if job.portal != active:
+            raise HTTPException(status_code=409, detail=f"Selected job belongs to {job.portal.title()}, but active portal is {active.title()}.")
         dry_run = settings.auto_apply_dry_run if request.dry_run is None else request.dry_run
         automation = LinkedInAutomation(settings)
         with recorder.stage("candidate_profile_loading"):
@@ -1080,6 +1817,293 @@ def apply_selected_job(
         recorder.save()
 
 
+def _create_apply_top_batch(request: ApplyRequest, db: Session) -> ApplyTopBatch:
+    resume = db.get(ResumeProfile, request.resume_id)
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found.")
+    active = require_active_portal(db, request.portal)
+    if resume.portal != active:
+        raise HTTPException(status_code=409, detail=f"Resume belongs to {resume.portal.title()}, not {active.title()}.")
+    search_batch_id = request.search_batch_id
+    selected_search_batch = None
+    if search_batch_id:
+        selected_search_batch = db.get(JobSearchBatch, search_batch_id)
+        if not selected_search_batch or selected_search_batch.resume_id != resume.id:
+            raise HTTPException(status_code=404, detail="Search batch not found for this resume.")
+        if selected_search_batch.portal != active:
+            raise HTTPException(status_code=409, detail=f"Search batch belongs to {selected_search_batch.portal.title()}, but active portal is {active.title()}.")
+    else:
+        latest_batch = latest_search_batch(db, resume.id, active)
+        search_batch_id = latest_batch.id if latest_batch else None
+        selected_search_batch = latest_batch
+    limit = min(request.limit, settings.max_applications_per_run)
+    portal = active
+    dry_run = settings.auto_apply_dry_run if request.dry_run is None else request.dry_run
+    screening_setting = default_screening_setting(db)
+    screening_mode = (request.screening_mode or screening_setting.mode or "safe").lower()
+    total_count = (
+        db.scalar(
+            select(func.count()).select_from(
+                _apply_top_jobs_statement(resume.id, search_batch_id, portal=portal).subquery()
+            )
+        )
+        or 0
+    )
+    total_count = min(total_count, limit)
+    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+    batch_id = str(uuid4())
+    debug_dir = settings.apply_top_debug_dir / timestamp
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    apply_batch = ApplyTopBatch(
+        id=batch_id,
+        resume_id=resume.id,
+        search_batch_id=search_batch_id,
+        portal=portal,
+        status="queued",
+        dry_run=dry_run,
+        screening_mode=screening_mode,
+        limit=limit,
+        total_count=total_count,
+        latest_status_message=f"Queued Apply Top {limit} dry run." if dry_run else f"Queued Apply Top {limit} run.",
+        debug_path=str(debug_dir),
+        job_results=[],
+    )
+    db.add(apply_batch)
+    db.commit()
+    db.refresh(apply_batch)
+    _write_apply_top_debug(apply_batch)
+    return apply_batch
+
+
+def _run_apply_top_batch(batch_id: str) -> None:
+    with SessionLocal() as db:
+        batch = db.get(ApplyTopBatch, batch_id)
+        if not batch:
+            logger.error("Apply Top batch %s was not found.", batch_id)
+            return
+        try:
+            batch.status = "running"
+            batch.started_at = datetime.utcnow()
+            batch.latest_status_message = "Loading resume and job queue."
+            db.add(batch)
+            db.commit()
+            _write_apply_top_debug(batch)
+
+            resume = db.get(ResumeProfile, batch.resume_id)
+            if not resume:
+                raise RuntimeError("Resume not found.")
+            jobs = list(
+                db.scalars(
+                    _apply_top_jobs_statement(resume.id, batch.search_batch_id, portal=batch.portal)
+                    .limit(batch.limit)
+                )
+                .all()
+            )
+            batch.total_count = len(jobs)
+            db.add(batch)
+            db.commit()
+
+            automation = LinkedInAutomation(settings)
+            candidate_profile = default_candidate_profile(db)
+            screening_setting = default_screening_setting(db)
+            screening_context = {
+                "mode": batch.screening_mode or screening_setting.mode or "safe",
+                "notice_period_default": screening_setting.notice_period_default,
+                "saved_answers": screening_answers_for_candidate(db, candidate_profile),
+                "employment_history": employment_history_payload(
+                    ensure_employment_history_for_resume(db, candidate_profile, resume)
+                ),
+            }
+            for index, job in enumerate(jobs, start=1):
+                started = datetime.utcnow()
+                batch.current_index = index
+                batch.current_job_id = job.id
+                batch.current_title = job.title
+                batch.current_company = job.company
+                batch.latest_status_message = f"Processing {index}/{len(jobs)}: {job.title} at {job.company}"
+                db.add(batch)
+                db.commit()
+                _write_apply_top_debug(batch)
+                try:
+                    record = _process_application(
+                        db,
+                        automation,
+                        job,
+                        resume,
+                        candidate_profile,
+                        batch.dry_run,
+                        capture_evidence=batch.dry_run,
+                        screening_context=screening_context,
+                    )
+                    result = _apply_top_job_result(index, job, record, started)
+                except Exception as exc:
+                    logger.exception("Apply Top batch %s failed on job %s", batch.id, job.id)
+                    result = _apply_top_failure_result(index, job, started, exc)
+                _append_apply_top_result(db, batch.id, result)
+
+            batch = db.get(ApplyTopBatch, batch.id)
+            if batch:
+                batch.status = "completed"
+                batch.finished_at = datetime.utcnow()
+                batch.current_job_id = None
+                batch.current_title = None
+                batch.current_company = None
+                batch.latest_status_message = _apply_top_summary_message(batch)
+                db.add(batch)
+                db.commit()
+                _write_apply_top_debug(batch)
+        except Exception as exc:
+            logger.exception("Apply Top batch %s failed.", batch_id)
+            batch = db.get(ApplyTopBatch, batch_id)
+            if batch:
+                batch.status = "failed"
+                batch.error_message = str(exc)
+                batch.finished_at = datetime.utcnow()
+                batch.latest_status_message = f"Batch failed: {exc}"
+                db.add(batch)
+                db.commit()
+                _write_apply_top_debug(batch)
+
+
+def _apply_top_jobs_statement(resume_id: int, search_batch_id: str | None, portal: str | None = None):
+    statement = (
+        select(JobOpportunity)
+        .where(JobOpportunity.resume_id == resume_id)
+        .where(JobOpportunity.status.in_([ApplicationStatus.MATCHED, ApplicationStatus.QUEUED]))
+    )
+    if search_batch_id:
+        statement = statement.where(JobOpportunity.search_batch_id == search_batch_id)
+    requested = normalize_portal(portal) if portal else None
+    if requested:
+        statement = statement.where(JobOpportunity.portal == requested)
+    return statement.order_by(*_job_apply_ordering())
+
+
+def _job_apply_ordering():
+    return (
+        desc(JobOpportunity.easy_apply),
+        desc(JobOpportunity.completion_likelihood_score),
+        asc(JobOpportunity.application_friction_score),
+        desc(JobOpportunity.match_score),
+        desc(JobOpportunity.freshness_score),
+        desc(JobOpportunity.priority_score),
+    )
+
+
+def _apply_top_job_result(index: int, job: JobOpportunity, record: ApplicationRecord, started: datetime) -> dict:
+    duration = round((datetime.utcnow() - started).total_seconds(), 2)
+    status = _batch_job_status(record)
+    return {
+        "job_index": index,
+        "job_id": job.id,
+        "portal": job.portal,
+        "title": job.title,
+        "company": job.company,
+        "status": status,
+        "application_record_id": record.id,
+        "current_step": record.current_step,
+        "duration": duration,
+        "error": record.error_message,
+        "evidence_path": record.evidence_path,
+    }
+
+
+def _apply_top_failure_result(index: int, job: JobOpportunity, started: datetime, exc: Exception) -> dict:
+    duration = round((datetime.utcnow() - started).total_seconds(), 2)
+    message = str(exc)
+    status = "timed_out" if "timeout" in message.lower() or "timed out" in message.lower() else "failed"
+    return {
+        "job_index": index,
+        "job_id": job.id,
+        "portal": job.portal,
+        "title": job.title,
+        "company": job.company,
+        "status": status,
+        "application_record_id": None,
+        "current_step": status,
+        "duration": duration,
+        "error": message,
+        "evidence_path": None,
+    }
+
+
+def _batch_job_status(record: ApplicationRecord) -> str:
+    combined = f"{record.current_step or ''} {record.error_message or ''}".lower()
+    if "timeout" in combined or "timed out" in combined:
+        return "timed_out"
+    if record.status == ApplicationStatus.SKIPPED:
+        if record.current_step in {"dry_run_complete", "review_reached", "ready_to_submit"}:
+            return "reached_review"
+        return "skipped"
+    if record.status == ApplicationStatus.NEEDS_REVIEW:
+        return "needs_review"
+    if record.status == ApplicationStatus.FAILED:
+        return "failed"
+    if record.status == ApplicationStatus.APPLIED:
+        return "applied"
+    return str(record.status.value if hasattr(record.status, "value") else record.status)
+
+
+def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
+    batch = db.get(ApplyTopBatch, batch_id)
+    if not batch:
+        return
+    results = list(batch.job_results or [])
+    results.append(result)
+    batch.job_results = results
+    batch.completed_count = len(results)
+    batch.skipped_count = sum(1 for item in results if item.get("status") in {"skipped", "reached_review"})
+    batch.failed_count = sum(1 for item in results if item.get("status") == "failed")
+    batch.needs_review_count = sum(1 for item in results if item.get("status") == "needs_review")
+    batch.timed_out_count = sum(1 for item in results if item.get("status") == "timed_out")
+    batch.latest_status_message = f"Completed {batch.completed_count}/{batch.total_count}: {result['title']} - {result['status']}"
+    db.add(batch)
+    db.commit()
+    _write_apply_top_debug(batch)
+
+
+def _apply_top_summary_message(batch: ApplyTopBatch) -> str:
+    return (
+        f"Batch complete: {batch.completed_count}/{batch.total_count} processed, "
+        f"{batch.needs_review_count} needs review, {batch.failed_count} failed, "
+        f"{batch.timed_out_count} timed out."
+    )
+
+
+def _write_apply_top_debug(batch: ApplyTopBatch) -> None:
+    if not batch.debug_path:
+        return
+    debug_dir = Path(batch.debug_path)
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "batch_id": batch.id,
+        "resume_id": batch.resume_id,
+        "search_batch_id": batch.search_batch_id,
+        "portal": batch.portal,
+        "started_at": batch.started_at,
+        "finished_at": batch.finished_at,
+        "status": batch.status,
+        "dry_run": batch.dry_run,
+        "screening_mode": batch.screening_mode,
+        "limit": batch.limit,
+        "total_count": batch.total_count,
+        "current_job_number": batch.current_index,
+        "current_job_id": batch.current_job_id,
+        "current_title": batch.current_title,
+        "current_company": batch.current_company,
+        "completed_count": batch.completed_count,
+        "skipped_count": batch.skipped_count,
+        "failed_count": batch.failed_count,
+        "needs_review_count": batch.needs_review_count,
+        "timed_out_count": batch.timed_out_count,
+        "latest_status_message": batch.latest_status_message,
+        "error_message": batch.error_message,
+        "jobs": batch.job_results or [],
+        "updated_at": datetime.utcnow().isoformat(),
+    }
+    (debug_dir / "batch_status.json").write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+
 def _process_application(
     db: Session,
     automation: LinkedInAutomation,
@@ -1091,14 +2115,24 @@ def _process_application(
     screening_context: dict | None = None,
 ) -> ApplicationRecord:
     try:
-        result = automation.apply_to_job(
-            job,
-            resume,
-            candidate_profile,
-            dry_run=dry_run,
-            capture_evidence=capture_evidence,
-            screening_context=screening_context,
-        )
+        if job.portal == "dice":
+            result = dice_adapter().apply_to_job(
+                job,
+                resume,
+                candidate_profile,
+                dry_run=dry_run,
+                capture_evidence=capture_evidence,
+                screening_context=screening_context,
+            )
+        else:
+            result = automation.apply_to_job(
+                job,
+                resume,
+                candidate_profile,
+                dry_run=dry_run,
+                capture_evidence=capture_evidence,
+                screening_context=screening_context,
+            )
         job.status = ApplicationStatus.MATCHED if dry_run else result.status
         if candidate_profile is not None:
             candidate_profile.missing_required_after_apply = result.missing_contact_fields or []
@@ -1107,6 +2141,7 @@ def _process_application(
         _save_form_learning_observations(db, job, result)
         record = ApplicationRecord(
             job_id=job.id,
+            portal=job.portal,
             status=result.status,
             dry_run=dry_run,
             current_step=result.current_step,
@@ -1123,6 +2158,7 @@ def _process_application(
         job.status = ApplicationStatus.FAILED
         record = ApplicationRecord(
             job_id=job.id,
+            portal=job.portal,
             status=ApplicationStatus.FAILED,
             dry_run=dry_run,
             current_step="automation_failed",
@@ -1185,6 +2221,7 @@ def _save_form_learning_observations(
         return
     try:
         generalized = GeneralizedFormEngine(settings)
+        job_portal = normalize_portal(getattr(job, "portal", None))
         fields: list[GeneralizedFieldInput] = []
         detections = []
         validation_results = []
@@ -1195,7 +2232,7 @@ def _save_form_learning_observations(
                 label=record.original_label,
                 input_type=record.field_type,
                 validation_message=validation_message,
-                portal="linkedin",
+                portal=job_portal,
             )
             detection = generalized.detect_field(field, learned=record)
             fields.append(field)
@@ -1308,9 +2345,12 @@ def _resume_upload_status(result: AutomationResult) -> str | None:
 def list_applications(
     resume_id: int | None = None,
     search_batch_id: str | None = None,
+    portal: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[dict]:
+    active = request_portal_or_active(db, portal)
     statement = select(ApplicationRecord).join(JobOpportunity)
+    statement = statement.where(JobOpportunity.portal == active)
     if resume_id:
         statement = statement.where(JobOpportunity.resume_id == resume_id)
     if search_batch_id:
@@ -1320,6 +2360,7 @@ def list_applications(
         {
             "id": record.id,
             "job_id": record.job_id,
+            "portal": record.portal,
             "status": record.status,
             "application_date": record.application_date,
             "attempt_count": record.attempt_count,
@@ -1338,6 +2379,7 @@ def list_applications(
             "job_title": record.job.title,
             "company": record.job.company,
             "job_url": record.job.job_url,
+            "job_portal": record.job.portal,
         }
         for record in records
     ]
@@ -1347,13 +2389,16 @@ def list_applications(
 def dashboard_summary(
     resume_id: int | None = None,
     search_batch_id: str | None = None,
+    portal: str | None = None,
     db: Session = Depends(get_db),
 ) -> dict:
+    active = request_portal_or_active(db, portal)
     job_statement = select(JobOpportunity)
+    job_statement = job_statement.where(JobOpportunity.portal == active)
     if resume_id:
         job_statement = job_statement.where(JobOpportunity.resume_id == resume_id)
         if search_batch_id is None:
-            latest_batch = latest_search_batch(db, resume_id)
+            latest_batch = latest_search_batch(db, resume_id, active)
             if latest_batch:
                 search_batch_id = latest_batch.id
     if search_batch_id:

@@ -1,0 +1,37 @@
+[
+  {
+    "record_id": 431,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 432,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 433,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 434,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": null,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null,
+    "confidence": "Medium"
+  }
+]

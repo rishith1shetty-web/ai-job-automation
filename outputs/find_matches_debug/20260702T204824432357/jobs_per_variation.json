@@ -1,0 +1,66 @@
+[
+  {
+    "query": "Data Scientist",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 7,
+    "duplicates_removed": 0,
+    "easy_apply_added": 7
+  },
+  {
+    "query": "Data Scientist OR Machine Learning Engineer OR Analytics Engineer OR Data Analyst OR BI Analyst",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 5,
+    "duplicates_removed": 2,
+    "easy_apply_added": 5
+  },
+  {
+    "query": "Machine Learning Engineer",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 6,
+    "duplicates_removed": 1,
+    "easy_apply_added": 6
+  },
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 1,
+    "duplicates_removed": 6,
+    "easy_apply_added": 1
+  },
+  {
+    "query": "Business Intelligence Analyst",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 5,
+    "duplicates_removed": 2,
+    "easy_apply_added": 5
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 7,
+    "duplicates_removed": 0,
+    "easy_apply_added": 7
+  },
+  {
+    "query": "Analytics Engineer",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 7,
+    "duplicates_removed": 0,
+    "easy_apply_added": 7
+  },
+  {
+    "query": "Reporting Analyst",
+    "location": "United States",
+    "raw_count": 7,
+    "unique_added": 3,
+    "duplicates_removed": 4,
+    "easy_apply_added": 3
+  }
+]

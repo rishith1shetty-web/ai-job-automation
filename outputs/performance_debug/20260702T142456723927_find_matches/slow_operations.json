@@ -1,0 +1,17 @@
+[
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 293542.51,
+    "metadata": {
+      "query_count": 8,
+      "limit_per_query": 9
+    }
+  },
+  {
+    "stage": "job_description_reasoning",
+    "elapsed_ms": 3452.8,
+    "metadata": {
+      "job_count": 37
+    }
+  }
+]

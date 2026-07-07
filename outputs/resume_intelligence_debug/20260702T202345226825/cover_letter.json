@@ -1,0 +1,11 @@
+[
+  {
+    "job": {
+      "id": 16045,
+      "title": "Backend Developer",
+      "company": "Example Company",
+      "job_url": "https://example.com/jobs/automatic-search-test"
+    },
+    "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Backend Developer opportunity at Example Company. Candidate's background shows evidence of sql, python, etl, fastapi, which aligns with the needs of this position. The responsibilities around Python FastAPI SQL REST APIs are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires sql, python, etl, fastapi.\n\nSincerely,\nCandidate"
+  }
+]

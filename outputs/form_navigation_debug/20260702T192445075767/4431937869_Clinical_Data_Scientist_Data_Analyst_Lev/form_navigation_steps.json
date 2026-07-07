@@ -1,0 +1,674 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": null,
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:01.349967"
+  },
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_01_02.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:07.457030"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_02_03.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:09.967317"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": null,
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:21.676486"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_03_05.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:24.769027"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_03_06.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:30.829934"
+  },
+  {
+    "step_number": 4,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_04_07.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:31.867161"
+  },
+  {
+    "step_number": 4,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_04_08.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text"
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select"
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "screening_answered_after_navigation",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:40.037270"
+  },
+  {
+    "step_number": 5,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_05_09.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text"
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select"
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:25:43.237278"
+  },
+  {
+    "step_number": 5,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T192445075767\\4431937869_Clinical_Data_Scientist_Data_Analyst_Lev\\step_05_10.png",
+    "page_title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with Python (Programming Language)?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of experience do you have analyzing clinical trial or longitudinal healthcare datasets?",
+        "field_type": "text"
+      },
+      {
+        "label": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+        "field_type": "select"
+      },
+      {
+        "label": "Have you supported data analysis for clinical trials or digital endpoint validation?",
+        "field_type": "select"
+      }
+    ],
+    "validation_messages": [
+      "Please make a selection",
+      "Please make a selection"
+    ],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "navigation_failed",
+    "reason_for_stop": "Validation error: Please make a selection; Please make a selection",
+    "captured_at": "2026-07-02T19:25:50.318378"
+  }
+]

@@ -1,0 +1,163 @@
+[
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": false,
+      "years": 0,
+      "reason": "No evidence for SQL was found; Aggressive Mode selected 0.",
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "evidence_used": "",
+      "selected_years": null,
+      "normalized_skill": "SQL",
+      "saved_from_question": "How many years of work experience do you have with SQL?",
+      "aggressive_default_used": true
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with SQL?",
+    "original_label": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "1",
+    "selected_answer": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": true,
+      "years": 1,
+      "reason": "Calculated years from resume dates tied to the skill.",
+      "source": "Resume Experience Dates",
+      "confidence": "High",
+      "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+      "selected_years": 1,
+      "normalized_skill": "Python",
+      "saved_from_question": "How many years of work experience do you have with Python (Programming Language)?",
+      "aggressive_default_used": false
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "1",
+        "source": "Resume Experience Dates",
+        "confidence": "High",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with Python (Programming Language)?",
+    "original_label": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_field": "Python Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "1",
+    "selected_answer": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Calculated years from resume dates tied to the skill.",
+    "evidence": {
+      "normalized_skill": "Training",
+      "selected_years": 1,
+      "years": 1,
+      "source": "Resume Experience Dates",
+      "confidence": "High",
+      "found": true,
+      "aggressive_default_used": false,
+      "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+      "reason": "Calculated years from resume dates tied to the skill."
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "estimator",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "1",
+        "source": "Resume Experience Dates",
+        "confidence": "High",
+        "evidence_used": true,
+        "reasoning_summary": "Calculated years from resume dates tied to the skill.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of Training experience do you currently have?",
+    "original_label": "How many years of Training experience do you currently have?",
+    "normalized_field": "Training Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  }
+]

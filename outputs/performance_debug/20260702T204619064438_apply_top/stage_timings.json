@@ -1,0 +1,25 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.09,
+    "metadata": {}
+  },
+  {
+    "stage": "job_queue_loading",
+    "elapsed_ms": 4.1,
+    "metadata": {}
+  },
+  {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 9.45,
+    "metadata": {}
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 7.66,
+    "metadata": {
+      "job_id": 16830,
+      "index": 1
+    }
+  }
+]

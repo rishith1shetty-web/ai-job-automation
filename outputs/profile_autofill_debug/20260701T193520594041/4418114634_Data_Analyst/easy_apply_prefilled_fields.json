@@ -1,0 +1,47 @@
+{
+  "captured_at": "2026-07-01T19:35:41.259857",
+  "fields": [
+    {
+      "time": "2026-07-01T19:35:24.164635",
+      "field_label": "First name",
+      "contact_key": "first_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-01T19:35:24.209817",
+      "field_label": "Last name",
+      "contact_key": "last_name",
+      "field_type": "text",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    },
+    {
+      "time": "2026-07-01T19:35:24.255923",
+      "field_label": "Email address",
+      "contact_key": "email",
+      "field_type": "select",
+      "required": true,
+      "existing_value_present": true,
+      "value_source": null,
+      "value_found": null,
+      "reason": "LinkedIn Easy Apply already had a value; existing value was preserved.",
+      "action": "kept_existing_value",
+      "success": true,
+      "error": null
+    }
+  ]
+}

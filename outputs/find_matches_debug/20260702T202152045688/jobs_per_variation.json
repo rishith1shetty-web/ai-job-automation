@@ -1,0 +1,98 @@
+[
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "FastAPI Developer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "API Developer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Junior Software Engineer",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "SQL Analyst",
+    "location": "United States",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Remote",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Hybrid",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Python Developer",
+    "location": "Remote",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "Python Developer",
+    "location": "Hybrid",
+    "raw_count": 9,
+    "unique_added": 9,
+    "duplicates_removed": 0,
+    "easy_apply_added": 9
+  },
+  {
+    "query": "FastAPI Developer",
+    "location": "Remote",
+    "raw_count": 9,
+    "unique_added": 1,
+    "duplicates_removed": 0,
+    "easy_apply_added": 1
+  }
+]

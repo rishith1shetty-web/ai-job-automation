@@ -1,0 +1,33 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.11,
+    "metadata": {}
+  },
+  {
+    "stage": "job_queue_loading",
+    "elapsed_ms": 19.11,
+    "metadata": {}
+  },
+  {
+    "stage": "candidate_profile_loading",
+    "elapsed_ms": 30.81,
+    "metadata": {}
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 35.66,
+    "metadata": {
+      "job_id": 12766,
+      "index": 1
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 1539.55,
+    "metadata": {
+      "job_id": 12767,
+      "index": 2
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "question_text": "Are you a Citizen/Permanent Resident of the United States?",
+    "original_label": "Are you a Citizen/Permanent Resident of the United States?",
+    "normalized_field": "Are you a Citizen/Permanent Resident of the United States?",
+    "category": "yes_no",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ]
+  }
+]

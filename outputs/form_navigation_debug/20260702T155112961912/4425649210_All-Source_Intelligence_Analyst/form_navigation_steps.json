@@ -1,0 +1,485 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_01_01.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:18.311171"
+  },
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_01_02.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:24.670932"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_02_03.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:27.214515"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_02_04.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:33.935161"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_03_05.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:35.919776"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_03_06.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:42.165572"
+  },
+  {
+    "step_number": 4,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_04_07.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T15:51:43.210686"
+  },
+  {
+    "step_number": 4,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T155112961912\\4425649210_All-Source_Intelligence_Analyst\\step_04_08.png",
+    "page_title": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with All-Source Intelligence?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "Are you currently a US Citizen?",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Are you currently a US Citizen?",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with All-Source Intelligence?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "navigation_failed",
+    "reason_for_stop": "Navigation revealed unresolved required fields: Required questions need review: Are you currently a US Citizen?.",
+    "captured_at": "2026-07-02T15:51:50.879604"
+  }
+]

@@ -1,0 +1,3871 @@
+[
+  {
+    "job": {
+      "id": 25824,
+      "title": "Capital One",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/405ecccb-7134-4413-911d-9399b3b7c429"
+    },
+    "result": {
+      "overall_match": 85.44,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 68.77,
+      "confidence": "High",
+      "matched_skills": [
+        "machine learning"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "machine learning"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "machine learning"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "machine learning"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "85% overall match for Capital One. The strongest evidence is machine learning.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Capital One opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Capital One.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Capital One role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Capital One opportunity at Full-time. Candidate's background shows evidence of machine learning, which aligns with the needs of this position. The responsibilities around Sr. Lead Machine Learning Engineer, Sr. Lead Machine Learning Engineer As a Capital One Machine Learning Engineer (MLE), you'll be part of an Agile team dedicated to productionizing machine learning applications and systems at scale. You'll participate in the detailed technical design, development, and implementation of machine learning applications using existing and emerging technology platforms. You'll focus on machine learning architectural design, develop and review model and application code, and ensure high availability an are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires machine learning.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move machine learning higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Capital One at Full-time: 85% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25811,
+      "title": "SeatGeek",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/c34a3c38-7c69-4175-8f9f-60afb0505c98"
+    },
+    "result": {
+      "overall_match": 30.9,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 68.09,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "31% overall match for SeatGeek. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the SeatGeek opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to SeatGeek.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the SeatGeek opportunity at Full-time. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Senior Data Analyst, Product, SeatGeek believes live events are powerful experiences that unite humans. With our technological savvy and fan-first attitude we're simplifying and modernizing the ticketing industry. SeatGeek is on a mission to transform the live events industry with a fan-first approach powered by data and technology. Our Product Analytics team sits at the heart of that transformation - empowering our Product, Engineering, and Design teams with the insights they need to build magical experiences for fans and are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "SeatGeek at Full-time: 31% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25813,
+      "title": "SeatGeek",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/4803baa2-4d99-4217-9c3c-35375a01d4d4"
+    },
+    "result": {
+      "overall_match": 30.9,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 68.01,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "31% overall match for SeatGeek. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the SeatGeek opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to SeatGeek.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SeatGeek role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the SeatGeek opportunity at Full-time. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Senior Data Analyst, Product, SeatGeek believes live events are powerful experiences that unite humans. With our technological savvy and fan-first attitude we're simplifying and modernizing the ticketing industry. SeatGeek is on a mission to transform the live events industry with a fan-first approach powered by data and technology. Our Product Analytics team sits at the heart of that transformation - empowering our Product, Engineering, and Design teams with the insights they need to build magical experiences for fans and are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "SeatGeek at Full-time: 31% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25814,
+      "title": "Anduril Industries",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/76647894-a837-433f-8785-0b7ba6db94b4"
+    },
+    "result": {
+      "overall_match": 85.38,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 67.59,
+      "confidence": "High",
+      "matched_skills": [
+        "machine learning"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "machine learning"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "machine learning"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "machine learning"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "85% overall match for Anduril Industries. The strongest evidence is machine learning.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Anduril Industries opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Anduril Industries.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Anduril Industries role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Anduril Industries opportunity at Full-time. Candidate's background shows evidence of machine learning, which aligns with the needs of this position. The responsibilities around Data Analyst, Talent Acquisition, Anduril Industries is a defense technology company with a mission to transform U.S. and allied military capabilities with advanced technology. By bringing the expertise, technology, and business model of the 21st century's most innovative companies to the defense industry, Anduril is changing how military systems are designed, built and sold. Anduril's family of systems is powered by Lattice OS, an AI-powered operating system that turns thousands of data streams into a realtime, 3D command and c are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires machine learning.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move machine learning higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Anduril Industries at Full-time: 85% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25818,
+      "title": "Navy Federal Credit Union",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/3e96ad06-aac6-4f9a-ab26-182491c6000a"
+    },
+    "result": {
+      "overall_match": 31.6,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 66.94,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "32% overall match for Navy Federal Credit Union. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Navy Federal Credit Union opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Navy Federal Credit Union.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Navy Federal Credit Union opportunity at Unknown. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Business Intelligence Analyst II (Adobe Experience Platform), Hybrid in Winchester, Virginia are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Navy Federal Credit Union at Unknown: 32% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25820,
+      "title": "Trans Union LLC",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/b2897719-f403-4823-8d76-c2d3c3548f30"
+    },
+    "result": {
+      "overall_match": 31.53,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 65.58,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "32% overall match for Trans Union LLC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Trans Union LLC opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Trans Union LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Trans Union LLC opportunity at Unknown. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around TransUnion's Job Applicant Privacy Notice Personal Information We Collect Your Privacy Choices Team Overview This role reports into a Director of Data Science & Analytics. The Financial Services Analytics team is an industry recognized, client-facing department that rewards an entrepreneurial spirit. We have deep technical expertise and an established reputation as an analytic solutions provider in the Financial Services industry. We have a wealth of data and industry experience within our lar, USD 100,000.00 - 160,000.00 per year are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Trans Union LLC at Unknown: 32% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25819,
+      "title": "Trans Union LLC",
+      "company": "Sponsored",
+      "job_url": "https://www.dice.com/job-detail/3d359d13-f8cb-4c36-bb99-cc9060a3f7ed"
+    },
+    "result": {
+      "overall_match": 31.46,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 64.14,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "31% overall match for Trans Union LLC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Trans Union LLC opportunity at Sponsored because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Trans Union LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Trans Union LLC role at Sponsored, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Trans Union LLC opportunity at Sponsored. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Lead Data Scientist, Financial Services Consulting, TransUnion's Job Applicant Privacy Notice Personal Information We Collect Your Privacy Choices Team Overview At TransUnion, this team reports to a Director of Data Science & Analytics, playing an integral role by working end-to-end with financial services clients, fostering consultative relationships that enable them to deliver impactful solutions. This team specializes in building both custom and generic models tailored to each client's unique needs, ensuring that every engagement is as effect are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Trans Union LLC at Sponsored: 31% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25827,
+      "title": "Rivian",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/095221d4-def0-4b51-a7e5-ad3354733ba5"
+    },
+    "result": {
+      "overall_match": 85.93,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 63.64,
+      "confidence": "High",
+      "matched_skills": [
+        "machine learning"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "machine learning"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "machine learning"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "machine learning"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "86% overall match for Rivian. The strongest evidence is machine learning.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Rivian opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Rivian.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Rivian role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Rivian opportunity at Full-time. Candidate's background shows evidence of machine learning, which aligns with the needs of this position. The responsibilities around Sr / Staff Machine Learning Engineer, Perception, About Rivian Rivian is on a mission to keep the world adventurous forever. This goes for the emissions-free Electric Adventure Vehicles we build, and the curious, courageous souls we seek to attract. As a company, we constantly challenge what's possible, never simply accepting what has always been done. We reframe old problems, seek new solutions and operate comfortably in areas that are unknown. Our backgrounds are diverse, but our team shares a love of the outdoors and a desire to protect it are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires machine learning.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move machine learning higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Rivian at Full-time: 86% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25825,
+      "title": "Search Tactics LLC",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/4b579801-9474-4818-a865-f1dbaa28037a"
+    },
+    "result": {
+      "overall_match": 85.93,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 63.56,
+      "confidence": "High",
+      "matched_skills": [
+        "machine learning"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "machine learning"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "machine learning"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "machine learning"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "86% overall match for Search Tactics LLC. The strongest evidence is machine learning.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Search Tactics LLC opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Search Tactics LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Search Tactics LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Search Tactics LLC opportunity at Unknown. Candidate's background shows evidence of machine learning, which aligns with the needs of this position. The responsibilities around Machine Learning Engineer (TS/SCI), Title: Machine Learning Engineer TS/SCI Status: Full-Time Location: Huntsville, Alabama Position Overview A growing defense-focused organization is seeking an experienced Machine Learning Engineer to support advanced intelligence and analytics initiatives in Huntsville, Alabama. This is an onsite role supporting mission-critical projects involving large-scale data processing, machine learning model deployment, and system integration. This role is ideal for someone who thrives in highly secure are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires machine learning.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move machine learning higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Search Tactics LLC at Unknown: 86% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25823,
+      "title": "Jerry Insurance Agency, LLC",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/0e118345-6743-448f-b7b2-8382234edd52"
+    },
+    "result": {
+      "overall_match": 27.42,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 50.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 63.38,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "27% overall match for Jerry Insurance Agency, LLC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Jerry Insurance Agency, LLC opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Jerry Insurance Agency, LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Jerry Insurance Agency, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Jerry Insurance Agency, LLC opportunity at Unknown. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Jerry Insurance Agency, LLC, Why We Exist Your car and your home are your most important assets, yet the experience of owning them is stuck in the 90s. Every part of the journey - buy/sell, insurance, maintenance, repairs - is fragmented, complicated, and expensive. Jerry.ai is building the first app to manage it all. We started with car insurance in 2019, became one of the top 3 brokers in the U.S., then added driving insights, diagnostics, and a repair marketplace. We've reached 5M+ customers, raised $240M+, scaled reve are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Jerry Insurance Agency, LLC at Unknown: 27% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25815,
+      "title": "Montefiore Health System Inc",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/02f83df9-184e-46d8-9ea3-95023743bce5"
+    },
+    "result": {
+      "overall_match": 30.65,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 62.97,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "31% overall match for Montefiore Health System Inc. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Montefiore Health System Inc opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Montefiore Health System Inc.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Montefiore Health System Inc role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Montefiore Health System Inc opportunity at Unknown. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Montefiore Health System Inc, Senior Data Analyst - Epic are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Montefiore Health System Inc at Unknown: 31% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25812,
+      "title": "Belcan, LLC",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/fa8da3d2-4b58-42e0-9473-77344f67a516"
+    },
+    "result": {
+      "overall_match": 27.37,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 50.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 62.47,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "27% overall match for Belcan, LLC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Belcan, LLC opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Belcan, LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Belcan, LLC opportunity at Full-time. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Supplier Consultant - Automotive Data Analyst, Job Description Job Title: Supplier Consultant - Automotive Data Analyst Location: Dearborn, MI 48126 (hybrid schedule) Area Code: 313 Pay Rate: $40.00-60.00/hour Shift: 1st Shift Employment Type: Contract/1099 Belcan is adding to our network of 1099 consultants to support upcoming and anticipated customer programs. We are looking for professionals perform Safety Investigation Data Analysis at one of our premier automotive clients in Dearborn, Michigan. This pivotal role is ideal for candidates are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "Belcan, LLC at Full-time: 27% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25821,
+      "title": "SAIC",
+      "company": "Full-time",
+      "job_url": "https://www.dice.com/job-detail/e4055e20-e589-4f43-b4f8-8ab4befe2027"
+    },
+    "result": {
+      "overall_match": 30.59,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 35.0,
+      "priority_score": 61.83,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "31% overall match for SAIC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the SAIC opportunity at Full-time because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to SAIC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Full-time, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the SAIC opportunity at Full-time. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Job ID: 2614237 Location: Rock Island, IL, US Date Posted: 2026-07-02 Category: Information Technology Subcategory: Data Scientist Schedule: Full-Time Shift: Day Job Travel: Yes - 25% of the time Minimum Clearance Required: Interim_Secret Clearance Level Must Be Able to Obtain: Secret Potential for Remote Work: ORA_ON_SITE Description SAIC is seeking a Data Scientist to join our team at Rock Island, IL to support our Advanced Analytics Team to utilize the Army Vantage Data Analytics Sy, USD 120,001.00 - 160,000.00 per year are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "SAIC at Full-time: 31% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25816,
+      "title": "Navy Federal Credit Union",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/53e8822c-1ecb-487e-aaa8-a6527582b790"
+    },
+    "result": {
+      "overall_match": 83.3,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 0.0,
+      "industry_match": 50.0,
+      "priority_score": 61.06,
+      "confidence": "High",
+      "matched_skills": [
+        "power bi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "power bi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "power bi"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "power bi"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "83% overall match for Navy Federal Credit Union. The strongest evidence is power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Navy Federal Credit Union opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Navy Federal Credit Union.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Navy Federal Credit Union opportunity at Unknown. Candidate's background shows evidence of power bi, which aligns with the needs of this position. The responsibilities around Principal Business Intelligence Analyst, Hybrid in Vienna, Virginia are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move power bi higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Navy Federal Credit Union at Unknown: 83% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25817,
+      "title": "Navy Federal Credit Union",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/c1029630-1e5a-4e97-8f75-dfac963e05a5"
+    },
+    "result": {
+      "overall_match": 83.3,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 0.0,
+      "industry_match": 50.0,
+      "priority_score": 61.04,
+      "confidence": "High",
+      "matched_skills": [
+        "power bi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "power bi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "power bi"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "power bi"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "83% overall match for Navy Federal Credit Union. The strongest evidence is power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Navy Federal Credit Union opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered Yes because evidence for why are you interested in this, role was found in Job Description."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Navy Federal Credit Union.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Navy Federal Credit Union role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Navy Federal Credit Union opportunity at Unknown. Candidate's background shows evidence of power bi, which aligns with the needs of this position. The responsibilities around Principal Business Intelligence Analyst, Hybrid in Pensacola, Florida are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move power bi higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Navy Federal Credit Union at Unknown: 83% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25822,
+      "title": "SAIC",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/0793a323-4ace-4d21-a524-c229babaad7f"
+    },
+    "result": {
+      "overall_match": 27.26,
+      "semantic_match": 0.0,
+      "technical_match": 0.0,
+      "experience_match": 55.0,
+      "education_match": 60.0,
+      "domain_match": 50.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 60.29,
+      "confidence": "Low",
+      "matched_skills": [],
+      "missing_skills": [],
+      "matched_technologies": [],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "computer vision",
+        "excel",
+        "machine learning",
+        "power bi",
+        "python",
+        "Excel",
+        "Power BI",
+        "REST APIs"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Review the job description manually if LinkedIn provided limited details."
+      ],
+      "overall_summary": "27% overall match for SAIC. The strongest evidence is computer vision, excel, machine learning, power bi.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the SAIC opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to SAIC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the SAIC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the SAIC opportunity at Unknown. Candidate's background shows evidence of computer vision, excel, machine learning, power bi, which aligns with the needs of this position. The responsibilities around Job ID: 2614085 Location: Chantilly, VA, US Date Posted: 2026-06-29 Category: Engineering and Sciences Subcategory: Modeling/Sim Engr Schedule: Full-Time Shift: Day Job Travel: No Minimum Clearance Required: TS.SCI_wPoly Clearance Level Must Be Able to Obtain: None Potential for Remote Work: ORA_ON_SITE Description SAIC is seeking a Data Scientist to provide Systems Engineer Technical Advisor (SETA) services for a critical position on SAIC's Prime Program, Landmark AOS. Landmark AOS is, USD 120,001.00 - 160,000.00 per year are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires computer vision, excel, machine learning, power bi.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Add measurable project outcomes where possible.",
+          "why_it_helps": "Quantified outcomes make the match explanation stronger without rewriting the resume automatically.",
+          "source": "General Resume Evidence"
+        }
+      ],
+      "reasoning_summary": "SAIC at Unknown: 27% overall fit. Matched 0 required skills and found 0 missing skills."
+    }
+  },
+  {
+    "job": {
+      "id": 25826,
+      "title": "Belcan, LLC",
+      "company": "Unknown",
+      "job_url": "https://www.dice.com/job-detail/1dfebc76-7bd0-4c79-b630-79f503d797f1"
+    },
+    "result": {
+      "overall_match": 85.62,
+      "semantic_match": 100.0,
+      "technical_match": 100.0,
+      "experience_match": 85.0,
+      "education_match": 60.0,
+      "domain_match": 90.0,
+      "soft_skill_match": 50.0,
+      "industry_match": 50.0,
+      "priority_score": 57.39,
+      "confidence": "High",
+      "matched_skills": [
+        "machine learning"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "machine learning"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [
+        "machine learning"
+      ],
+      "missing_experience": [],
+      "matched_education": [],
+      "strengths": [
+        "machine learning"
+      ],
+      "weaknesses": [],
+      "risks": [],
+      "recommendations": [
+        "Strong candidate. Keep the matched skills visible near the top of the resume."
+      ],
+      "overall_summary": "86% overall match for Belcan, LLC. The strongest evidence is machine learning.",
+      "generated_answers": [
+        {
+          "prompt": "Why are you interested in this role?",
+          "answer": "I am interested in the Belcan, LLC opportunity at Unknown because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+        },
+        {
+          "prompt": "Tell us about yourself.",
+          "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Belcan, LLC.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        },
+        {
+          "prompt": "Describe your SQL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Python experience.",
+          "answer": "My experience with python is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "python"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your Power BI experience.",
+          "answer": "My experience with power bi is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your dashboard experience.",
+          "answer": "My experience with dashboard is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "dashboard"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your ETL experience.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe your analytics experience.",
+          "answer": "My experience with analytics is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Low",
+          "grounding_score": 57,
+          "evidence_used": [
+            "analytics"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+        },
+        {
+          "prompt": "Describe your communication skills.",
+          "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Belcan, LLC role at Unknown, based on the evidence in my resume and the job description.",
+          "confidence": "Medium",
+          "grounding_score": 93,
+          "evidence_used": [
+            "computer vision",
+            "excel",
+            "machine learning",
+            "power bi"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+        },
+        {
+          "prompt": "Describe a challenging project.",
+          "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+          "confidence": "Medium",
+          "grounding_score": 95,
+          "evidence_used": [
+            "python",
+            "power bi",
+            "excel",
+            "dashboard",
+            "analytics",
+            "machine learning"
+          ],
+          "source_list": [
+            "Resume",
+            "Job Description",
+            "AI Reasoning Engine"
+          ],
+          "reasoning_summary": "No reliable evidence was found across candidate sources."
+        }
+      ],
+      "cover_letter": "Dear Hiring Team,\n\nI am writing to express interest in the Belcan, LLC opportunity at Unknown. Candidate's background shows evidence of machine learning, which aligns with the needs of this position. The responsibilities around Job Description Job Title: AI/ML Engineer Location: Englewood, CO Zip Code: 80112 Duration: 6 Months Pay Rate: $ 68.17/hr. Keyword's: #Englewoodjobs; #AI/MLEngineerjobs Start Date: Immediate *Must be able to obtain a Secret Clearance* Duties: Our charter is to identify, test, develop and deploy new products to meet current and future operational challenges, and as an AI/ML Engineer on our team, you will serve as the primary driver for AI/ML development projects focused on autonomy, perception are especially relevant.\n\nThe application is grounded in the existing resume and candidate record only. Based on the available evidence, this profile is strongest where the role requires machine learning.\n\nSincerely,\nCandidate",
+      "resume_suggestions": [
+        {
+          "suggestion": "Move machine learning higher in the skills or summary section.",
+          "why_it_helps": "This makes a directly matched requirement easier for recruiters and ATS filters to see.",
+          "source": "Matched Skill"
+        }
+      ],
+      "reasoning_summary": "Belcan, LLC at Unknown: 86% overall fit. Matched 1 required skills and found 0 missing skills."
+    }
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with PySpark?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for PySpark was found; Aggressive Mode selected 0."
+  }
+]

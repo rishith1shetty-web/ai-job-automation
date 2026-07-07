@@ -1,0 +1,24 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_skill": "Python",
+    "selected_years": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": false,
+    "reason": "Reused saved candidate-specific screening answer."
+  },
+  {
+    "original_question": "How many years of work experience do you have with Blockchain?",
+    "normalized_skill": "Blockchain",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": true,
+    "reason": "No evidence for Blockchain was found; Aggressive Mode selected 0."
+  }
+]

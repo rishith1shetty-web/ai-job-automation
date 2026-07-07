@@ -1,0 +1,94 @@
+[
+  {
+    "title": "Power BI - Visualization and Reporting Analyst",
+    "company": "Kforce Inc",
+    "complexity_score": 68.05,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 1,
+    "required_fields": 3,
+    "employment_history_required": false,
+    "application_friction_score": 31.95,
+    "completion_likelihood_score": 68.05,
+    "unsupported_field_count": 2,
+    "external_form_risk": 0.0,
+    "manual_review_risk": 17.0,
+    "form_provider": "LinkedIn Easy Apply",
+    "friction_reasons": [
+      "1 estimated screening questions",
+      "cover letter may be required",
+      "long text/custom answer field risk"
+    ],
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk."
+  },
+  {
+    "title": "Data Analyst",
+    "company": "CAROLINA PRG",
+    "complexity_score": 68.05,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 1,
+    "required_fields": 3,
+    "employment_history_required": false,
+    "application_friction_score": 31.95,
+    "completion_likelihood_score": 68.05,
+    "unsupported_field_count": 2,
+    "external_form_risk": 0.0,
+    "manual_review_risk": 17.0,
+    "form_provider": "LinkedIn Easy Apply",
+    "friction_reasons": [
+      "1 estimated screening questions",
+      "cover letter may be required",
+      "long text/custom answer field risk"
+    ],
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk."
+  },
+  {
+    "title": "Data Analys",
+    "company": "Boba Bhai",
+    "complexity_score": 68.05,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 1,
+    "required_fields": 3,
+    "employment_history_required": false,
+    "application_friction_score": 31.95,
+    "completion_likelihood_score": 68.05,
+    "unsupported_field_count": 2,
+    "external_form_risk": 0.0,
+    "manual_review_risk": 17.0,
+    "form_provider": "LinkedIn Easy Apply",
+    "friction_reasons": [
+      "1 estimated screening questions",
+      "cover letter may be required",
+      "long text/custom answer field risk"
+    ],
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk."
+  },
+  {
+    "title": "Data Analyst",
+    "company": "Robert Half",
+    "complexity_score": 68.05,
+    "complexity_level": "Medium",
+    "estimated_steps": 2,
+    "screening_question_count": 1,
+    "required_fields": 3,
+    "employment_history_required": false,
+    "application_friction_score": 31.95,
+    "completion_likelihood_score": 68.05,
+    "unsupported_field_count": 2,
+    "external_form_risk": 0.0,
+    "manual_review_risk": 17.0,
+    "form_provider": "LinkedIn Easy Apply",
+    "friction_reasons": [
+      "1 estimated screening questions",
+      "cover letter may be required",
+      "long text/custom answer field risk"
+    ],
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk."
+  }
+]

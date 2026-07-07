@@ -1,0 +1,52 @@
+[
+  {
+    "original_label": "Are you a Citizen/Permanent Resident of the United States?",
+    "normalized_field": "Are you a Citizen/Permanent Resident of the United States?",
+    "detected_control_type": "dropdown",
+    "category": "yes_no",
+    "decision_pipeline_stage_used": "reasoning",
+    "selected_value": "Yes",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "AI Reasoning Engine",
+    "confidence": "Medium",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": "Yes",
+        "source": "AI Reasoning Engine",
+        "confidence": "Medium",
+        "evidence_used": true,
+        "reasoning_summary": "Answered Yes because evidence for are you a citizen, permanent resident of the, united states was found in Job Description.",
+        "selected": true
+      }
+    ]
+  }
+]

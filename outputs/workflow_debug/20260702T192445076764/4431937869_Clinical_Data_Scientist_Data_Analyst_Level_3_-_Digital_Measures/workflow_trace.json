@@ -1,0 +1,269 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "contact_page",
+    "page_hash": "19b737cc7eccb0327647684ee7b924514aab99ffb0daa3f605305fc828ba8080",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 24.8,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "resume_page",
+    "page_hash": "5127aec2a54521671b1a1a640fcc2125e075f7d56baa2062253df007222f8a1b",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 37.71,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "resume_page",
+    "page_hash": "5127aec2a54521671b1a1a640fcc2125e075f7d56baa2062253df007222f8a1b",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 37.85,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "contact_page",
+    "page_hash": "19b737cc7eccb0327647684ee7b924514aab99ffb0daa3f605305fc828ba8080",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 52.08,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "contact_page",
+    "page_hash": "19b737cc7eccb0327647684ee7b924514aab99ffb0daa3f605305fc828ba8080",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 52.37,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "resume_page",
+    "page_hash": "dc91fb521c1fc59797abc19c75575aefca3ed3b94d8fc2c20260c9c0641f1690",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 61.09,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "resume_page",
+    "page_hash": "dc91fb521c1fc59797abc19c75575aefca3ed3b94d8fc2c20260c9c0641f1690",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 61.25,
+    "stop_reason": null
+  },
+  {
+    "step_number": 5,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "screening_questions",
+    "page_hash": "7640efb0fd521c511d1d7968c9a82352dd4ffd0d91b0feea0a76b2601af2a6a8",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 70.54,
+    "stop_reason": null
+  },
+  {
+    "step_number": 5,
+    "page_name": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) | Alphanumeric Systems | LinkedIn",
+    "modal_title": "Apply to Alphanumeric Systems",
+    "detected_page_type": "validation_error",
+    "page_hash": "19ce6d272bfa2a3ccf90c670bee950fec1b4de66ad8ad66de880258377308451",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4431937869/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please make a selection",
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 79.72,
+    "stop_reason": "Validation error: Please make a selection; Please make a selection"
+  }
+]

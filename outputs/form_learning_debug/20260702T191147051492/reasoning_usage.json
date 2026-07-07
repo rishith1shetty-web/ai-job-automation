@@ -1,0 +1,273 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.222900",
+        "field_category": "Cover Letter",
+        "normalized_field": "Cover Letter",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "contact_key"
+        ]
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.035534"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.222900",
+        "field_category": "Cover Letter",
+        "normalized_field": "Cover Letter",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "contact_key"
+        ]
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.037529"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.222900",
+        "field_category": "Cover Letter",
+        "normalized_field": "Cover Letter",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "contact_key"
+        ]
+      },
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.039524"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.230921",
+        "field_category": "Skill Years",
+        "normalized_field": "SQL Years",
+        "reasoning_output": {
+          "reason": "No evidence for SQL was found; Aggressive Mode selected 0.",
+          "confidence": "Estimated / Low",
+          "reasoning_type": null
+        },
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": []
+      },
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "SQL Years",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "field_key"
+        ]
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-02T19:11:47.043513"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.049497"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "Excel Years",
+        "reasoning_output": {
+          "reason": "Calculated years from resume dates tied to the skill.",
+          "confidence": "High",
+          "reasoning_type": null
+        },
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": []
+      },
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "Excel Years",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "field_key"
+        ]
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-02T19:11:47.046506"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.051492"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.230921",
+        "field_category": "Skill Years",
+        "normalized_field": "SQL Years",
+        "reasoning_output": {
+          "reason": "No evidence for SQL was found; Aggressive Mode selected 0.",
+          "confidence": "Estimated / Low",
+          "reasoning_type": null
+        },
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": []
+      },
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "SQL Years",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "field_key"
+        ]
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-02T19:11:47.043513"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.049497"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "Excel Years",
+        "reasoning_output": {
+          "reason": "Calculated years from resume dates tied to the skill.",
+          "confidence": "High",
+          "reasoning_type": null
+        },
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": []
+      },
+      {
+        "seen_at": "2026-07-02T19:10:19.232942",
+        "field_category": "Skill Years",
+        "normalized_field": "Excel Years",
+        "reasoning_output": {},
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "candidate_context_keys": [
+          "field_key"
+        ]
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-02T19:11:47.046506"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-02T19:11:47.051492"
+      }
+    ]
+  }
+]

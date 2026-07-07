@@ -1,0 +1,128 @@
+[
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Data Analyst",
+    "pass_name": "primary_role_primary_location"
+  },
+  {
+    "query": "Data Analyst OR BI Analyst OR Analytics Engineer OR Data Engineer OR Backend Developer",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Data Analyst",
+    "pass_name": "resume_generated_query"
+  },
+  {
+    "query": "Business Intelligence Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Business Intelligence Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Junior Data Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Junior Data Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Business Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Business Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "BI Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "BI Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Reporting Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Reporting Analyst",
+    "pass_name": "expanded_role_primary_location"
+  },
+  {
+    "query": "Power BI Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Power BI Analyst",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "Python Developer",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "SQL Analyst",
+    "location": "United States",
+    "role": "Data Analyst",
+    "expanded_role": "SQL Analyst",
+    "pass_name": "skill_expansion_primary_location"
+  },
+  {
+    "query": "Data Analyst",
+    "location": "Remote",
+    "role": "Data Analyst",
+    "expanded_role": "Data Analyst",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Data Analyst",
+    "location": "Hybrid",
+    "role": "Data Analyst",
+    "expanded_role": "Data Analyst",
+    "pass_name": "primary_role_nearby_location"
+  },
+  {
+    "query": "Business Intelligence Analyst",
+    "location": "Remote",
+    "role": "Data Analyst",
+    "expanded_role": "Business Intelligence Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Business Intelligence Analyst",
+    "location": "Hybrid",
+    "role": "Data Analyst",
+    "expanded_role": "Business Intelligence Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Junior Data Analyst",
+    "location": "Remote",
+    "role": "Data Analyst",
+    "expanded_role": "Junior Data Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Junior Data Analyst",
+    "location": "Hybrid",
+    "role": "Data Analyst",
+    "expanded_role": "Junior Data Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Business Analyst",
+    "location": "Remote",
+    "role": "Data Analyst",
+    "expanded_role": "Business Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  },
+  {
+    "query": "Business Analyst",
+    "location": "Hybrid",
+    "role": "Data Analyst",
+    "expanded_role": "Business Analyst",
+    "pass_name": "expanded_role_nearby_location"
+  }
+]

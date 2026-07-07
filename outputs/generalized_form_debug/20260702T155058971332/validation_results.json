@@ -1,0 +1,44 @@
+[
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Follow Pyramid Consulting, Inc to stay up to date with their page.",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with All-Source Intelligence?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for All Source Intelligence was found; Aggressive Mode selected 0."
+  },
+  {
+    "question_text": "Are you currently a US Citizen?",
+    "answer": null,
+    "source": null,
+    "confidence": "None",
+    "currency": null,
+    "reason": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review."
+  }
+]

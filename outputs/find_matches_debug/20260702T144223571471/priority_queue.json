@@ -1,0 +1,50 @@
+[
+  {
+    "rank": 1,
+    "title": "Power BI - Visualization and Reporting Analyst",
+    "company": "Kforce Inc",
+    "priority_score": 46.12,
+    "priority_reason": "12.9% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Business Intelligence Analyst"
+  },
+  {
+    "rank": 2,
+    "title": "Data Analyst",
+    "company": "CAROLINA PRG",
+    "priority_score": 45.99,
+    "priority_reason": "12.6% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 3,
+    "title": "Data Analys",
+    "company": "Boba Bhai",
+    "priority_score": 45.86,
+    "priority_reason": "12.3% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst"
+  },
+  {
+    "rank": 4,
+    "title": "Data Analyst",
+    "company": "Robert Half",
+    "priority_score": 45.64,
+    "priority_reason": "11.8% match, Medium complexity, 68% completion likelihood, 65 freshness, Easy Apply verified.",
+    "completion_likelihood_score": 68.05,
+    "application_friction_score": 31.95,
+    "recommended_apply_priority": "Medium",
+    "apply_priority_reason": "Medium priority: 68% likely to complete; 1 estimated screening questions, cover letter may be required, long text/custom answer field risk.",
+    "search_query_used": "Data Analyst"
+  }
+]

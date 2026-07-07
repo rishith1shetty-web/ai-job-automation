@@ -1,0 +1,26 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Microsoft Excel?",
+    "answer": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Calculated years from resume dates tied to the skill."
+  },
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for SQL was found; Aggressive Mode selected 0."
+  },
+  {
+    "question_text": "Do You Have a Green Card or US Citizen ?",
+    "answer": null,
+    "source": null,
+    "confidence": "None",
+    "currency": null,
+    "reason": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review."
+  }
+]

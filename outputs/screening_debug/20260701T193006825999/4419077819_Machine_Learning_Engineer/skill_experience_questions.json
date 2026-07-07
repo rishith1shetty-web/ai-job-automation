@@ -1,0 +1,20 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Tableau?",
+    "normalized_skill": "Tableau",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  },
+  {
+    "original_question": "How many years of work experience do you have with Machine Tools?",
+    "normalized_skill": "Machine Tools",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  },
+  {
+    "original_question": "How many years of work experience do you have with Amazon Web Services (AWS)?",
+    "normalized_skill": "Amazon Web Services",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  }
+]

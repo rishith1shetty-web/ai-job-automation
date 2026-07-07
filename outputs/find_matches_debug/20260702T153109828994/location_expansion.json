@@ -1,0 +1,14 @@
+[
+  {
+    "location": "New York, NY",
+    "reason": "Primary"
+  },
+  {
+    "location": "Remote",
+    "reason": "Limited expansion"
+  },
+  {
+    "location": "Hybrid",
+    "reason": "Limited expansion"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "requested_limit": 50,
+  "target_count": 50,
+  "unique_jobs_found": 50,
+  "ranked_jobs_returned": 50,
+  "easy_apply_jobs_found": 50,
+  "duplicate_jobs_skipped": 0,
+  "reason_if_below_target": null
+}

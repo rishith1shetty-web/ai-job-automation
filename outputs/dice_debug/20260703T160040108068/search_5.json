@@ -1,0 +1,173 @@
+{
+  "portal": "dice",
+  "search_index": 5,
+  "query": "Backend Developer",
+  "location": "United States",
+  "jobs_found": 9,
+  "job_urls": [
+    "https://www.dice.com/job-detail/1f383567-bfc6-46f7-8bdf-f4e9be0198a1",
+    "https://www.dice.com/job-detail/6a1a9b75-2db6-4b90-a8bc-9800cb0dbaf1",
+    "https://www.dice.com/job-detail/800194fe-c795-48b2-9d2a-6139952f029b",
+    "https://www.dice.com/job-detail/0b68cd91-d64a-4c22-8163-7575dbc91262",
+    "https://www.dice.com/job-detail/05ec7921-a6c5-4422-98d5-503dc19c6b86",
+    "https://www.dice.com/job-detail/3af6623e-9a32-46e0-844d-37baffe53eb7",
+    "https://www.dice.com/job-detail/67bda95f-69fb-4e0e-9235-f9cc7aafa8d0",
+    "https://www.dice.com/job-detail/f818d0d5-9c9c-47f2-ab15-a39d6d85139b",
+    "https://www.dice.com/job-detail/8ab73ee4-7c35-4feb-8167-e9c340ca9c02"
+  ],
+  "jobs": [
+    {
+      "portal": "dice",
+      "title": "Randstad Digital",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/1f383567-bfc6-46f7-8bdf-f4e9be0198a1",
+      "description": "Randstad Digital\n\nApply Now\nSenior Java Backend Developer\n\nVirginia\n\n\u2022\n\nToday\n\njob summary: Full onsite in McLean, VA location: McLean, Virginia job type: Contract salary: $70 - 95 per hour work hours: 9am to 5pm education: Bachelors responsibilities: Responsibilities: Analyze and convert complex queries in MSSQL /DB2 to new data sources. Update java Angular/Spring boot applications to new data platforms. Update and executing FitNesse tests. Support and execute data migration activities. Work with Snowflake. Works under limited direction, independently determines an\n\nContract\n\nUSD70 - USD95",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/1f383567-bfc6-46f7-8bdf-f4e9be0198a1",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "CS Solutions, Inc.",
+      "company": "Unknown",
+      "location": "Hybrid in Miami, Florida",
+      "job_url": "https://www.dice.com/job-detail/6a1a9b75-2db6-4b90-a8bc-9800cb0dbaf1",
+      "description": "CS Solutions, Inc.\n\nEasy Apply\nPython Backend Developer\n\nHybrid in Miami, Florida\n\n\u2022\n\n17d ago\n\nJob Title: Python Backend Developer Location: Miami, FL - Hybrid Duration: FTE Job Description Key Responsibilities Design and develop scalable, production-grade backend services using Python frameworks (FastAPI / Flask / Django)Architect, build, and integrate RESTful APIs and backend microservices with strong attention to performance, reliability, and securityDesign and optimize relational database structures using PostgreSQL / MySQL / SQL Server including schema design, indexing strategies, qu\n\nFull-time\n\n$100,000 - $120,000",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "",
+        "apply_url": "https://www.dice.com/job-detail/6a1a9b75-2db6-4b90-a8bc-9800cb0dbaf1",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Value Technology Inc",
+      "company": "Unknown",
+      "location": "Remote",
+      "job_url": "https://www.dice.com/job-detail/800194fe-c795-48b2-9d2a-6139952f029b",
+      "description": "Value Technology Inc\n\nEasy Apply\nPython Backend Developer\n\nRemote\n\n\u2022\n\nToday\n\nJob Title: Python Backend Developer Location: Remote Experience level: 8+ Years Job Summary Value Technology is seeking a highly skilled Python backend Developer with 8+ years of experience in designing, developing, and maintaining scalable backend applications and data processing platforms. The ideal candidate will have strong expertise in Python, SQL, AWS, microservices, and large-scale data engineering, with experience building high-performance APIs, distributed systems, and healthcar\n\nFull-time, Third Party\n\n$40 - $40",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/800194fe-c795-48b2-9d2a-6139952f029b",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Booz Allen Hamilton",
+      "company": "Full-time",
+      "location": "Hybrid in McLean, Virginia",
+      "job_url": "https://www.dice.com/job-detail/0b68cd91-d64a-4c22-8163-7575dbc91262",
+      "description": "Booz Allen Hamilton\n\nApply Now\nBack-End Developer\n\nHybrid in McLean, Virginia\n\n\u2022\n\nToday\n\nJob Number: R0239383 Back-End Developer The Opportunity: As a back-end developer, you know that a good site or system needs the right combination of clean code, APIs, analytics, and infrastructure to develop a user-focused solution. We're looking for an experience d back-end developer with the sof t war e engineering skills it takes to identify potential risks, contribute to solution development, and create efficient and effective systems for our clients. As a back-end developer at Booz Allen,\n\nFull-time\n\nUSD 86,800.00 - 198,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/0b68cd91-d64a-4c22-8163-7575dbc91262",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Stefanini",
+      "company": "Contract",
+      "location": "Stefanini Group is hiring! Stefanini is looking for a Backend Developer (Palo Alto, CA) For quick apply, please reach out to Fardeen Ali at / We are looking for candidate who will develop and maintain the back-end/ server-side parts of an application, typ",
+      "job_url": "https://www.dice.com/job-detail/05ec7921-a6c5-4422-98d5-503dc19c6b86",
+      "description": "Stefanini\n\nEasy Apply\nSenior Backend Developer\n\nPalo Alto, California\n\n\u2022\n\nToday\n\nStefanini Group is hiring! Stefanini is looking for a Backend Developer (Palo Alto, CA) For quick apply, please reach out to Fardeen Ali at / We are looking for candidate who will develop and maintain the back-end/ server-side parts of an application, typically consisting of APIs, databases and other services containing business logic. They work with various languages and tools to create and maintain services on-prem or in the cloud. Responsibilities Engage with customers to understand their use\n\nContract\n\n$61 - $66 /hr",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/05ec7921-a6c5-4422-98d5-503dc19c6b86",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Chenega MIOS",
+      "company": "Unknown",
+      "location": "Req ID: 40539 Summary Mid Backend Developer Vienna, VA Are you ready to enhance your skills and build your career in a rapidly evolving business climate? Are you looking for a career where professional development is embedded in your employers core cultur",
+      "job_url": "https://www.dice.com/job-detail/3af6623e-9a32-46e0-844d-37baffe53eb7",
+      "description": "Chenega MIOS\n\nApply Now\nMid Backend Developer\n\nVienna, Virginia\n\n\u2022\n\nToday\n\nReq ID: 40539 Summary Mid Backend Developer Vienna, VA Are you ready to enhance your skills and build your career in a rapidly evolving business climate? Are you looking for a career where professional development is embedded in your employers core culture? If so, Chenega Military, Intelligence & Operations Support (MIOS) could be the place for you! Join our team of professionals who support large-scale government operations by leveraging cutting-edge technology and take your career to the n\n\nFull-time",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/3af6623e-9a32-46e0-844d-37baffe53eb7",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Booz Allen Hamilton",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/67bda95f-69fb-4e0e-9235-f9cc7aafa8d0",
+      "description": "Booz Allen Hamilton\n\nApply Now\nJoomla Backend Developer\n\nChantilly, Virginia\n\n\u2022\n\nToday\n\nJob Number: R0239019 Joomla Backend Developer The Opportunity : We are looking for a highly skilled Backend Joomla Developer to lead the technical development and optimization of our web platforms. In this role, you will be the architect of our server-side logic, focusing heavily on the creation and customization of Joomla components, modules, and plugins. You will be responsible for managing complex MySQL databases and integrating third-party APIs such as payment gateways and CRMs to ensure o\n\nFull-time\n\nUSD 55,200.00 - 126,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/67bda95f-69fb-4e0e-9235-f9cc7aafa8d0",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "SolutionIT, Inc.",
+      "company": "Unknown",
+      "location": "Remote",
+      "job_url": "https://www.dice.com/job-detail/f818d0d5-9c9c-47f2-ab15-a39d6d85139b",
+      "description": "SolutionIT, Inc.\n\nEasy Apply\nBack-end Developer (Magento / PHP)\n\nRemote\n\n\u2022\n\nToday\n\nSolution IT Inc. is looking for a Back-end Developer (Magento / PHP) for one of its clients Remote Job Title: Back-end Developer (Magento / PHP) Required Skills Backend Development. Strong PHP development experience. Strong experience with Magento 2 / Adobe Commerce architecture and development. Experience building and supporting custom Magento modules, APIs, and integrations. Strong understanding of object-oriented programming, design patterns, and software development best practices. Experie\n\nContract, Third Party",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/f818d0d5-9c9c-47f2-ab15-a39d6d85139b",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Lockheed Martin Corporation",
+      "company": "Full-time",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/8ab73ee4-7c35-4feb-8167-e9c340ca9c02",
+      "description": "Lockheed Martin Corporation\n\nApply Now\nBack-End Software Developer\n\nMaryland\n\n\u2022\n\nToday\n\nJob Description What We're Doing: Lockheed Martin, Cyber & Intelligence invites you to step up to one of today's most daunting challenges: the use of advanced electronics to undermine our way of life. As a cyber security professional at Lockheed Martin, you'll protect the networks that our citizens and the world depend upon each minute: Financial assets. Healthcare information. Critical infrastructure. Hazardous materials. The uninterrupted flow of energy that keeps modern life moving. Here, yo\n\nFull-time\n\nUSD 128,200.00 - 225,975.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/8ab73ee4-7c35-4feb-8167-e9c340ca9c02",
+        "source_search_query": "Backend Developer",
+        "source_search_location": "United States"
+      }
+    }
+  ]
+}

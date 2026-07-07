@@ -1,0 +1,26 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Tableau?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer."
+  },
+  {
+    "question_text": "How many years of work experience do you have with Machine Tools?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+  },
+  {
+    "question_text": "How many years of work experience do you have with Amazon Web Services (AWS)?",
+    "answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+  }
+]

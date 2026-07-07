@@ -1,0 +1,86 @@
+[
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": false,
+      "years": 0,
+      "reason": "No evidence for SQL was found; Aggressive Mode selected 0.",
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "evidence_used": "",
+      "selected_years": null,
+      "normalized_skill": "SQL",
+      "saved_from_question": "How many years of work experience do you have with SQL?",
+      "aggressive_default_used": true
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with SQL?",
+    "original_label": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "1",
+    "selected_answer": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": true,
+      "years": 1,
+      "reason": "Calculated years from resume dates tied to the skill.",
+      "source": "Resume Experience Dates",
+      "confidence": "High",
+      "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+      "selected_years": 1,
+      "normalized_skill": "Excel",
+      "saved_from_question": "How many years of work experience do you have with Microsoft Excel?",
+      "aggressive_default_used": false
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "1",
+        "source": "Resume Experience Dates",
+        "confidence": "High",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many years of work experience do you have with Microsoft Excel?",
+    "original_label": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_field": "Excel Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  }
+]

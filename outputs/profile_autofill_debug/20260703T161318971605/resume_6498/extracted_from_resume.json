@@ -1,0 +1,17 @@
+{
+  "fields": {
+    "current_job_title": {
+      "value": "Data analyst",
+      "source": "Resume Visible Text",
+      "confidence": 70
+    },
+    "professional_headline": {
+      "value": "Data analyst",
+      "source": "Resume Visible Text",
+      "confidence": 65
+    }
+  },
+  "professional_links": {},
+  "previous_companies": [],
+  "certifications": []
+}

@@ -1,0 +1,25 @@
+{
+  "operation": "apply_top",
+  "metadata": {
+    "resume_id": 4741,
+    "limit": 3,
+    "dry_run": true
+  },
+  "total_runtime_ms": 42.32,
+  "stage_count": 6,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 8.75,
+  "average_apply_time_ms": 8.75,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 9.07,
+    "metadata": {
+      "job_id": 15720,
+      "index": 3
+    }
+  },
+  "created_at": "2026-07-02T20:22:02.596096"
+}

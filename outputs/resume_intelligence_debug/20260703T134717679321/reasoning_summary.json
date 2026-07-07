@@ -1,0 +1,11 @@
+[
+  {
+    "job": {
+      "id": 21424,
+      "title": "Backend Developer",
+      "company": "Example Company",
+      "job_url": "https://example.com/jobs/automatic-search-test"
+    },
+    "summary": "Backend Developer at Example Company: 73% overall fit. Matched 4 required skills and found 0 missing skills."
+  }
+]

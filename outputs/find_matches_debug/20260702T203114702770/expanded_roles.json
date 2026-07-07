@@ -1,0 +1,74 @@
+[
+  {
+    "role": "Data Analyst",
+    "confidence": 86.3,
+    "reason": "Resume role suggestion",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Business Intelligence Analyst",
+    "confidence": 86.0,
+    "reason": "business intelligence, power bi, tableau, dashboard, reporting",
+    "expanded_from": "Business Intelligence Analyst"
+  },
+  {
+    "role": "Junior Data Analyst",
+    "confidence": 78.3,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Business Analyst",
+    "confidence": 78.3,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "BI Analyst",
+    "confidence": 78.3,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Reporting Analyst",
+    "confidence": 78.3,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "SQL Analyst",
+    "confidence": 78.3,
+    "reason": "Variation of Data Analyst",
+    "expanded_from": "Data Analyst"
+  },
+  {
+    "role": "Power BI Analyst",
+    "confidence": 78.0,
+    "reason": "Variation of Business Intelligence Analyst",
+    "expanded_from": "Business Intelligence Analyst"
+  },
+  {
+    "role": "Dashboard Developer",
+    "confidence": 78.0,
+    "reason": "Variation of Business Intelligence Analyst",
+    "expanded_from": "Business Intelligence Analyst"
+  },
+  {
+    "role": "Analytics Engineer",
+    "confidence": 71.0,
+    "reason": "etl, sql",
+    "expanded_from": "Analytics Engineer"
+  },
+  {
+    "role": "Data Engineer",
+    "confidence": 63.0,
+    "reason": "Variation of Analytics Engineer",
+    "expanded_from": "Analytics Engineer"
+  },
+  {
+    "role": "SQL Developer",
+    "confidence": 63.0,
+    "reason": "Variation of Analytics Engineer",
+    "expanded_from": "Analytics Engineer"
+  }
+]

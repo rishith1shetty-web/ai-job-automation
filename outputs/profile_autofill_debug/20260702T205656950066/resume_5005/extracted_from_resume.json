@@ -1,0 +1,42 @@
+{
+  "fields": {
+    "email": {
+      "value": "singhishan944@gmail.com",
+      "source": "Resume Visible Text",
+      "confidence": 96
+    },
+    "mobile_phone": {
+      "value": "+91-84549-27280",
+      "source": "Resume Visible Text",
+      "confidence": 88
+    },
+    "phone_country_code": {
+      "value": "+91",
+      "source": "Resume Visible Text",
+      "confidence": 92
+    },
+    "first_name": {
+      "value": "ISHAN",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "last_name": {
+      "value": "SINGH",
+      "source": "Resume Visible Text",
+      "confidence": 76
+    },
+    "current_location": {
+      "value": "Location:Mumbai,Maharashtra400097",
+      "source": "Resume Visible Text",
+      "confidence": 62
+    },
+    "address": {
+      "value": "Location:Mumbai,Maharashtra400097",
+      "source": "Resume Visible Text",
+      "confidence": 50
+    }
+  },
+  "professional_links": {},
+  "previous_companies": [],
+  "certifications": []
+}

@@ -1,0 +1,104 @@
+{
+  "job_id": 14198,
+  "job_title": "Junior Data Management and Quantitative Analyst",
+  "company": "Eliassen Group",
+  "job_url": "https://www.linkedin.com/jobs/view/4398241743/",
+  "final_url": "https://www.linkedin.com/jobs/view/4398241743/",
+  "recorded_easy_apply": true,
+  "readiness": {
+    "domcontentloaded": true,
+    "networkidle": false,
+    "main_content": true,
+    "final_url": "https://www.linkedin.com/jobs/view/4398241743/"
+  },
+  "visible_button_texts": [
+    "Skip to search",
+    "Skip to main content",
+    "Skip to primary content",
+    "Skip to aside",
+    "Skip to footer",
+    "Home",
+    "Me",
+    "For Business",
+    "Save",
+    "\u2026 more",
+    "Follow",
+    "I\u2019m interested",
+    "Messaging\nYou are on the messaging overlay. Press enter to open the list of conversations.",
+    "Compose message",
+    "You are on the messaging overlay. Press enter to open the list of conversations."
+  ],
+  "selector_results": [
+    {
+      "name": "css_button_has_text_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_easy_apply",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "aria_label_easy_apply",
+      "count": 1,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "linkedin_inapply_control",
+      "count": 0,
+      "explicit_easy_apply": true
+    },
+    {
+      "name": "role_button_apply_now",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_apply",
+      "count": 0,
+      "explicit_easy_apply": false
+    },
+    {
+      "name": "role_button_submit_application",
+      "count": 0,
+      "explicit_easy_apply": false
+    }
+  ],
+  "exact_selector_matches": [
+    {
+      "selector": "button:has-text(\"Easy Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Apply now\")",
+      "count": 0
+    },
+    {
+      "selector": "button:has-text(\"Submit application\")",
+      "count": 0
+    }
+  ],
+  "external_apply_links": [],
+  "classification": "linkedin_easy_apply",
+  "reason": "Confirmed LinkedIn Easy Apply control.",
+  "captured_at": "2026-07-02T19:09:47.941719",
+  "linkedin_job_id": "4398241743",
+  "phase": "application",
+  "search_phase_easy_apply_result": true,
+  "application_phase_easy_apply_result": true,
+  "EASY_APPLY_MISMATCH": false,
+  "navigation_events": [
+    {
+      "event": "application_job_navigation",
+      "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+      "current_url": "https://www.linkedin.com/jobs/view/4398241743/",
+      "captured_at": "2026-07-02T19:09:47.361994"
+    }
+  ],
+  "failure_reason": null
+}

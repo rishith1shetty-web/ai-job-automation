@@ -1,0 +1,20 @@
+[
+  {
+    "field": "Email",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  }
+]

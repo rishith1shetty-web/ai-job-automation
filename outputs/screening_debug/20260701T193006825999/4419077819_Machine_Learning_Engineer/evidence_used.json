@@ -1,0 +1,36 @@
+[
+  {
+    "found": false,
+    "years": 0,
+    "reason": "No evidence for Tableau was found; Aggressive Mode selected 0.",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "selected_years": null,
+    "normalized_skill": "Tableau",
+    "saved_from_question": "How many years of work experience do you have with Tableau?",
+    "aggressive_default_used": true
+  },
+  {
+    "normalized_skill": "Machine Tools",
+    "selected_years": null,
+    "years": 0,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "found": false,
+    "aggressive_default_used": true,
+    "evidence_used": "",
+    "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+  },
+  {
+    "normalized_skill": "Amazon Web Services",
+    "selected_years": null,
+    "years": 0,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "found": false,
+    "aggressive_default_used": true,
+    "evidence_used": "",
+    "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+  }
+]

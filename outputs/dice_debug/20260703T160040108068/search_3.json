@@ -1,0 +1,173 @@
+{
+  "portal": "dice",
+  "search_index": 3,
+  "query": "Data Scientist",
+  "location": "United States",
+  "jobs_found": 9,
+  "job_urls": [
+    "https://www.dice.com/job-detail/3d359d13-f8cb-4c36-bb99-cc9060a3f7ed",
+    "https://www.dice.com/job-detail/b2897719-f403-4823-8d76-c2d3c3548f30",
+    "https://www.dice.com/job-detail/e4055e20-e589-4f43-b4f8-8ab4befe2027",
+    "https://www.dice.com/job-detail/0793a323-4ace-4d21-a524-c229babaad7f",
+    "https://www.dice.com/job-detail/da39d228-662a-4216-abae-98de204720c0",
+    "https://www.dice.com/job-detail/0e118345-6743-448f-b7b2-8382234edd52",
+    "https://www.dice.com/job-detail/6e9723c6-ca4a-4f70-812b-1ed517c5a56a",
+    "https://www.dice.com/job-detail/a39da5b7-2d46-40e4-8efd-f82b7548b3a4",
+    "https://www.dice.com/job-detail/d13d2e48-631d-41c6-a6ac-723518b28be2"
+  ],
+  "jobs": [
+    {
+      "portal": "dice",
+      "title": "Trans Union LLC",
+      "company": "Sponsored",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/3d359d13-f8cb-4c36-bb99-cc9060a3f7ed",
+      "description": "Trans Union LLC\n\nApply Now\nLead Data Scientist, Financial Services Consulting\n\nWhite Plains, New York\n\n\u2022\n\nToday\n\nTransUnion's Job Applicant Privacy Notice Personal Information We Collect Your Privacy Choices Team Overview At TransUnion, this team reports to a Director of Data Science & Analytics, playing an integral role by working end-to-end with financial services clients, fostering consultative relationships that enable them to deliver impactful solutions. This team specializes in building both custom and generic models tailored to each client's unique needs, ensuring that every engagement is as effect\n\nSponsored\n\nFull-time\n\nUSD 100,000.00 - 160,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/3d359d13-f8cb-4c36-bb99-cc9060a3f7ed",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Trans Union LLC",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/b2897719-f403-4823-8d76-c2d3c3548f30",
+      "description": "Trans Union LLC\n\nApply Now\nLead Data Scientist\n\nChicago, Illinois\n\n\u2022\n\nToday\n\nTransUnion's Job Applicant Privacy Notice Personal Information We Collect Your Privacy Choices Team Overview This role reports into a Director of Data Science & Analytics. The Financial Services Analytics team is an industry recognized, client-facing department that rewards an entrepreneurial spirit. We have deep technical expertise and an established reputation as an analytic solutions provider in the Financial Services industry. We have a wealth of data and industry experience within our lar\n\nSponsored\n\nFull-time\n\nUSD 100,000.00 - 160,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/b2897719-f403-4823-8d76-c2d3c3548f30",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "SAIC",
+      "company": "Full-time",
+      "location": "Job ID: 2614237 Location: Rock Island, IL, US Date Posted: 2026-07-02 Category: Information Technology Subcategory: Data Scientist Schedule: Full-Time Shift: Day Job Travel: Yes - 25% of the time Minimum Clearance Required: Interim_Secret Clearance Level ",
+      "job_url": "https://www.dice.com/job-detail/e4055e20-e589-4f43-b4f8-8ab4befe2027",
+      "description": "SAIC\n\nApply Now\nData Scientist\n\nRock Island, Illinois\n\n\u2022\n\nToday\n\nJob ID: 2614237 Location: Rock Island, IL, US Date Posted: 2026-07-02 Category: Information Technology Subcategory: Data Scientist Schedule: Full-Time Shift: Day Job Travel: Yes - 25% of the time Minimum Clearance Required: Interim_Secret Clearance Level Must Be Able to Obtain: Secret Potential for Remote Work: ORA_ON_SITE Description SAIC is seeking a Data Scientist to join our team at Rock Island, IL to support our Advanced Analytics Team to utilize the Army Vantage Data Analytics Sy\n\nFull-time\n\nUSD 120,001.00 - 160,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/e4055e20-e589-4f43-b4f8-8ab4befe2027",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "SAIC",
+      "company": "Unknown",
+      "location": "Job ID: 2614085 Location: Chantilly, VA, US Date Posted: 2026-06-29 Category: Engineering and Sciences Subcategory: Modeling/Sim Engr Schedule: Full-Time Shift: Day Job Travel: No Minimum Clearance Required: TS.SCI_wPoly Clearance Level Must Be Able to Ob",
+      "job_url": "https://www.dice.com/job-detail/0793a323-4ace-4d21-a524-c229babaad7f",
+      "description": "SAIC\n\nApply Now\nData Scientist\n\nChantilly, Virginia\n\n\u2022\n\nToday\n\nJob ID: 2614085 Location: Chantilly, VA, US Date Posted: 2026-06-29 Category: Engineering and Sciences Subcategory: Modeling/Sim Engr Schedule: Full-Time Shift: Day Job Travel: No Minimum Clearance Required: TS.SCI_wPoly Clearance Level Must Be Able to Obtain: None Potential for Remote Work: ORA_ON_SITE Description SAIC is seeking a Data Scientist to provide Systems Engineer Technical Advisor (SETA) services for a critical position on SAIC's Prime Program, Landmark AOS. Landmark AOS is\n\nFull-time\n\nUSD 120,001.00 - 160,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/0793a323-4ace-4d21-a524-c229babaad7f",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Jerry Insurance Agency, LLC",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/da39d228-662a-4216-abae-98de204720c0",
+      "description": "Jerry Insurance Agency, LLC\n\nApply Now\nData Scientist\n\nNew York, New York\n\n\u2022\n\nToday\n\nWhy We Exist Your car and your home are your most important assets, yet the experience of owning them is stuck in the 90s. Every part of the journey - buy/sell, insurance, maintenance, repairs - is fragmented, complicated, and expensive. Jerry.ai is building the first app to manage it all. We started with car insurance in 2019, became one of the top 3 brokers in the U.S., then added driving insights, diagnostics, and a repair marketplace. We've reached 5M+ customers, raised $240M+, scaled reve\n\nFull-time\n\nUSD 130,000.00 - 150,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/da39d228-662a-4216-abae-98de204720c0",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Jerry Insurance Agency, LLC",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/0e118345-6743-448f-b7b2-8382234edd52",
+      "description": "Jerry Insurance Agency, LLC\n\nApply Now\nStaff Data Scientist\n\nNew York, New York\n\n\u2022\n\nToday\n\nWhy We Exist Your car and your home are your most important assets, yet the experience of owning them is stuck in the 90s. Every part of the journey - buy/sell, insurance, maintenance, repairs - is fragmented, complicated, and expensive. Jerry.ai is building the first app to manage it all. We started with car insurance in 2019, became one of the top 3 brokers in the U.S., then added driving insights, diagnostics, and a repair marketplace. We've reached 5M+ customers, raised $240M+, scaled reve\n\nFull-time\n\nUSD 170,000.00 - 210,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/0e118345-6743-448f-b7b2-8382234edd52",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Jerry Insurance Agency, LLC",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/6e9723c6-ca4a-4f70-812b-1ed517c5a56a",
+      "description": "Jerry Insurance Agency, LLC\n\nApply Now\nSenior Data Scientist\n\nNew York, New York\n\n\u2022\n\nToday\n\nWhy We Exist Your car and your home are your most important assets, yet the experience of owning them is stuck in the 90s. Every part of the journey - buy/sell, insurance, maintenance, repairs - is fragmented, complicated, and expensive. Jerry.ai is building the first app to manage it all. We started with car insurance in 2019, became one of the top 3 brokers in the U.S., then added driving insights, diagnostics, and a repair marketplace. We've reached 5M+ customers, raised $240M+, scaled reve\n\nFull-time\n\nUSD 150,000.00 - 170,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/6e9723c6-ca4a-4f70-812b-1ed517c5a56a",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "Jerry Insurance Agency, LLC",
+      "company": "Unknown",
+      "location": "United States",
+      "job_url": "https://www.dice.com/job-detail/a39da5b7-2d46-40e4-8efd-f82b7548b3a4",
+      "description": "Jerry Insurance Agency, LLC\n\nApply Now\nAssociate Data Scientist\n\nNew York, New York\n\n\u2022\n\nToday\n\nWhy We Exist Your car and your home are your most important assets, yet the experience of owning them is stuck in the 90s. Every part of the journey - buy/sell, insurance, maintenance, repairs - is fragmented, complicated, and expensive. Jerry.ai is building the first app to manage it all. We started with car insurance in 2019, became one of the top 3 brokers in the U.S., then added driving insights, diagnostics, and a repair marketplace. We've reached 5M+ customers, raised $240M+, scaled reve\n\nFull-time\n\nUSD 85,000.00 - 130,000.00 per year",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "Today",
+        "apply_url": "https://www.dice.com/job-detail/a39da5b7-2d46-40e4-8efd-f82b7548b3a4",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    },
+    {
+      "portal": "dice",
+      "title": "AIT Global, Inc.",
+      "company": "Unknown",
+      "location": "Remote",
+      "job_url": "https://www.dice.com/job-detail/d13d2e48-631d-41c6-a6ac-723518b28be2",
+      "description": "AIT Global, Inc.\n\nEasy Apply\nData Scientist\n\nRemote\n\n\u2022\n\nYesterday\n\nJob Title: Data Scientist Location: Remote - USA Job Overview: Manufacturing 8 10 years in manufacturing (optional) with hands-on experience in shop floor operations, production planning, and systems including MES, SCADA, and ERP. Proficient in industrial protocols (OPC-UA, MQTT, Modbus) with ability to bridge OT/IT systems for real-time data extraction. Applied experience with OEE, Six Sigma, SPC, and lean methodologies to drive measurable gains in yield, uptime, and efficiency. Data Engineeri\n\nFull-time",
+      "easy_apply": true,
+      "form_provider": "dice",
+      "job_description_metadata": {
+        "portal": "dice",
+        "posted_date": "",
+        "apply_url": "https://www.dice.com/job-detail/d13d2e48-631d-41c6-a6ac-723518b28be2",
+        "source_search_query": "Data Scientist",
+        "source_search_location": "United States"
+      }
+    }
+  ]
+}

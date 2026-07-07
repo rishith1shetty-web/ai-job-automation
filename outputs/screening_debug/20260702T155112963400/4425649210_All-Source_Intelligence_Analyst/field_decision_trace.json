@@ -1,0 +1,76 @@
+[
+  {
+    "original_label": "How many years of work experience do you have with All-Source Intelligence?",
+    "normalized_field": "All Source Intelligence Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": "estimator",
+    "selected_value": "0",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "No evidence for All Source Intelligence was found; Aggressive Mode selected 0.",
+        "selected": true
+      }
+    ],
+    "radio_writer": null
+  },
+  {
+    "original_label": "Are you currently a US Citizen?",
+    "normalized_field": "US Work Authorization",
+    "detected_control_type": "dropdown",
+    "category": "authorization",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": [],
+    "radio_writer": null
+  }
+]

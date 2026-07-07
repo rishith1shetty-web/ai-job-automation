@@ -1,0 +1,24 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_skill": "Python",
+    "selected_years": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": false,
+    "reason": "Calculated years from resume dates tied to the skill."
+  },
+  {
+    "original_question": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+    "normalized_skill": "digital health",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": true,
+    "reason": "No evidence for digital health was found; Aggressive Mode selected 0."
+  }
+]

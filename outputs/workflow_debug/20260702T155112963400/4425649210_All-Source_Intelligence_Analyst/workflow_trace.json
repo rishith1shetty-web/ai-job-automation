@@ -1,0 +1,241 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "contact_page",
+    "page_hash": "75fdbb5edb315ef3a546ae6a05a155f897c8dff67e49fbf9689a6d2dd3bddea9",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.81,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "resume_page",
+    "page_hash": "b6f4c8fbbf9ffd124a62b4efb1f482dc0bfaa7725383ca0e69b78a5174118a46",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.8,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "resume_page",
+    "page_hash": "b6f4c8fbbf9ffd124a62b4efb1f482dc0bfaa7725383ca0e69b78a5174118a46",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.94,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "contact_page",
+    "page_hash": "75fdbb5edb315ef3a546ae6a05a155f897c8dff67e49fbf9689a6d2dd3bddea9",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "contact_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.19,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "contact_page",
+    "page_hash": "75fdbb5edb315ef3a546ae6a05a155f897c8dff67e49fbf9689a6d2dd3bddea9",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.45,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "resume_page",
+    "page_hash": "2a45a65fbcd3fbdad1a3c095e36025412279b528807a240ac40329649fab7739",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 43.3,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "resume_page",
+    "page_hash": "2a45a65fbcd3fbdad1a3c095e36025412279b528807a240ac40329649fab7739",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 43.46,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "All-Source Intelligence Analyst | Zendr | LinkedIn",
+    "modal_title": "Apply to Zendr",
+    "detected_page_type": "screening_questions",
+    "page_hash": "eabc6e47f3ef468ca25e4129a43f5d81d0f87ae5270ee0ecfee2761361a82650",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4425649210/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "Are you currently a US Citizen?",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 51.36,
+    "stop_reason": "Navigation revealed unresolved required fields: Required questions need review: Are you currently a US Citizen?."
+  }
+]

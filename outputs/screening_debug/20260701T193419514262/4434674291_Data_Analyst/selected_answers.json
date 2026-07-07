@@ -1,0 +1,161 @@
+[
+  {
+    "answer": "0",
+    "selected_answer": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "currency": null,
+    "reason": "Reused saved candidate-specific screening answer.",
+    "evidence": {
+      "found": false,
+      "years": 0,
+      "reason": "No evidence for SQL was found; Aggressive Mode selected 0.",
+      "source": "Aggressive Default",
+      "confidence": "Estimated / Low",
+      "evidence_used": "",
+      "selected_years": null,
+      "normalized_skill": "SQL",
+      "saved_from_question": "How many years of work experience do you have with SQL?",
+      "aggressive_default_used": true
+    },
+    "aggressive_default_used": false,
+    "decision_stage": "saved_answer",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": "0",
+        "source": "Aggressive Default",
+        "confidence": "Estimated / Low",
+        "evidence_used": true,
+        "reasoning_summary": "Reused saved candidate-specific screening answer.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "How many ears of experience do you have with SQL queries?",
+    "original_label": "How many ears of experience do you have with SQL queries?",
+    "normalized_field": "SQL Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "mode": "Aggressive"
+  },
+  {
+    "answer": "Yes",
+    "selected_answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "reason": "Answered Yes because evidence for excel, power bi, tableau, dashboard development was found in Knowledge Base, Employment, Direct Resume.",
+    "reasoning_type": "Knowledge Base Match",
+    "reasoning_summary": "Answered Yes because evidence for excel, power bi, tableau, dashboard development was found in Knowledge Base, Employment, Direct Resume.",
+    "semantic_match_score": 0.0,
+    "evidence": {
+      "evidence_used": [
+        {
+          "source": "Knowledge Base",
+          "reasoning_type": "Knowledge Base Match",
+          "concept": "excel",
+          "snippet": "[{\"id\": 9, \"question_text\": \"excel years experience\", \"normalized_question\": \"excel years experience\", \"category\":"
+        },
+        {
+          "source": "Employment",
+          "reasoning_type": "Employment Match",
+          "concept": "excel",
+          "snippet": " data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemented by academic training in machine learning and data an"
+        },
+        {
+          "source": "Direct Resume",
+          "reasoning_type": "Direct Resume Match",
+          "concept": "excel",
+          "snippet": "data processing, data cleaning, data validation, and\\nreporting using microsoft excel and power bi, complemented by academic training in machine learning and data an"
+        }
+      ],
+      "job_description_evidence": {
+        "domain": null,
+        "bi_tools": [],
+        "industry": null,
+        "databases": [],
+        "frameworks": [],
+        "soft_skills": [],
+        "technologies": [],
+        "certifications": [],
+        "cloud_platforms": [],
+        "required_skills": [],
+        "preferred_skills": [
+          "plus"
+        ],
+        "responsibilities": [
+          "Greenwood Village, CO \u00b7 40 minutes ago \u00b7 54 applicants",
+          "Promoted by hirer \u00b7 Company review time is typically 1 week",
+          "Use AI to assess how you fit",
+          "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+          "Job search smarter with Premium",
+          "See jobs where you\u2019d be a top applicant",
+          "Message hiring managers with InMail",
+          "Get personalized cover letter and resume tips"
+        ],
+        "years_of_experience": null,
+        "management_experience": true,
+        "programming_languages": [],
+        "education_requirements": []
+      },
+      "matched_skills": [],
+      "missing_skills": [],
+      "reasoning_type": "Knowledge Base Match"
+    },
+    "aggressive_default_used": false,
+    "reasoning_used": true,
+    "decision_stage": "reasoning",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": "Yes",
+        "source": "AI Reasoning Engine",
+        "confidence": "Very High",
+        "evidence_used": true,
+        "reasoning_summary": "Answered Yes because evidence for excel, power bi, tableau, dashboard development was found in Knowledge Base, Employment, Direct Resume.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "original_label": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "normalized_field": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "category": "skill",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "mode": "Aggressive"
+  }
+]

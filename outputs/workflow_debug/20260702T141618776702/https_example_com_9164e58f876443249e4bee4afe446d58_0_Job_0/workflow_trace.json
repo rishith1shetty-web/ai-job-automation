@@ -1,0 +1,27 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Fake LinkedIn Job",
+    "modal_title": "",
+    "detected_page_type": "resume_page",
+    "page_hash": "4fcea1cca4d7332c6c66f77de491a557f5f6ab93a75b8df63704bcce30261035",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/123",
+    "visible_buttons": [],
+    "enabled_buttons": [],
+    "unresolved_required_fields": [
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 0.21,
+    "stop_reason": null
+  }
+]

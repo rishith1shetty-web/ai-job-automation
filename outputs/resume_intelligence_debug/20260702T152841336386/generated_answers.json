@@ -1,0 +1,1474 @@
+[
+  {
+    "job": {
+      "id": null,
+      "title": "Clinical Data Scientist (Data Analyst Level 3 - Digital Measures)",
+      "company": "Alphanumeric Systems",
+      "job_url": "https://www.linkedin.com/jobs/view/4431937869/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) opportunity at Alphanumeric Systems because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Clinical Data Scientist (Data Analyst Level 3 - Digital Measures).",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Clinical Data Scientist (Data Analyst Level 3 - Digital Measures) role at Alphanumeric Systems, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "ATC",
+      "job_url": "https://www.linkedin.com/jobs/view/4435210636/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analyst opportunity at ATC because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at ATC, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Junior Business Intelligence Analyst- Digital",
+      "company": "Steve Madden",
+      "job_url": "https://www.linkedin.com/jobs/view/4432716413/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Junior Business Intelligence Analyst- Digital opportunity at Steve Madden because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Junior Business Intelligence Analyst- Digital.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Junior Business Intelligence Analyst- Digital role at Steve Madden, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "Stio\u00ae",
+      "job_url": "https://www.linkedin.com/jobs/view/4424796824/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analyst opportunity at Stio\u00ae because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Stio\u00ae, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "Vernovis",
+      "job_url": "https://www.linkedin.com/jobs/view/4418114634/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analyst opportunity at Vernovis because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Vernovis, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analys",
+      "company": "Activ Gym",
+      "job_url": "https://www.linkedin.com/jobs/view/4436348986/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analys opportunity at Activ Gym because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analys.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Activ Gym, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Scientist",
+      "company": "Klyra Physio",
+      "job_url": "https://www.linkedin.com/jobs/view/4432793543/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Scientist opportunity at Klyra Physio because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Scientist.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Scientist role at Klyra Physio, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Operations Analyst - Entry to Mid Level",
+      "company": "Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f",
+      "job_url": "https://www.linkedin.com/jobs/view/4436354667/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Operations Analyst - Entry to Mid Level opportunity at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Operations Analyst - Entry to Mid Level.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Operations Analyst - Entry to Mid Level role at Despert\u00e1 Tu Potencial \u200bHR\u00ae\ufe0f, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_skill": "Python",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  },
+  {
+    "original_question": "Do you have experience working with digital health, wearable, or sensor-derived data?",
+    "normalized_skill": "digital health",
+    "field_type": "select",
+    "mode_used": "Aggressive"
+  }
+]

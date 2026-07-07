@@ -1,0 +1,449 @@
+[
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_01_01.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select",
+        "has_value": true
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Email address",
+        "field_type": "select"
+      },
+      {
+        "label": "Phone country code",
+        "field_type": "select"
+      },
+      {
+        "label": "Mobile phone number",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:09:54.312798"
+  },
+  {
+    "step_number": 1,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_01_02.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:10:00.400582"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_02_03.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "required_fields": [],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Deselect resume Rishith_Shetty_Resume (1).pdf",
+        "field_type": "radio"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": true,
+      "selected_resume_present": true,
+      "detected_filename": "Deselect resume Rishith_Shetty_Resume (1).pdf"
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": true,
+        "enabled": true
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": false,
+        "enabled": false
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_next",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:10:03.149373"
+  },
+  {
+    "step_number": 2,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_02_04.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_next",
+    "action_result": "screening_answered_after_navigation",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:10:10.514404"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_03_05.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "click_review",
+    "action_result": "attempting_click",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:10:12.867179"
+  },
+  {
+    "step_number": 3,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_03_06.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Yes",
+        "field_type": "radio"
+      },
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "clicked_review",
+    "action_result": "advanced_or_transitioned",
+    "reason_for_stop": null,
+    "captured_at": "2026-07-02T19:10:17.588111"
+  },
+  {
+    "step_number": 4,
+    "screenshot_path": "outputs\\form_navigation_debug\\20260702T190947532538\\4398241743_Junior_Data_Management_and_Quantitative_\\step_04_07.png",
+    "page_title": "Junior Data Management and Quantitative Analyst | Eliassen Group | LinkedIn",
+    "modal_title": "Apply to Eliassen Group",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "required_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": true
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text",
+        "has_value": true
+      }
+    ],
+    "unresolved_required_fields": [],
+    "filled_fields": [
+      {
+        "label": "Yes",
+        "field_type": "radio"
+      },
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text"
+      },
+      {
+        "label": "How many years of work experience do you have with Microsoft Excel?",
+        "field_type": "text"
+      }
+    ],
+    "validation_messages": [],
+    "selected_resume_status": {
+      "resume_upload_present": false,
+      "selected_resume_present": false,
+      "detected_filename": null
+    },
+    "navigation_controls": {
+      "Next": {
+        "available": false,
+        "enabled": false
+      },
+      "Continue": {
+        "available": false,
+        "enabled": false
+      },
+      "Review": {
+        "available": true,
+        "enabled": true
+      },
+      "Submit application": {
+        "available": false,
+        "enabled": false
+      }
+    },
+    "action_taken": "none",
+    "action_result": "stopped",
+    "reason_for_stop": "Repeated workflow state detected: screening_questions page repeated 3 times without meaningful navigation.",
+    "captured_at": "2026-07-02T19:10:18.633802"
+  }
+]

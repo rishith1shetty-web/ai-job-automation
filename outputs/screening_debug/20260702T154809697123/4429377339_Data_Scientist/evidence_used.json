@@ -1,0 +1,13 @@
+[
+  {
+    "normalized_skill": "PySpark",
+    "selected_years": null,
+    "years": 0,
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "found": false,
+    "aggressive_default_used": true,
+    "evidence_used": "",
+    "reason": "No evidence for PySpark was found; Aggressive Mode selected 0."
+  }
+]

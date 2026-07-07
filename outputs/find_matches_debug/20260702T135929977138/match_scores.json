@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "match_score": 73.28,
+    "match_reason": "72% overall match for Backend Developer. The strongest evidence is sql, python, etl, fastapi.",
+    "semantic_match_score": 100.0,
+    "matched_skills": [
+      "sql",
+      "python",
+      "etl",
+      "fastapi"
+    ],
+    "missing_skills": [],
+    "overall_match_summary": "72% overall match for Backend Developer. The strongest evidence is sql, python, etl, fastapi.",
+    "technical_match_score": 100.0,
+    "industry_match_score": 50.0,
+    "confidence_score": "High"
+  }
+]

@@ -1,0 +1,302 @@
+[
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 338,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Phone country code",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 339,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "Mobile phone number",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 340,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Python Years",
+    "field_category": "Skill Years",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Python (Programming Language)?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Python Years",
+      "learning_reuse": {
+        "record_id": 341,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Blockchain?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 342,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Python Years",
+    "field_category": "Skill Years",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Python (Programming Language)?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Python Years",
+      "learning_reuse": {
+        "record_id": 341,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Blockchain?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 342,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Python Years",
+    "field_category": "Skill Years",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Python (Programming Language)?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Python Years",
+      "learning_reuse": {
+        "record_id": 341,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "numeric_input",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "High",
+    "recommended_fill_strategy": "enter_number_only",
+    "evidence_used": {
+      "label": "How many years of work experience do you have with Blockchain?",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "numeric_input",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 342,
+        "times_seen": 3,
+        "times_successful": 3,
+        "times_failed": 0,
+        "confidence": "High"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "checkbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "check_or_uncheck",
+    "evidence_used": {
+      "label": "Follow Acceler8 Talent to stay up to date with their page.",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "checkbox",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "checkbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": null,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": null,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  }
+]

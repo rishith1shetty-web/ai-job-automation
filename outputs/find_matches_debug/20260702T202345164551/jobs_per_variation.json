@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "raw_count": 1,
+    "unique_added": 1,
+    "duplicates_removed": 0,
+    "easy_apply_added": 1
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "FastAPI Developer",
+    "location": "United States",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "API Developer",
+    "location": "United States",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  }
+]

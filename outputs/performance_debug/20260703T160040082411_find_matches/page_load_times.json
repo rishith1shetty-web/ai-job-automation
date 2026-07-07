@@ -1,0 +1,10 @@
+[
+  {
+    "stage": "dice_find_matches_page_loading",
+    "elapsed_ms": 77443.53,
+    "metadata": {
+      "query_count": 8,
+      "limit_per_query": 9
+    }
+  }
+]

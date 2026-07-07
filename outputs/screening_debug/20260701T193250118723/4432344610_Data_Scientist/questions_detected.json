@@ -1,0 +1,20 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Python (Programming Language)?",
+    "original_label": "How many years of work experience do you have with Python (Programming Language)?",
+    "normalized_field": "Python Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": []
+  },
+  {
+    "question_text": "How many years of work experience do you have with Blockchain?",
+    "original_label": "How many years of work experience do you have with Blockchain?",
+    "normalized_field": "Blockchain Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": []
+  }
+]

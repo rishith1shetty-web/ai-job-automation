@@ -48,6 +48,98 @@ class ResumeTargetingTests(unittest.TestCase):
         self.assertIn("Business Intelligence Analyst", profile["generated_search_keywords"])
         self.assertIn("BI Analyst", profile["generated_search_query"])
 
+    def test_healthcare_data_analyst_generates_domain_roles(self) -> None:
+        profile = self.parser.parse(
+            """
+            Healthcare Data Analyst
+            Summary: Data analyst with SQL, Excel, Power BI, Tableau, clinical reporting,
+            patient dashboards, EHR data, HIPAA workflows, hospital quality metrics, and claims analytics.
+            Experience: Data Analyst | Regional Health System
+            """
+        )
+        roles = [item["role"] for item in profile["role_suggestions"]]
+
+        self.assertEqual(profile["detected_role"], "Data Analyst")
+        self.assertIn("Healthcare Data Analyst", roles)
+        self.assertIn("Clinical Data Analyst", roles)
+        self.assertIn("Reporting Analyst", roles)
+        self.assertIn("Business Intelligence Analyst", roles)
+        self.assertIn("SQL Analyst", roles)
+        self.assertNotEqual(roles[0], "Backend Developer")
+
+    def test_ai_ml_engineer_resume_extracts_titles_and_related_roles(self) -> None:
+        profile = self.parser.parse(
+            """
+            AI/ML Engineer and Data Analyst
+            Built NLP pipelines, computer vision models, Python machine learning systems,
+            TensorFlow and PyTorch experiments, scikit-learn classifiers, SQL dashboards,
+            predictive analytics, and model deployment projects.
+            """
+        )
+        roles = [item["role"] for item in profile["role_suggestions"]]
+
+        self.assertEqual(profile["detected_role"], "Machine Learning Engineer")
+        self.assertIn("AI/ML Engineer", profile["job_titles"])
+        self.assertIn("Data Analyst", profile["job_titles"])
+        self.assertIn("AI Engineer", roles)
+        self.assertIn("Data Scientist", roles)
+        self.assertIn("NLP Engineer", roles)
+        self.assertIn("Computer Vision Engineer", roles)
+        self.assertIn("Data Analyst", roles)
+        self.assertNotEqual(roles[0], "Backend Developer")
+
+    def test_backend_developer_is_not_top_without_backend_evidence(self) -> None:
+        profile = self.parser.parse(
+            "Data analyst with Python, SQL, Excel, Power BI, Tableau, dashboards, reporting, and analytics."
+        )
+        roles = [item["role"] for item in profile["role_suggestions"]]
+
+        self.assertEqual(profile["detected_role"], "Data Analyst")
+        self.assertNotEqual(roles[0], "Backend Developer")
+
+    def test_domain_roles_require_explicit_resume_evidence(self) -> None:
+        profile = self.parser.parse(
+            """
+            Data Analyst
+            Skills: Excel, SQL, Tableau, Power BI, dashboards, reporting, data analysis.
+            Projects: Built sales dashboards and customer trend reports for business teams.
+            """
+        )
+        roles = [item["role"] for item in profile["role_suggestions"]]
+
+        self.assertEqual(profile["detected_role"], "Data Analyst")
+        self.assertNotIn("Healthcare Data Analyst", roles)
+        self.assertNotIn("Healthcare BI Analyst", roles)
+        self.assertNotIn("Clinical Data Analyst", roles)
+        self.assertNotIn("Computer Vision Engineer", roles)
+        self.assertNotIn("Healthcare Data Analyst", profile["generated_search_keywords"])
+        self.assertNotIn("Computer Vision Engineer", profile["generated_search_keywords"])
+
+    def test_single_computer_vision_keyword_does_not_outweigh_data_analyst_resume(self) -> None:
+        profile = self.parser.parse(
+            """
+            Data Analyst
+            Skills: SQL, Excel, Power BI, Tableau, Python, reporting, data analysis.
+            Project: Reviewed one computer vision case study while building analytics dashboards.
+            """
+        )
+        roles = [item["role"] for item in profile["role_suggestions"]]
+
+        self.assertEqual(profile["detected_role"], "Data Analyst")
+        self.assertNotIn("Computer Vision Engineer", roles)
+        self.assertNotIn("Computer Vision Engineer", profile["generated_search_keywords"])
+
+    def test_generated_search_roles_follow_role_category_order(self) -> None:
+        profile = self.parser.parse(
+            "Healthcare Data Analyst with SQL, Excel, Power BI, clinical reporting, EHR, HIPAA, and dashboards."
+        )
+        categories = [item.get("role_category") for item in profile["role_suggestions"]]
+
+        self.assertEqual(categories[0], "primary_role")
+        strong_index = next((i for i, value in enumerate(categories) if value == "strong_fit_roles"), 99)
+        stretch_index = next((i for i, value in enumerate(categories) if value == "stretch_roles"), 99)
+        self.assertLess(strong_index, stretch_index)
+
     def test_vaishnavi_resume_returns_ranked_multidisciplinary_roles(self) -> None:
         resume_path = Path(r"C:\Users\DELL\Downloads\Vaishnavi_Shettys_Resume.pdf")
         if not resume_path.exists():
@@ -55,24 +147,19 @@ class ResumeTargetingTests(unittest.TestCase):
 
         profile = self.parser.parse(self.parser.extract_text(resume_path))
         roles = [item["role"] for item in profile["role_suggestions"]]
-        self.assertEqual(
-            roles,
-            [
-                "Data Scientist",
-                "Machine Learning Engineer",
-                "Analytics Engineer",
-                "Data Analyst",
-                "Business Intelligence Analyst",
-            ],
-        )
+        self.assertEqual(roles[0], "Data Scientist")
+        for expected_role in [
+            "Machine Learning Engineer",
+            "Analytics Engineer",
+            "Data Analyst",
+            "Business Intelligence Analyst",
+        ]:
+            self.assertIn(expected_role, roles)
         confidences = [item["confidence"] for item in profile["role_suggestions"]]
         self.assertEqual(confidences, sorted(confidences, reverse=True))
         self.assertLess(confidences[0], 95)
         self.assertNotIn("TensorFlow", profile["generated_search_keywords"])
-        self.assertEqual(
-            profile["generated_search_query"],
-            "Data Scientist OR Machine Learning Engineer OR Analytics Engineer OR Data Analyst OR BI Analyst",
-        )
+        self.assertTrue(profile["generated_search_query"].startswith("Data Scientist OR"))
 
     def test_empty_manual_keyword_uses_generated_roles(self) -> None:
         resume = ResumeProfile(

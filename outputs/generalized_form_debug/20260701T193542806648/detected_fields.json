@@ -1,0 +1,122 @@
+[
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "First name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 353,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "textbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "type_value",
+    "evidence_used": {
+      "label": "Last name",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "text",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "textbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 354,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "dropdown",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "select_matching_option",
+    "evidence_used": {
+      "label": "Email address",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "select",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "dropdown",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": 355,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": 0,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  },
+  {
+    "detected_control_type": "checkbox",
+    "normalized_field_name": "Cover Letter",
+    "field_category": "Cover Letter",
+    "confidence": "Medium",
+    "recommended_fill_strategy": "check_or_uncheck",
+    "evidence_used": {
+      "label": "Follow Vernovis to stay up to date with their page.",
+      "placeholder": null,
+      "aria_label": null,
+      "nearby_text": null,
+      "validation_message": null,
+      "input_type": "checkbox",
+      "tag_name": null,
+      "role": null,
+      "existing_value_present": false,
+      "options_count": 0,
+      "dom_attribute_keys": [],
+      "detected_control_type": "checkbox",
+      "normalized_field_name": "Cover Letter",
+      "learning_reuse": {
+        "record_id": null,
+        "times_seen": 1,
+        "times_successful": 1,
+        "times_failed": null,
+        "confidence": "Medium"
+      }
+    },
+    "source": "AI Form Learning Reuse"
+  }
+]

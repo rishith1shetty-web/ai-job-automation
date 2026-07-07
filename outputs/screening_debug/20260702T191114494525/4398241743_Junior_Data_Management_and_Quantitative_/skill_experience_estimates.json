@@ -1,0 +1,24 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with SQL?",
+    "normalized_skill": "SQL",
+    "selected_years": "0",
+    "source": "Aggressive Default",
+    "confidence": "Estimated / Low",
+    "evidence_used": "",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": false,
+    "reason": "Reused saved candidate-specific screening answer."
+  },
+  {
+    "original_question": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_skill": "Excel",
+    "selected_years": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+    "mode_used": "Aggressive",
+    "aggressive_default_used": false,
+    "reason": "Reused saved candidate-specific screening answer."
+  }
+]

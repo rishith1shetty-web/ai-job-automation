@@ -1,0 +1,34 @@
+[
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "How many ears of experience do you have with SQL queries?",
+    "normalized_field": "SQL Years"
+  },
+  {
+    "original_label": "Do you have professional exposure to relational databases like Tableau, Power BI and/or Excel?",
+    "normalized_field": "Cover Letter"
+  }
+]

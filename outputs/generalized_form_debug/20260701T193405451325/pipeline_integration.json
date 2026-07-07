@@ -1,0 +1,34 @@
+{
+  "engine_role": "control_detection_only",
+  "value_source": "Unified decision pipeline",
+  "decision_order": [
+    "saved_answer",
+    "learned_mapping",
+    "evidence",
+    "reasoning",
+    "estimator",
+    "fallback"
+  ],
+  "fields": [
+    {
+      "label": "Email address",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Phone country code",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    },
+    {
+      "label": "Mobile phone number",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "enter_number_only"
+    },
+    {
+      "label": "Are you a Citizen/Permanent Resident of the United States?",
+      "normalized_field_name": "Cover Letter",
+      "recommended_fill_strategy": "select_matching_option"
+    }
+  ]
+}

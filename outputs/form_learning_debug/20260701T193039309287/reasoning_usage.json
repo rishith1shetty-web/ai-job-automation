@@ -1,0 +1,395 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.264619"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.277486"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.280564"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Tableau Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.282579"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.290568"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.302305"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.285581"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.297323"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.305297"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.288574"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.300311"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.307291"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Tableau Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.282579"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.290568"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.302305"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.285581"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.297323"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.305297"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.288574"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.300311"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.307291"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Tableau Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "Reused saved candidate-specific screening answer."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.282579"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.290568"
+      },
+      {
+        "normalized_field": "Tableau Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Tableau?' to 'Tableau Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.302305"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Machine Tools was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.285581"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.297323"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Machine Tools?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.305297"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "Estimated / Low",
+          "reason": "No evidence for Amazon Web Services was found; Aggressive Mode selected 0."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-01T19:30:39.288574"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.300311"
+      },
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Amazon Web Services (AWS)?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.307291"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Follow RK Infotech LLC to stay up to date with their page.' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-01T19:30:39.309287"
+      }
+    ]
+  }
+]

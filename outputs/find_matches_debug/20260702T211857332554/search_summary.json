@@ -1,0 +1,81 @@
+{
+  "requested_limit": 10,
+  "target_count": 10,
+  "unique_jobs_found": 1,
+  "ranked_jobs_returned": 1,
+  "easy_apply_jobs_found": 1,
+  "duplicate_jobs_skipped": 3,
+  "search_variations_used": [
+    {
+      "query": "Backend Developer",
+      "location": "United States",
+      "search_role": "Backend Developer",
+      "role_priority": "primary"
+    },
+    {
+      "query": "Python Developer",
+      "location": "United States",
+      "search_role": "Python Developer",
+      "role_priority": "related"
+    },
+    {
+      "query": "Software Engineer",
+      "location": "United States",
+      "search_role": "Software Engineer",
+      "role_priority": "related"
+    },
+    {
+      "query": "Data Analyst",
+      "location": "United States",
+      "search_role": "Data Analyst",
+      "role_priority": "related"
+    }
+  ],
+  "jobs_found_per_variation": [
+    {
+      "query": "Backend Developer",
+      "location": "United States",
+      "search_role": "Backend Developer",
+      "role_priority": "primary",
+      "raw_count": 1,
+      "unique_added": 1,
+      "duplicates_removed": 0,
+      "easy_apply_added": 1
+    },
+    {
+      "query": "Python Developer",
+      "location": "United States",
+      "search_role": "Python Developer",
+      "role_priority": "related",
+      "raw_count": 1,
+      "unique_added": 0,
+      "duplicates_removed": 1,
+      "easy_apply_added": 0
+    },
+    {
+      "query": "Software Engineer",
+      "location": "United States",
+      "search_role": "Software Engineer",
+      "role_priority": "related",
+      "raw_count": 1,
+      "unique_added": 0,
+      "duplicates_removed": 1,
+      "easy_apply_added": 0
+    },
+    {
+      "query": "Data Analyst",
+      "location": "United States",
+      "search_role": "Data Analyst",
+      "role_priority": "related",
+      "raw_count": 1,
+      "unique_added": 0,
+      "duplicates_removed": 1,
+      "easy_apply_added": 0
+    }
+  ],
+  "returned_count": 1,
+  "final_job_urls": [
+    "https://example.com/jobs/automatic-search-test"
+  ],
+  "reason_if_below_target": "LinkedIn returned fewer valid unique Easy Apply jobs than requested after duplicate suppression."
+}

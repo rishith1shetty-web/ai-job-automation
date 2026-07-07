@@ -3,10 +3,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from fastapi import BackgroundTasks
 from sqlalchemy import delete, select
 
 from app.database import SessionLocal, init_db
-from app.main import search_jobs, settings
+from app.main import _create_search_batch, _run_find_matches_batch, search_jobs, set_active_portal, settings
 from app.models import JobOpportunity, JobSearchBatch, ResumeProfile
 from app.schemas import SearchRequest
 
@@ -31,9 +32,115 @@ class FakeLinkedInAutomation:
         ]
 
 
+class FakeManyLinkedInAutomation:
+    received_collection_plan: list[tuple[int, int]] = []
+
+    def __init__(self, _settings) -> None:
+        pass
+
+    def search_jobs_many(self, _resume, variations, limit_per_query, collect_card_diagnostics=False):
+        self.__class__.received_collection_plan.append((len(variations), limit_per_query))
+        results = []
+        counter = 0
+        for variation in variations:
+            raw_jobs = []
+            for _index in range(limit_per_query):
+                counter += 1
+                raw_jobs.append(
+                    {
+                        "title": f"Backend Developer {counter}",
+                        "company": f"Example Company {counter}",
+                        "location": "Remote",
+                        "description": "Python FastAPI SQL REST APIs",
+                        "job_url": f"https://www.linkedin.com/jobs/view/{900000000 + counter}",
+                        "easy_apply": True,
+                    }
+                )
+            results.append((variation, raw_jobs))
+        return results
+
+
 class AutomaticSearchWorkflowTests(unittest.TestCase):
     def setUp(self) -> None:
         init_db()
+        with SessionLocal() as db:
+            set_active_portal(db, "linkedin")
+
+    def test_find_matches_endpoint_returns_background_batch_immediately(self) -> None:
+        with tempfile.NamedTemporaryFile(suffix=".json") as state_file:
+            with patch.object(settings, "linkedin_storage_state", Path(state_file.name)):
+                with SessionLocal() as db:
+                    resume = ResumeProfile(
+                        filename="background-resume.txt",
+                        stored_path="background-resume.txt",
+                        raw_text="Python FastAPI SQL REST APIs",
+                        skills=["python", "fastapi", "sql"],
+                        experience=[],
+                        education=[],
+                        job_titles=[],
+                        keywords=["python", "fastapi", "sql"],
+                        technologies=["Python", "FastAPI", "SQL"],
+                        domain_expertise=["Backend Engineering"],
+                        detected_role="Backend Developer",
+                        generated_search_keywords=["Backend Developer"],
+                        role_confidence=90,
+                    )
+                    db.add(resume)
+                    db.commit()
+                    db.refresh(resume)
+
+                    background_tasks = BackgroundTasks()
+                    response = search_jobs(
+                        SearchRequest(resume_id=resume.id, location="United States", limit=20),
+                        background_tasks,
+                        db,
+                    )
+
+                    self.assertEqual(response["status"], "queued")
+                    self.assertEqual(response["requested_limit"], 20)
+                    self.assertEqual(response["jobs_collected"], 0)
+                    self.assertEqual(len(background_tasks.tasks), 1)
+
+                    db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))
+                    db.delete(resume)
+                    db.commit()
+
+    def test_dice_portal_search_batch_is_created(self) -> None:
+        with SessionLocal() as db:
+            resume = ResumeProfile(
+                portal="dice",
+                filename="dice-resume.txt",
+                stored_path="dice-resume.txt",
+                raw_text="Python SQL data analyst",
+                skills=["python", "sql"],
+                experience=[],
+                education=[],
+                job_titles=[],
+                keywords=["python", "sql"],
+                technologies=["Python", "SQL"],
+                domain_expertise=["Data Analytics"],
+                detected_role="Data Analyst",
+                generated_search_keywords=["Data Analyst"],
+                role_confidence=80,
+            )
+            db.add(resume)
+            db.commit()
+            db.refresh(resume)
+            try:
+                with patch("app.main.dice_adapter") as fake_dice_adapter:
+                    fake_dice_adapter.return_value.is_connected.return_value = True
+                    set_active_portal(db, "dice")
+                    batch = _create_search_batch(
+                        SearchRequest(resume_id=resume.id, location="Remote", limit=20, portal="dice"),
+                        db,
+                    )
+
+                self.assertEqual(batch.portal, "dice")
+                self.assertEqual(batch.requested_limit, 20)
+            finally:
+                db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))
+                db.delete(resume)
+                db.commit()
 
     def test_find_matches_without_manual_keyword(self) -> None:
         with tempfile.NamedTemporaryFile(suffix=".json") as state_file:
@@ -71,9 +178,21 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                     )
                     with patch("app.main.LinkedInAutomation", FakeLinkedInAutomation):
                         FakeLinkedInAutomation.received_queries = []
-                        jobs = search_jobs(request, db)
+                        batch = _create_search_batch(request, db)
+                        _run_find_matches_batch(batch.id)
+                        db.refresh(batch)
+                        jobs = list(
+                            db.scalars(
+                                select(JobOpportunity).where(
+                                    JobOpportunity.search_batch_id == batch.id
+                                )
+                            ).all()
+                        )
 
                     self.assertEqual(len(jobs), 1)
+                    self.assertEqual(batch.status, "completed")
+                    self.assertEqual(batch.jobs_collected, 1)
+                    self.assertEqual(batch.easy_apply_count, 1)
                     self.assertIn("Backend Developer", FakeLinkedInAutomation.received_queries)
                     self.assertGreater(jobs[0].match_score, 0)
                     self.assertGreater(jobs[0].priority_score, 0)
@@ -84,9 +203,20 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                     self.assertIsNotNone(jobs[0].search_timestamp)
 
                     with patch("app.main.LinkedInAutomation", FakeLinkedInAutomation):
-                        second_jobs = search_jobs(request, db)
+                        second_batch = _create_search_batch(request, db)
+                        _run_find_matches_batch(second_batch.id)
+                        db.refresh(second_batch)
+                        second_jobs = list(
+                            db.scalars(
+                                select(JobOpportunity).where(
+                                    JobOpportunity.search_batch_id == second_batch.id
+                                )
+                            ).all()
+                        )
 
                     self.assertEqual(len(second_jobs), 0)
+                    self.assertEqual(second_batch.status, "completed")
+                    self.assertGreaterEqual(second_batch.duplicates_removed, 1)
                     stored_versions = list(
                         db.scalars(
                             select(JobOpportunity).where(
@@ -102,6 +232,72 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                     db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))
                     db.delete(resume)
                     db.commit()
+
+    def test_find_matches_supports_limit_100(self) -> None:
+        with tempfile.NamedTemporaryFile(suffix=".json") as state_file:
+            with patch.object(settings, "linkedin_storage_state", Path(state_file.name)):
+                with SessionLocal() as db:
+                    resume = ResumeProfile(
+                        filename="volume-resume.txt",
+                        stored_path="volume-resume.txt",
+                        raw_text="Python FastAPI SQL REST APIs backend developer",
+                        skills=["python", "fastapi", "sql"],
+                        experience=[],
+                        education=[],
+                        job_titles=[],
+                        keywords=["python", "fastapi", "sql"],
+                        technologies=["Python", "FastAPI", "SQL", "REST APIs"],
+                        domain_expertise=["Backend Engineering", "API Development"],
+                        detected_role="Backend Developer",
+                        generated_search_keywords=[
+                            "Backend Developer",
+                            "Python Developer",
+                            "FastAPI Developer",
+                            "Software Engineer",
+                        ],
+                        role_confidence=95,
+                    )
+                    db.add(resume)
+                    db.commit()
+                    db.refresh(resume)
+
+                    request = SearchRequest(
+                        resume_id=resume.id,
+                        location="United States",
+                        keywords=None,
+                        limit=100,
+                    )
+                    try:
+                        with patch("app.main.LinkedInAutomation", FakeManyLinkedInAutomation):
+                            FakeManyLinkedInAutomation.received_collection_plan = []
+                            batch = _create_search_batch(request, db)
+                            _run_find_matches_batch(batch.id)
+                            db.refresh(batch)
+                            jobs = list(
+                                db.scalars(
+                                    select(JobOpportunity).where(
+                                        JobOpportunity.search_batch_id == batch.id
+                                    )
+                                ).all()
+                            )
+
+                        self.assertEqual(len(jobs), 100)
+                        self.assertEqual(batch.status, "completed")
+                        self.assertEqual(batch.jobs_collected, 100)
+                        self.assertTrue(all(job.easy_apply for job in jobs))
+                        selected_variations, limit_per_query = FakeManyLinkedInAutomation.received_collection_plan[0]
+                        self.assertGreaterEqual(selected_variations, 14)
+                        self.assertGreaterEqual(limit_per_query, 8)
+                        self.assertEqual(len({job.job_url for job in jobs}), 100)
+                    finally:
+                        db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))
+                        db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))
+                        db.delete(resume)
+                        db.commit()
+
+    def test_find_matches_custom_limit_caps_at_100(self) -> None:
+        engine = __import__("app.services.find_matches", fromlist=["FindMatchesEngine"]).FindMatchesEngine(settings)
+        self.assertEqual(engine.target_count(150), 100)
 
 
 if __name__ == "__main__":

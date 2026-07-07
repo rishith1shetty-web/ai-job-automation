@@ -1,0 +1,154 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Jr Data Scientist | Tech Consulting | LinkedIn",
+    "modal_title": "Apply to Tech Consulting",
+    "detected_page_type": "contact_page",
+    "page_hash": "43eb3d094b1a622dcd48bdf53b66405a5f50d092f3b515f1edc58aefc88847cd",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4435841048/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.07,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Jr Data Scientist | Tech Consulting | LinkedIn",
+    "modal_title": "Apply to Tech Consulting",
+    "detected_page_type": "resume_page",
+    "page_hash": "7f20d30660748b66c534e36fec93992a4bb5ed377450c1e3c5cf7e3eb70156fa",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4435841048/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.88,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Jr Data Scientist | Tech Consulting | LinkedIn",
+    "modal_title": "Apply to Tech Consulting",
+    "detected_page_type": "resume_page",
+    "page_hash": "7f20d30660748b66c534e36fec93992a4bb5ed377450c1e3c5cf7e3eb70156fa",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4435841048/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.02,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Jr Data Scientist | Tech Consulting | LinkedIn",
+    "modal_title": "Apply to Tech Consulting",
+    "detected_page_type": "screening_questions",
+    "page_hash": "da0175bff4202be25e24e836ddece1a287867c2d6481a59ed1dcb31a6f82c804",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4435841048/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 35.55,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Jr Data Scientist | Tech Consulting | LinkedIn",
+    "modal_title": "Apply to Tech Consulting",
+    "detected_page_type": "validation_error",
+    "page_hash": "0981372c240ad3f1a7ca486ba2da550f5e7e93d45bb69fe72864c7b768016d54",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4435841048/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 42.72,
+    "stop_reason": "Validation error: Please make a selection"
+  }
+]

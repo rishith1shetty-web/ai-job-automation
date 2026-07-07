@@ -1,0 +1,26 @@
+[
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Are you a Citizen/Permanent Resident of the United States?",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  }
+]

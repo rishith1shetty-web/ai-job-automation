@@ -1,0 +1,67 @@
+{
+  "linkedin_url": null,
+  "email": "jhanviatwork2002@gmail.com",
+  "mobile_phone": "+1 937-241-1446",
+  "portfolio_url": null,
+  "current_job_title": "Data Analyst",
+  "github_url": "https://github.com/Missjhanvi",
+  "professional_headline": "Data Analyst",
+  "last_name": "decision-making.",
+  "first_name": "operational",
+  "address": null,
+  "current_company": null,
+  "phone_country_code": "+1",
+  "current_location": null,
+  "previous_companies": [],
+  "certifications": [],
+  "professional_links": {
+    "github": {
+      "value": "https://github.com/Missjhanvi",
+      "source": "Embedded Hyperlink",
+      "confidence": 98
+    }
+  },
+  "field_sources": {
+    "email": {
+      "source": "Resume Visible Text",
+      "confidence": 96.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "last_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "first_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "github_url": {
+      "source": "Embedded Hyperlink",
+      "confidence": 98.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "mobile_phone": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "current_job_title": {
+      "source": "Resume Visible Text",
+      "confidence": 70.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "phone_country_code": {
+      "source": "Resume Visible Text",
+      "confidence": 92.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    },
+    "professional_headline": {
+      "source": "Resume Visible Text",
+      "confidence": 65.0,
+      "updated_at": "2026-07-02T20:28:29.359423"
+    }
+  },
+  "missing_required_after_apply": []
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Python Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Python Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "SQL Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Python Years",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "High",
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null
+  }
+]

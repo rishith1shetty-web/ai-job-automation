@@ -1,0 +1,129 @@
+{
+  "requested_limit": 50,
+  "target_count": 50,
+  "unique_jobs_found": 41,
+  "ranked_jobs_returned": 41,
+  "easy_apply_jobs_found": 41,
+  "duplicate_jobs_skipped": 15,
+  "search_variations_used": [
+    "Data Scientist",
+    "Data Scientist OR Machine Learning Engineer OR Analytics Engineer OR Data Analyst OR BI Analyst",
+    "Machine Learning Engineer",
+    "Data Analyst",
+    "Business Intelligence Analyst",
+    "Software Engineer",
+    "Analytics Engineer",
+    "Reporting Analyst"
+  ],
+  "jobs_found_per_variation": [
+    {
+      "query": "Data Scientist",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 7,
+      "duplicates_removed": 0,
+      "easy_apply_added": 7
+    },
+    {
+      "query": "Data Scientist OR Machine Learning Engineer OR Analytics Engineer OR Data Analyst OR BI Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 5,
+      "duplicates_removed": 2,
+      "easy_apply_added": 5
+    },
+    {
+      "query": "Machine Learning Engineer",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 6,
+      "duplicates_removed": 1,
+      "easy_apply_added": 6
+    },
+    {
+      "query": "Data Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 1,
+      "duplicates_removed": 6,
+      "easy_apply_added": 1
+    },
+    {
+      "query": "Business Intelligence Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 5,
+      "duplicates_removed": 2,
+      "easy_apply_added": 5
+    },
+    {
+      "query": "Software Engineer",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 7,
+      "duplicates_removed": 0,
+      "easy_apply_added": 7
+    },
+    {
+      "query": "Analytics Engineer",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 7,
+      "duplicates_removed": 0,
+      "easy_apply_added": 7
+    },
+    {
+      "query": "Reporting Analyst",
+      "location": "United States",
+      "raw_count": 7,
+      "unique_added": 3,
+      "duplicates_removed": 4,
+      "easy_apply_added": 3
+    }
+  ],
+  "returned_count": 41,
+  "final_job_urls": [
+    "https://www.linkedin.com/jobs/view/4413766040/",
+    "https://www.linkedin.com/jobs/view/4436411230/",
+    "https://www.linkedin.com/jobs/view/4417393851/",
+    "https://www.linkedin.com/jobs/view/4436363708/",
+    "https://www.linkedin.com/jobs/view/4435210636/",
+    "https://www.linkedin.com/jobs/view/4435256235/",
+    "https://www.linkedin.com/jobs/view/4436340086/",
+    "https://www.linkedin.com/jobs/view/4433009514/",
+    "https://www.linkedin.com/jobs/view/4427569782/",
+    "https://www.linkedin.com/jobs/view/4398241743/",
+    "https://www.linkedin.com/jobs/view/4419077819/",
+    "https://www.linkedin.com/jobs/view/4432420866/",
+    "https://www.linkedin.com/jobs/view/4435204524/",
+    "https://www.linkedin.com/jobs/view/4434679619/",
+    "https://www.linkedin.com/jobs/view/4435589975/",
+    "https://www.linkedin.com/jobs/view/4430684783/",
+    "https://www.linkedin.com/jobs/view/4431073026/",
+    "https://www.linkedin.com/jobs/view/4433105553/",
+    "https://www.linkedin.com/jobs/view/4434606570/",
+    "https://www.linkedin.com/jobs/view/4431993038/",
+    "https://www.linkedin.com/jobs/view/4434674291/",
+    "https://www.linkedin.com/jobs/view/4434603795/",
+    "https://www.linkedin.com/jobs/view/4436126034/",
+    "https://www.linkedin.com/jobs/view/4436369393/",
+    "https://www.linkedin.com/jobs/view/4432430335/",
+    "https://www.linkedin.com/jobs/view/4435860662/",
+    "https://www.linkedin.com/jobs/view/4434305387/",
+    "https://www.linkedin.com/jobs/view/4432766269/",
+    "https://www.linkedin.com/jobs/view/4432344610/",
+    "https://www.linkedin.com/jobs/view/4434650551/",
+    "https://www.linkedin.com/jobs/view/4431708739/",
+    "https://www.linkedin.com/jobs/view/4431292770/",
+    "https://www.linkedin.com/jobs/view/4433637210/",
+    "https://www.linkedin.com/jobs/view/4434771699/",
+    "https://www.linkedin.com/jobs/view/4424767078/",
+    "https://www.linkedin.com/jobs/view/4432434829/",
+    "https://www.linkedin.com/jobs/view/4432918755/",
+    "https://www.linkedin.com/jobs/view/4436404702/",
+    "https://www.linkedin.com/jobs/view/4405260872/",
+    "https://www.linkedin.com/jobs/view/4436412441/",
+    "https://www.linkedin.com/jobs/view/4436410500/"
+  ],
+  "reason_if_below_target": "LinkedIn returned fewer valid unique Easy Apply jobs than requested after duplicate suppression."
+}

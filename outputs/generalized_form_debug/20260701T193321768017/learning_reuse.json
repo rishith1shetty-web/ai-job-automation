@@ -1,0 +1,72 @@
+[
+  {
+    "record_id": 338,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 339,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 340,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 341,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 342,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 341,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 342,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 341,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": 342,
+    "times_seen": 3,
+    "times_successful": 3,
+    "times_failed": 0,
+    "confidence": "High"
+  },
+  {
+    "record_id": null,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null,
+    "confidence": "Medium"
+  }
+]

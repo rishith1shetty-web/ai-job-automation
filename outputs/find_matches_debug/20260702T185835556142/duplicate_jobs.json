@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Duplicate in current search batch",
+    "search_query_used": "Python Developer"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Duplicate in current search batch",
+    "search_query_used": "FastAPI Developer"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "job_url": "https://example.com/jobs/automatic-search-test",
+    "reason": "Duplicate in current search batch",
+    "search_query_used": "API Developer"
+  }
+]

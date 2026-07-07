@@ -1,0 +1,8 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with PySpark?",
+    "normalized_skill": "PySpark",
+    "field_type": "text",
+    "mode_used": "Aggressive"
+  }
+]

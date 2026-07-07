@@ -1,0 +1,50 @@
+[
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Email address",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Phone country code",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Mobile phone number",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "How many years of work experience do you have with All-Source Intelligence?",
+    "normalized_field": "Cover Letter",
+    "success": true,
+    "validation_message": null
+  },
+  {
+    "field": "Are you currently a US Citizen?",
+    "normalized_field": "Cover Letter",
+    "success": false,
+    "validation_message": null
+  }
+]

@@ -1,3 +1,4 @@
+import json
 import unittest
 import tempfile
 from contextlib import contextmanager
@@ -11,10 +12,19 @@ from sqlalchemy import delete, select
 
 from app.database import SessionLocal, init_db
 from app.config import Settings
-from app.main import apply_selected_job, apply_top_jobs, save_extracted_employment_history
+from app.main import (
+    _batch_job_status,
+    _create_apply_top_batch,
+    _run_apply_top_batch,
+    apply_selected_job,
+    apply_top_jobs,
+    save_extracted_employment_history,
+    set_active_portal,
+)
 from app.models import (
     ApplicationRecord,
     ApplicationStatus,
+    ApplyTopBatch,
     CandidateProfile,
     CandidateEmploymentHistory,
     JobOpportunity,
@@ -50,6 +60,52 @@ class FakeApplicationAutomation:
             message="Dry run completed." if dry_run else None,
             log=[{"event": "processed", "job_id": job.id}],
             current_step="dry_run_complete" if dry_run else "confirmation_received",
+            evidence_path="outputs/live_test/test" if capture_evidence else None,
+        )
+
+
+class FailingSecondJobAutomation(FakeApplicationAutomation):
+    def apply_to_job(
+        self,
+        job,
+        _resume,
+        _candidate_profile,
+        dry_run,
+        capture_evidence=False,
+        screening_context=None,
+    ) -> AutomationResult:
+        self.__class__.processed_job_ids.append(job.id)
+        if len(self.__class__.processed_job_ids) == 2:
+            raise RuntimeError("Synthetic per-job failure")
+        return AutomationResult(
+            status=ApplicationStatus.SKIPPED,
+            message="Dry run completed.",
+            log=[{"event": "processed", "job_id": job.id}],
+            current_step="dry_run_complete",
+            evidence_path="outputs/live_test/test" if capture_evidence else None,
+        )
+
+
+class RadioFailureSecondJobAutomation(FakeApplicationAutomation):
+    processed_job_ids: list[int] = []
+
+    def apply_to_job(
+        self,
+        job,
+        _resume,
+        _candidate_profile,
+        dry_run,
+        capture_evidence=False,
+        screening_context=None,
+    ) -> AutomationResult:
+        self.__class__.processed_job_ids.append(job.id)
+        if len(self.__class__.processed_job_ids) == 2:
+            raise RuntimeError("Radio option was clicked but LinkedIn did not accept the selection.")
+        return AutomationResult(
+            status=ApplicationStatus.SKIPPED,
+            message="Dry run completed.",
+            log=[{"event": "processed", "job_id": job.id}],
+            current_step="dry_run_complete",
             evidence_path="outputs/live_test/test" if capture_evidence else None,
         )
 
@@ -584,23 +640,126 @@ class FakeContactModal(FakeEasyApplyModal):
 
 
 class FakeScreeningRadioField(FakeContactField):
-    def __init__(self, question: str, options: list[str]) -> None:
+    def __init__(
+        self,
+        question: str,
+        options: list[str],
+        strategy: str = "label_click",
+        accepted: bool = True,
+        validation_after: str = "",
+        group_diagnostics: dict | None = None,
+        expected_question: str | None = None,
+        recovery_succeeds: bool = False,
+    ) -> None:
         super().__init__(question, required=True, value="", field_type="radio")
         self.question = question
         self.options = options
         self.selected_option: str | None = None
+        self.strategy = strategy
+        self.accepted = accepted
+        self.validation_after = validation_after
+        self.group_diagnostics = group_diagnostics or {
+            "question_text": question,
+            "group_outer_html": "<fieldset><legend>{}</legend></fieldset>".format(question),
+            "provider_name": "linkedin_native",
+            "inputs_before": [
+                {"id": f"{question}-{option}-before", "name": question, "value": option, "label": option, "checked": False}
+                for option in options
+            ],
+            "inputs_after": [
+                {"id": f"{question}-{option}-after", "name": question, "value": option, "label": option, "checked": False}
+                for option in options
+            ],
+            "active_element_after": {},
+            "selected_input_outer_html": "<input type='radio'>",
+            "exact_label_clicked": "<label>{}</label>".format(options[0] if options else ""),
+        }
+        self.expected_question = expected_question
+        self.last_payload: dict | None = None
+        self.recovery_succeeds = recovery_succeeds
 
     def evaluate(self, expression, arg=None):
-        if "Array.from(group" in expression:
-            return self.options
-        if "target.click" in expression:
-            answer = str(arg or "").lower()
+        if "radioWriterPayload" in expression:
+            self.last_payload = arg or {}
+            if self.expected_question is not None and self.last_payload.get("question") != self.expected_question:
+                raise AssertionError("Radio writer was not scoped to the expected question.")
+            answer = str((arg or {}).get("answer") or "").lower()
             for option in self.options:
                 if option.lower() == answer:
-                    self.selected_option = option
-                    self.value = option
-                    return True
-            return False
+                    if self.recovery_succeeds:
+                        self.selected_option = option
+                        self.value = option
+                        return {
+                            "success": True,
+                            "final_write_status": "success",
+                            "option_labels_found": self.options,
+                            "selected_option_label": option,
+                            "click_strategy_used": "post_selection_validation_recovery",
+                            "checked_state_before": False,
+                            "aria_state_before": "",
+                            "checked_state_after": True,
+                            "aria_state_after": "true",
+                            "validation_message_before": "Please make a selection",
+                            "validation_message_after": "",
+                            "attempts": [
+                                {
+                                    "strategy": "label_click",
+                                    "checked": True,
+                                    "aria_checked": "true",
+                                    "validation_message": "Please make a selection",
+                                    "accepted": False,
+                                },
+                                {
+                                    "strategy": "post_selection_validation_recovery",
+                                    "checked": True,
+                                    "aria_checked": "true",
+                                    "validation_message": "",
+                                    "accepted": True,
+                                },
+                            ],
+                            "group_diagnostics": self.group_diagnostics,
+                            "reason": None,
+                        }
+                    if self.accepted:
+                        self.selected_option = option
+                        self.value = option
+                    return {
+                        "success": self.accepted,
+                        "final_write_status": "success" if self.accepted else "failed",
+                        "option_labels_found": self.options,
+                        "selected_option_label": option,
+                        "click_strategy_used": self.strategy if self.accepted else None,
+                        "checked_state_before": False,
+                        "aria_state_before": "",
+                        "checked_state_after": self.accepted,
+                        "aria_state_after": "true" if self.accepted else "",
+                        "validation_message_before": "Please make a selection",
+                        "validation_message_after": self.validation_after,
+                        "attempts": [
+                            {
+                                "strategy": self.strategy,
+                                "checked": self.accepted,
+                                "aria_checked": "true" if self.accepted else "",
+                                "validation_message": self.validation_after,
+                                "accepted": self.accepted,
+                            }
+                        ],
+                        "group_diagnostics": self.group_diagnostics,
+                        "reason": None if self.accepted else "Radio option was clicked but LinkedIn did not accept the selection.",
+                    }
+            return {
+                "success": False,
+                "final_write_status": "failed",
+                "option_labels_found": self.options,
+                "group_diagnostics": self.group_diagnostics,
+                "reason": "No radio option matched answer.",
+            }
+        if "const roots" in expression and "querySelectorAll" in expression:
+            return self.options
+        if "questionRoot" in expression:
+            return self.question
+        if "Array.from(group" in expression:
+            return self.options
         return super().evaluate(expression, arg)
 
 
@@ -614,6 +773,7 @@ class SingleJobApplicationTests(unittest.TestCase):
         FakeApplicationAutomation.processed_resume_ids = []
         FakeApplicationAutomation.processed_resume_paths = []
         self.db = SessionLocal()
+        set_active_portal(self.db, "linkedin")
         token = uuid4().hex
         self.resume = ResumeProfile(
             filename="candidate.pdf",
@@ -653,6 +813,33 @@ class SingleJobApplicationTests(unittest.TestCase):
         for job in self.jobs:
             self.db.refresh(job)
 
+    def _ensure_job_count(self, count: int) -> None:
+        if len(self.jobs) >= count:
+            return
+        token = uuid4().hex
+        new_jobs = [
+            JobOpportunity(
+                resume_id=self.resume.id,
+                title=f"Extra Job {index}",
+                company="Example",
+                location="Remote",
+                job_url=f"https://example.com/{token}/{index}",
+                description="Python",
+                easy_apply=True,
+                match_score=max(1, 100 - index),
+                priority_score=max(1, 100 - index),
+                completion_likelihood_score=90,
+                application_friction_score=10,
+                freshness_score=max(1, 100 - index),
+            )
+            for index in range(len(self.jobs), count)
+        ]
+        self.db.add_all(new_jobs)
+        self.db.commit()
+        for job in new_jobs:
+            self.db.refresh(job)
+        self.jobs.extend(new_jobs)
+
     def tearDown(self) -> None:
         job_ids = list(
             self.db.scalars(
@@ -661,6 +848,7 @@ class SingleJobApplicationTests(unittest.TestCase):
         )
         if job_ids:
             self.db.execute(delete(ApplicationRecord).where(ApplicationRecord.job_id.in_(job_ids)))
+        self.db.execute(delete(ApplyTopBatch).where(ApplyTopBatch.resume_id == self.resume.id))
         self.db.execute(delete(CandidateEmploymentHistory).where(CandidateEmploymentHistory.resume_id == self.resume.id))
         self.db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == self.resume.id))
         self.db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == self.resume.id))
@@ -685,6 +873,37 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(record.evidence_path, "outputs/live_test/test")
         self.assertEqual(FakeApplicationAutomation.processed_resume_ids, [self.resume.id])
         self.assertEqual(FakeApplicationAutomation.processed_resume_paths, [self.resume.stored_path])
+
+    def test_apply_selected_dice_job_uses_dice_adapter_skeleton(self) -> None:
+        set_active_portal(self.db, "dice")
+        self.resume.portal = "dice"
+        self.db.add(self.resume)
+        self.db.commit()
+        dice_job = JobOpportunity(
+            resume_id=self.resume.id,
+            portal="dice",
+            title="Dice Data Analyst",
+            company="Dice Co",
+            location="Remote",
+            job_url=f"https://www.dice.com/job-detail/{uuid4().hex}",
+            description="Python SQL",
+            easy_apply=True,
+            match_score=95,
+        )
+        self.db.add(dice_job)
+        self.db.commit()
+        self.db.refresh(dice_job)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            record = apply_selected_job(
+                ApplySelectedRequest(resume_id=self.resume.id, job_id=dice_job.id, dry_run=True),
+                self.db,
+            )
+
+        self.assertEqual(record.portal, "dice")
+        self.assertEqual(record.status, ApplicationStatus.NEEDS_REVIEW)
+        self.assertEqual(record.current_step, "dice_apply_unsupported")
+        self.assertEqual(FakeApplicationAutomation.processed_job_ids, [])
 
     def test_apply_selected_rejects_wrong_resume_id(self) -> None:
         other_resume = ResumeProfile(
@@ -737,6 +956,84 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertTrue(all(record.evidence_path is not None for record in records))
         self.assertEqual(FakeApplicationAutomation.processed_resume_ids, [self.resume.id, self.resume.id])
         self.assertEqual(FakeApplicationAutomation.processed_resume_paths, [self.resume.stored_path, self.resume.stored_path])
+
+    def test_apply_top_dice_portal_filters_to_dice_jobs(self) -> None:
+        set_active_portal(self.db, "dice")
+        self.resume.portal = "dice"
+        self.db.add(self.resume)
+        self.db.commit()
+        dice_job = JobOpportunity(
+            resume_id=self.resume.id,
+            portal="dice",
+            title="Dice Data Analyst",
+            company="Dice Co",
+            location="Remote",
+            job_url=f"https://www.dice.com/job-detail/{uuid4().hex}",
+            description="Python SQL",
+            easy_apply=True,
+            match_score=99,
+            priority_score=99,
+            completion_likelihood_score=80,
+            application_friction_score=20,
+        )
+        self.db.add(dice_job)
+        self.db.commit()
+        self.db.refresh(dice_job)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(
+                ApplyRequest(resume_id=self.resume.id, limit=5, dry_run=True, portal="dice"),
+                self.db,
+            )
+
+        self.assertEqual([record.job_id for record in records], [dice_job.id])
+        self.assertEqual(records[0].portal, "dice")
+        self.assertEqual(records[0].status, ApplicationStatus.NEEDS_REVIEW)
+        self.assertEqual(FakeApplicationAutomation.processed_job_ids, [])
+
+    def test_apply_top_20_selects_20_jobs(self) -> None:
+        self._ensure_job_count(25)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=20, dry_run=True), self.db)
+
+        self.assertEqual(len(records), 20)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 20)
+
+    def test_apply_all_selects_all_ranked_jobs_up_to_safety_cap(self) -> None:
+        self._ensure_job_count(60)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=999, dry_run=True), self.db)
+
+        self.assertEqual(len(records), 50)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 50)
+
+    def test_apply_top_orders_jobs_by_final_apply_priority(self) -> None:
+        self.jobs[0].match_score = 95
+        self.jobs[0].priority_score = 62
+        self.jobs[0].completion_likelihood_score = 30
+        self.jobs[0].application_friction_score = 70
+        self.jobs[0].recommended_apply_priority = "Complex"
+        self.jobs[1].match_score = 76
+        self.jobs[1].priority_score = 88
+        self.jobs[1].completion_likelihood_score = 92
+        self.jobs[1].application_friction_score = 8
+        self.jobs[1].recommended_apply_priority = "Simple"
+        self.jobs[2].match_score = 80
+        self.jobs[2].priority_score = 74
+        self.jobs[2].completion_likelihood_score = 65
+        self.jobs[2].application_friction_score = 35
+        self.jobs[2].recommended_apply_priority = "Medium"
+        self.db.add_all(self.jobs)
+        self.db.commit()
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=3, dry_run=True), self.db)
+
+        expected_ids = [self.jobs[1].id, self.jobs[2].id, self.jobs[0].id]
+        self.assertEqual(FakeApplicationAutomation.processed_job_ids, expected_ids)
+        self.assertEqual([record.job_id for record in records], expected_ids)
 
     def test_apply_top_defaults_to_latest_search_batch(self) -> None:
         old_batch = JobSearchBatch(
@@ -792,6 +1089,110 @@ class SingleJobApplicationTests(unittest.TestCase):
 
         self.assertEqual(FakeApplicationAutomation.processed_job_ids, [latest_job.id])
         self.assertEqual([record.job_id for record in records], [latest_job.id])
+
+    def test_apply_top_background_batch_can_be_retrieved_after_start(self) -> None:
+        self._ensure_job_count(12)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            batch = _create_apply_top_batch(
+                ApplyRequest(resume_id=self.resume.id, limit=10, dry_run=True),
+                self.db,
+            )
+            _run_apply_top_batch(batch.id)
+
+        self.db.expire_all()
+        refreshed = self.db.get(ApplyTopBatch, batch.id)
+
+        self.assertEqual(refreshed.status, "completed")
+        self.assertEqual(refreshed.limit, 10)
+        self.assertEqual(refreshed.completed_count, 10)
+        self.assertEqual(len(refreshed.job_results), 10)
+        self.assertTrue(refreshed.dry_run)
+        self.assertTrue(Path(refreshed.debug_path, "batch_status.json").exists())
+
+    def test_apply_top_background_batch_supports_top_20(self) -> None:
+        self._ensure_job_count(25)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            batch = _create_apply_top_batch(
+                ApplyRequest(resume_id=self.resume.id, limit=20, dry_run=True),
+                self.db,
+            )
+            _run_apply_top_batch(batch.id)
+
+        self.db.expire_all()
+        refreshed = self.db.get(ApplyTopBatch, batch.id)
+
+        self.assertEqual(refreshed.status, "completed")
+        self.assertEqual(refreshed.limit, 20)
+        self.assertEqual(refreshed.completed_count, 20)
+        self.assertEqual(len(refreshed.job_results), 20)
+
+    def test_apply_top_background_batch_supports_apply_all_safety_cap(self) -> None:
+        self._ensure_job_count(60)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            batch = _create_apply_top_batch(
+                ApplyRequest(resume_id=self.resume.id, limit=999, dry_run=True),
+                self.db,
+            )
+            _run_apply_top_batch(batch.id)
+
+        self.db.expire_all()
+        refreshed = self.db.get(ApplyTopBatch, batch.id)
+
+        self.assertEqual(refreshed.status, "completed")
+        self.assertEqual(refreshed.limit, 50)
+        self.assertEqual(refreshed.completed_count, 50)
+        self.assertEqual(len(refreshed.job_results), 50)
+
+    def test_apply_top_background_batch_continues_after_one_job_failure(self) -> None:
+        FailingSecondJobAutomation.processed_job_ids = []
+        with patch("app.main.LinkedInAutomation", FailingSecondJobAutomation):
+            batch = _create_apply_top_batch(
+                ApplyRequest(resume_id=self.resume.id, limit=3, dry_run=True),
+                self.db,
+            )
+            _run_apply_top_batch(batch.id)
+
+        self.db.expire_all()
+        refreshed = self.db.get(ApplyTopBatch, batch.id)
+
+        self.assertEqual(refreshed.status, "completed")
+        self.assertEqual(refreshed.completed_count, 3)
+        self.assertEqual(refreshed.failed_count, 1)
+        self.assertEqual(FailingSecondJobAutomation.processed_job_ids, [self.jobs[0].id, self.jobs[1].id, self.jobs[2].id])
+
+    def test_apply_top_background_batch_continues_after_radio_write_failure(self) -> None:
+        RadioFailureSecondJobAutomation.processed_job_ids = []
+        with patch("app.main.LinkedInAutomation", RadioFailureSecondJobAutomation):
+            batch = _create_apply_top_batch(
+                ApplyRequest(resume_id=self.resume.id, limit=3, dry_run=True),
+                self.db,
+            )
+            _run_apply_top_batch(batch.id)
+
+        self.db.expire_all()
+        refreshed = self.db.get(ApplyTopBatch, batch.id)
+
+        self.assertEqual(refreshed.status, "completed")
+        self.assertEqual(refreshed.completed_count, 3)
+        self.assertEqual(refreshed.failed_count, 1)
+        self.assertIn("did not accept", refreshed.job_results[1]["error"])
+        self.assertEqual(RadioFailureSecondJobAutomation.processed_job_ids, [self.jobs[0].id, self.jobs[1].id, self.jobs[2].id])
+
+    def test_apply_top_batch_records_timed_out_job_result(self) -> None:
+        record = ApplicationRecord(
+            job_id=self.jobs[0].id,
+            status=ApplicationStatus.FAILED,
+            dry_run=True,
+            current_step="timed_out",
+            error_message="Application timed out while processing the job.",
+        )
+
+        status = _batch_job_status(record)
+
+        self.assertEqual(status, "timed_out")
 
     def test_selected_dry_run_writes_logs_and_step_screenshots(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -1647,9 +2048,247 @@ class SingleJobApplicationTests(unittest.TestCase):
         automation = LinkedInAutomation(Settings(openai_api_key=None))
         field = FakeScreeningRadioField("Are you open to relocation?", ["Yes", "No"])
 
-        automation._fill_screening_field(field, {"field_type": "radio", "type": "radio"}, "No", ["Yes", "No"])
+        result = automation._fill_screening_field(field, {"field_type": "radio", "type": "radio"}, "No", ["Yes", "No"])
 
         self.assertEqual(field.selected_option, "No")
+        self.assertEqual(result["final_write_status"], "success")
+        self.assertEqual(result["click_strategy_used"], "label_click")
+
+    def test_radio_writer_records_parent_container_fallback(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Are you willing to undergo a background check?",
+            ["Yes", "No"],
+            strategy="parent_container_click",
+        )
+
+        result = automation._fill_screening_field(field, {"field_type": "radio", "type": "radio"}, "Yes", ["Yes", "No"])
+
+        self.assertEqual(field.selected_option, "Yes")
+        self.assertEqual(result["click_strategy_used"], "parent_container_click")
+
+    def test_radio_writer_records_hidden_input_fallback(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Are you comfortable commuting to this job's location?",
+            ["Yes", "No"],
+            strategy="native_checked_change",
+        )
+
+        result = automation._fill_screening_field(field, {"field_type": "radio", "type": "radio"}, "Yes", ["Yes", "No"])
+
+        self.assertEqual(field.selected_option, "Yes")
+        self.assertEqual(result["click_strategy_used"], "native_checked_change")
+
+    def test_radio_writer_dumps_duplicate_hidden_radio_inputs(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        diagnostics = {
+            "question_text": "Are you legally authorized to work in the United States?",
+            "group_outer_html": "<fieldset><input type='radio' hidden><label>Yes</label><input type='radio'><label>No</label></fieldset>",
+            "inputs_before": [
+                {"id": "hidden-yes", "name": "auth-1", "value": "Yes", "label": "Yes", "checked": False, "visible": False},
+                {"id": "visible-yes", "name": "auth-1", "value": "Yes", "label": "Yes", "checked": False, "visible": True},
+                {"id": "visible-no", "name": "auth-1", "value": "No", "label": "No", "checked": False, "visible": True},
+            ],
+            "inputs_after": [
+                {"id": "hidden-yes", "name": "auth-1", "value": "Yes", "label": "Yes", "checked": False, "visible": False},
+                {"id": "visible-yes", "name": "auth-1", "value": "Yes", "label": "Yes", "checked": True, "visible": True},
+                {"id": "visible-no", "name": "auth-1", "value": "No", "label": "No", "checked": False, "visible": True},
+            ],
+            "active_element_after": {"id": "visible-yes"},
+        }
+        field = FakeScreeningRadioField(
+            "Are you legally authorized to work in the United States?",
+            ["Yes", "No"],
+            group_diagnostics=diagnostics,
+        )
+
+        result = automation._fill_screening_field(
+            field,
+            {"field_type": "radio", "type": "radio"},
+            "Yes",
+            ["Yes", "No"],
+            question="Are you legally authorized to work in the United States?",
+            normalized_field="us_work_authorization",
+        )
+
+        self.assertEqual(result["final_write_status"], "success")
+        self.assertEqual(result["group_diagnostics"]["inputs_before"][0]["id"], "hidden-yes")
+        self.assertIn("fieldset", result["group_diagnostics"]["group_outer_html"])
+
+    def test_radio_writer_scopes_repeated_yes_no_groups_to_current_question(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Will you now, or in the future, require sponsorship for employment visa status?",
+            ["Yes", "No"],
+            expected_question="Will you now, or in the future, require sponsorship for employment visa status?",
+        )
+
+        result = automation._fill_screening_field(
+            field,
+            {"field_type": "radio", "type": "radio"},
+            "No",
+            ["Yes", "No"],
+            question="Will you now, or in the future, require sponsorship for employment visa status?",
+            normalized_field="visa_sponsorship",
+        )
+
+        self.assertEqual(field.selected_option, "No")
+        self.assertEqual(result["question_label"], "Will you now, or in the future, require sponsorship for employment visa status?")
+        self.assertEqual(field.last_payload["question"], "Will you now, or in the future, require sponsorship for employment visa status?")
+
+    def test_radio_question_text_prefers_group_question_over_yes_option_label(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Are you willing to undergo a background check?",
+            ["Yes", "No"],
+        )
+
+        question = automation._screening_question_text(field, 0)
+
+        self.assertEqual(question, "Are you willing to undergo a background check?")
+
+    def test_legal_radio_question_without_saved_answer_needs_review(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst with SQL and Excel.",
+            skills=["SQL", "Excel"],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        question = "Will you now, or in the future, require sponsorship for employment visa status?"
+
+        answer = automation._select_screening_answer(
+            question,
+            automation._screening_question_category(question),
+            {"field_type": "radio", "type": "radio"},
+            ["Yes", "No"],
+            resume,
+            job,
+            None,
+            {"mode": "aggressive", "saved_answers": []},
+        )
+
+        self.assertIsNone(answer)
+
+    def test_radio_writer_treats_visual_click_without_validation_clear_as_failed(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Have you completed the following level of education: Associate's Degree?",
+            ["Yes", "No"],
+            accepted=False,
+            validation_after="Please make a selection",
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "did not accept"):
+            automation._fill_screening_field(field, {"field_type": "radio", "type": "radio"}, "Yes", ["Yes", "No"])
+
+        self.assertIsNone(field.selected_option)
+
+    def test_radio_writer_recovery_clears_validation_after_visual_check(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Have you completed the following level of education: Bachelor's Degree?",
+            ["Yes", "No"],
+            accepted=False,
+            validation_after="Please make a selection",
+            recovery_succeeds=True,
+        )
+
+        result = automation._fill_screening_field(
+            field,
+            {"field_type": "radio", "type": "radio"},
+            "Yes",
+            ["Yes", "No"],
+            question="Have you completed the following level of education: Bachelor's Degree?",
+            normalized_field="Education Requirement",
+        )
+
+        self.assertEqual(result["final_write_status"], "success")
+        self.assertEqual(result["click_strategy_used"], "post_selection_validation_recovery")
+        self.assertEqual(result["validation_message_after"], "")
+        self.assertTrue(any(attempt["strategy"] == "post_selection_validation_recovery" for attempt in result["attempts"]))
+
+    def test_radio_writer_failed_recovery_remains_write_failed(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField(
+            "Have you completed the following level of education: Bachelor's Degree?",
+            ["Yes", "No"],
+            accepted=False,
+            validation_after="Please make a selection",
+            recovery_succeeds=False,
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "did not accept"):
+            automation._fill_screening_field(
+                field,
+                {"field_type": "radio", "type": "radio"},
+                "Yes",
+                ["Yes", "No"],
+            )
+
+        self.assertIsNone(field.selected_option)
+
+    def test_radio_writer_diagnostics_include_provider_and_selected_markup(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField("Are you open to relocation?", ["Yes", "No"])
+
+        result = automation._fill_screening_field(
+            field,
+            {"field_type": "radio", "type": "radio"},
+            "Yes",
+            ["Yes", "No"],
+        )
+
+        self.assertEqual(result["group_diagnostics"]["provider_name"], "linkedin_native")
+        self.assertIn("selected_input_outer_html", result["group_diagnostics"])
+        self.assertIn("exact_label_clicked", result["group_diagnostics"])
+
+    def test_numeric_text_fields_are_unaffected_by_radio_writer_recovery(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeContactField("How many years of work experience do you have with SQL?", field_type="number")
+
+        result = automation._fill_screening_field(
+            field,
+            {"field_type": "number", "type": "number"},
+            "1",
+            [],
+        )
+
+        self.assertIsNone(result)
+        self.assertEqual(field.filled_values, ["1"])
+
+    def test_radio_writer_diagnostics_are_written(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        field = FakeScreeningRadioField("Are you open to relocation?", ["Yes", "No"])
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="Remote", job_url="https://example.com")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            debug_dir = Path(temp_dir)
+            automation._fill_screening_field(
+                field,
+                {"field_type": "radio", "type": "radio"},
+                "Yes",
+                ["Yes", "No"],
+                job=job,
+                question="Are you open to relocation?",
+                normalized_field="relocation",
+                radio_debug_dir=debug_dir,
+            )
+
+            payload = json.loads((debug_dir / "radio_writer_events.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(payload["events"][0]["question_label"], "Are you open to relocation?")
+        self.assertEqual(payload["events"][0]["target_answer"], "Yes")
+        self.assertEqual(payload["events"][0]["final_write_status"], "success")
+        self.assertIn("group_outer_html", payload["events"][0]["group_diagnostics"])
+        self.assertIn("inputs_before", payload["events"][0]["group_diagnostics"])
 
     def test_degree_dropdown_prefers_resume_degree_option(self) -> None:
         automation = LinkedInAutomation(Settings(openai_api_key=None))
@@ -1893,6 +2532,198 @@ class SingleJobApplicationTests(unittest.TestCase):
 
         self.assertEqual(answer["selected_answer"], "No")
         self.assertTrue(answer["aggressive_default_used"])
+
+    def test_work_authorization_never_defaults_yes_or_no_without_saved_answer(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst with SQL experience.",
+            skills=["SQL"],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        question = "Are you a US Citizen or Green Card holder?"
+
+        answer = automation._select_screening_answer(
+            question,
+            automation._screening_question_category(question),
+            {"field_type": "radio", "type": "radio"},
+            ["Yes", "No"],
+            resume,
+            job,
+            None,
+            {"mode": "aggressive", "saved_answers": []},
+        )
+
+        self.assertIsNone(answer)
+
+    def test_work_authorization_uses_saved_answer_first(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst.",
+            skills=[],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        question = "Are you legally authorized to work in the United States?"
+
+        answer = automation._select_screening_answer(
+            question,
+            automation._screening_question_category(question),
+            {"field_type": "radio", "type": "radio"},
+            ["Yes", "No"],
+            resume,
+            job,
+            None,
+            {
+                "mode": "aggressive",
+                "saved_answers": [
+                    {
+                        "normalized_question": automation._normalize_screening_question(question),
+                        "answer": "Yes",
+                        "source": "Candidate Knowledge Base",
+                        "confidence": "High",
+                    }
+                ],
+            },
+        )
+
+        self.assertEqual(answer["selected_answer"], "Yes")
+        self.assertEqual(answer["source"], "Candidate Knowledge Base")
+
+    def test_visa_sponsorship_and_background_check_require_saved_answers(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst with reporting experience.",
+            skills=[],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        for question in (
+            "Will you now or in the future require sponsorship?",
+            "Are you willing to undergo a background check?",
+        ):
+            answer = automation._select_screening_answer(
+                question,
+                automation._screening_question_category(question),
+                {"field_type": "radio", "type": "radio"},
+                ["Yes", "No"],
+                resume,
+                job,
+                None,
+                {"mode": "aggressive", "saved_answers": []},
+            )
+            self.assertIsNone(answer)
+
+    def test_preference_questions_do_not_use_aggressive_defaults(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst with reporting experience.",
+            skills=[],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="Boston, MA", job_url="https://example.com")
+        for question in (
+            "Are you open to relocation?",
+            "Are you comfortable commuting to this job's location?",
+            "Are you comfortable working in a hybrid setting?",
+        ):
+            answer = automation._select_screening_answer(
+                question,
+                automation._screening_question_category(question),
+                {"field_type": "radio", "type": "radio"},
+                ["Yes", "No"],
+                resume,
+                job,
+                CandidateProfile(current_location="Boston, MA"),
+                {"mode": "aggressive", "saved_answers": []},
+            )
+            self.assertIsNone(answer)
+
+    def test_driver_license_and_clearance_use_explicit_candidate_profile_evidence(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst.",
+            skills=[],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        candidate_profile = CandidateProfile(certifications=["Driver's License", "Active security clearance"])
+
+        for question in (
+            "Do you have a valid driver's license?",
+            "Do you hold an active security clearance?",
+        ):
+            answer = automation._select_screening_answer(
+                question,
+                automation._screening_question_category(question),
+                {"field_type": "radio", "type": "radio"},
+                ["Yes", "No"],
+                resume,
+                job,
+                candidate_profile,
+                {"mode": "aggressive", "saved_answers": []},
+            )
+            self.assertEqual(answer["selected_answer"], "Yes")
+            self.assertEqual(answer["source"], "Candidate Profile")
+
+    def test_driver_license_does_not_default_without_profile_or_saved_answer(self) -> None:
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt",
+            stored_path="resume.txt",
+            raw_text="Data analyst.",
+            skills=[],
+            technologies=[],
+            education=[],
+            experience=[],
+            job_titles=[],
+            keywords=[],
+        )
+        job = JobOpportunity(resume_id=1, title="Analyst", company="Example", location="United States", job_url="https://example.com")
+        question = "Do you have a valid driver's license?"
+
+        answer = automation._select_screening_answer(
+            question,
+            automation._screening_question_category(question),
+            {"field_type": "radio", "type": "radio"},
+            ["Yes", "No"],
+            resume,
+            job,
+            None,
+            {"mode": "aggressive", "saved_answers": []},
+        )
+
+        self.assertIsNone(answer)
 
     def test_employment_history_database_save(self) -> None:
         candidate = CandidateProfile(is_default=True)

@@ -1,0 +1,10 @@
+[
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.22,
+    "metadata": {
+      "query_count": 15,
+      "limit_per_query": 9
+    }
+  }
+]

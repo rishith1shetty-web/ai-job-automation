@@ -1,0 +1,232 @@
+[
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "primary_role_primary_location",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Python Developer",
+    "pass_name": "related_role_primary_location",
+    "search_role": "Python Developer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "related_role_primary_location",
+    "search_role": "Software Engineer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Data Analyst",
+    "pass_name": "related_role_primary_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Data Scientist",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Data Scientist",
+    "pass_name": "related_role_primary_location",
+    "search_role": "Data Scientist",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Analytics Engineer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Analytics Engineer",
+    "pass_name": "related_role_primary_location",
+    "search_role": "Analytics Engineer",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "FastAPI Developer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "FastAPI Developer",
+    "pass_name": "primary_role_variant_primary_location",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "API Developer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "API Developer",
+    "pass_name": "primary_role_variant_primary_location",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "Junior Software Engineer",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Junior Software Engineer",
+    "pass_name": "related_role_variant_primary_location",
+    "search_role": "Software Engineer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Junior Data Analyst",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Junior Data Analyst",
+    "pass_name": "related_role_variant_primary_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Business Analyst",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "Business Analyst",
+    "pass_name": "related_role_variant_primary_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "BI Analyst",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "BI Analyst",
+    "pass_name": "related_role_variant_primary_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "SQL Analyst",
+    "location": "United States",
+    "role": "Backend Developer",
+    "expanded_role": "SQL Analyst",
+    "pass_name": "skill_expansion_primary_location",
+    "search_role": "Backend Developer",
+    "role_priority": "related",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Remote",
+    "role": "Backend Developer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "primary_role_nearby_location",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "Backend Developer",
+    "location": "Hybrid",
+    "role": "Backend Developer",
+    "expanded_role": "Backend Developer",
+    "pass_name": "primary_role_nearby_location",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "role_confidence": 88.0
+  },
+  {
+    "query": "Python Developer",
+    "location": "Remote",
+    "role": "Backend Developer",
+    "expanded_role": "Python Developer",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Python Developer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Python Developer",
+    "location": "Hybrid",
+    "role": "Backend Developer",
+    "expanded_role": "Python Developer",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Python Developer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Software Engineer",
+    "location": "Remote",
+    "role": "Backend Developer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Software Engineer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Software Engineer",
+    "location": "Hybrid",
+    "role": "Backend Developer",
+    "expanded_role": "Software Engineer",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Software Engineer",
+    "role_priority": "related",
+    "role_confidence": 71.0
+  },
+  {
+    "query": "Data Analyst",
+    "location": "Remote",
+    "role": "Backend Developer",
+    "expanded_role": "Data Analyst",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Data Analyst",
+    "location": "Hybrid",
+    "role": "Backend Developer",
+    "expanded_role": "Data Analyst",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Data Scientist",
+    "location": "Remote",
+    "role": "Backend Developer",
+    "expanded_role": "Data Scientist",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Data Scientist",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  },
+  {
+    "query": "Data Scientist",
+    "location": "Hybrid",
+    "role": "Backend Developer",
+    "expanded_role": "Data Scientist",
+    "pass_name": "related_role_nearby_location",
+    "search_role": "Data Scientist",
+    "role_priority": "related",
+    "role_confidence": 63.0
+  }
+]

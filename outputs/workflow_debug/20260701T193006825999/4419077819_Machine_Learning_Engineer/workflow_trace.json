@@ -1,0 +1,223 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "d88d75632d6ea1118b7b0bea43fd715b81d44ff75a4e083d6247969803de9b96",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.98,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "ec3989d6c244eb1e72f09dbd7086965cfa7147042bb154338e4f8d071f4bcd46",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.59,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "ec3989d6c244eb1e72f09dbd7086965cfa7147042bb154338e4f8d071f4bcd46",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.72,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "employment_history",
+    "page_hash": "ae63e9727c8bdae1e17cb18f0fe374d554a846304bf8d4e77219f9e346dc2f99",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 36.14,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "screening_questions",
+    "page_hash": "8bc712ba62c8b7edf0d05f0363b53918780b1e332e1dcbbb19aaab0d8f9b52db",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": true,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Edit",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 44.83,
+    "stop_reason": null
+  },
+  {
+    "step_number": 4,
+    "page_name": "Machine Learning Engineer | RK Infotech LLC | LinkedIn",
+    "modal_title": "Apply to RK Infotech LLC",
+    "detected_page_type": "screening_questions",
+    "page_hash": "8bc712ba62c8b7edf0d05f0363b53918780b1e332e1dcbbb19aaab0d8f9b52db",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4419077819/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Edit",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 45.02,
+    "stop_reason": null
+  }
+]

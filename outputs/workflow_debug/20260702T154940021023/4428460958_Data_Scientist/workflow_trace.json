@@ -1,0 +1,240 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "contact_page",
+    "page_hash": "1f2575b54333f942cb56f068d213b102214fbc2e906284d0bd6975b2345980fa",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.45,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "resume_page",
+    "page_hash": "ee12ce8a17d55e7efa0df13680f783aea630894a879bcb073b6771e0a466db4d",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 26.96,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "resume_page",
+    "page_hash": "ee12ce8a17d55e7efa0df13680f783aea630894a879bcb073b6771e0a466db4d",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 27.11,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "unknown",
+    "page_hash": "364ce1dbd4ca0878439a9dd08d77fe75dc8de7eec8d09909f41107e44c3860e3",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "unknown",
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Remove",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Remove",
+      "Edit",
+      "Add more",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 30.81,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "unknown",
+    "page_hash": "364ce1dbd4ca0878439a9dd08d77fe75dc8de7eec8d09909f41107e44c3860e3",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Remove",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Remove",
+      "Edit",
+      "Add more",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 31.09,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Scientist | Remote | Crossing Hurdles | LinkedIn",
+    "modal_title": "Apply to Crossing Hurdles",
+    "detected_page_type": "validation_error",
+    "page_hash": "25caaf5618ca308a2f8751fb549d7016cc8988d6ad213e49818d693cf2e39228",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4428460958/",
+    "visible_buttons": [
+      {
+        "text": "Cancel",
+        "enabled": true
+      },
+      {
+        "text": "Save",
+        "enabled": true
+      },
+      {
+        "text": "Add more",
+        "enabled": false
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Cancel",
+      "Save",
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "From \nRequired",
+        "field_type": "select",
+        "has_value": false
+      },
+      {
+        "label": "To \nRequired",
+        "field_type": "select",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [
+      "Please enter a valid answer"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 38.5,
+    "stop_reason": "Validation error: Please enter a valid answer"
+  }
+]

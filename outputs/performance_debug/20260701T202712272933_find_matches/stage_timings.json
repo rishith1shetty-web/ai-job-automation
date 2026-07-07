@@ -1,0 +1,75 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.13,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_session_validation",
+    "elapsed_ms": 0.1,
+    "metadata": {}
+  },
+  {
+    "stage": "role_skill_location_expansion",
+    "elapsed_ms": 0.33,
+    "metadata": {}
+  },
+  {
+    "stage": "duplicate_key_loading",
+    "elapsed_ms": 11.64,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {
+      "query": "Backend Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.0,
+    "metadata": {
+      "query": "Python Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.0,
+    "metadata": {
+      "query": "FastAPI Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 0.0,
+    "metadata": {
+      "query": "API Developer",
+      "location": "United States"
+    }
+  },
+  {
+    "stage": "match_complexity_priority_scoring",
+    "elapsed_ms": 2.91,
+    "metadata": {
+      "job_count": 1
+    }
+  },
+  {
+    "stage": "job_description_reasoning",
+    "elapsed_ms": 23.09,
+    "metadata": {
+      "job_count": 1
+    }
+  },
+  {
+    "stage": "database_batch_write",
+    "elapsed_ms": 4.74,
+    "metadata": {
+      "job_count": 1
+    }
+  }
+]

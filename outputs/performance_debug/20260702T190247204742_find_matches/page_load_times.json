@@ -1,0 +1,15 @@
+[
+  {
+    "stage": "linkedin_session_validation",
+    "elapsed_ms": 0.12,
+    "metadata": {}
+  },
+  {
+    "stage": "linkedin_find_matches_page_loading",
+    "elapsed_ms": 217887.9,
+    "metadata": {
+      "query_count": 5,
+      "limit_per_query": 8
+    }
+  }
+]

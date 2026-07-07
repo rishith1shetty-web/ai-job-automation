@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 6027,
+  "job_resume_id": 6027,
+  "search_batch_id": null,
+  "resume_filename_from_database": "candidate.pdf",
+  "resume_original_filename": "candidate.pdf",
+  "resume_storage_path": "C:\\Users\\DELL\\AppData\\Local\\Temp\\tmp6d43a1dm\\resume.pdf",
+  "file_exists": true,
+  "file_size": 6,
+  "file_hash_sha256": "a83a31320d921b888a48fa5edd0b4b5a29984de6e96bf7b8ac7d29ba06caf616",
+  "file_passed_to_playwright": "C:\\Users\\DELL\\AppData\\Local\\Temp\\tmp6d43a1dm\\resume.pdf",
+  "linkedin_filename_detected_after_upload": null,
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260703T143350370213\\https_example_com_649786f6a6b84b1da6a2165ba302f728_0_Job_0"
+}

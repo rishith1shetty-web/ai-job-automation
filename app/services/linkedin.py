@@ -946,6 +946,7 @@ class LinkedInAutomation:
                         )
 
                     answered_screening = self._answer_screening_questions(
+                        page,
                         modal,
                         resume,
                         job,
@@ -1231,6 +1232,7 @@ class LinkedInAutomation:
                         navigation_failure = self._navigation_failure_reason(before_state, after_state, button_text)
                         if navigation_failure:
                             answered_after_navigation = self._answer_screening_questions(
+                                page,
                                 after_modal,
                                 resume,
                                 job,
@@ -3046,7 +3048,38 @@ class LinkedInAutomation:
                     const tag = el.tagName.toLowerCase();
                     const type = (el.type || tag).toLowerCase();
                     let value = '';
-                    if (type === 'checkbox' || type === 'radio') {
+                    if (type === 'radio') {
+                        const roots = [
+                            el.closest('fieldset'),
+                            el.closest('.fb-dash-form-element'),
+                            el.closest('[data-test-form-element]'),
+                            el.closest('[data-test-form-builder-question]'),
+                            el.closest('.jobs-easy-apply-form-section__grouping'),
+                            el.closest('.jobs-easy-apply-form-section'),
+                            el.closest('[role="group"]')
+                        ].filter(Boolean);
+                        let group = roots.find(root => root.querySelectorAll('input[type="radio"]').length >= 2);
+                        if (!group) {
+                            let parent = el.parentElement;
+                            for (let i = 0; parent && i < 8; i += 1) {
+                                const count = parent.querySelectorAll('input[type="radio"]').length;
+                                if (count >= 2 && count <= 8) {
+                                    group = parent;
+                                    break;
+                                }
+                                parent = parent.parentElement;
+                            }
+                        }
+                        const name = el.getAttribute('name');
+                        const sameName = name && group
+                            ? Array.from(group.querySelectorAll('input[type="radio"]')).filter(input => input.getAttribute('name') === name)
+                            : [];
+                        const controls = sameName.length
+                            ? sameName
+                            : Array.from(group?.querySelectorAll('input[type="radio"]') || [el]);
+                        const checked = controls.find(input => input.checked || input.getAttribute('aria-checked') === 'true');
+                        value = checked ? (checked.value || 'checked') : '';
+                    } else if (type === 'checkbox') {
                         value = el.checked ? (el.value || 'checked') : '';
                     } else if (tag === 'select') {
                         const selected = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
@@ -3204,6 +3237,7 @@ class LinkedInAutomation:
 
     def _answer_screening_questions(
         self,
+        page,
         modal,
         resume: ResumeProfile,
         job: JobOpportunity,
@@ -3217,6 +3251,7 @@ class LinkedInAutomation:
         selected: list[dict] = []
         detected: list[dict] = []
         field_traces: list[dict] = []
+        radio_debug_dir: Path | None = None
         for index in range(fields.count()):
             field = fields.nth(index)
             state = self._field_state(field)
@@ -3285,7 +3320,22 @@ class LinkedInAutomation:
                 field_traces.append(self._screening_field_trace(event, blank_reason))
                 continue
             try:
-                self._fill_screening_field(field, state, answer["answer"], options)
+                radio_writer = None
+                if state.get("type") in {"radio", "checkbox"} and radio_debug_dir is None:
+                    radio_debug_dir = self._create_radio_writer_debug_dir(job)
+                radio_writer = self._fill_screening_field(
+                    field,
+                    state,
+                    answer["answer"],
+                    options,
+                    page=page,
+                    job=job,
+                    question=question,
+                    normalized_field=normalized_field,
+                    radio_debug_dir=radio_debug_dir,
+                )
+                if radio_writer:
+                    answer["radio_writer"] = radio_writer
                 answer["filled_successfully"] = True
                 write_reason = None
             except Exception as exc:
@@ -3316,6 +3366,7 @@ class LinkedInAutomation:
             "skill_years",
             "salary",
             "authorization",
+            "work_preference",
             "clearance",
             "legal",
             "certification",
@@ -3325,7 +3376,7 @@ class LinkedInAutomation:
         }:
             return True
         text = question.lower()
-        return bool(re.search(r"\b(bachelor|master|degree|graduation year|green card|citizen|relocat\w*|unpaid training)\b", text))
+        return bool(re.search(r"\b(bachelor|master|degree|graduation year|green card|citizen|relocat\w*|commut\w*|hybrid|remote|onsite|on-site|unpaid training)\b", text))
 
     def _screening_control_type(self, field_state: dict) -> str:
         field_type = str(field_state.get("field_type") or "").lower()
@@ -3347,7 +3398,21 @@ class LinkedInAutomation:
         if category == "graduation_year":
             return "Graduation Year"
         if category == "authorization":
+            lowered = question.lower()
+            if re.search(r"sponsor", lowered):
+                return "Visa Sponsorship"
+            if re.search(r"green card|citizen|authorized|authorization|right to work|work permit|eligible to work", lowered):
+                return "US Work Authorization"
             return "Work Authorization"
+        if category == "work_preference":
+            lowered = question.lower()
+            if re.search(r"relocat", lowered):
+                return "Relocation Willingness"
+            if re.search(r"commut", lowered):
+                return "Commute Willingness"
+            if re.search(r"hybrid|remote|onsite|on-site|office|work setting|work mode|work arrangement", lowered):
+                return "Work Mode Preference"
+            return "Candidate Work Preference"
         if category == "education":
             return "Education Requirement"
         if category == "location":
@@ -3357,8 +3422,12 @@ class LinkedInAutomation:
         return re.sub(r"\s+", " ", question).strip()[:120] or category.replace("_", " ").title()
 
     def _screening_blank_reason(self, question: str, category: str, mode: str) -> str:
-        if category in {"authorization", "legal", "clearance", "certification"}:
+        if category in {"authorization", "legal"}:
             return "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review."
+        if category in {"clearance", "certification"}:
+            return "Credential question requires saved candidate answer, explicit Candidate Profile evidence, or recruiter review."
+        if category == "work_preference":
+            return "Candidate preference question requires saved candidate answer or recruiter review."
         if mode != "aggressive":
             return "Safe Mode did not have a saved or high-confidence answer."
         return "No supported evidence or fallback produced an answer."
@@ -3376,6 +3445,7 @@ class LinkedInAutomation:
             "source": event.get("source"),
             "confidence": event.get("confidence"),
             "decision_pipeline": event.get("decision_pipeline") or [],
+            "radio_writer": event.get("radio_writer"),
         }
 
     def _select_screening_answer(
@@ -3396,9 +3466,6 @@ class LinkedInAutomation:
         if saved:
             return self._finalize_screening_decision(saved, "saved_answer", pipeline)
 
-        if category in {"authorization", "legal", "clearance", "certification"}:
-            return None
-
         stages = [
             (
                 "learned_mapping",
@@ -3406,8 +3473,17 @@ class LinkedInAutomation:
             ),
             (
                 "evidence",
-                lambda: self._screening_decision_from_evidence(question, category, resume, options),
+                lambda: self._screening_decision_from_evidence(question, category, resume, options, candidate_profile),
             ),
+        ]
+        for stage_name, stage in stages:
+            candidate = stage()
+            self._record_screening_pipeline_stage(pipeline, stage_name, candidate)
+            if candidate:
+                return self._finalize_screening_decision(candidate, stage_name, pipeline)
+        if category in {"authorization", "legal", "clearance", "certification", "work_preference"}:
+            return None
+        remaining_stages = [
             (
                 "reasoning",
                 lambda: self._screening_decision_from_reasoning(
@@ -3446,7 +3522,7 @@ class LinkedInAutomation:
                 ),
             ),
         ]
-        for stage_name, stage in stages:
+        for stage_name, stage in remaining_stages:
             candidate = stage()
             self._record_screening_pipeline_stage(pipeline, stage_name, candidate)
             if candidate:
@@ -3489,8 +3565,12 @@ class LinkedInAutomation:
         category: str,
         resume: ResumeProfile,
         options: list[str] | None = None,
+        candidate_profile: CandidateProfile | None = None,
     ) -> dict | None:
         options = options or []
+        explicit_profile_answer = self._explicit_candidate_profile_answer(question, category, candidate_profile, options)
+        if explicit_profile_answer:
+            return explicit_profile_answer
         if category == "graduation_year":
             year = self._extract_graduation_year(resume)
             if not year:
@@ -3528,6 +3608,61 @@ class LinkedInAutomation:
             currency=explicit.get("currency"),
             evidence=explicit,
         )
+
+    def _explicit_candidate_profile_answer(
+        self,
+        question: str,
+        category: str,
+        candidate_profile: CandidateProfile | None,
+        options: list[str],
+    ) -> dict | None:
+        if candidate_profile is None:
+            return None
+        question_text = question.lower()
+        yes_no = self._looks_yes_no_options(options) or re.search(r"\b(do you|have you|are you|can you)\b", question_text)
+        profile_values = [
+            candidate_profile.certifications or [],
+            candidate_profile.professional_links or {},
+            candidate_profile.field_sources or {},
+        ]
+        profile_text = json.dumps(profile_values, default=str).lower()
+        if category == "clearance" and "clearance" in profile_text and yes_no:
+            return self._screening_event(
+                "Yes",
+                "Candidate Profile",
+                "High",
+                "Candidate Profile explicitly lists security clearance evidence.",
+                False,
+                evidence={"source": "candidate_profile.certifications", "matched": "clearance"},
+            )
+        if category == "certification" and yes_no:
+            if re.search(r"driver'?s?\s+licen[cs]e|driving\s+licen[cs]e", question_text) and re.search(
+                r"driver'?s?\s+licen[cs]e|driving\s+licen[cs]e",
+                profile_text,
+            ):
+                return self._screening_event(
+                    "Yes",
+                    "Candidate Profile",
+                    "High",
+                    "Candidate Profile explicitly lists a driver's license.",
+                    False,
+                    evidence={"source": "candidate_profile.certifications", "matched": "driver_license"},
+                )
+            certificate_terms = [
+                term
+                for term in re.findall(r"[a-z][a-z0-9+#.]{2,}", question_text)
+                if term not in {"have", "you", "certification", "certified", "license", "valid", "following"}
+            ]
+            if certificate_terms and any(term in profile_text for term in certificate_terms):
+                return self._screening_event(
+                    "Yes",
+                    "Candidate Profile",
+                    "High",
+                    "Candidate Profile certifications explicitly match the requested credential.",
+                    False,
+                    evidence={"source": "candidate_profile.certifications", "matched_terms": certificate_terms},
+                )
+        return None
 
     def _screening_decision_from_reasoning(
         self,
@@ -3725,8 +3860,10 @@ class LinkedInAutomation:
             return "graduation_year"
         if re.search(r"salary|compensation|hourly|ctc|pay rate|rate", text):
             return "salary"
-        if re.search(r"visa|sponsor|authorization|authorized|work permit", text):
+        if re.search(r"visa|sponsor|authorization|authorized|work permit|green card|citizen|right to work|eligible to work|work eligibility", text):
             return "authorization"
+        if re.search(r"relocat\w*|commut\w*|hybrid|remote|onsite|on-site|in[- ]office|work setting|work mode|work arrangement", text):
+            return "work_preference"
         if re.search(r"security clearance|government clearance|clearance", text):
             return "clearance"
         if re.search(r"criminal|background|disability|veteran|legal declaration", text):
@@ -3754,6 +3891,9 @@ class LinkedInAutomation:
                     const wrapping = el.closest('label');
                     const fieldElement = el.closest('.fb-dash-form-element, .artdeco-text-input');
                     const fieldLabel = fieldElement?.querySelector(':scope > label, :scope > .artdeco-text-input--label, :scope > .fb-dash-form-element__label');
+                    const type = (el.type || '').toLowerCase();
+                    const questionRoot = el.closest('fieldset, .fb-dash-form-element, [data-test-form-element], [data-test-form-builder-question], .jobs-easy-apply-form-section__grouping, .jobs-easy-apply-form-section, [role="group"]');
+                    const rootLabel = questionRoot?.querySelector(':scope > legend, :scope > label, :scope > .fb-dash-form-element__label, :scope > .jobs-easy-apply-form-section__label, [data-test-form-builder-question-label]');
                     let previous = el.previousElementSibling;
                     let previousLabel = '';
                     for (let i = 0; previous && i < 5; i += 1) {
@@ -3765,6 +3905,16 @@ class LinkedInAutomation:
                     }
                     const fieldset = el.closest('fieldset');
                     const legend = fieldset?.querySelector(':scope > legend');
+                    if (type === 'radio' || type === 'checkbox') {
+                        return (
+                            legend?.innerText ||
+                            rootLabel?.innerText ||
+                            fieldLabel?.innerText ||
+                            questionRoot?.getAttribute('aria-label') ||
+                            el.getAttribute('name') ||
+                            fallback
+                        ).trim();
+                    }
                     return (
                         byFor?.innerText ||
                         wrapping?.innerText ||
@@ -3792,12 +3942,38 @@ class LinkedInAutomation:
                         if (el.tagName.toLowerCase() === 'select') {
                             return Array.from(el.options).map(option => option.textContent || option.value || '');
                         }
-                        const group = el.closest('fieldset, .jobs-easy-apply-form-section__grouping, div');
-                        return Array.from(group?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || [])
+                        const roots = [
+                            el.closest('fieldset'),
+                            el.closest('.fb-dash-form-element'),
+                            el.closest('[data-test-form-element]'),
+                            el.closest('[data-test-form-builder-question]'),
+                            el.closest('.jobs-easy-apply-form-section__grouping'),
+                            el.closest('.jobs-easy-apply-form-section'),
+                            el.closest('[role="group"]')
+                        ].filter(Boolean);
+                        let group = roots.find(root => root.querySelectorAll('input[type="radio"], input[type="checkbox"]').length >= 2);
+                        if (!group) {
+                            let parent = el.parentElement;
+                            for (let i = 0; parent && i < 8; i += 1) {
+                                const count = parent.querySelectorAll('input[type="radio"], input[type="checkbox"]').length;
+                                if (count >= 2 && count <= 8) {
+                                    group = parent;
+                                    break;
+                                }
+                                parent = parent.parentElement;
+                            }
+                        }
+                        const name = el.getAttribute('name');
+                        const controls = Array.from(group?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || []);
+                        const scopedControls = name
+                            ? controls.filter(input => input.getAttribute('name') === name)
+                            : controls;
+                        return (scopedControls.length >= 2 ? scopedControls : controls)
                             .map(input => {
                                 const id = input.id;
                                 const label = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
-                                return label?.innerText || input.value || '';
+                                const wrapper = input.closest('label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li');
+                                return label?.innerText || wrapper?.innerText || input.value || '';
                             });
                     }"""
                 )
@@ -3806,51 +3982,802 @@ class LinkedInAutomation:
         except Exception:
             return []
 
-    def _fill_screening_field(self, field, field_state: dict, answer: str, options: list[str]) -> None:
+    def _fill_screening_field(
+        self,
+        field,
+        field_state: dict,
+        answer: str,
+        options: list[str],
+        page=None,
+        job: JobOpportunity | None = None,
+        question: str | None = None,
+        normalized_field: str | None = None,
+        radio_debug_dir: Path | None = None,
+    ) -> dict | None:
         if field_state["field_type"] == "select":
             choice = self._closest_option(answer, options)
             field.select_option(label=choice)
-            return
+            return None
         if field_state["type"] in {"radio", "checkbox"}:
-            selected = self._click_choice_control(field, answer, options)
-            if not selected:
-                field.check()
-            return
+            result = self._click_choice_control(
+                field,
+                answer,
+                options,
+                page=page,
+                job=job,
+                question=question,
+                normalized_field=normalized_field,
+                radio_debug_dir=radio_debug_dir,
+            )
+            if not result.get("success"):
+                reason = result.get("reason") or "LinkedIn did not accept the selected radio option."
+                raise RuntimeError(reason)
+            return result
         field.fill(str(answer))
+        return None
 
-    def _click_choice_control(self, field, answer: str, options: list[str]) -> bool:
+    def _choice_control_writer_script(self) -> str:
+        return """
+            async (el, payload) => {
+                /* radioWriterPayload */
+                const normalize = value => String(value || '')
+                    .replace(/\\s+/g, ' ')
+                    .replace(/[’']/g, "'")
+                    .trim()
+                    .toLowerCase();
+                const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+                const cssEscape = value => window.CSS && CSS.escape ? CSS.escape(value) : String(value || '').replace(/"/g, '\\"');
+                const targetText = normalize(payload.answer);
+                const fieldType = (el.type || '').toLowerCase();
+                const controlSelector = 'input[type="radio"], input[type="checkbox"]';
+                const optionSelector = 'label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li, [data-test-form-builder-radio-button], [data-test-form-builder-checkbox], div';
+                const rootSelectors = [
+                    'fieldset',
+                    '.fb-dash-form-element',
+                    '[data-test-form-element]',
+                    '[data-test-form-builder-question]',
+                    '.jobs-easy-apply-form-section__grouping',
+                    '.jobs-easy-apply-form-section',
+                    '.artdeco-card',
+                    '[role="group"]'
+                ];
+                const elementVisible = node => {
+                    if (!node || !(node instanceof Element)) return false;
+                    const style = window.getComputedStyle(node);
+                    const rect = node.getBoundingClientRect();
+                    return style.visibility !== 'hidden'
+                        && style.display !== 'none'
+                        && rect.width >= 0
+                        && rect.height >= 0;
+                };
+                const controlsIn = root => Array.from(root?.querySelectorAll(controlSelector) || [])
+                    .filter(input => ['radio', 'checkbox'].includes((input.type || '').toLowerCase()));
+                const optionContainerFor = input => (
+                    input.closest(optionSelector) || input.parentElement || input
+                );
+                const labelElementFor = input => {
+                    const id = input.id;
+                    const byFor = id ? document.querySelector(`label[for="${cssEscape(id)}"]`) : null;
+                    return byFor || input.closest('label');
+                };
+                const labelFor = input => {
+                    const id = input.id;
+                    const byFor = id ? document.querySelector(`label[for="${cssEscape(id)}"]`) : null;
+                    const labelledBy = input.getAttribute('aria-labelledby');
+                    const ariaLabel = labelledBy
+                        ? labelledBy.split(/\\s+/).map(idPart => document.getElementById(idPart)?.innerText || '').join(' ')
+                        : '';
+                    const closestLabel = input.closest('label');
+                    const optionContainer = optionContainerFor(input);
+                    return byFor?.innerText
+                        || closestLabel?.innerText
+                        || ariaLabel
+                        || input.getAttribute('aria-label')
+                        || optionContainer?.innerText
+                        || input.value
+                        || '';
+                };
+                const questionTextFor = root => {
+                    const legend = root?.matches?.('fieldset') ? root.querySelector(':scope > legend') : null;
+                    const directLabel = root?.querySelector?.(':scope > label, :scope > .fb-dash-form-element__label, :scope > .artdeco-text-input--label');
+                    const heading = root?.querySelector?.('legend, .fb-dash-form-element__label, .jobs-easy-apply-form-section__label, [data-test-form-builder-question-label]');
+                    return String(legend?.innerText || directLabel?.innerText || heading?.innerText || payload.question || '').replace(/\\s+/g, ' ').trim();
+                };
+                const candidateRoots = [];
+                for (const selector of rootSelectors) {
+                    const root = el.closest(selector);
+                    if (root && !candidateRoots.includes(root)) candidateRoots.push(root);
+                }
+                let parent = el.parentElement;
+                for (let i = 0; parent && i < 8; i += 1) {
+                    const count = controlsIn(parent).length;
+                    if (count >= 2 && count <= 8 && !candidateRoots.includes(parent)) {
+                        candidateRoots.push(parent);
+                    }
+                    parent = parent.parentElement;
+                }
+                const name = el.getAttribute('name');
+                let groupRoot = candidateRoots.find(root => {
+                    const controls = controlsIn(root);
+                    const sameNamed = name ? controls.filter(input => input.getAttribute('name') === name) : [];
+                    return sameNamed.length >= 2 || (controls.includes(el) && controls.length >= 2 && controls.length <= 8);
+                });
+                if (!groupRoot && name) {
+                    const sameName = Array.from(document.querySelectorAll(`input[type="${cssEscape(fieldType)}"][name="${cssEscape(name)}"]`));
+                    if (sameName.length) {
+                        groupRoot = sameName.reduce((root, input) => {
+                            if (!root) return input.parentElement || input;
+                            let cursor = root;
+                            while (cursor && !cursor.contains(input)) cursor = cursor.parentElement;
+                            return cursor || root;
+                        }, null);
+                    }
+                }
+                groupRoot = groupRoot || el.closest('fieldset, .fb-dash-form-element, [data-test-form-element]') || el.parentElement || el;
+                const rootControls = controlsIn(groupRoot);
+                const sameNamedInRoot = name ? rootControls.filter(input => input.getAttribute('name') === name) : [];
+                let controls = sameNamedInRoot.length >= 2 ? sameNamedInRoot : rootControls;
+                controls = Array.from(new Set([...controls, el])).filter(input => {
+                    const type = (input.type || '').toLowerCase();
+                    return type === 'radio' || type === 'checkbox';
+                });
+                const validationNodes = () => Array.from(groupRoot?.querySelectorAll(
+                    '.artdeco-inline-feedback--error, .artdeco-inline-feedback__message, .fb-dash-form-element__error, [role="alert"], .error, .invalid-feedback'
+                ) || []);
+                const validationMessages = () => validationNodes()
+                    .map(node => String(node.innerText || node.textContent || '').replace(/\\s+/g, ' ').trim())
+                    .filter(Boolean);
+                const hasSelectionValidation = () => validationMessages().some(message =>
+                    /please make a selection|required|select an option|must select|choose/i.test(message)
+                );
+                const stateFor = input => {
+                    const labelElement = labelElementFor(input);
+                    const optionContainer = optionContainerFor(input);
+                    const rect = input.getBoundingClientRect();
+                    return {
+                        id: input.id || '',
+                        name: input.getAttribute('name') || '',
+                        type: input.type || '',
+                        value: input.value || '',
+                        label: labelFor(input).replace(/\\s+/g, ' ').trim(),
+                        checked: Boolean(input.checked),
+                        aria_checked: input.getAttribute('aria-checked')
+                            || labelElement?.getAttribute('aria-checked')
+                            || optionContainer?.getAttribute('aria-checked')
+                            || '',
+                        disabled: Boolean(input.disabled || input.getAttribute('aria-disabled') === 'true'),
+                        visible: elementVisible(input) || elementVisible(labelElement) || elementVisible(optionContainer),
+                        class_name: `${input.className || ''} ${labelElement?.className || ''} ${optionContainer?.className || ''}`.trim(),
+                        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                        html: (optionContainer?.outerHTML || input.outerHTML || '').replace(/\\s+/g, ' ').slice(0, 1200),
+                    };
+                };
+                const dumpControls = () => controls.map(input => stateFor(input));
+                const optionLabels = controls.map(input => labelFor(input).replace(/\\s+/g, ' ').trim()).filter(Boolean);
+                const normalizedLabels = controls.map(input => ({
+                    input,
+                    label: labelFor(input),
+                    normalized: normalize(labelFor(input)),
+                    state: stateFor(input),
+                }));
+                const answerMatches = item => {
+                    const label = item.normalized;
+                    const value = normalize(item.input.value);
+                    const yesNo = targetText === 'yes' || targetText === 'no';
+                    if (label === targetText || value === targetText) return true;
+                    if (yesNo && label.split(/\\s+/)[0] === targetText) return true;
+                    if (!yesNo && (label.includes(targetText) || targetText.includes(label))) return true;
+                    return false;
+                };
+                const candidates = normalizedLabels.filter(answerMatches).sort((left, right) => {
+                    const leftScore = (left.state.visible ? 2 : 0) + (left.state.disabled ? -4 : 0) + (left.state.label ? 1 : 0);
+                    const rightScore = (right.state.visible ? 2 : 0) + (right.state.disabled ? -4 : 0) + (right.state.label ? 1 : 0);
+                    return rightScore - leftScore;
+                });
+                const target = candidates[0]?.input;
+                const beforeControls = dumpControls();
+                const beforeValidation = validationMessages().join(' | ');
+                const groupHtml = (groupRoot?.outerHTML || '').replace(/\\s+/g, ' ').slice(0, 5000);
+                const providerName = (() => {
+                    const href = String(window.location?.href || '').toLowerCase();
+                    const html = String(groupRoot?.outerHTML || '').toLowerCase();
+                    if (href.includes('greenhouse') || html.includes('greenhouse')) return 'greenhouse';
+                    if (href.includes('workable') || html.includes('workable')) return 'workable';
+                    if (href.includes('bullhorn') || html.includes('bullhorn')) return 'bullhorn';
+                    if (href.includes('linkedin.com') || html.includes('jobs-easy-apply')) return 'linkedin_native';
+                    return 'unknown';
+                })();
+                const activeElementSummary = () => {
+                    const active = document.activeElement;
+                    if (!active) return {};
+                    return {
+                        tag: active.tagName,
+                        id: active.id || '',
+                        name: active.getAttribute('name') || '',
+                        value: active.getAttribute('value') || '',
+                        text: String(active.innerText || active.getAttribute('aria-label') || '').replace(/\\s+/g, ' ').trim().slice(0, 200),
+                    };
+                };
+                if (!target) {
+                    return {
+                        success: false,
+                        final_write_status: 'failed',
+                        option_labels_found: optionLabels,
+                        selected_option_label: null,
+                        click_strategy_used: null,
+                        checked_state_before: null,
+                        aria_state_before: null,
+                        checked_state_after: null,
+                        aria_state_after: null,
+                        validation_message_before: beforeValidation,
+                        validation_message_after: beforeValidation,
+                        attempts: [],
+                        group_diagnostics: {
+                            question_text: questionTextFor(groupRoot),
+                            group_outer_html: groupHtml,
+                            provider_name: providerName,
+                            inputs_before: beforeControls,
+                            inputs_after: beforeControls,
+                            active_element_after: activeElementSummary(),
+                            nested_iframe_count: groupRoot?.querySelectorAll?.('iframe')?.length || 0,
+                            shadow_host_count: Array.from(groupRoot?.querySelectorAll?.('*') || []).filter(node => node.shadowRoot).length,
+                        },
+                        reason: `No radio option matched answer "${payload.answer}".`,
+                    };
+                }
+                const beforeState = stateFor(target);
+                const attempts = [];
+                const setNativeChecked = input => {
+                    const descriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'checked');
+                    if (descriptor?.set) {
+                        descriptor.set.call(input, true);
+                    } else {
+                        input.checked = true;
+                    }
+                };
+                const dispatchActivationEvents = node => {
+                    if (!node || !(node instanceof Element)) return false;
+                    const rect = node.getBoundingClientRect();
+                    const x = rect.left + Math.max(1, Math.min(rect.width / 2, rect.width - 1));
+                    const y = rect.top + Math.max(1, Math.min(rect.height / 2, rect.height - 1));
+                    for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click']) {
+                        const eventInit = { bubbles: true, cancelable: true, composed: true, view: window, clientX: x, clientY: y };
+                        if (type.startsWith('pointer') && window.PointerEvent) {
+                            node.dispatchEvent(new PointerEvent(type, { ...eventInit, pointerId: 1, pointerType: 'mouse', isPrimary: true }));
+                        } else {
+                            node.dispatchEvent(new MouseEvent(type, eventInit));
+                        }
+                    }
+                    return true;
+                };
+                const dispatchValueEvents = node => {
+                    if (!node || !(node instanceof Element)) return false;
+                    node.dispatchEvent(new Event('input', { bubbles: true, cancelable: true, composed: true }));
+                    node.dispatchEvent(new Event('change', { bubbles: true, cancelable: true, composed: true }));
+                    node.dispatchEvent(new FocusEvent('blur', { bubbles: true, composed: true }));
+                    return true;
+                };
+                const blurAwayFromGroup = () => {
+                    const focusTarget = groupRoot?.querySelector?.('button, input:not([type="radio"]):not([type="checkbox"]), textarea, select, a[href]')
+                        || groupRoot?.parentElement?.querySelector?.('button, input:not([type="radio"]):not([type="checkbox"]), textarea, select, a[href]')
+                        || document.body;
+                    try {
+                        focusTarget?.focus?.();
+                    } catch (_) {
+                        document.body?.focus?.();
+                    }
+                };
+                const emitChoiceEvents = input => {
+                    const label = labelElementFor(input);
+                    const container = optionContainerFor(input);
+                    dispatchActivationEvents(input);
+                    dispatchActivationEvents(label);
+                    dispatchActivationEvents(container);
+                    dispatchValueEvents(input);
+                    dispatchValueEvents(label);
+                    dispatchValueEvents(container);
+                    dispatchValueEvents(groupRoot);
+                    blurAwayFromGroup();
+                };
+                const selectedControl = () => controls.find(input => input.checked || normalize(input.getAttribute('aria-checked')) === 'true');
+                const verify = strategy => {
+                    const afterState = stateFor(target);
+                    const selected = selectedControl();
+                    const selectedLabel = selected ? normalize(labelFor(selected)) : '';
+                    const selectedValue = selected ? normalize(selected.value) : '';
+                    const selectedMatchesTarget = selected === target || selectedLabel === targetText || selectedValue === targetText;
+                    const afterValidation = validationMessages().join(' | ');
+                    const stateAccepted = Boolean((afterState.checked || normalize(afterState.aria_checked) === 'true') && selectedMatchesTarget);
+                    const accepted = Boolean(stateAccepted && !hasSelectionValidation());
+                    attempts.push({
+                        strategy,
+                        checked: afterState.checked,
+                        aria_checked: afterState.aria_checked,
+                        selected_label: selected ? labelFor(selected).replace(/\\s+/g, ' ').trim() : '',
+                        validation_message: afterValidation,
+                        accepted,
+                    });
+                    return { accepted, afterState, afterValidation };
+                };
+                const labelTextClick = () => {
+                    const targetLabel = normalize(labelFor(target));
+                    const labels = Array.from(groupRoot?.querySelectorAll?.('label, span, div, p') || [])
+                        .filter(node => normalize(node.innerText || node.textContent) === targetLabel || normalize(node.innerText || node.textContent).split(/\\s+/)[0] === targetText)
+                        .sort((left, right) => {
+                            const leftRect = left.getBoundingClientRect();
+                            const rightRect = right.getBoundingClientRect();
+                            return (rightRect.width * rightRect.height) - (leftRect.width * leftRect.height);
+                        });
+                    const label = labels[0] || labelElementFor(target);
+                    if (!label) return false;
+                    label.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+                    label.click();
+                    dispatchActivationEvents(label);
+                    dispatchValueEvents(label);
+                    dispatchValueEvents(target);
+                    blurAwayFromGroup();
+                    return true;
+                };
+                const strategies = [
+                    {
+                        name: 'label_click',
+                        run: () => {
+                            const label = labelElementFor(target) || target.closest('label');
+                            if (!label) return false;
+                            label.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+                            label.click();
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'parent_container_click',
+                        run: () => {
+                            const container = optionContainerFor(target);
+                            if (!container || container === groupRoot) return false;
+                            container.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+                            container.click();
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'input_click',
+                        run: () => {
+                            target.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+                            target.focus();
+                            target.click();
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'keyboard_space',
+                        run: () => {
+                            target.focus();
+                            target.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true, cancelable: true }));
+                            target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', code: 'Space', bubbles: true, cancelable: true }));
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'native_checked_change',
+                        run: () => {
+                            if (fieldType === 'radio') {
+                                controls.forEach(input => {
+                                    if (input !== target && input.name === target.name) {
+                                        input.checked = false;
+                                        input.setAttribute('aria-checked', 'false');
+                                    }
+                                });
+                            }
+                            setNativeChecked(target);
+                            target.setAttribute('aria-checked', 'true');
+                            emitChoiceEvents(target);
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'post_selection_validation_recovery',
+                        run: () => {
+                            setNativeChecked(target);
+                            target.setAttribute('aria-checked', 'true');
+                            emitChoiceEvents(target);
+                            dispatchValueEvents(groupRoot);
+                            blurAwayFromGroup();
+                            return true;
+                        },
+                    },
+                    {
+                        name: 'visible_label_text_recovery',
+                        run: () => labelTextClick(),
+                    },
+                ];
+                let finalState = beforeState;
+                let finalValidation = beforeValidation;
+                let selectedStrategy = null;
+                for (const strategy of strategies) {
+                    let attempted = false;
+                    try {
+                        attempted = Boolean(strategy.run());
+                        if (attempted && strategy.name !== 'native_checked_change') {
+                            target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+                            target.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+                            target.dispatchEvent(new Event('blur', { bubbles: true, composed: true }));
+                        }
+                    } catch (error) {
+                        attempts.push({
+                            strategy: strategy.name,
+                            accepted: false,
+                            error: String(error?.message || error),
+                        });
+                        continue;
+                    }
+                    if (!attempted) {
+                        attempts.push({
+                            strategy: strategy.name,
+                            accepted: false,
+                            skipped: true,
+                        });
+                        continue;
+                    }
+                    await sleep(220);
+                    const verified = verify(strategy.name);
+                    finalState = verified.afterState;
+                    finalValidation = verified.afterValidation;
+                    if (verified.accepted) {
+                        selectedStrategy = strategy.name;
+                        break;
+                    }
+                }
+                const afterControls = dumpControls();
+                const success = Boolean(selectedStrategy);
+                return {
+                    success,
+                    final_write_status: success ? 'success' : 'failed',
+                    option_labels_found: optionLabels,
+                    selected_option_label: labelFor(target).replace(/\\s+/g, ' ').trim(),
+                    click_strategy_used: selectedStrategy,
+                    checked_state_before: beforeState.checked,
+                    aria_state_before: beforeState.aria_checked,
+                    checked_state_after: finalState.checked,
+                    aria_state_after: finalState.aria_checked,
+                    validation_message_before: beforeValidation,
+                    validation_message_after: finalValidation,
+                    attempts,
+                    group_diagnostics: {
+                        question_text: questionTextFor(groupRoot),
+                        group_outer_html: groupHtml,
+                        provider_name: providerName,
+                        group_control_count: controls.length,
+                        group_root_tag: groupRoot?.tagName || '',
+                        group_root_class: groupRoot?.className || '',
+                        group_root_id: groupRoot?.id || '',
+                        inputs_before: beforeControls,
+                        inputs_after: afterControls,
+                        active_element_after: activeElementSummary(),
+                        selected_input_outer_html: (target.outerHTML || '').replace(/\\s+/g, ' ').slice(0, 1600),
+                        exact_label_clicked: (labelElementFor(target)?.outerHTML || optionContainerFor(target)?.outerHTML || '').replace(/\\s+/g, ' ').slice(0, 1600),
+                        nested_iframe_count: groupRoot?.querySelectorAll?.('iframe')?.length || 0,
+                        shadow_host_count: Array.from(groupRoot?.querySelectorAll?.('*') || []).filter(node => node.shadowRoot).length,
+                    },
+                    reason: success ? null : 'Radio option was clicked but LinkedIn did not accept the selection.',
+                };
+            }
+        """
+
+    def _click_choice_control_with_writer(
+        self,
+        field,
+        answer: str,
+        options: list[str],
+        page=None,
+        job: JobOpportunity | None = None,
+        question: str | None = None,
+        normalized_field: str | None = None,
+        radio_debug_dir: Path | None = None,
+    ) -> dict:
+        payload = {
+            "answer": answer,
+            "options": options,
+            "question": question,
+            "normalized_field": normalized_field,
+        }
+        result: dict
         try:
-            return bool(
-                field.evaluate(
-                    """(el, answer) => {
+            raw_result = field.evaluate(self._choice_control_writer_script(), payload)
+            if isinstance(raw_result, bool):
+                result = {
+                    "success": raw_result,
+                    "final_write_status": "success" if raw_result else "failed",
+                }
+            else:
+                result = dict(raw_result or {})
+        except Exception as exc:
+            result = {
+                "success": False,
+                "final_write_status": "failed",
+                "reason": f"Radio writer execution failed: {exc}",
+                "option_labels_found": options,
+            }
+        result.update(
+            {
+                "job_id": getattr(job, "id", None),
+                "company": getattr(job, "company", None),
+                "question_label": question,
+                "normalized_field": normalized_field,
+                "target_answer": answer,
+            }
+        )
+        if not result.get("success"):
+            result["screenshot_path"] = self._capture_radio_writer_failure(page, radio_debug_dir, job)
+        self._save_radio_writer_debug(radio_debug_dir, result)
+        return result
+
+    def _click_choice_control(
+        self,
+        field,
+        answer: str,
+        options: list[str],
+        page=None,
+        job: JobOpportunity | None = None,
+        question: str | None = None,
+        normalized_field: str | None = None,
+        radio_debug_dir: Path | None = None,
+    ) -> dict:
+        return self._click_choice_control_with_writer(
+            field,
+            answer,
+            options,
+            page=page,
+            job=job,
+            question=question,
+            normalized_field=normalized_field,
+            radio_debug_dir=radio_debug_dir,
+        )
+        payload = {
+            "answer": answer,
+            "options": options,
+        }
+        result: dict
+        try:
+            raw_result = field.evaluate(
+                """async (el, payload) => {
+                        /* radioWriterPayload */
                         const normalize = value => String(value || '')
                             .replace(/\\s+/g, ' ')
+                            .replace(/[’']/g, "'")
                             .trim()
                             .toLowerCase();
-                        const targetText = normalize(answer);
-                        const container = el.closest('fieldset, .jobs-easy-apply-form-section__grouping, .fb-dash-form-element, .artdeco-card, div') || el.parentElement;
-                        const controls = Array.from(container?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || [el]);
+                        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+                        const targetText = normalize(payload.answer);
+                        const fieldType = (el.type || '').toLowerCase();
+                        const groupContainer = el.closest('fieldset, .jobs-easy-apply-form-section__grouping, .fb-dash-form-element, [data-test-form-element], .artdeco-card, div') || el.parentElement || el;
+                        const name = el.getAttribute('name');
+                        const sameName = name && window.CSS && CSS.escape
+                            ? Array.from(document.querySelectorAll(`input[type="${CSS.escape(fieldType)}"][name="${CSS.escape(name)}"]`))
+                            : [];
+                        const controls = Array.from(new Set([
+                            ...(sameName.length ? sameName : []),
+                            ...Array.from(groupContainer?.querySelectorAll('input[type="radio"], input[type="checkbox"]') || []),
+                            el,
+                        ])).filter(input => {
+                            const type = (input.type || '').toLowerCase();
+                            return type === 'radio' || type === 'checkbox';
+                        });
                         const labelFor = input => {
                             const id = input.id;
-                            const byFor = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
-                            return byFor?.innerText || input.closest('label')?.innerText || input.value || '';
+                            const byFor = id && window.CSS && CSS.escape ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                            const labelledBy = input.getAttribute('aria-labelledby');
+                            const ariaLabel = labelledBy
+                                ? labelledBy.split(/\\s+/).map(idPart => document.getElementById(idPart)?.innerText || '').join(' ')
+                                : '';
+                            const closestLabel = input.closest('label');
+                            const optionContainer = input.closest('label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li, div');
+                            return byFor?.innerText || closestLabel?.innerText || ariaLabel || optionContainer?.innerText || input.value || '';
                         };
-                        const target = controls.find(input => normalize(labelFor(input)) === targetText)
-                            || controls.find(input => normalize(labelFor(input)).includes(targetText) || targetText.includes(normalize(labelFor(input))));
+                        const labelElementFor = input => {
+                            const id = input.id;
+                            return id && window.CSS && CSS.escape ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                        };
+                        const optionContainerFor = input => (
+                            input.closest('label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li, div') || input.parentElement || input
+                        );
+                        const validationMessages = () => Array.from(groupContainer?.querySelectorAll(
+                            '.artdeco-inline-feedback--error, .artdeco-inline-feedback__message, .fb-dash-form-element__error, [role="alert"]'
+                        ) || [])
+                            .map(node => String(node.innerText || node.textContent || '').replace(/\\s+/g, ' ').trim())
+                            .filter(Boolean);
+                        const hasSelectionValidation = () => validationMessages().some(message =>
+                            /please make a selection|required|select an option/i.test(message)
+                        );
+                        const stateFor = input => {
+                            const labelElement = labelElementFor(input);
+                            const optionContainer = optionContainerFor(input);
+                            return {
+                                checked: Boolean(input.checked),
+                                aria_checked: input.getAttribute('aria-checked')
+                                    || labelElement?.getAttribute('aria-checked')
+                                    || optionContainer?.getAttribute('aria-checked')
+                                    || '',
+                                value: input.value || '',
+                                class_name: `${input.className || ''} ${labelElement?.className || ''} ${optionContainer?.className || ''}`.trim(),
+                            };
+                        };
+                        const optionLabels = controls.map(input => labelFor(input).replace(/\\s+/g, ' ').trim()).filter(Boolean);
+                        const normalizedLabels = controls.map(input => ({ input, label: labelFor(input), normalized: normalize(labelFor(input)) }));
+                        const exact = normalizedLabels.find(item => item.normalized === targetText)?.input;
+                        const yesNo = targetText === 'yes' || targetText === 'no';
+                        const target = exact
+                            || normalizedLabels.find(item => yesNo && item.normalized.split(/\\s+/)[0] === targetText)?.input
+                            || normalizedLabels.find(item => !yesNo && (item.normalized.includes(targetText) || targetText.includes(item.normalized)))?.input;
                         if (!target) {
-                            return false;
+                            return {
+                                success: false,
+                                final_write_status: 'failed',
+                                option_labels_found: optionLabels,
+                                selected_option_label: null,
+                                click_strategy_used: null,
+                                checked_state_before: null,
+                                aria_state_before: null,
+                                checked_state_after: null,
+                                aria_state_after: null,
+                                validation_message_before: validationMessages().join(' | '),
+                                validation_message_after: validationMessages().join(' | '),
+                                attempts: [],
+                                reason: `No radio option matched answer "${payload.answer}".`,
+                            };
                         }
-                        target.focus();
-                        target.click();
-                        target.dispatchEvent(new Event('input', { bubbles: true }));
-                        target.dispatchEvent(new Event('change', { bubbles: true }));
-                        return Boolean(target.checked);
+                        const beforeState = stateFor(target);
+                        const beforeValidation = validationMessages().join(' | ');
+                        const attempts = [];
+                        const verify = strategy => {
+                            const afterState = stateFor(target);
+                            const afterValidation = validationMessages().join(' | ');
+                            const stateAccepted = afterState.checked || normalize(afterState.aria_checked) === 'true';
+                            const accepted = Boolean(stateAccepted && !hasSelectionValidation());
+                            attempts.push({
+                                strategy,
+                                checked: afterState.checked,
+                                aria_checked: afterState.aria_checked,
+                                validation_message: afterValidation,
+                                accepted,
+                            });
+                            return { accepted, afterState, afterValidation };
+                        };
+                        const emitChoiceEvents = input => {
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                            input.dispatchEvent(new Event('blur', { bubbles: true }));
+                        };
+                        const strategies = [
+                            {
+                                name: 'label_click',
+                                run: () => {
+                                    const label = labelElementFor(target) || target.closest('label');
+                                    if (!label) return false;
+                                    label.click();
+                                    return true;
+                                },
+                            },
+                            {
+                                name: 'parent_container_click',
+                                run: () => {
+                                    const container = optionContainerFor(target);
+                                    if (!container || container === groupContainer) return false;
+                                    container.click();
+                                    return true;
+                                },
+                            },
+                            {
+                                name: 'input_click',
+                                run: () => {
+                                    target.focus();
+                                    target.click();
+                                    return true;
+                                },
+                            },
+                            {
+                                name: 'keyboard_space',
+                                run: () => {
+                                    target.focus();
+                                    target.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+                                    target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', code: 'Space', bubbles: true }));
+                                    return true;
+                                },
+                            },
+                            {
+                                name: 'hidden_input_change',
+                                run: () => {
+                                    if (fieldType === 'radio') {
+                                        controls.forEach(input => {
+                                            if (input !== target && input.name === target.name) {
+                                                input.checked = false;
+                                            }
+                                        });
+                                    }
+                                    target.checked = true;
+                                    target.setAttribute('aria-checked', 'true');
+                                    emitChoiceEvents(target);
+                                    return true;
+                                },
+                            },
+                        ];
+                        let finalState = beforeState;
+                        let finalValidation = beforeValidation;
+                        let selectedStrategy = null;
+                        for (const strategy of strategies) {
+                            let attempted = false;
+                            try {
+                                attempted = Boolean(strategy.run());
+                                if (attempted) {
+                                    emitChoiceEvents(target);
+                                }
+                            } catch (error) {
+                                attempts.push({
+                                    strategy: strategy.name,
+                                    accepted: false,
+                                    error: String(error?.message || error),
+                                });
+                                continue;
+                            }
+                            if (!attempted) {
+                                attempts.push({
+                                    strategy: strategy.name,
+                                    accepted: false,
+                                    skipped: true,
+                                });
+                                continue;
+                            }
+                            await sleep(180);
+                            const verified = verify(strategy.name);
+                            finalState = verified.afterState;
+                            finalValidation = verified.afterValidation;
+                            if (verified.accepted) {
+                                selectedStrategy = strategy.name;
+                                break;
+                            }
+                        }
+                        const success = Boolean(selectedStrategy);
+                        return {
+                            success,
+                            final_write_status: success ? 'success' : 'failed',
+                            option_labels_found: optionLabels,
+                            selected_option_label: labelFor(target).replace(/\\s+/g, ' ').trim(),
+                            click_strategy_used: selectedStrategy,
+                            checked_state_before: beforeState.checked,
+                            aria_state_before: beforeState.aria_checked,
+                            checked_state_after: finalState.checked,
+                            aria_state_after: finalState.aria_checked,
+                            validation_message_before: beforeValidation,
+                            validation_message_after: finalValidation,
+                            attempts,
+                            reason: success ? null : 'Radio option was clicked but LinkedIn did not accept the selection.',
+                        };
                     }""",
-                    answer,
-                )
+                payload,
             )
-        except Exception:
-            return False
+            if isinstance(raw_result, bool):
+                result = {"success": raw_result, "final_write_status": "success" if raw_result else "failed"}
+            else:
+                result = dict(raw_result or {})
+        except Exception as exc:
+            result = {
+                "success": False,
+                "final_write_status": "failed",
+                "reason": f"Radio writer execution failed: {exc}",
+                "option_labels_found": options,
+            }
+        result.update(
+            {
+                "job_id": getattr(job, "id", None),
+                "company": getattr(job, "company", None),
+                "question_label": question,
+                "normalized_field": normalized_field,
+                "target_answer": answer,
+            }
+        )
+        if not result.get("success"):
+            result["screenshot_path"] = self._capture_radio_writer_failure(page, radio_debug_dir, job)
+        self._save_radio_writer_debug(radio_debug_dir, result)
+        return result
 
     def _closest_option(self, answer: str, options: list[str]) -> str:
         if not options:
@@ -3908,8 +4835,19 @@ class LinkedInAutomation:
         normalized = re.sub(r"[^a-z0-9]+", " ", question.lower()).strip()
         aliases = {
             "will you require visa sponsorship": "work sponsorship",
+            "will you now or in the future require sponsorship": "work sponsorship",
             "do you require sponsorship": "work sponsorship",
             "do you need employment sponsorship": "work sponsorship",
+            "are you legally authorized to work in the united states": "us work authorization",
+            "are you authorized to work in the united states": "us work authorization",
+            "are you eligible to work in the united states": "us work authorization",
+            "do you have a green card": "us work authorization",
+            "are you a us citizen": "us work authorization",
+            "are you a u s citizen": "us work authorization",
+            "are you willing to relocate": "relocation willingness",
+            "are you open to relocation": "relocation willingness",
+            "are you comfortable commuting to this job s location": "commute willingness",
+            "are you comfortable working in a hybrid setting": "work mode preference",
             "desired salary": "expected salary",
             "expected ctc": "expected salary",
             "compensation expectation": "expected salary",
@@ -4365,6 +5303,7 @@ class LinkedInAutomation:
             }
             for event in events
         ]
+        radio_events = [event.get("radio_writer") for event in events if event.get("radio_writer")]
         files = {
             "questions_detected.json": all_detected,
             "evidence_used.json": [event.get("evidence", {}) for event in selected],
@@ -4377,6 +5316,8 @@ class LinkedInAutomation:
             "confidence_scores.json": confidence,
             "field_decision_trace.json": field_traces or [self._screening_field_trace(event) for event in events],
         }
+        if radio_events:
+            files["radio_writer_events.json"] = radio_events
         for filename, payload in files.items():
             (debug_dir / filename).write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
@@ -4552,6 +5493,49 @@ class LinkedInAutomation:
         debug_dir = self.settings.screening_debug_dir / timestamp / f"{safe_job_id or job.id}_{safe_title}"
         debug_dir.mkdir(parents=True, exist_ok=True)
         return debug_dir
+
+    def _create_radio_writer_debug_dir(self, job: JobOpportunity) -> Path:
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        safe_title = re.sub(r"[^a-zA-Z0-9_-]+", "_", job.title).strip("_")[:40] or "job"
+        debug_dir = self.settings.radio_writer_debug_dir / timestamp / f"{job.id}_{safe_title}"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        return debug_dir
+
+    def _capture_radio_writer_failure(self, page, debug_dir: Path | None, job: JobOpportunity | None) -> str | None:
+        if not page or not debug_dir:
+            return None
+        try:
+            safe_job_id = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(getattr(job, "id", "job"))).strip("_") or "job"
+            screenshot_path = debug_dir / f"radio_write_failed_{safe_job_id}.png"
+            try:
+                page.screenshot(path=str(screenshot_path), full_page=True, timeout=5000)
+            except TypeError:
+                page.screenshot(path=str(screenshot_path), full_page=True)
+            return str(screenshot_path)
+        except Exception as exc:
+            logger.warning("Could not capture radio writer failure screenshot: %s", exc)
+            return None
+
+    def _save_radio_writer_debug(self, debug_dir: Path | None, event: dict) -> None:
+        if not debug_dir:
+            return
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        debug_file = debug_dir / "radio_writer_events.json"
+        payload = {
+            "captured_at": datetime.utcnow().isoformat(),
+            "events": [],
+        }
+        if debug_file.exists():
+            try:
+                payload = json.loads(debug_file.read_text(encoding="utf-8"))
+            except Exception:
+                payload = {
+                    "captured_at": datetime.utcnow().isoformat(),
+                    "events": [],
+                }
+        payload.setdefault("events", []).append(event)
+        payload["updated_at"] = datetime.utcnow().isoformat()
+        debug_file.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
     def _save_profile_apply_debug(self, debug_dir: Path | None, filename: str, payload: dict) -> None:
         if not debug_dir:

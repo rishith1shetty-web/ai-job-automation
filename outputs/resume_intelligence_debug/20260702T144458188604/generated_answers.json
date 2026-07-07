@@ -1,0 +1,738 @@
+[
+  {
+    "job": {
+      "id": null,
+      "title": "Power BI - Visualization and Reporting Analyst",
+      "company": "Kforce Inc",
+      "job_url": "https://www.linkedin.com/jobs/view/4413766040/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Power BI - Visualization and Reporting Analyst opportunity at Kforce Inc because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Power BI - Visualization and Reporting Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume, Job Description."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume, Job Description."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Power BI - Visualization and Reporting Analyst role at Kforce Inc, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "CAROLINA PRG",
+      "job_url": "https://www.linkedin.com/jobs/view/4429871894/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analyst opportunity at CAROLINA PRG because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at CAROLINA PRG, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analys",
+      "company": "Boba Bhai",
+      "job_url": "https://www.linkedin.com/jobs/view/4435224312/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analys opportunity at Boba Bhai because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analys.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analys role at Boba Bhai, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  },
+  {
+    "job": {
+      "id": null,
+      "title": "Data Analyst",
+      "company": "Robert Half",
+      "job_url": "https://www.linkedin.com/jobs/view/4431292770/"
+    },
+    "answers": [
+      {
+        "prompt": "Why are you interested in this role?",
+        "answer": "I am interested in the Data Analyst opportunity at Robert Half because my background in python, power bi, excel, dashboard aligns with the role's focus.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
+      },
+      {
+        "prompt": "Tell us about yourself.",
+        "answer": "My background is centered on python, power bi, excel, dashboard, and I have applied these strengths in work and project settings relevant to Data Analyst.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      },
+      {
+        "prompt": "Describe your SQL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for sql, etl, large datasets, describe your sql experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Python experience.",
+        "answer": "My experience with python is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "python"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for python, etl, describe your python experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your Power BI experience.",
+        "answer": "My experience with power bi is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, dashboard development, describe your power bi, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your dashboard experience.",
+        "answer": "My experience with dashboard is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "dashboard"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for power bi, tableau, dashboard development, describe your dashboard was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your ETL experience.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for etl, describe your etl experience was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe your analytics experience.",
+        "answer": "My experience with analytics is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Low",
+        "grounding_score": 57,
+        "evidence_used": [
+          "analytics"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for large datasets, describe your analytics, experience was found in Employment, Project, Direct Resume."
+      },
+      {
+        "prompt": "Describe your communication skills.",
+        "answer": "My experience with computer vision, excel, machine learning, power bi is relevant to the Data Analyst role at Robert Half, based on the evidence in my resume and the job description.",
+        "confidence": "Medium",
+        "grounding_score": 93,
+        "evidence_used": [
+          "computer vision",
+          "excel",
+          "machine learning",
+          "power bi"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "Answered None because evidence for describe your communication, skills was found in Employment, Direct Resume."
+      },
+      {
+        "prompt": "Describe a challenging project.",
+        "answer": "A relevant challenge from my background involved using python, power bi, excel, dashboard to turn data or technical requirements into a practical outcome.",
+        "confidence": "Medium",
+        "grounding_score": 95,
+        "evidence_used": [
+          "python",
+          "power bi",
+          "excel",
+          "dashboard",
+          "analytics",
+          "machine learning"
+        ],
+        "source_list": [
+          "Resume",
+          "Job Description",
+          "AI Reasoning Engine"
+        ],
+        "reasoning_summary": "No reliable evidence was found across candidate sources."
+      }
+    ]
+  }
+]

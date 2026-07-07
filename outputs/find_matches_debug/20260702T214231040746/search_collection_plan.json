@@ -1,0 +1,7 @@
+{
+  "requested_limit": 100,
+  "target_count": 100,
+  "available_variations": 23,
+  "selected_variations": 15,
+  "limit_per_query": 9
+}

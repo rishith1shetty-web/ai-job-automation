@@ -1,0 +1,46 @@
+[
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Backend Developer",
+    "role_priority": "primary",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Python Developer",
+    "role_priority": "strong_fit",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Software Engineer",
+    "role_priority": "strong_fit",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Data Analyst",
+    "role_priority": "related",
+    "raw_count": 1,
+    "unique_added": 0,
+    "duplicates_removed": 1,
+    "easy_apply_added": 0
+  }
+]

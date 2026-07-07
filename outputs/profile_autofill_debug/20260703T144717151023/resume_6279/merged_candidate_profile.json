@@ -1,0 +1,67 @@
+{
+  "phone_country_code": "+91",
+  "first_name": "Rishith",
+  "mobile_phone": "+91 9136010355",
+  "address": null,
+  "portfolio_url": null,
+  "linkedin_url": "https://www.linkedin.com/in/rishithshetty555",
+  "current_company": null,
+  "github_url": null,
+  "current_job_title": "Data Analyst",
+  "professional_headline": "Data Analyst",
+  "current_location": null,
+  "email": "rishith1shetty@gmail.com",
+  "last_name": "Analyst",
+  "previous_companies": [],
+  "certifications": [
+    ": Google Data Analytics Professional Certificate, Coursera (2023) Languages: English, Tulu, Hindi PROFESSIONAL EXPERIENCE Rallis India Ltd. (Tata Group), Mumbai, India Mar 2025 - May 2025 Data Analytics Intern",
+    "Processed, cleaned, and organized business data using Microsoft Excel, ensuring accuracy and consistency across operational datasets.",
+    "Supported the creation and maintenance of Power BI reports, helping visualize key data points for internal business reporting.",
+    "Performed data formatting and validation in Excel to identify and correct inconsistencies prior to reporting.",
+    "Assisted in uploading and maintaining datasets in company systems, supporting day-to-day data management and report preparation."
+  ],
+  "professional_links": {},
+  "field_sources": {
+    "email": {
+      "source": "Resume Visible Text",
+      "confidence": 96.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "last_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "first_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "linkedin_url": {
+      "source": "LinkedIn Profile",
+      "confidence": 82.0,
+      "updated_at": "2026-07-03T14:47:17.140408"
+    },
+    "mobile_phone": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "current_job_title": {
+      "source": "Resume Visible Text",
+      "confidence": 70.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "phone_country_code": {
+      "source": "Resume Visible Text",
+      "confidence": 92.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    },
+    "professional_headline": {
+      "source": "Resume Visible Text",
+      "confidence": 65.0,
+      "updated_at": "2026-07-03T14:46:59.150915"
+    }
+  },
+  "missing_required_after_apply": []
+}
