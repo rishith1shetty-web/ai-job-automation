@@ -1,6 +1,7 @@
 import os
 
 import time
+from urllib.parse import urlencode
 
 import pandas as pd
 import requests
@@ -28,6 +29,14 @@ def api_request(method: str, path: str, **kwargs):
 @st.cache_data(ttl=15, show_spinner=False)
 def cached_get(path: str):
     return api_request("GET", path, timeout=GET_TIMEOUT_SECONDS)
+
+
+def add_query_params(path: str, **params) -> str:
+    values = {key: value for key, value in params.items() if value is not None}
+    if not values:
+        return path
+    separator = "&" if "?" in path else "?"
+    return f"{path}{separator}{urlencode(values)}"
 
 
 def clear_cached_reads() -> None:
@@ -376,9 +385,7 @@ summary = {
 }
 try:
     summary_path = f"/dashboard/summary?resume_id={resume['id']}" if resume else "/dashboard/summary"
-    if selected_batch_id:
-        summary_path += f"&search_batch_id={selected_batch_id}"
-    summary_path += f"&portal={selected_portal}"
+    summary_path = add_query_params(summary_path, search_batch_id=selected_batch_id, portal=selected_portal)
     summary.update(cached_get(summary_path))
 except Exception:
     st.info("Start the FastAPI service to load live data.")
@@ -496,9 +503,7 @@ with tab_matches:
 
     try:
         jobs_path = f"/jobs?resume_id={resume['id']}" if resume else "/jobs"
-        if selected_batch_id:
-            jobs_path += f"&search_batch_id={selected_batch_id}"
-        jobs_path += f"&portal={selected_portal}"
+        jobs_path = add_query_params(jobs_path, search_batch_id=selected_batch_id, portal=selected_portal)
         jobs = cached_get(jobs_path)
     except Exception:
         jobs = []
@@ -799,9 +804,7 @@ with tab_matches:
 with tab_history:
     try:
         application_path = f"/applications?resume_id={resume['id']}" if resume else "/applications"
-        if selected_batch_id:
-            application_path += f"&search_batch_id={selected_batch_id}"
-        application_path += f"&portal={selected_portal}"
+        application_path = add_query_params(application_path, search_batch_id=selected_batch_id, portal=selected_portal)
         applications = cached_get(application_path)
     except Exception:
         applications = []
