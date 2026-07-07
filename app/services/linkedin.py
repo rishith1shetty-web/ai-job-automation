@@ -4463,6 +4463,259 @@ class LinkedInAutomation:
             }
         """
 
+    def _click_choice_control_native(
+        self,
+        field,
+        answer: str,
+        options: list[str],
+        page=None,
+        job: JobOpportunity | None = None,
+        question: str | None = None,
+        normalized_field: str | None = None,
+    ) -> dict:
+        """Select a radio/checkbox option using trusted Playwright interactions.
+
+        This is the primary path. Real (isTrusted) browser events are what React's
+        controlled inputs commit, which is the root cause of the previous
+        "Please make a selection" failures where JS-synthesised events selected the
+        control visually but never updated React state. We locate the option that
+        matches ``answer``, click its visible label/container (or the input) with a
+        real click, then verify the group actually committed the selection and the
+        validation error cleared before reporting success.
+        """
+        result: dict = {
+            "success": False,
+            "interaction_path": "playwright_native",
+            "final_write_status": "failed",
+            "target_answer": answer,
+            "option_labels_found": options,
+            "question_label": question,
+            "normalized_field": normalized_field,
+            "job_id": getattr(job, "id", None),
+            "company": getattr(job, "company", None),
+            "attempts": [],
+        }
+        try:
+            input_handle = field.evaluate_handle(self._choice_match_input_script(), {"answer": answer})
+        except Exception as exc:
+            result["reason"] = f"Native option match failed: {exc}"
+            return result
+        element = input_handle.as_element() if input_handle else None
+        if element is None:
+            result["reason"] = f'No radio/checkbox option matched answer "{answer}" for trusted interaction.'
+            return result
+
+        try:
+            target_handle = element.evaluate_handle(self._choice_click_target_script())
+            click_target = target_handle.as_element() or element
+        except Exception:
+            click_target = element
+
+        def _verify() -> dict:
+            try:
+                return field.evaluate(self._choice_verify_script(), {"answer": answer}) or {}
+            except Exception as exc:  # pragma: no cover - defensive
+                return {"accepted": False, "error": str(exc)}
+
+        strategies = [
+            ("label_click", lambda: self._native_click_element(click_target)),
+            ("input_check", lambda: self._native_check_element(element)),
+            ("input_click_force", lambda: self._native_click_element(element, force=True)),
+        ]
+        selected_strategy = None
+        verification: dict = {}
+        for name, run in strategies:
+            try:
+                ran = run()
+            except Exception as exc:
+                result["attempts"].append({"strategy": name, "ran": False, "error": str(exc)})
+                continue
+            if page is not None:
+                try:
+                    page.wait_for_timeout(250)
+                except Exception:
+                    pass
+            verification = _verify()
+            result["attempts"].append(
+                {
+                    "strategy": name,
+                    "ran": bool(ran),
+                    "checked": verification.get("checked"),
+                    "selected_label": verification.get("selected_label"),
+                    "validation_messages": verification.get("validation_messages"),
+                    "accepted": verification.get("accepted"),
+                }
+            )
+            if verification.get("accepted"):
+                selected_strategy = name
+                break
+
+        result["success"] = bool(selected_strategy)
+        result["final_write_status"] = "success" if selected_strategy else "failed"
+        result["click_strategy_used"] = selected_strategy
+        result["selected_option_label"] = verification.get("selected_label")
+        result["checked_state_after"] = verification.get("checked")
+        result["validation_message_after"] = " | ".join(verification.get("validation_messages") or [])
+        # React state is only considered committed when the group reports the option
+        # checked AND the required-selection validation cleared.
+        result["react_state_committed"] = bool(selected_strategy) and bool(verification.get("checked"))
+        if not selected_strategy:
+            result["reason"] = (
+                verification.get("error")
+                or "Trusted interaction clicked the option but LinkedIn did not commit the selection."
+            )
+        return result
+
+    def _native_click_element(self, element, force: bool = False) -> bool:
+        if element is None:
+            return False
+        try:
+            element.scroll_into_view_if_needed(timeout=2000)
+        except Exception:
+            pass
+        element.click(force=force, timeout=4000)
+        return True
+
+    def _native_check_element(self, element) -> bool:
+        if element is None:
+            return False
+        try:
+            element.scroll_into_view_if_needed(timeout=2000)
+        except Exception:
+            pass
+        element.check(force=True, timeout=4000)
+        return True
+
+    def _choice_match_input_script(self) -> str:
+        return """
+            (el, payload) => {
+                const normalize = v => String(v || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                const cssEsc = v => (window.CSS && CSS.escape) ? CSS.escape(v) : String(v || '');
+                const target = normalize(payload.answer);
+                const name = el.getAttribute('name');
+                const roots = ['fieldset', '.fb-dash-form-element', '[data-test-form-element]', '[data-test-form-builder-question]', '.jobs-easy-apply-form-section__grouping', '.jobs-easy-apply-form-section', '[role="group"]']
+                    .map(sel => el.closest(sel)).filter(Boolean);
+                let group = roots.find(root => root.querySelectorAll('input[type="radio"], input[type="checkbox"]').length >= 1);
+                if (!group) {
+                    let parent = el.parentElement;
+                    for (let i = 0; parent && i < 8; i += 1) {
+                        const count = parent.querySelectorAll('input[type="radio"], input[type="checkbox"]').length;
+                        if (count >= 1 && count <= 8) { group = parent; break; }
+                        parent = parent.parentElement;
+                    }
+                }
+                group = group || el.parentElement || el;
+                let controls = Array.from(group.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+                if (name) {
+                    const sameName = controls.filter(input => input.getAttribute('name') === name);
+                    if (sameName.length) controls = sameName;
+                }
+                if (!controls.includes(el)) controls.push(el);
+                const labelText = input => {
+                    const id = input.id;
+                    const byFor = id ? document.querySelector(`label[for="${cssEsc(id)}"]`) : null;
+                    const labelledBy = input.getAttribute('aria-labelledby');
+                    const aria = labelledBy ? labelledBy.split(/\\s+/).map(part => document.getElementById(part)?.innerText || '').join(' ') : '';
+                    const closestLabel = input.closest('label');
+                    const container = input.closest('label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li, div');
+                    return String(byFor?.innerText || closestLabel?.innerText || aria || input.getAttribute('aria-label') || container?.innerText || input.value || '');
+                };
+                const yesNo = target === 'yes' || target === 'no';
+                const matches = input => {
+                    const label = normalize(labelText(input));
+                    const value = normalize(input.value);
+                    if (label === target || value === target) return true;
+                    if (yesNo && label.split(/\\s+/)[0] === target) return true;
+                    if (!yesNo && label && (label.includes(target) || target.includes(label))) return true;
+                    return false;
+                };
+                const found = controls.filter(matches).sort((a, b) => {
+                    const va = a.offsetParent !== null ? 1 : 0;
+                    const vb = b.offsetParent !== null ? 1 : 0;
+                    return vb - va;
+                });
+                return found[0] || null;
+            }
+        """
+
+    def _choice_click_target_script(self) -> str:
+        return """
+            (input) => {
+                const cssEsc = v => (window.CSS && CSS.escape) ? CSS.escape(v) : String(v || '');
+                const isVisible = node => {
+                    if (!node || !(node instanceof Element)) return false;
+                    const style = window.getComputedStyle(node);
+                    const rect = node.getBoundingClientRect();
+                    return style.visibility !== 'hidden' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+                };
+                const id = input.id;
+                const byFor = id ? document.querySelector(`label[for="${cssEsc(id)}"]`) : null;
+                const closestLabel = input.closest('label');
+                const container = input.closest('.fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option');
+                const candidates = [byFor, closestLabel, container].filter(Boolean);
+                const visibleCandidate = candidates.find(isVisible);
+                return visibleCandidate || (isVisible(input) ? input : null) || candidates[0] || input;
+            }
+        """
+
+    def _choice_verify_script(self) -> str:
+        return """
+            (el, payload) => {
+                const normalize = v => String(v || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                const cssEsc = v => (window.CSS && CSS.escape) ? CSS.escape(v) : String(v || '');
+                const target = normalize(payload.answer);
+                const name = el.getAttribute('name');
+                const roots = ['fieldset', '.fb-dash-form-element', '[data-test-form-element]', '[data-test-form-builder-question]', '.jobs-easy-apply-form-section__grouping', '.jobs-easy-apply-form-section', '[role="group"]']
+                    .map(sel => el.closest(sel)).filter(Boolean);
+                let group = roots.find(root => root.querySelectorAll('input[type="radio"], input[type="checkbox"]').length >= 1);
+                if (!group) {
+                    let parent = el.parentElement;
+                    for (let i = 0; parent && i < 8; i += 1) {
+                        const count = parent.querySelectorAll('input[type="radio"], input[type="checkbox"]').length;
+                        if (count >= 1 && count <= 8) { group = parent; break; }
+                        parent = parent.parentElement;
+                    }
+                }
+                group = group || el.parentElement || el;
+                let controls = Array.from(group.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+                if (name) {
+                    const sameName = controls.filter(input => input.getAttribute('name') === name);
+                    if (sameName.length) controls = sameName;
+                }
+                if (!controls.includes(el)) controls.push(el);
+                const labelText = input => {
+                    const id = input.id;
+                    const byFor = id ? document.querySelector(`label[for="${cssEsc(id)}"]`) : null;
+                    const closestLabel = input.closest('label');
+                    const container = input.closest('label, .fb-radio, .artdeco-radio, .jobs-easy-apply-form-section__option, li, div');
+                    return String(byFor?.innerText || closestLabel?.innerText || input.getAttribute('aria-label') || container?.innerText || input.value || '');
+                };
+                const selected = controls.find(input => input.checked || normalize(input.getAttribute('aria-checked')) === 'true');
+                const selectedLabel = selected ? normalize(labelText(selected)) : '';
+                const selectedValue = selected ? normalize(selected.value) : '';
+                const yesNo = target === 'yes' || target === 'no';
+                const matchesTarget = Boolean(selected) && (
+                    selectedLabel === target
+                    || selectedValue === target
+                    || (yesNo && selectedLabel.split(/\\s+/)[0] === target)
+                    || (!yesNo && selectedLabel && (selectedLabel.includes(target) || target.includes(selectedLabel)))
+                );
+                const validationNodes = Array.from(group.querySelectorAll('.artdeco-inline-feedback--error, .artdeco-inline-feedback__message, .fb-dash-form-element__error, [role="alert"], .error, .invalid-feedback') || []);
+                const validationMessages = validationNodes
+                    .map(node => String(node.innerText || node.textContent || '').replace(/\\s+/g, ' ').trim())
+                    .filter(Boolean);
+                const selectionError = validationMessages.some(message => /please make a selection|required|select an option|must select|choose/i.test(message));
+                return {
+                    checked: Boolean(selected),
+                    selected_label: selected ? labelText(selected).replace(/\\s+/g, ' ').trim() : '',
+                    matches_target: Boolean(matchesTarget),
+                    validation_messages: validationMessages,
+                    selection_error: selectionError,
+                    accepted: Boolean(matchesTarget && !selectionError),
+                };
+            }
+        """
+
     def _click_choice_control_with_writer(
         self,
         field,
@@ -4522,7 +4775,32 @@ class LinkedInAutomation:
         normalized_field: str | None = None,
         radio_debug_dir: Path | None = None,
     ) -> dict:
-        return self._click_choice_control_with_writer(
+        # Primary path: trusted Playwright interaction (real browser events that
+        # React commits). The JS writer is kept only as a fallback for cases the
+        # trusted path cannot select/verify (e.g. exotic custom widgets).
+        try:
+            native = self._click_choice_control_native(
+                field,
+                answer,
+                options,
+                page=page,
+                job=job,
+                question=question,
+                normalized_field=normalized_field,
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            native = {
+                "success": False,
+                "interaction_path": "playwright_native",
+                "final_write_status": "failed",
+                "reason": f"Native interaction raised: {exc}",
+                "attempts": [],
+            }
+        if native.get("success"):
+            self._save_radio_writer_debug(radio_debug_dir, native)
+            return native
+
+        writer = self._click_choice_control_with_writer(
             field,
             answer,
             options,
@@ -4532,6 +4810,9 @@ class LinkedInAutomation:
             normalized_field=normalized_field,
             radio_debug_dir=radio_debug_dir,
         )
+        writer["interaction_path"] = "js_writer_fallback"
+        writer["native_attempt"] = native
+        return writer
         payload = {
             "answer": answer,
             "options": options,
