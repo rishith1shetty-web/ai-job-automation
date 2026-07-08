@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 2303,
+  "job_resume_id": 2303,
+  "search_batch_id": "4390739d-3e14-4698-9a63-ebc3e87fc202",
+  "resume_filename_from_database": "Rishith_Shetty_Resume.docx",
+  "resume_original_filename": "Rishith_Shetty_Resume.docx",
+  "resume_storage_path": "C:\\Users\\rishi\\ai-job-automation\\storage\\uploads\\99fcb4811a474378aaa7a10981af3a5a.docx",
+  "file_exists": true,
+  "file_size": 10361,
+  "file_hash_sha256": "e30ee473781a4b15592351636f7b76d7afe880e3a80db2d588ba447e329ac2c8",
+  "file_passed_to_playwright": "C:\\Users\\rishi\\ai-job-automation\\storage\\uploads\\99fcb4811a474378aaa7a10981af3a5a.docx",
+  "linkedin_filename_detected_after_upload": "Rishith_Shetty_Resume.docx",
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260708T083416393076\\4433964303_Data_Analyst"
+}

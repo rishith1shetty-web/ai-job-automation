@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 1016,
+  "job_resume_id": 1016,
+  "search_batch_id": null,
+  "resume_filename_from_database": "candidate.pdf",
+  "resume_original_filename": "candidate.pdf",
+  "resume_storage_path": "C:\\Users\\rishi\\AppData\\Local\\Temp\\tmpcpsyy_a3\\resume.pdf",
+  "file_exists": true,
+  "file_size": 6,
+  "file_hash_sha256": "a83a31320d921b888a48fa5edd0b4b5a29984de6e96bf7b8ac7d29ba06caf616",
+  "file_passed_to_playwright": "C:\\Users\\rishi\\AppData\\Local\\Temp\\tmpcpsyy_a3\\resume.pdf",
+  "linkedin_filename_detected_after_upload": null,
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260708T073308729490\\https_example_com_c3511f57b31240388aa2ca0d82d13a23_0_Job_0"
+}

@@ -1,0 +1,22 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 103,
+    "job_id": 544,
+    "dry_run": true
+  },
+  "total_runtime_ms": 1.48,
+  "stage_count": 2,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 0,
+  "average_apply_time_ms": 0,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.06,
+    "metadata": {}
+  },
+  "created_at": "2026-07-07T21:57:31.111984"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Data Science?",
+    "normalized_skill": null,
+    "field_type": "text",
+    "mode_used": "Safe"
+  },
+  {
+    "original_question": "How many years of hands-on experience do you have using Python and SQL for data analysis, modeling, or machine learning?",
+    "normalized_skill": "Python",
+    "field_type": "text",
+    "mode_used": "Safe"
+  }
+]

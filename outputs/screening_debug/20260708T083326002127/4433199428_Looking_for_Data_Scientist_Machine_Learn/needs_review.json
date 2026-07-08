@@ -1,0 +1,36 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "original_label": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "selected_answer": null,
+    "source": null,
+    "confidence": "None",
+    "reason": "Safe Mode did not have a saved or high-confidence answer.",
+    "mode": "Safe",
+    "aggressive_default_used": false,
+    "filled_successfully": false,
+    "decision_stage": null
+  },
+  {
+    "question_text": "How many years of work experience do you have with PySpark?",
+    "original_label": "How many years of work experience do you have with PySpark?",
+    "normalized_field": "PySpark Years",
+    "category": "skill_years",
+    "field_type": "text",
+    "detected_control_type": "textbox",
+    "options": [],
+    "selected_answer": null,
+    "source": null,
+    "confidence": "None",
+    "reason": "Safe Mode did not have a saved or high-confidence answer.",
+    "mode": "Safe",
+    "aggressive_default_used": false,
+    "filled_successfully": false,
+    "decision_stage": null
+  }
+]

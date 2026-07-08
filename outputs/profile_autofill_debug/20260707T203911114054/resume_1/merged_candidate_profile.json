@@ -1,0 +1,69 @@
+{
+  "address": "\u1ed9 Mumbai delivering innovative solutions through hard work and brilliance while",
+  "first_name": "in",
+  "last_name": "responsibility",
+  "professional_headline": null,
+  "current_company": null,
+  "linkedin_url": "https://www.linkedin.com/in/rishith-shetty-911249366/",
+  "phone_country_code": "+91",
+  "mobile_phone": "9136010355",
+  "current_job_title": null,
+  "github_url": null,
+  "current_location": "\u1ed9 Mumbai delivering innovative solutions through hard work and brilliance while",
+  "portfolio_url": null,
+  "email": "rishith1shetty@gmail.com",
+  "previous_companies": [],
+  "certifications": [
+    "AIML Bachelor of Engineering (B.E.) 7.0 Google Data Analytics Professional Certificate GMS College 2020 to 2022 Coursera PCM Pre University 2023 72.5% RBK School 2020 78.5% Secondary School"
+  ],
+  "professional_links": {
+    "linkedin": {
+      "value": "https://www.linkedin.com/in/rishith-shetty-911249366/",
+      "source": "Embedded Hyperlink",
+      "confidence": 98
+    }
+  },
+  "field_sources": {
+    "email": {
+      "source": "Resume Visible Text",
+      "confidence": 96.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "address": {
+      "source": "Resume Visible Text",
+      "confidence": 50.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "last_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "first_name": {
+      "source": "Resume Visible Text",
+      "confidence": 76.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "linkedin_url": {
+      "source": "Embedded Hyperlink",
+      "confidence": 98.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "mobile_phone": {
+      "source": "Resume Visible Text",
+      "confidence": 88.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "current_location": {
+      "source": "Resume Visible Text",
+      "confidence": 62.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    },
+    "phone_country_code": {
+      "source": "Resume Visible Text",
+      "confidence": 64.0,
+      "updated_at": "2026-07-07T20:39:11.095112"
+    }
+  },
+  "missing_required_after_apply": []
+}

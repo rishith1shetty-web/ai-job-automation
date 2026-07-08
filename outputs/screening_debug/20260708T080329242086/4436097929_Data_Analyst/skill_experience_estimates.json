@@ -1,0 +1,13 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_skill": "Excel",
+    "selected_years": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+    "mode_used": "Safe",
+    "aggressive_default_used": false,
+    "reason": "Calculated years from resume dates tied to the skill."
+  }
+]

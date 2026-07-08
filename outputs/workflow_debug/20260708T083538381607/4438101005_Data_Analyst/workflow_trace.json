@@ -1,0 +1,185 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "771b248c9a9f4b4c5f028f7bbb5836957cb0665521cee91612fccd4fe2b74b6d",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.58,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "25e6b237538d70e00104fcfbcb197036bbaea7add0ed2e81f9ef8397b4d91222",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.74,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "25e6b237538d70e00104fcfbcb197036bbaea7add0ed2e81f9ef8397b4d91222",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.82,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "screening_questions",
+    "page_hash": "4ca8935a3b558ee4549c327331c2efcfb65060e94fa56094903cb7b947977ee5",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 30.92,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "screening_questions",
+    "page_hash": "4ca8935a3b558ee4549c327331c2efcfb65060e94fa56094903cb7b947977ee5",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 31.02,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | Teambuilderz LLC | LinkedIn",
+    "modal_title": "Apply to Teambuilderz LLC",
+    "detected_page_type": "validation_error",
+    "page_hash": "acc63afcfb513e9593bb4d63266c8d5cbd9da4431121b1245bac9af6fbaad2e6",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4438101005/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 36.85,
+    "stop_reason": "Validation error: Please make a selection"
+  }
+]

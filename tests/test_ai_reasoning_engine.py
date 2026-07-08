@@ -187,11 +187,13 @@ class AIReasoningEngineTests(unittest.TestCase):
         self.assertEqual(answer["decision_stage"], "saved_answer")
         self.assertEqual([stage["stage"] for stage in answer["decision_pipeline"]], ["saved_answer"])
 
-    def test_safe_mode_unknown_question_still_needs_review(self) -> None:
+    def test_safe_mode_legal_question_still_needs_review(self) -> None:
+        # Non-legal unknowns are now AI-answered, but legal/authorization is never
+        # fabricated and still returns None (-> needs_review) in safe mode.
         automation = LinkedInAutomation(self.settings)
         answer = automation._select_screening_answer(
-            "Do you have aerospace telemetry certification?",
-            "yes_no",
+            "Are you legally authorized to work in the United States?",
+            automation._screening_question_category("Are you legally authorized to work in the United States?"),
             {"field_type": "select", "type": "select-one"},
             ["Yes", "No"],
             self.resume,
@@ -201,6 +203,24 @@ class AIReasoningEngineTests(unittest.TestCase):
         )
 
         self.assertIsNone(answer)
+
+    def test_safe_mode_unknown_nonlegal_question_is_answered(self) -> None:
+        # Per product decision: non-legal questions are auto-answered (AI-generated
+        # when not in the resume) rather than left for review.
+        automation = LinkedInAutomation(self.settings)
+        answer = automation._select_screening_answer(
+            "Do you have aerospace telemetry certification?",
+            automation._screening_question_category("Do you have aerospace telemetry certification?"),
+            {"field_type": "select", "type": "select-one"},
+            ["Yes", "No"],
+            self.resume,
+            self.job,
+            None,
+            {"mode": "safe", "saved_answers": []},
+        )
+
+        self.assertIsNotNone(answer)
+        self.assertEqual(answer["selected_answer"], "No")
 
 
 if __name__ == "__main__":

@@ -43,6 +43,60 @@ def clear_cached_reads() -> None:
     cached_get.clear()
 
 
+def extract_screening_decisions(record: dict) -> list[dict]:
+    """Flatten screening decisions from an application record for display.
+
+    Handles both portal log shapes: LinkedIn emits a
+    ``screening_questions_answered`` run-log event with an ``answers`` list;
+    Dice emits per-field ``field_planned`` entries. Persisted ``evidence_sources``
+    is used first when present.
+    """
+    decisions: list[dict] = []
+
+    for source in record.get("evidence_sources") or []:
+        decisions.append(
+            {
+                "question": source.get("question"),
+                "answer": source.get("answer"),
+                "source": source.get("source"),
+                "confidence": source.get("confidence"),
+                "reasoning": source.get("reasoning"),
+                "needs_review": source.get("answer") in (None, ""),
+            }
+        )
+    if decisions:
+        return decisions
+
+    for event in record.get("run_log") or []:
+        if event.get("event") == "screening_questions_answered":
+            for answer in event.get("answers", []):
+                decisions.append(
+                    {
+                        "question": answer.get("question_text") or answer.get("question"),
+                        "answer": answer.get("selected_answer") or answer.get("answer"),
+                        "source": answer.get("source"),
+                        "confidence": answer.get("confidence"),
+                        "reasoning": answer.get("reason") or answer.get("reasoning_summary"),
+                        "needs_review": not (answer.get("selected_answer") or answer.get("answer")),
+                    }
+                )
+        elif event.get("step") == "field_planned" and event.get("category"):
+            action = event.get("action")
+            if action in {"resume_upload"}:
+                continue
+            decisions.append(
+                {
+                    "question": event.get("label"),
+                    "answer": event.get("answer"),
+                    "source": event.get("source"),
+                    "confidence": event.get("confidence"),
+                    "reasoning": event.get("reason"),
+                    "needs_review": action == "needs_review",
+                }
+            )
+    return decisions
+
+
 def api_error_message(action: str, exc: Exception) -> str:
     if isinstance(exc, requests.Timeout):
         return f"{action} timed out. The backend may still be working; refresh in a moment."
@@ -791,13 +845,30 @@ with tab_matches:
                 st.success("Selected job workflow completed successfully.")
             if selected_result.get("evidence_path"):
                 st.caption(f"Evidence saved to: {selected_result['evidence_path']}")
-            screening_rows = [
-                event
-                for event in selected_result.get("run_log", [])
-                if event.get("event") == "screening_questions_answered"
-            ]
-            if screening_rows:
-                st.caption("Screening answers were selected during the run. Full JSON logs are under outputs/screening_debug/.")
+            screening_decisions = extract_screening_decisions(selected_result)
+            if screening_decisions:
+                st.markdown("**Screening answers (dry run)**")
+                st.dataframe(
+                    [
+                        {
+                            "Question": decision.get("question"),
+                            "Answer": decision.get("answer"),
+                            "Source": decision.get("source"),
+                            "Confidence": decision.get("confidence"),
+                            "Reasoning": decision.get("reasoning"),
+                        }
+                        for decision in screening_decisions
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                needs_review = [d for d in screening_decisions if d.get("needs_review")]
+                if needs_review:
+                    st.warning(
+                        f"{len(needs_review)} question(s) need review (no confident, evidence-backed answer): "
+                        + ", ".join(str(d.get("question")) for d in needs_review[:5])
+                    )
+                st.caption("Full JSON logs are under outputs/screening_debug/ and outputs/dice_debug/.")
     else:
         st.caption("No matched jobs yet.")
 

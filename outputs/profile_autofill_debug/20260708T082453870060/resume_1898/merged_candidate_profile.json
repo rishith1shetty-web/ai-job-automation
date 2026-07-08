@@ -1,0 +1,31 @@
+{
+  "email": null,
+  "last_name": null,
+  "portfolio_url": null,
+  "professional_headline": "Data analyst",
+  "github_url": null,
+  "mobile_phone": null,
+  "linkedin_url": null,
+  "current_location": null,
+  "address": null,
+  "current_company": null,
+  "current_job_title": "Data analyst",
+  "first_name": null,
+  "phone_country_code": null,
+  "previous_companies": [],
+  "certifications": [],
+  "professional_links": {},
+  "field_sources": {
+    "current_job_title": {
+      "source": "Resume Visible Text",
+      "confidence": 70.0,
+      "updated_at": "2026-07-07T21:56:25.807831"
+    },
+    "professional_headline": {
+      "source": "Resume Visible Text",
+      "confidence": 65.0,
+      "updated_at": "2026-07-07T21:56:25.807831"
+    }
+  },
+  "missing_required_after_apply": []
+}

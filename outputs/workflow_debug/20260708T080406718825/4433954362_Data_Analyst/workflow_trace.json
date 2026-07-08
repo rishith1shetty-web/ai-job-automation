@@ -1,0 +1,162 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Synechron | LinkedIn",
+    "modal_title": "Apply to Synechron",
+    "detected_page_type": "contact_page",
+    "page_hash": "0a6767275ae258d0460c089af148959ee3a2c3f4f560375eb8b7d977fb365b34",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433954362/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 21.88,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Data Analyst | Synechron | LinkedIn",
+    "modal_title": "Apply to Synechron",
+    "detected_page_type": "resume_page",
+    "page_hash": "701775981e5204e54f726ebde65cff5e5a1c09dd919072db4240839076211a8e",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4433954362/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 28.19,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Data Analyst | Synechron | LinkedIn",
+    "modal_title": "Apply to Synechron",
+    "detected_page_type": "resume_page",
+    "page_hash": "701775981e5204e54f726ebde65cff5e5a1c09dd919072db4240839076211a8e",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433954362/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 28.25,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | Synechron | LinkedIn",
+    "modal_title": "Apply to Synechron",
+    "detected_page_type": "validation_error",
+    "page_hash": "5fc6b48b13686b971b98878baa8bfcbd08629e86886dceec496ee84302ce2e6b",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433954362/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 37.01,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Data Analyst | Synechron | LinkedIn",
+    "modal_title": "Apply to Synechron",
+    "detected_page_type": "validation_error",
+    "page_hash": "c18d84d905c4c9b28104c5c6e4239f0689241fc0af92fd9184e504a68db73fbf",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4433954362/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99",
+      "Please make a selection",
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 44.67,
+    "stop_reason": "Validation error: Enter a whole number between 0 and 99; Enter a whole number between 0 and 99; Enter a whole number between 0 and 99; Please make a selection; Please make a selection"
+  }
+]

@@ -197,6 +197,46 @@ class AIReasoningEngine:
             missing_skills=comparison["missing_skills"],
         )
 
+    def select_option(
+        self,
+        *,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None = None,
+        employment_history: list[dict] | None = None,
+        candidate_knowledge: list[dict] | None = None,
+        recruiter_memory: list[dict] | None = None,
+    ) -> dict | None:
+        """Choose the dropdown/select option that candidate evidence supports.
+
+        Safe and non-fabricating: returns the first option for which concrete
+        evidence exists (with confidence + reasoning), else ``None``. Never used
+        for legal/authorization questions (the caller gates those out).
+        """
+        usable = [option for option in (options or []) if str(option).strip()]
+        if not usable:
+            return None
+        for option in usable:
+            evidence = self._collect_evidence(
+                [self._normalize_text(option)],
+                resume,
+                candidate_profile,
+                employment_history or [],
+                candidate_knowledge or [],
+                recruiter_memory or [],
+                job,
+            )
+            if evidence:
+                sources = ", ".join(dict.fromkeys(item["source"] for item in evidence))
+                return {
+                    "option": option,
+                    "confidence": self._confidence_for(evidence, option, "safe"),
+                    "reason": f"Evidence for '{option}' was found in {sources}.",
+                    "evidence": {"evidence_used": evidence, "matched_option": option},
+                }
+        return None
+
     def write_debug(self, debug_dir: Path, job: JobOpportunity, decisions: list[ReasoningDecision]) -> None:
         comparison = self.compare_resume_to_job(job.resume, job) if job.resume else {}
         files = {
@@ -285,13 +325,30 @@ class AIReasoningEngine:
             return "No supporting evidence was found across candidate sources; Aggressive Mode selected No."
         return "No reliable evidence was found across candidate sources."
 
+    # Non-discriminative words that must never count as standalone evidence
+    # concepts (otherwise generic questions like "Do you have X experience?"
+    # falsely match the word "experience" in any resume).
+    GENERIC_CONCEPT_WORDS = {
+        "experience", "experiences", "work", "working", "role", "roles", "job",
+        "jobs", "position", "positions", "years", "year", "background", "skill",
+        "skills", "knowledge", "expertise", "field", "related", "relevant",
+        "professional", "total", "overall", "level", "do you have", "have you",
+        "are you", "can you", "with", "the following", "hands on", "hands-on",
+    }
+
     def _question_concepts(self, question: str) -> list[str]:
         text = self._normalize_text(question)
         concepts = [concept for concept in self.SKILL_ALIASES if self._concept_present(concept, text)]
         for phrase in re.findall(r"\b[A-Za-z][A-Za-z0-9+#. ]{2,30}\b", question):
             lowered = self._normalize_text(phrase)
-            if lowered not in {"do you have", "experience with", "how many years", "work experience"}:
-                concepts.append(lowered)
+            # Drop generic filler words from the phrase so only meaningful terms
+            # remain; skip the phrase entirely if nothing meaningful is left.
+            meaningful = " ".join(
+                word for word in lowered.split() if word not in self.GENERIC_CONCEPT_WORDS
+            ).strip()
+            if not meaningful or meaningful in self.GENERIC_CONCEPT_WORDS:
+                continue
+            concepts.append(meaningful)
         return list(dict.fromkeys(concepts))[:8]
 
     def _candidate_text(

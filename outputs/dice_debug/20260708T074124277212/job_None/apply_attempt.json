@@ -1,0 +1,22 @@
+{
+  "portal": "dice",
+  "job_id": null,
+  "title": "Data Analyst",
+  "company": "Example",
+  "job_url": "https://www.dice.com/job-detail/abc",
+  "status": "needs_review",
+  "current_step": "dice_apply_needs_review",
+  "message": "Dice dry run stopped: one or more required answers were uncertain (needs review).",
+  "submitted": false,
+  "screening_answers": [
+    {
+      "question_text": "How many years of experience do you have?",
+      "selected_answer": null,
+      "source": null,
+      "confidence": "None",
+      "reason": "No confident answer; needs review.",
+      "category": "years"
+    }
+  ],
+  "missing_contact_fields": []
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "original_label": "How many years of work experience do you have with Microsoft Excel?",
+    "normalized_field": "Excel Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": "estimator",
+    "selected_value": "1",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "1",
+        "source": "Resume Experience Dates",
+        "confidence": "High",
+        "evidence_used": true,
+        "reasoning_summary": "Calculated years from resume dates tied to the skill.",
+        "selected": true
+      }
+    ],
+    "radio_writer": null
+  },
+  {
+    "original_label": "How many years of work experience do you have with SQL?",
+    "normalized_field": "SQL Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Safe Mode did not have a saved or high-confidence answer.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": [],
+    "radio_writer": null
+  },
+  {
+    "original_label": "How many years of work experience do you have with Databases?",
+    "normalized_field": "Databases Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Safe Mode did not have a saved or high-confidence answer.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": [],
+    "radio_writer": null
+  },
+  {
+    "original_label": "Do You Have a Green Card or US Citizen ?",
+    "normalized_field": "US Work Authorization",
+    "detected_control_type": "dropdown",
+    "category": "authorization",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": [],
+    "radio_writer": null
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with SQL?",
+    "normalized_skill": null,
+    "selected_years": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "evidence_used": [
+      {
+        "source": "Employment",
+        "reasoning_type": "Employment Match",
+        "concept": "etl",
+        "snippet": "[{\"text\": \"in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      },
+      {
+        "source": "Project",
+        "reasoning_type": "Project Match",
+        "concept": "etl",
+        "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      },
+      {
+        "source": "Direct Resume",
+        "reasoning_type": "Direct Resume Match",
+        "concept": "etl",
+        "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      }
+    ],
+    "mode_used": "Safe",
+    "aggressive_default_used": false,
+    "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+  }
+]

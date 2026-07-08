@@ -1,0 +1,31 @@
+{
+  "portal": "dice",
+  "job_id": null,
+  "apply_type": "native",
+  "submit_present": true,
+  "plan": [
+    {
+      "index": 0,
+      "label": "First Name",
+      "control": "text",
+      "kind": "contact",
+      "required": true,
+      "options": [],
+      "normalized_field": "first_name",
+      "detected_control_type": "textbox",
+      "action": "needs_review",
+      "value": null,
+      "reason": "Candidate profile is missing 'first_name'."
+    }
+  ],
+  "unanswered": [
+    {
+      "label": "First Name",
+      "reason": "Candidate profile is missing 'first_name'."
+    }
+  ],
+  "unsupported_controls": [],
+  "missing_contact_fields": [
+    "first_name"
+  ]
+}

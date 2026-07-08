@@ -180,6 +180,47 @@ class DiceApplyTests(unittest.TestCase):
         self.assertEqual(result.status, ApplicationStatus.NEEDS_REVIEW)
         self.assertFalse(adapter.page.submitted)
 
+    def test_dry_run_ready_covers_number_and_dropdown_fields(self):
+        # Resume carries explicit years + skills so number/dropdown fields are
+        # answerable from evidence via the upgraded shared engine.
+        self.resume = make_resume(
+            raw_text="Data analyst with 5 years of experience in SQL and Tableau.",
+            skills=["SQL", "Tableau"],
+        )
+        form = {
+            "apply_type": "native",
+            "submit_present": True,
+            "fields": [
+                {"index": 0, "label": "First Name", "control": "text", "kind": "text", "required": True, "options": []},
+                {"index": 1, "label": "Email", "control": "text", "kind": "text", "required": True, "options": []},
+                {"index": 2, "label": "How many years of experience do you have?", "control": "number", "kind": "number", "required": True, "options": []},
+                {"index": 3, "label": "Which of these have you used?", "control": "select", "kind": "select", "required": True, "options": ["SQL", "MongoDB", "Redis"]},
+            ],
+        }
+        adapter, result = self._apply(form, candidate=make_candidate())
+        self.assertEqual(result.status, ApplicationStatus.DRY_RUN_READY)
+        self.assertFalse(adapter.page.submitted)
+        answers = {e.get("question_text"): e.get("selected_answer") for e in result.screening_answers}
+        self.assertEqual(answers.get("How many years of experience do you have?"), "5")
+        self.assertEqual(answers.get("Which of these have you used?"), "SQL")
+
+    def test_number_field_without_evidence_fills_zero(self):
+        # No explicit years -> numeric field is filled with an honest 0 (AI-generated)
+        # so the form is submit-ready; the value is always numeric, never "Yes".
+        self.resume = make_resume(raw_text="Data analyst.", skills=[])
+        form = {
+            "apply_type": "native",
+            "submit_present": True,
+            "fields": [
+                {"index": 0, "label": "How many years of experience do you have?", "control": "number", "kind": "number", "required": True, "options": []},
+            ],
+        }
+        adapter, result = self._apply(form, candidate=make_candidate())
+        self.assertEqual(result.status, ApplicationStatus.DRY_RUN_READY)
+        self.assertFalse(adapter.page.submitted)
+        answers = {e.get("question_text"): e.get("selected_answer") for e in result.screening_answers}
+        self.assertEqual(answers.get("How many years of experience do you have?"), "0")
+
     def test_result_shape_is_automationresult_compatible(self):
         _, result = self._apply({"apply_type": "external", "fields": []})
         # Fields consumed by main._process_application must exist.

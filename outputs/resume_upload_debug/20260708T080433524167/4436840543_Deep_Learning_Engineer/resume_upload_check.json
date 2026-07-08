@@ -1,0 +1,19 @@
+{
+  "active_resume_id": 1331,
+  "job_resume_id": 1331,
+  "search_batch_id": "0d37ea10-f277-47fb-832a-3eef115591ce",
+  "resume_filename_from_database": "Rishith_Shetty_Resume.docx",
+  "resume_original_filename": "Rishith_Shetty_Resume.docx",
+  "resume_storage_path": "C:\\Users\\rishi\\ai-job-automation\\storage\\uploads\\8d5ae19368e7463ab683055425a06d1d.docx",
+  "file_exists": true,
+  "file_size": 10361,
+  "file_hash_sha256": "e30ee473781a4b15592351636f7b76d7afe880e3a80db2d588ba447e329ac2c8",
+  "file_passed_to_playwright": "C:\\Users\\rishi\\ai-job-automation\\storage\\uploads\\8d5ae19368e7463ab683055425a06d1d.docx",
+  "linkedin_filename_detected_after_upload": null,
+  "upload_started": true,
+  "upload_completed": true,
+  "upload_success": true,
+  "mismatch_detected": false,
+  "reason_if_failed": null,
+  "evidence_path": "outputs\\resume_upload_debug\\20260708T080433524167\\4436840543_Deep_Learning_Engineer"
+}

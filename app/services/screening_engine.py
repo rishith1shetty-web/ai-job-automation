@@ -10,6 +10,22 @@ from app.models import CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.reasoning import AIReasoningEngine
 
 
+# Categories that must NEVER be fabricated (visa / work authorization /
+# sponsorship / security clearance / criminal-background-legal). They are
+# answerable only from an explicit saved answer (Screening Knowledge Base) or the
+# Candidate Profile; otherwise the engine returns ``None`` (-> needs_review).
+# Everything non-legal (skills, years, education, work preference, dropdowns,
+# generic yes/no) is auto-answered from resume/profile evidence, and when the
+# answer is not present it is AI-generated conservatively.
+SAFE_STOP_CATEGORIES = {"authorization", "legal", "clearance"}
+
+# Options that carry no evidentiary value when matching dropdown/select answers.
+NON_EVIDENCE_OPTIONS = {
+    "", "select", "select one", "please select", "choose", "choose one",
+    "n/a", "na", "none", "other", "prefer not to say", "--",
+}
+
+
 @dataclass
 class ScreeningQuestion:
     """Portal-agnostic, structured description of one screening question."""
@@ -184,7 +200,7 @@ class ScreeningAnswerEngine:
             self._record_screening_pipeline_stage(pipeline, stage_name, candidate)
             if candidate:
                 return self._finalize_screening_decision(candidate, stage_name, pipeline)
-        if category in {"authorization", "legal", "clearance", "certification", "work_preference"}:
+        if category in SAFE_STOP_CATEGORIES:
             return None
         remaining_stages = [
             (
@@ -221,6 +237,20 @@ class ScreeningAnswerEngine:
                     options,
                     resume,
                     job,
+                    mode,
+                ),
+            ),
+            (
+                "coverage",
+                lambda: self._screening_decision_from_coverage(
+                    question,
+                    category,
+                    field_state,
+                    options,
+                    resume,
+                    job,
+                    candidate_profile,
+                    screening_context,
                     mode,
                 ),
             ),
@@ -430,6 +460,18 @@ class ScreeningAnswerEngine:
                 screening_context,
                 mode,
             )
+        # Work-preference willingness (relocation / commute / remote / hybrid) is
+        # non-legal; answer it with the application-friendly conservative default in
+        # both safe and aggressive modes (before the aggressive-only defaults below).
+        if category == "work_preference":
+            return self._screening_event(
+                "Yes",
+                "Conservative Default",
+                "Estimated / Low",
+                "Non-legal work-preference question; defaulted to willing.",
+                True,
+                evidence={"preference": "willing"},
+            )
         if mode != "aggressive":
             return None
         if category == "notice":
@@ -473,6 +515,228 @@ class ScreeningAnswerEngine:
             generated = self._generated_short_screening_answer(question, resume, job)
             if generated:
                 return self._screening_event(generated, "AI Generated", "Estimated / Low", "Generated concise answer from resume and job context.", True)
+        return None
+
+    def _screening_decision_from_coverage(
+        self,
+        question: str,
+        category: str,
+        field_state: dict,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        mode: str,
+    ) -> dict | None:
+        """Evidence-based coverage for structured fields that the earlier stages
+        leave unanswered (notably in ``safe`` mode).
+
+        This layer NEVER fabricates: it only answers when concrete resume/profile
+        evidence exists. Legal categories are already short-circuited before this
+        runs, and free-text/essay fields are deliberately left to needs_review to
+        preserve truthful, human-reviewed content.
+        """
+        if category in SAFE_STOP_CATEGORIES:
+            return None
+
+        yes_no = self._looks_yes_no_options(options)
+
+        # (a0) Skill-years numeric field with no resume evidence -> honest 0 years.
+        # (The estimator already returns a positive number when evidence exists;
+        # coverage only runs after it, so reaching here means no evidence.)
+        if category == "skill_years":
+            skill = self._extract_skill_from_experience_question(question)
+            if skill:
+                estimate = self._estimate_skill_years(skill, resume, candidate_profile)
+                if estimate.get("found") and estimate.get("years"):
+                    years = max(1, int(estimate["years"]))
+                    return self._screening_event(
+                        str(years),
+                        estimate.get("source") or "Resume",
+                        "Estimated",
+                        estimate.get("reason") or "Estimated years for a skill present in the resume.",
+                        bool(estimate.get("aggressive_default_used")),
+                        evidence=estimate,
+                    )
+            return self._screening_event(
+                "0",
+                "AI Generated",
+                "Estimated / Low",
+                f"No resume evidence for {skill or 'this skill'}; entered 0 years so the numeric field is valid.",
+                True,
+                evidence={"normalized_skill": skill, "years": 0},
+            )
+
+        # (a) Numeric years-of-experience: fill from the resume, else honest 0.
+        if category == "years":
+            years = self._estimated_years_of_experience(resume)
+            source = "Resume" if years > 0 else "AI Generated"
+            confidence = "Medium" if years > 0 else "Estimated / Low"
+            reason = (
+                "Years of experience were stated explicitly in the resume."
+                if years > 0
+                else "No explicit years in the resume; entered a conservative estimate."
+            )
+            return self._screening_event(
+                str(years), source, confidence, reason, years == 0,
+                evidence={"years": years, "source": "resume.raw_text"},
+            )
+
+        # (a2) Education yes/no: answer from the resume's highest degree level.
+        if category == "education" and yes_no:
+            answer = self._education_yes_no_answer(question, resume)
+            return self._screening_event(
+                answer,
+                "Resume Education",
+                "Medium",
+                "Compared the requested degree level with the resume's highest degree.",
+                answer == "No",
+                evidence={"education": resume.education or []},
+            )
+
+        # (a3) Work-preference willingness (relocation / commute / remote / hybrid):
+        # non-legal; answered with the application-friendly conservative default.
+        if category == "work_preference" and (yes_no or not options):
+            return self._screening_event(
+                "Yes",
+                "Conservative Default",
+                "Estimated / Low",
+                "Non-legal work-preference question; defaulted to willing.",
+                True,
+                evidence={"preference": "willing"},
+            )
+
+        # (b) Location from candidate profile, resume, or the job itself.
+        if category == "location":
+            profile_location = candidate_profile.current_location if candidate_profile else None
+            location = profile_location or self._extract_location_from_resume(resume) or job.location
+            if location:
+                source = "Candidate Profile" if profile_location else "Resume/Job Location"
+                return self._screening_event(
+                    location,
+                    source,
+                    "Medium",
+                    "Answered from the candidate/job location on record.",
+                    False,
+                    evidence={"location": location, "source": source},
+                )
+            return None
+
+        # (c) Dropdown / select / multi-option with a concrete match in the resume
+        #     or profile (skip Yes/No; those are handled by evidence/reasoning).
+        if options and not yes_no:
+            matched = self._best_option_from_evidence(options, resume, job, candidate_profile)
+            if matched:
+                return self._screening_event(
+                    matched["option"],
+                    matched["source"],
+                    matched.get("confidence") or "Medium",
+                    matched["reason"],
+                    False,
+                    evidence=matched.get("evidence") or {},
+                )
+            return None
+
+        # (d) Generic non-legal yes/no: answer from resume evidence, else AI-generate
+        # the honest conservative answer ("No" when nothing supports a "Yes").
+        if yes_no or str(field_state.get("type") or "").lower() in {"radio", "checkbox"}:
+            supported = self._question_supported_by_resume(question, resume)
+            answer = "Yes" if supported else "No"
+            source = "Resume Evidence" if supported else "AI Generated"
+            confidence = "Medium" if supported else "Estimated / Low"
+            reason = (
+                "Resume/profile evidence supports Yes."
+                if supported
+                else "No supporting evidence found; AI-generated the conservative answer (No)."
+            )
+            return self._screening_event(answer, source, confidence, reason, not supported)
+
+        return None
+
+    def _education_yes_no_answer(self, question: str, resume: ResumeProfile) -> str:
+        """Answer a 'Have you completed <level> degree?' question by comparing the
+        requested level with the resume's highest degree."""
+        levels = [
+            (r"doctor|phd|ph\.d|doctorate", 5),
+            (r"master|m\.sc|msc|m\.?tech|mba|post\s*graduate|graduate degree", 4),
+            (r"bachelor|b\.e\b|b\.?tech|b\.sc|bsc|under\s*graduate|engineering degree", 3),
+            (r"associate|diploma", 2),
+            (r"high school|secondary|hsc|ssc|12th|10th", 1),
+        ]
+        text = (json.dumps(resume.education or [], default=str) + " " + (resume.raw_text or "")).lower()
+        have = 0
+        for pattern, rank in levels:
+            if re.search(pattern, text):
+                have = max(have, rank)
+        question_lower = question.lower()
+        asked = None
+        for pattern, rank in levels:
+            if re.search(pattern, question_lower):
+                asked = rank
+                break
+        if asked is None:
+            return "Yes" if have >= 2 else "No"
+        return "Yes" if have >= asked else "No"
+
+    def _best_option_from_evidence(
+        self,
+        options: list[str],
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+    ) -> dict | None:
+        """Pick the dropdown/select option that is directly supported by the
+        candidate's resume or profile. Prefers the reasoning engine's evidence
+        machinery, then falls back to a token-presence heuristic. Returns ``None``
+        when nothing is defensibly supported (-> needs_review)."""
+        usable = [
+            option
+            for option in options
+            if str(option).strip().lower() not in NON_EVIDENCE_OPTIONS
+        ]
+        if not usable:
+            return None
+
+        # Reasoning-engine option selection (confidence + reasoning).
+        selection = self.reasoning.select_option(
+            options=usable,
+            resume=resume,
+            job=job,
+            candidate_profile=candidate_profile,
+        )
+        if selection and selection.get("option"):
+            return {
+                "option": selection["option"],
+                "source": "AI Reasoning Engine",
+                "confidence": selection.get("confidence") or "Medium",
+                "reason": selection.get("reason")
+                or "Selected the option supported by resume/profile evidence.",
+                "evidence": selection.get("evidence") or {},
+            }
+
+        # Heuristic fallback: option text appears verbatim in candidate evidence.
+        evidence_text = " ".join(
+            [
+                resume.raw_text or "",
+                " ".join(resume.skills or []),
+                " ".join(resume.technologies or []),
+                " ".join(resume.keywords or []),
+                " ".join(resume.domain_expertise or []),
+                (candidate_profile.professional_headline if candidate_profile else "") or "",
+                (candidate_profile.current_job_title if candidate_profile else "") or "",
+            ]
+        ).lower()
+        for option in usable:
+            token = str(option).strip().lower()
+            if len(token) >= 3 and re.search(rf"\b{re.escape(token)}\b", evidence_text):
+                return {
+                    "option": option,
+                    "source": "Resume Evidence",
+                    "confidence": "Medium",
+                    "reason": f"Option '{option}' appears directly in the resume/profile.",
+                    "evidence": {"matched_option": option},
+                }
         return None
 
     def _record_screening_pipeline_stage(self, pipeline: list[dict], stage_name: str, candidate: dict | None) -> None:
@@ -768,6 +1032,19 @@ class ScreeningAnswerEngine:
                 "evidence_used": f"Skill appeared near dated resume experience; calculated {dated_years} year(s).",
                 "reason": "Calculated years from resume dates tied to the skill.",
             }
+        stated_years = self._years_stated_for_skill(skill_pattern, raw_text)
+        if stated_years:
+            return {
+                "normalized_skill": skill,
+                "selected_years": stated_years,
+                "years": stated_years,
+                "source": "Resume",
+                "confidence": "High",
+                "found": True,
+                "aggressive_default_used": False,
+                "evidence_used": f"Resume states {stated_years} year(s) with the skill.",
+                "reason": "Parsed an explicit 'N years' figure stated alongside the skill.",
+            }
         if self._skill_in_structured_resume(skill_pattern, resume.experience):
             years = self._estimated_years_of_experience(resume) or 1
             return {
@@ -828,6 +1105,21 @@ class ScreeningAnswerEngine:
             "evidence_used": "",
             "reason": f"No evidence for {skill} was found.",
         }
+
+    def _years_stated_for_skill(self, skill_pattern: re.Pattern, text: str) -> int | None:
+        """Parse an explicit 'N years' figure stated in the same sentence as the
+        skill (e.g. '4 years of experience with SQL')."""
+        if not text:
+            return None
+        for sentence in re.split(r"[.\n\r;]+", text):
+            if not skill_pattern.search(sentence):
+                continue
+            match = re.search(r"(\d{1,2})\s*\+?\s*years?", sentence, re.I)
+            if match:
+                value = int(match.group(1))
+                if 0 < value <= 60:
+                    return value
+        return None
 
     def _skill_pattern(self, skill: str) -> re.Pattern:
         aliases = {

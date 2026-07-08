@@ -1,0 +1,187 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Python Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for python, etl, how many years of work, experience do you have with was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.472048"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.475051"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Machine Learning Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Machine Learning Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with TensorFlow?' to 'Machine Learning Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for machine learning, how many years of work, experience do you have with, tensorflow was found in Employment, Project, Direct Resume, Education."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:04:33.469882"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Python Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for python, etl, how many years of work, experience do you have with was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      },
+      {
+        "normalized_field": "Python Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Python (Programming Language)?' to 'Python Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.472048"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:04:33.453532"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.475051"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with TensorFlow?' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:04:33.477167"
+      }
+    ]
+  }
+]

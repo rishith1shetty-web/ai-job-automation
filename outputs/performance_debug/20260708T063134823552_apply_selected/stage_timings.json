@@ -1,0 +1,12 @@
+[
+  {
+    "stage": "resume_loading",
+    "elapsed_ms": 0.02,
+    "metadata": {}
+  },
+  {
+    "stage": "job_loading",
+    "elapsed_ms": 0.01,
+    "metadata": {}
+  }
+]

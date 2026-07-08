@@ -1,0 +1,20 @@
+[
+  {
+    "question": "How many years of work experience do you have with Python (Programming Language)?",
+    "answer": "Yes",
+    "confidence": "Very High",
+    "reasoning_type": "Employment Match"
+  },
+  {
+    "question": "How many years of work experience do you have with SQL?",
+    "answer": "Yes",
+    "confidence": "Very High",
+    "reasoning_type": "Employment Match"
+  },
+  {
+    "question": "How many years of work experience do you have with TensorFlow?",
+    "answer": "Yes",
+    "confidence": "Very High",
+    "reasoning_type": "Employment Match"
+  }
+]

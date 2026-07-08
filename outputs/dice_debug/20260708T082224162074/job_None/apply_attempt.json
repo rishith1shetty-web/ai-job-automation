@@ -1,0 +1,13 @@
+{
+  "portal": "dice",
+  "job_id": null,
+  "title": "Data Analyst",
+  "company": "Example",
+  "job_url": "https://www.dice.com/job-detail/abc",
+  "status": "unsupported_form",
+  "current_step": "dice_apply_unsupported_form",
+  "message": "Dice apply redirects to an external ATS; not automated.",
+  "submitted": false,
+  "screening_answers": [],
+  "missing_contact_fields": []
+}

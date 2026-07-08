@@ -527,9 +527,47 @@ class DicePortalAdapter:
             return {"apply_type": "none", "fields": [], "submit_present": False}
         return {
             "apply_type": "native",
-            "fields": self._collect_fields(page),
+            "fields": self._gather_form_fields(page),
             "submit_present": self._has_submit(page),
         }
+
+    def _gather_form_fields(self, page) -> list[dict]:
+        """Collect fields across a (possibly multi-step) Dice easy-apply flow.
+
+        Best-effort and defensive: advances only via Next/Continue and NEVER
+        clicks submit. New fields from later steps are merged by (label, control).
+        """
+        fields = self._collect_fields(page)
+        seen = {(str(f.get("label")), str(f.get("control"))) for f in fields}
+        steps = 1
+        while steps < 5 and not self._has_submit(page):
+            if not self._advance_to_next_step(page):
+                break
+            steps += 1
+            for field in self._collect_fields(page):
+                key = (str(field.get("label")), str(field.get("control")))
+                if key in seen:
+                    continue
+                seen.add(key)
+                fields.append(field)
+        return fields
+
+    def _advance_to_next_step(self, page) -> bool:
+        """Click a Next/Continue control to reveal more fields. Never submits."""
+        for selector in (
+            "[data-cy='next-step']",
+            "button:has-text('Next')",
+            "button:has-text('Continue')",
+        ):
+            try:
+                button = page.locator(selector).first
+                if button.count() > 0 and button.is_enabled():
+                    button.click(timeout=3000)
+                    page.wait_for_timeout(400)
+                    return True
+            except Exception:
+                continue
+        return False
 
     def _has_external_apply(self, page) -> bool:
         for selector in (
@@ -628,6 +666,21 @@ class DicePortalAdapter:
         for field in fields:
             entry = self._field_plan_entry(field, resume, job, candidate_profile, screening_context)
             plan.append(entry)
+            event = entry.get("event") or {}
+            log.append(
+                {
+                    "step": "field_planned",
+                    "label": entry.get("label"),
+                    "control": entry.get("control"),
+                    "kind": entry.get("kind"),
+                    "action": entry.get("action"),
+                    "answer": entry.get("value"),
+                    "source": event.get("source"),
+                    "confidence": event.get("confidence"),
+                    "category": event.get("category"),
+                    "reason": event.get("reason") or entry.get("reason"),
+                }
+            )
             if entry["kind"] == "screening" and entry.get("event"):
                 screening_answers.append(entry["event"])
             if entry["kind"] == "contact" and entry.get("value") is None and field.get("required"):
@@ -844,11 +897,19 @@ class DicePortalAdapter:
                     }
                     let options = [];
                     if (tag === 'select') options = Array.from(el.options).map(o => (o.textContent || o.value || '').trim()).filter(Boolean);
+                    // Preserve the true input type so the engine sees numbers,
+                    // emails, phones, urls and dates as themselves (not plain text).
+                    const numericTypes = ['number', 'range', 'tel', 'email', 'url', 'date', 'month', 'week'];
+                    let kind;
+                    if (tag === 'select') kind = 'select';
+                    else if (tag === 'textarea') kind = 'textarea';
+                    else if (numericTypes.includes(type)) kind = type;
+                    else kind = 'text';
                     fields.push({
                         index,
                         label: labelFor(el),
                         control: tag === 'select' ? 'select' : (tag === 'textarea' ? 'textarea' : type),
-                        kind: tag === 'select' ? 'select' : (tag === 'textarea' ? 'textarea' : 'text'),
+                        kind,
                         required: Boolean(el.required),
                         options,
                     });

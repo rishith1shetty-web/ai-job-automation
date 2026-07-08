@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/linkedin_auto_apply"
+    database_url: str = "postgresql+psycopg://postgres:5555@localhost:5432/linkedin_auto_apply"
     openai_api_key: str | None = None
     openai_match_model: str = "gpt-4o-mini"
     linkedin_storage_state: Path = Path("storage/linkedin_state.json")

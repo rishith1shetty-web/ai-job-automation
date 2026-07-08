@@ -1,0 +1,100 @@
+[
+  {
+    "job_id": 6178,
+    "title": "Backend Developer",
+    "company": "Example Company",
+    "metadata": {
+      "required_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "preferred_skills": [],
+      "years_of_experience": null,
+      "technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "responsibilities": [
+        "Python FastAPI SQL REST APIs"
+      ],
+      "industry": null,
+      "domain": null,
+      "education_requirements": [],
+      "certifications": [],
+      "soft_skills": [],
+      "management_experience": false,
+      "cloud_platforms": [],
+      "programming_languages": [
+        "python",
+        "sql"
+      ],
+      "databases": [
+        "sql"
+      ],
+      "bi_tools": [],
+      "frameworks": [
+        "fastapi"
+      ]
+    },
+    "semantic_match": {
+      "matched_skills": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_skills": [],
+      "matched_technologies": [
+        "sql",
+        "python",
+        "etl",
+        "fastapi"
+      ],
+      "missing_technologies": [],
+      "matched_experience": [],
+      "missing_experience": [],
+      "overall_semantic_match": 100.0,
+      "job_description_metadata": {
+        "required_skills": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "preferred_skills": [],
+        "years_of_experience": null,
+        "technologies": [
+          "sql",
+          "python",
+          "etl",
+          "fastapi"
+        ],
+        "responsibilities": [
+          "Python FastAPI SQL REST APIs"
+        ],
+        "industry": null,
+        "domain": null,
+        "education_requirements": [],
+        "certifications": [],
+        "soft_skills": [],
+        "management_experience": false,
+        "cloud_platforms": [],
+        "programming_languages": [
+          "python",
+          "sql"
+        ],
+        "databases": [
+          "sql"
+        ],
+        "bi_tools": [],
+        "frameworks": [
+          "fastapi"
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Python (Programming Language)?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for python, etl, how many years of work, experience do you have with was found in Employment, Project, Direct Resume."
+  },
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+  },
+  {
+    "question_text": "How many years of work experience do you have with TensorFlow?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for machine learning, how many years of work, experience do you have with, tensorflow was found in Employment, Project, Direct Resume, Education."
+  }
+]

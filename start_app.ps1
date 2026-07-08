@@ -12,6 +12,7 @@ $apiStdout = Join-Path $outputs "api.stdout.log"
 $apiStderr = Join-Path $outputs "api.stderr.log"
 $streamlitStdout = Join-Path $outputs "streamlit.stdout.log"
 $streamlitStderr = Join-Path $outputs "streamlit.stderr.log"
+$playwrightBrowsers = Join-Path $projectRoot "storage\ms-playwright"
 
 if (-not (Test-Path $python)) {
     throw "Python virtual environment was not found at $python"
@@ -58,7 +59,11 @@ function Stop-ProjectProcessOnPort {
         $isProjectPython = $path -and $path.StartsWith($projectRoot, [System.StringComparison]::OrdinalIgnoreCase)
         $isProjectCommand = $commandLine -and $commandLine.Contains($projectRoot)
         $isPython = $process.ProcessName -match "python|streamlit|uvicorn"
-        if ($isProjectPython -or ($isProjectCommand -and $isPython)) {
+        # Also match this app's own launch signature so stale/mis-launched instances
+        # (e.g. started from a different Python interpreter with the venv injected via
+        # PYTHONPATH) are cleaned up instead of being left to serve on the port.
+        $isAppCommand = $commandLine -and ($commandLine -match "uvicorn\s+app\.main:app" -or $commandLine -match "streamlit\s+run\s+dashboard\.py")
+        if ($isProjectPython -or ($isProjectCommand -and $isPython) -or $isAppCommand) {
             Write-Step "Stopping stale process $($process.Id) on port $Port."
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         }
@@ -145,6 +150,7 @@ function Wait-HttpOk {
 
 [Environment]::SetEnvironmentVariable("PATH", $null, "Process")
 [Environment]::SetEnvironmentVariable("Path", "C:\Windows\System32;C:\Windows", "Process")
+[Environment]::SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", $playwrightBrowsers, "Process")
 
 Write-Step "Checking ports 8000 and 8501."
 Stop-PidFileProcess "api"

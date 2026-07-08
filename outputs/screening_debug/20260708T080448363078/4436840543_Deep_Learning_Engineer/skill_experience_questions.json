@@ -1,0 +1,14 @@
+[
+  {
+    "original_question": "How many years of work experience do you have with TensorFlow?",
+    "normalized_skill": null,
+    "field_type": "text",
+    "mode_used": "Safe"
+  },
+  {
+    "original_question": "How many years of work experience do you have with PyTorch?",
+    "normalized_skill": null,
+    "field_type": "text",
+    "mode_used": "Safe"
+  }
+]

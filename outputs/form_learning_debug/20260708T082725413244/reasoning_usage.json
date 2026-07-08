@@ -1,0 +1,15 @@
+[
+  {
+    "normalized_field": "Salary",
+    "reasoning_used": [
+      {
+        "normalized_field": "Salary",
+        "field_category": "Salary",
+        "reasoning_summary": "Normalized 'Current Package' to 'Salary' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:27:25.412245"
+      }
+    ]
+  }
+]

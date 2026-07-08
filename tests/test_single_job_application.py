@@ -1,4 +1,5 @@
 import json
+import re
 import unittest
 import tempfile
 from contextlib import contextmanager
@@ -2460,7 +2461,10 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(answer["selected_answer"], "0")
         self.assertTrue(answer["aggressive_default_used"])
 
-    def test_skill_missing_safe_mode_needs_review(self) -> None:
+    def test_skill_missing_fills_zero_years(self) -> None:
+        # Numeric skill-years fields must always receive a number so LinkedIn's
+        # "whole number 0-99" validation passes. With no resume evidence the honest
+        # AI-generated value is 0 (never a yes/no string).
         automation = LinkedInAutomation(Settings(openai_api_key=None))
         resume = ResumeProfile(
             filename="resume.txt",
@@ -2486,7 +2490,9 @@ class SingleJobApplicationTests(unittest.TestCase):
             {"mode": "safe", "saved_answers": []},
         )
 
-        self.assertIsNone(answer)
+        self.assertIsNotNone(answer)
+        self.assertEqual(answer["selected_answer"], "0")
+        self.assertTrue(str(answer["selected_answer"]).lstrip("-").isdigit())
 
     def test_saved_skill_year_answer_is_reused(self) -> None:
         automation = LinkedInAutomation(Settings(openai_api_key=None))
@@ -2666,7 +2672,9 @@ class SingleJobApplicationTests(unittest.TestCase):
             )
             self.assertIsNone(answer)
 
-    def test_preference_questions_do_not_use_aggressive_defaults(self) -> None:
+    def test_preference_questions_are_answered_conservatively(self) -> None:
+        # Work-preference (relocation / commute / hybrid) is non-legal and is
+        # auto-answered with the application-friendly conservative default (Yes).
         automation = LinkedInAutomation(Settings(openai_api_key=None))
         resume = ResumeProfile(
             filename="resume.txt",
@@ -2695,7 +2703,8 @@ class SingleJobApplicationTests(unittest.TestCase):
                 CandidateProfile(current_location="Boston, MA"),
                 {"mode": "aggressive", "saved_answers": []},
             )
-            self.assertIsNone(answer)
+            self.assertIsNotNone(answer, question)
+            self.assertEqual(answer["selected_answer"], "Yes", question)
 
     def test_driver_license_and_clearance_use_explicit_candidate_profile_evidence(self) -> None:
         automation = LinkedInAutomation(Settings(openai_api_key=None))
@@ -2730,7 +2739,58 @@ class SingleJobApplicationTests(unittest.TestCase):
             self.assertEqual(answer["selected_answer"], "Yes")
             self.assertEqual(answer["source"], "Candidate Profile")
 
-    def test_driver_license_does_not_default_without_profile_or_saved_answer(self) -> None:
+    def test_numeric_field_never_receives_yes_no_answer(self) -> None:
+        # Regression for the live bug where "Yes" was typed into a "years of
+        # experience" field (label mis-resolved to a neighbouring yes/no question).
+        automation = LinkedInAutomation(Settings(openai_api_key=None))
+        resume = ResumeProfile(
+            filename="resume.txt", stored_path="resume.txt",
+            raw_text="Data analyst with 3 years of SQL experience.",
+            skills=["SQL"], technologies=[], education=[], experience=[], job_titles=[], keywords=[],
+        )
+        context = {"mode": "safe", "saved_answers": []}
+
+        # A yes/no answer mis-routed into a numeric field becomes a whole number.
+        coerced = automation._typesafe_answer_value(
+            "Yes",
+            {"field_type": "text", "type": "text", "numeric": True},
+            [],
+            "How many years of work experience do you have with Python (Programming Language)?",
+            resume, None, context,
+        )
+        self.assertTrue(re.fullmatch(r"-?\d+", str(coerced)), coerced)
+
+        # A skill with evidence yields its estimated number, not "Yes".
+        sql_years = automation._typesafe_answer_value(
+            "Yes",
+            {"field_type": "text", "type": "text", "numeric": True},
+            [],
+            "How many years of work experience do you have with SQL?",
+            resume, None, context,
+        )
+        self.assertTrue(re.fullmatch(r"-?\d+", str(sql_years)))
+
+        # A yes/no answer for a plain free-text input is dropped (left blank).
+        self.assertIsNone(
+            automation._typesafe_answer_value(
+                "No", {"field_type": "text", "type": "text", "numeric": False}, [],
+                "Tell us about yourself", resume, None, context,
+            )
+        )
+
+        # Radio/choice answers are never altered.
+        self.assertEqual(
+            automation._typesafe_answer_value(
+                "Yes", {"field_type": "radio", "type": "radio"}, ["Yes", "No"],
+                "Are you comfortable commuting to this job's location?", resume, None, context,
+            ),
+            "Yes",
+        )
+
+    def test_driver_license_does_not_fabricate_yes_without_evidence(self) -> None:
+        # A driver's license (certification, non-legal) is answered honestly: with
+        # no profile/saved/resume evidence the AI-generated answer is "No" (it never
+        # fabricates a "Yes" for a credential the candidate does not have).
         automation = LinkedInAutomation(Settings(openai_api_key=None))
         resume = ResumeProfile(
             filename="resume.txt",
@@ -2757,7 +2817,8 @@ class SingleJobApplicationTests(unittest.TestCase):
             {"mode": "aggressive", "saved_answers": []},
         )
 
-        self.assertIsNone(answer)
+        self.assertIsNotNone(answer)
+        self.assertEqual(answer["selected_answer"], "No")
 
     def test_employment_history_database_save(self) -> None:
         candidate = CandidateProfile(is_default=True)
@@ -2993,7 +3054,9 @@ class SingleJobApplicationTests(unittest.TestCase):
             self.assertTrue((debug_dir / "employment_fields_filled.json").exists())
             self.assertTrue((debug_dir / "employment_validation.json").exists())
 
-    def test_unknown_yes_no_needs_review_in_safe_mode(self) -> None:
+    def test_unknown_nonlegal_yes_no_is_ai_answered_in_safe_mode(self) -> None:
+        # Non-legal unknown question is auto-answered (AI-generated honest "No"),
+        # not left blank, per the auto-answer product decision.
         automation = LinkedInAutomation(Settings(openai_api_key=None))
         resume = ResumeProfile(
             filename="resume.txt",
@@ -3019,7 +3082,8 @@ class SingleJobApplicationTests(unittest.TestCase):
             {"mode": "safe", "saved_answers": []},
         )
 
-        self.assertIsNone(answer)
+        self.assertIsNotNone(answer)
+        self.assertEqual(answer["selected_answer"], "No")
 
     def test_skill_question_uses_resume_evidence(self) -> None:
         automation = LinkedInAutomation(Settings(openai_api_key=None))

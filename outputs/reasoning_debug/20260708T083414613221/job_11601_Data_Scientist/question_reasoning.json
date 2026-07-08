@@ -1,0 +1,119 @@
+[
+  {
+    "answer": "Yes",
+    "selected_answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "reason": "Answered Yes because evidence for stakeholder communication, are you comfortable presenting, data insights and, recommendations to non was found in Employment, Project, Direct Resume.",
+    "reasoning_type": "Employment Match",
+    "reasoning_summary": "Answered Yes because evidence for stakeholder communication, are you comfortable presenting, data insights and, recommendations to non was found in Employment, Project, Direct Resume.",
+    "semantic_match_score": 0.0,
+    "evidence": {
+      "evidence_used": [
+        {
+          "source": "Employment",
+          "reasoning_type": "Employment Match",
+          "concept": "stakeholder communication",
+          "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+        },
+        {
+          "source": "Project",
+          "reasoning_type": "Project Match",
+          "concept": "stakeholder communication",
+          "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+        },
+        {
+          "source": "Direct Resume",
+          "reasoning_type": "Direct Resume Match",
+          "concept": "stakeholder communication",
+          "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+        }
+      ],
+      "job_description_evidence": {
+        "domain": null,
+        "bi_tools": [],
+        "industry": null,
+        "databases": [],
+        "frameworks": [],
+        "soft_skills": [],
+        "technologies": [],
+        "certifications": [],
+        "cloud_platforms": [],
+        "required_skills": [],
+        "preferred_skills": [
+          "plus"
+        ],
+        "responsibilities": [
+          "Chicago, IL \u00b7 Reposted 1 month ago \u00b7 Over 100 applicants",
+          "Promoted by hirer \u00b7 Actively reviewing applicants",
+          "Use AI to assess how you fit",
+          "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+          "Job search smarter with Premium",
+          "See jobs where you\u2019d be a top applicant",
+          "Message hiring managers with InMail",
+          "Get personalized cover letter and resume tips"
+        ],
+        "years_of_experience": null,
+        "management_experience": true,
+        "programming_languages": [],
+        "education_requirements": []
+      },
+      "matched_skills": [],
+      "missing_skills": [],
+      "reasoning_type": "Employment Match"
+    },
+    "aggressive_default_used": false,
+    "reasoning_used": true,
+    "decision_stage": "reasoning",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": "Yes",
+        "source": "AI Reasoning Engine",
+        "confidence": "Very High",
+        "evidence_used": true,
+        "reasoning_summary": "Answered Yes because evidence for stakeholder communication, are you comfortable presenting, data insights and, recommendations to non was found in Employment, Project, Direct Resume.",
+        "selected": true
+      }
+    ],
+    "filled_successfully": true,
+    "question_text": "Are you comfortable presenting data insights and recommendations to non-technical stakeholders such as Sales, Product, or Leadership teams?",
+    "original_label": "Are you comfortable presenting data insights and recommendations to non-technical stakeholders such as Sales, Product, or Leadership teams?",
+    "normalized_field": "Are you comfortable presenting data insights and recommendations to non-technical stakeholders such as Sales, Product, o",
+    "category": "yes_no",
+    "field_type": "select",
+    "detected_control_type": "dropdown",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "mode": "Safe"
+  }
+]

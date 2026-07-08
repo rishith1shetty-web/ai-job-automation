@@ -1,0 +1,172 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Email address' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Phone country code' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Mobile phone number' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "contact_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for excel, how many years of work, experience do you have with, microsoft excel was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.123026"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.126035"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "reasoning_used": [
+      {
+        "normalized_field": "Cover Letter",
+        "field_category": "Cover Letter",
+        "reasoning_summary": "Normalized 'Please provide your graduation Year for your highest completed degree.' to 'Cover Letter' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": null,
+          "confidence": "High",
+          "reason": "Graduation year was found in resume education text."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      }
+    ]
+  },
+  {
+    "normalized_field": "Excel Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for excel, how many years of work, experience do you have with, microsoft excel was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      },
+      {
+        "normalized_field": "Excel Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with Microsoft Excel?' to 'Excel Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.123026"
+      }
+    ]
+  },
+  {
+    "normalized_field": "SQL Years",
+    "reasoning_used": [
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {
+          "reasoning_type": "Employment Match",
+          "confidence": "Very High",
+          "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+        },
+        "candidate_context_keys": [],
+        "seen_at": "2026-07-08T08:06:54.111917"
+      },
+      {
+        "normalized_field": "SQL Years",
+        "field_category": "Skill Years",
+        "reasoning_summary": "Normalized 'How many years of work experience do you have with SQL?' to 'SQL Years' using label, placeholder, nearby text, DOM attributes, validation messages, job context, and existing reasoning output.",
+        "reasoning_output": {},
+        "candidate_context_keys": [
+          "field_key"
+        ],
+        "seen_at": "2026-07-08T08:06:54.126035"
+      }
+    ]
+  }
+]

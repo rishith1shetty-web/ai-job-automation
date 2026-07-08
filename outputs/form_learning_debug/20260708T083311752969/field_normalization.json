@@ -1,0 +1,18 @@
+[
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Do you have GPU experience?",
+    "normalized_field": "Machine Learning Years"
+  }
+]

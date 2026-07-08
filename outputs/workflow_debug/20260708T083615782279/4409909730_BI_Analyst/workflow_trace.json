@@ -1,0 +1,182 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "BI Analyst | Associate Staffing | LinkedIn",
+    "modal_title": "Apply to Associate Staffing",
+    "detected_page_type": "contact_page",
+    "page_hash": "cdf322cbc1ae470f98f3b7ebe92330efd7a864961c23817dc0201a4a323deb92",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4409909730/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 18.03,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "BI Analyst | Associate Staffing | LinkedIn",
+    "modal_title": "Apply to Associate Staffing",
+    "detected_page_type": "resume_page",
+    "page_hash": "ffb09c95403dc497893186eb699d06cad552470ed0e731a69568569015b78c1a",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4409909730/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.16,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "BI Analyst | Associate Staffing | LinkedIn",
+    "modal_title": "Apply to Associate Staffing",
+    "detected_page_type": "resume_page",
+    "page_hash": "ffb09c95403dc497893186eb699d06cad552470ed0e731a69568569015b78c1a",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4409909730/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 25.29,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "BI Analyst | Associate Staffing | LinkedIn",
+    "modal_title": "Apply to Associate Staffing",
+    "detected_page_type": "review_page",
+    "page_hash": "cf240a0eff7143a01e62a933c27d929f5502734df9818eb4b688fd5641dec9a4",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": true,
+    "next_page_detected": "review_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4409909730/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 33.74,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "BI Analyst | Associate Staffing | LinkedIn",
+    "modal_title": "Apply to Associate Staffing",
+    "detected_page_type": "review_page",
+    "page_hash": "cf240a0eff7143a01e62a933c27d929f5502734df9818eb4b688fd5641dec9a4",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4409909730/",
+    "visible_buttons": [
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "Edit",
+        "enabled": true
+      },
+      {
+        "text": "View",
+        "enabled": true
+      },
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Submit application",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Edit",
+      "Edit",
+      "View",
+      "Back",
+      "Submit application"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 33.98,
+    "stop_reason": null
+  }
+]

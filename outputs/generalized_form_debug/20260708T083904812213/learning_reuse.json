@@ -1,0 +1,30 @@
+[
+  {
+    "record_id": 149,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 150,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": 151,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0,
+    "confidence": "Medium"
+  },
+  {
+    "record_id": null,
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": null,
+    "confidence": "Medium"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Medium",
+    "times_seen": 1,
+    "times_successful": 1,
+    "times_failed": 0
+  },
+  {
+    "normalized_field": "Cover Letter",
+    "confidence": "Very Low",
+    "times_seen": 1,
+    "times_successful": null,
+    "times_failed": 1
+  }
+]

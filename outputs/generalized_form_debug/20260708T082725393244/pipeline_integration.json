@@ -1,0 +1,19 @@
+{
+  "engine_role": "control_detection_only",
+  "value_source": "Unified decision pipeline",
+  "decision_order": [
+    "saved_answer",
+    "learned_mapping",
+    "evidence",
+    "reasoning",
+    "estimator",
+    "fallback"
+  ],
+  "fields": [
+    {
+      "label": "Mobile phone number",
+      "normalized_field_name": "Mobile Phone",
+      "recommended_fill_strategy": "type_value"
+    }
+  ]
+}

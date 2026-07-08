@@ -160,8 +160,8 @@ class ScreeningAnswerEngineTests(unittest.TestCase):
         )
         self.assertTrue(decision.needs_review)
 
-    # ---- Unsupported / unknown question -> needs_review (safe mode) ----
-    def test_unknown_yes_no_needs_review_in_safe_mode(self) -> None:
+    # ---- Non-legal unknown -> AI-generated conservative answer (both modes) ----
+    def test_unknown_nonlegal_yes_no_is_ai_answered(self) -> None:
         empty_resume = make_resume(raw_text="Data analyst.", skills=[], technologies=[])
         decision = self.engine.decide(
             ScreeningQuestion(
@@ -171,6 +171,25 @@ class ScreeningAnswerEngineTests(unittest.TestCase):
                 options=["Yes", "No"],
             ),
             resume=empty_resume,
+            job=self.job,
+            candidate_profile=None,
+            context={"mode": "safe", "saved_answers": []},
+        )
+        # No e-commerce evidence -> honest AI-generated "No" (field is not left blank).
+        self.assertFalse(decision.needs_review)
+        self.assertEqual(decision.answer, "No")
+        self.assertEqual(decision.decision_stage, "coverage")
+
+    def test_legal_unknown_still_needs_review_in_safe_mode(self) -> None:
+        # Legal/authorization is never fabricated even though non-legal is answered.
+        decision = self.engine.decide(
+            ScreeningQuestion(
+                text="Are you authorized to work in the United States?",
+                field_type="radio",
+                field_kind="radio",
+                options=["Yes", "No"],
+            ),
+            resume=make_resume(),
             job=self.job,
             candidate_profile=None,
             context={"mode": "safe", "saved_answers": []},

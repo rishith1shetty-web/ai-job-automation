@@ -1,0 +1,18 @@
+[
+  {
+    "original_label": "Email address",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Phone country code",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "Mobile phone number",
+    "normalized_field": "Cover Letter"
+  },
+  {
+    "original_label": "How many years of Analyst experience do you currently have?",
+    "normalized_field": "Cover Letter"
+  }
+]

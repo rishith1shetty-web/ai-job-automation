@@ -1,0 +1,159 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "contact_page",
+    "page_hash": "6d702a02face3c7a173a78b77783e02d51d5daa5d26fe856b0aa991ff652aad7",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4436813019/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.28,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "605e99a7c9d59bcdffcab8e690b09cb0dfeb8eef837f21a3c8af980e856f7a2a",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4436813019/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.38,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "resume_page",
+    "page_hash": "605e99a7c9d59bcdffcab8e690b09cb0dfeb8eef837f21a3c8af980e856f7a2a",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4436813019/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.46,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "validation_error",
+    "page_hash": "3d439d33300c935b1599df833f443ab2ed58eabe3c9d3b86060cecbe55f1b181",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4436813019/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99"
+    ],
+    "retry_count": 0,
+    "elapsed_time": 31.56,
+    "stop_reason": null
+  },
+  {
+    "step_number": 3,
+    "page_name": "Entry Level Data Analyst | Emonics LLC | LinkedIn",
+    "modal_title": "Apply to Emonics LLC",
+    "detected_page_type": "validation_error",
+    "page_hash": "38219f4dafc939bee6b2307763ecb4d8dfea961d22570c364b274bdb0775011b",
+    "repeated_count": 1,
+    "action_attempted": "click_review",
+    "action_completed": false,
+    "next_page_detected": "validation_error",
+    "current_url": "https://www.linkedin.com/jobs/view/4436813019/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Enter a whole number between 0 and 99",
+      "Enter a whole number between 0 and 99",
+      "Please make a selection"
+    ],
+    "retry_count": 1,
+    "elapsed_time": 38.15,
+    "stop_reason": "Validation error: Enter a whole number between 0 and 99; Enter a whole number between 0 and 99; Please make a selection"
+  }
+]

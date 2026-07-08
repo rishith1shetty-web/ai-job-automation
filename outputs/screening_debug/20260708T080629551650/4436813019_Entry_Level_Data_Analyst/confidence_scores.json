@@ -1,0 +1,26 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Microsoft Excel?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for excel, how many years of work, experience do you have with, microsoft excel was found in Employment, Project, Direct Resume."
+  },
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+  },
+  {
+    "question_text": "Please provide your graduation Year for your highest completed degree.",
+    "answer": "2026",
+    "source": "Resume Education",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Graduation year was found in resume education text."
+  }
+]

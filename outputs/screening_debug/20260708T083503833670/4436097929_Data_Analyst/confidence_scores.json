@@ -1,0 +1,34 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with Microsoft Excel?",
+    "answer": "1",
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "currency": null,
+    "reason": "Calculated years from resume dates tied to the skill."
+  },
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "answer": null,
+    "source": null,
+    "confidence": "None",
+    "currency": null,
+    "reason": "Safe Mode did not have a saved or high-confidence answer."
+  },
+  {
+    "question_text": "How many years of work experience do you have with Databases?",
+    "answer": null,
+    "source": null,
+    "confidence": "None",
+    "currency": null,
+    "reason": "Safe Mode did not have a saved or high-confidence answer."
+  },
+  {
+    "question_text": "Do You Have a Green Card or US Citizen ?",
+    "answer": null,
+    "source": null,
+    "confidence": "None",
+    "currency": null,
+    "reason": "Protected/compliance-sensitive question; requires saved candidate answer or recruiter review."
+  }
+]

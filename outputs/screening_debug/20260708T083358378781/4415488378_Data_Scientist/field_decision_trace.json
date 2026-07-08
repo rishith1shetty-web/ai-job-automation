@@ -1,0 +1,127 @@
+[
+  {
+    "original_label": "How many years of work experience do you have with Data Science?",
+    "normalized_field": "Data Science Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": null,
+    "selected_value": null,
+    "written_successfully": false,
+    "reason_if_left_blank": "Safe Mode did not have a saved or high-confidence answer.",
+    "source": null,
+    "confidence": "None",
+    "decision_pipeline": [],
+    "radio_writer": null
+  },
+  {
+    "original_label": "How many years of hands-on experience do you have using Python and SQL for data analysis, modeling, or machine learning?",
+    "normalized_field": "Python Years",
+    "detected_control_type": "textbox",
+    "category": "skill_years",
+    "decision_pipeline_stage_used": "estimator",
+    "selected_value": "1",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "estimator",
+        "candidate_answer": "1",
+        "source": "Resume Experience Dates",
+        "confidence": "High",
+        "evidence_used": true,
+        "reasoning_summary": "Calculated years from resume dates tied to the skill.",
+        "selected": true
+      }
+    ],
+    "radio_writer": null
+  },
+  {
+    "original_label": "Are you comfortable presenting data insights and recommendations to non-technical stakeholders such as Sales, Product, or Leadership teams?",
+    "normalized_field": "Are you comfortable presenting data insights and recommendations to non-technical stakeholders such as Sales, Product, o",
+    "detected_control_type": "dropdown",
+    "category": "yes_no",
+    "decision_pipeline_stage_used": "reasoning",
+    "selected_value": "Yes",
+    "written_successfully": true,
+    "reason_if_left_blank": null,
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "decision_pipeline": [
+      {
+        "stage": "saved_answer",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "learned_mapping",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "evidence",
+        "candidate_answer": null,
+        "source": null,
+        "confidence": null,
+        "evidence_used": false,
+        "reasoning_summary": null,
+        "selected": false
+      },
+      {
+        "stage": "reasoning",
+        "candidate_answer": "Yes",
+        "source": "AI Reasoning Engine",
+        "confidence": "Very High",
+        "evidence_used": true,
+        "reasoning_summary": "Answered Yes because evidence for stakeholder communication, are you comfortable presenting, data insights and, recommendations to non was found in Employment, Project, Direct Resume.",
+        "selected": true
+      }
+    ],
+    "radio_writer": null
+  }
+]

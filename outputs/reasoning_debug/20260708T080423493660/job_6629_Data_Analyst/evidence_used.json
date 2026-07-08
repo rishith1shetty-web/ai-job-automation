@@ -1,0 +1,68 @@
+[
+  [
+    {
+      "source": "Employment",
+      "reasoning_type": "Employment Match",
+      "concept": "python",
+      "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+    },
+    {
+      "source": "Project",
+      "reasoning_type": "Project Match",
+      "concept": "python",
+      "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+    },
+    {
+      "source": "Direct Resume",
+      "reasoning_type": "Direct Resume Match",
+      "concept": "python",
+      "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+    }
+  ],
+  [
+    {
+      "source": "Employment",
+      "reasoning_type": "Employment Match",
+      "concept": "etl",
+      "snippet": "[{\"text\": \"in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+    },
+    {
+      "source": "Project",
+      "reasoning_type": "Project Match",
+      "concept": "etl",
+      "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+    },
+    {
+      "source": "Direct Resume",
+      "reasoning_type": "Direct Resume Match",
+      "concept": "etl",
+      "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+    }
+  ],
+  [
+    {
+      "source": "Employment",
+      "reasoning_type": "Employment Match",
+      "concept": "machine learning",
+      "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+    },
+    {
+      "source": "Project",
+      "reasoning_type": "Project Match",
+      "concept": "machine learning",
+      "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+    },
+    {
+      "source": "Direct Resume",
+      "reasoning_type": "Direct Resume Match",
+      "concept": "machine learning",
+      "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+    },
+    {
+      "source": "Education",
+      "reasoning_type": "Education Match",
+      "concept": "machine learning",
+      "snippet": "v 2022 - may 2026 bachelor of engineering (b.e.) in artificial intelligence and machine learning (aiml) | cgpa: 7.0 gms college 2020 - 2022 pre university, pcm | 72.5% rbk scho"
+    }
+  ]
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "evidence_used": [
+      {
+        "source": "Employment",
+        "reasoning_type": "Employment Match",
+        "concept": "python",
+        "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+      },
+      {
+        "source": "Project",
+        "reasoning_type": "Project Match",
+        "concept": "python",
+        "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+      },
+      {
+        "source": "Direct Resume",
+        "reasoning_type": "Direct Resume Match",
+        "concept": "python",
+        "snippet": "nted by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, with practical exposure to dataset manage"
+      }
+    ],
+    "job_description_evidence": {
+      "domain": null,
+      "bi_tools": [],
+      "industry": null,
+      "databases": [],
+      "frameworks": [],
+      "soft_skills": [],
+      "technologies": [],
+      "certifications": [],
+      "cloud_platforms": [],
+      "required_skills": [],
+      "preferred_skills": [
+        "plus"
+      ],
+      "responsibilities": [
+        "Pittsburgh, PA \u00b7 1 day ago \u00b7 Over 100 applicants",
+        "Promoted by hirer \u00b7 Actively reviewing applicants",
+        "Use AI to assess how you fit",
+        "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+        "Job search smarter with Premium",
+        "See jobs where you\u2019d be a top applicant",
+        "Message hiring managers with InMail",
+        "Get personalized cover letter and resume tips"
+      ],
+      "years_of_experience": null,
+      "management_experience": true,
+      "programming_languages": [],
+      "education_requirements": []
+    },
+    "matched_skills": [],
+    "missing_skills": [],
+    "reasoning_type": "Employment Match"
+  },
+  {
+    "evidence_used": [
+      {
+        "source": "Employment",
+        "reasoning_type": "Employment Match",
+        "concept": "etl",
+        "snippet": "[{\"text\": \"in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      },
+      {
+        "source": "Project",
+        "reasoning_type": "Project Match",
+        "concept": "etl",
+        "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      },
+      {
+        "source": "Direct Resume",
+        "reasoning_type": "Direct Resume Match",
+        "concept": "etl",
+        "snippet": "g data analyst with hands-on internship experience in business data processing, data cleaning, data validation, and reporting using microsoft excel and power bi, complemente"
+      }
+    ],
+    "job_description_evidence": {
+      "domain": null,
+      "bi_tools": [],
+      "industry": null,
+      "databases": [],
+      "frameworks": [],
+      "soft_skills": [],
+      "technologies": [],
+      "certifications": [],
+      "cloud_platforms": [],
+      "required_skills": [],
+      "preferred_skills": [
+        "plus"
+      ],
+      "responsibilities": [
+        "Pittsburgh, PA \u00b7 1 day ago \u00b7 Over 100 applicants",
+        "Promoted by hirer \u00b7 Actively reviewing applicants",
+        "Use AI to assess how you fit",
+        "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+        "Job search smarter with Premium",
+        "See jobs where you\u2019d be a top applicant",
+        "Message hiring managers with InMail",
+        "Get personalized cover letter and resume tips"
+      ],
+      "years_of_experience": null,
+      "management_experience": true,
+      "programming_languages": [],
+      "education_requirements": []
+    },
+    "matched_skills": [],
+    "missing_skills": [],
+    "reasoning_type": "Employment Match"
+  },
+  {
+    "evidence_used": [
+      {
+        "source": "Employment",
+        "reasoning_type": "Employment Match",
+        "concept": "machine learning",
+        "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+      },
+      {
+        "source": "Project",
+        "reasoning_type": "Project Match",
+        "concept": "machine learning",
+        "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+      },
+      {
+        "source": "Direct Resume",
+        "reasoning_type": "Direct Resume Match",
+        "concept": "machine learning",
+        "snippet": "orting using microsoft excel and power bi, complemented by academic training in machine learning and data analytics. proficient in python, power bi, microsoft excel, and html, "
+      },
+      {
+        "source": "Education",
+        "reasoning_type": "Education Match",
+        "concept": "machine learning",
+        "snippet": "v 2022 - may 2026 bachelor of engineering (b.e.) in artificial intelligence and machine learning (aiml) | cgpa: 7.0 gms college 2020 - 2022 pre university, pcm | 72.5% rbk scho"
+      }
+    ],
+    "job_description_evidence": {
+      "domain": null,
+      "bi_tools": [],
+      "industry": null,
+      "databases": [],
+      "frameworks": [],
+      "soft_skills": [],
+      "technologies": [],
+      "certifications": [],
+      "cloud_platforms": [],
+      "required_skills": [],
+      "preferred_skills": [
+        "plus"
+      ],
+      "responsibilities": [
+        "Pittsburgh, PA \u00b7 1 day ago \u00b7 Over 100 applicants",
+        "Promoted by hirer \u00b7 Actively reviewing applicants",
+        "Use AI to assess how you fit",
+        "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+        "Job search smarter with Premium",
+        "See jobs where you\u2019d be a top applicant",
+        "Message hiring managers with InMail",
+        "Get personalized cover letter and resume tips"
+      ],
+      "years_of_experience": null,
+      "management_experience": true,
+      "programming_languages": [],
+      "education_requirements": []
+    },
+    "matched_skills": [],
+    "missing_skills": [],
+    "reasoning_type": "Employment Match"
+  }
+]

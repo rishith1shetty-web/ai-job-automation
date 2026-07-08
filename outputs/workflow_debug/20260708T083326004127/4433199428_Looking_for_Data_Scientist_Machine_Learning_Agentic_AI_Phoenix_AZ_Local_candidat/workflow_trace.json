@@ -1,0 +1,132 @@
+[
+  {
+    "step_number": 1,
+    "page_name": "Looking for Data Scientist \u2013 Machine Learning & Agentic AI, Phoenix, AZ (Local candidate only ) | Zodiac Solutions, Inc | LinkedIn",
+    "modal_title": "Apply to Zodiac Solutions, Inc",
+    "detected_page_type": "contact_page",
+    "page_hash": "5b6c098753fc5dce51cceb96ad1b09045913c436201062a76d02520ce7fa8b02",
+    "repeated_count": 1,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433199428/",
+    "visible_buttons": [
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 17.06,
+    "stop_reason": null
+  },
+  {
+    "step_number": 1,
+    "page_name": "Looking for Data Scientist \u2013 Machine Learning & Agentic AI, Phoenix, AZ (Local candidate only ) | Zodiac Solutions, Inc | LinkedIn",
+    "modal_title": "Apply to Zodiac Solutions, Inc",
+    "detected_page_type": "resume_page",
+    "page_hash": "cf035d3f2f4eb331acc110ff75bdfab2c7974546df12d4ca9b98b274505aca3b",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": true,
+    "next_page_detected": "resume_page",
+    "current_url": "https://www.linkedin.com/jobs/view/4433199428/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.36,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Looking for Data Scientist \u2013 Machine Learning & Agentic AI, Phoenix, AZ (Local candidate only ) | Zodiac Solutions, Inc | LinkedIn",
+    "modal_title": "Apply to Zodiac Solutions, Inc",
+    "detected_page_type": "resume_page",
+    "page_hash": "cf035d3f2f4eb331acc110ff75bdfab2c7974546df12d4ca9b98b274505aca3b",
+    "repeated_count": 2,
+    "action_attempted": "inspect",
+    "action_completed": false,
+    "next_page_detected": null,
+    "current_url": "https://www.linkedin.com/jobs/view/4433199428/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Next",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Next"
+    ],
+    "unresolved_required_fields": [],
+    "validation_messages": [],
+    "retry_count": 0,
+    "elapsed_time": 23.43,
+    "stop_reason": null
+  },
+  {
+    "step_number": 2,
+    "page_name": "Looking for Data Scientist \u2013 Machine Learning & Agentic AI, Phoenix, AZ (Local candidate only ) | Zodiac Solutions, Inc | LinkedIn",
+    "modal_title": "Apply to Zodiac Solutions, Inc",
+    "detected_page_type": "screening_questions",
+    "page_hash": "3793023ada72d43b2cfac5a000691059db440919d5cadc96abe3ee36cc873041",
+    "repeated_count": 1,
+    "action_attempted": "click_next",
+    "action_completed": false,
+    "next_page_detected": "screening_questions",
+    "current_url": "https://www.linkedin.com/jobs/view/4433199428/",
+    "visible_buttons": [
+      {
+        "text": "Back",
+        "enabled": true
+      },
+      {
+        "text": "Review",
+        "enabled": true
+      }
+    ],
+    "enabled_buttons": [
+      "Back",
+      "Review"
+    ],
+    "unresolved_required_fields": [
+      {
+        "label": "How many years of work experience do you have with SQL?",
+        "field_type": "text",
+        "has_value": false
+      },
+      {
+        "label": "How many years of work experience do you have with PySpark?",
+        "field_type": "text",
+        "has_value": false
+      }
+    ],
+    "validation_messages": [],
+    "retry_count": 1,
+    "elapsed_time": 31.24,
+    "stop_reason": "Navigation revealed unresolved required fields: Required questions need review: How many years of work experience do you have with SQL?, How many years of work experience do you have with PySpark?."
+  }
+]

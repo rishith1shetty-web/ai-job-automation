@@ -1,0 +1,40 @@
+{
+  "portal": "dice",
+  "job_id": null,
+  "apply_type": "native",
+  "submit_present": true,
+  "plan": [
+    {
+      "index": 0,
+      "label": "Are you legally authorized to work in the United States?",
+      "control": "radio",
+      "kind": "screening",
+      "required": true,
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "normalized_field": "Work Authorization",
+      "detected_control_type": "radio",
+      "action": "needs_review",
+      "value": null,
+      "reason": "Screening answer was uncertain.",
+      "event": {
+        "question_text": "Are you legally authorized to work in the United States?",
+        "selected_answer": null,
+        "source": null,
+        "confidence": "None",
+        "reason": "No confident answer; needs review.",
+        "category": "authorization"
+      }
+    }
+  ],
+  "unanswered": [
+    {
+      "label": "Are you legally authorized to work in the United States?",
+      "reason": "Screening answer was uncertain."
+    }
+  ],
+  "unsupported_controls": [],
+  "missing_contact_fields": []
+}

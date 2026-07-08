@@ -1,0 +1,67 @@
+[
+  {
+    "normalized_skill": "Python",
+    "selected_years": 1,
+    "years": 1,
+    "source": "Resume Experience Dates",
+    "confidence": "High",
+    "found": true,
+    "aggressive_default_used": false,
+    "evidence_used": "Skill appeared near dated resume experience; calculated 1 year(s).",
+    "reason": "Calculated years from resume dates tied to the skill."
+  },
+  {
+    "evidence_used": [
+      {
+        "source": "Employment",
+        "reasoning_type": "Employment Match",
+        "concept": "stakeholder communication",
+        "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+      },
+      {
+        "source": "Project",
+        "reasoning_type": "Project Match",
+        "concept": "stakeholder communication",
+        "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+      },
+      {
+        "source": "Direct Resume",
+        "reasoning_type": "Direct Resume Match",
+        "concept": "stakeholder communication",
+        "snippet": "python, power bi, microsoft excel, and html, with practical exposure to dataset management, dashboard support, data formatting, and report preparation. google-certified i"
+      }
+    ],
+    "job_description_evidence": {
+      "domain": null,
+      "bi_tools": [],
+      "industry": null,
+      "databases": [],
+      "frameworks": [],
+      "soft_skills": [],
+      "technologies": [],
+      "certifications": [],
+      "cloud_platforms": [],
+      "required_skills": [],
+      "preferred_skills": [
+        "plus"
+      ],
+      "responsibilities": [
+        "Chicago, IL \u00b7 Reposted 1 month ago \u00b7 Over 100 applicants",
+        "Promoted by hirer \u00b7 Actively reviewing applicants",
+        "Use AI to assess how you fit",
+        "Get AI-powered advice on this job and more exclusive features with Premium. Try Premium for \u20b90",
+        "Job search smarter with Premium",
+        "See jobs where you\u2019d be a top applicant",
+        "Message hiring managers with InMail",
+        "Get personalized cover letter and resume tips"
+      ],
+      "years_of_experience": null,
+      "management_experience": true,
+      "programming_languages": [],
+      "education_requirements": []
+    },
+    "matched_skills": [],
+    "missing_skills": [],
+    "reasoning_type": "Employment Match"
+  }
+]

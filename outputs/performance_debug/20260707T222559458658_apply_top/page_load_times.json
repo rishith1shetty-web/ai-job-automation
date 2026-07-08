@@ -1,0 +1,82 @@
+[
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 35.05,
+    "metadata": {
+      "job_id": 1571,
+      "index": 1
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 38.09,
+    "metadata": {
+      "job_id": 1572,
+      "index": 2
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 44.22,
+    "metadata": {
+      "job_id": 1573,
+      "index": 3
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 25.88,
+    "metadata": {
+      "job_id": 1574,
+      "index": 4
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 20.9,
+    "metadata": {
+      "job_id": 1575,
+      "index": 5
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 21.15,
+    "metadata": {
+      "job_id": 1576,
+      "index": 6
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 22.88,
+    "metadata": {
+      "job_id": 1577,
+      "index": 7
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 20.14,
+    "metadata": {
+      "job_id": 1578,
+      "index": 8
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 19.85,
+    "metadata": {
+      "job_id": 1579,
+      "index": 9
+    }
+  },
+  {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 22.02,
+    "metadata": {
+      "job_id": 1580,
+      "index": 10
+    }
+  }
+]

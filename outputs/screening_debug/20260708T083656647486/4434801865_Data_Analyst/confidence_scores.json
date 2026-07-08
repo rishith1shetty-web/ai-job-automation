@@ -1,0 +1,10 @@
+[
+  {
+    "question_text": "How many years of work experience do you have with SQL?",
+    "answer": "Yes",
+    "source": "AI Reasoning Engine",
+    "confidence": "Very High",
+    "currency": null,
+    "reason": "Answered Yes because evidence for sql, etl, large datasets, how many years of work was found in Employment, Project, Direct Resume."
+  }
+]

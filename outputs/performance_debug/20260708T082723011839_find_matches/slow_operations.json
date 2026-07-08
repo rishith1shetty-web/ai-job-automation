@@ -1,0 +1,9 @@
+[
+  {
+    "stage": "job_description_reasoning",
+    "elapsed_ms": 1049.28,
+    "metadata": {
+      "job_count": 100
+    }
+  }
+]

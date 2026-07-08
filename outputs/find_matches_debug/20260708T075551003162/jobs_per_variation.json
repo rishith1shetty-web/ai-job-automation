@@ -1,0 +1,90 @@
+[
+  {
+    "query": "Data Analyst",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Data Analyst",
+    "role_priority": "primary",
+    "raw_count": 7,
+    "unique_added": 7,
+    "duplicates_removed": 0,
+    "easy_apply_added": 7
+  },
+  {
+    "query": "Business Intelligence Analyst",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Business Intelligence Analyst",
+    "role_priority": "strong_fit",
+    "raw_count": 6,
+    "unique_added": 3,
+    "duplicates_removed": 3,
+    "easy_apply_added": 3
+  },
+  {
+    "query": "Data Scientist",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Data Scientist",
+    "role_priority": "strong_fit",
+    "raw_count": 7,
+    "unique_added": 3,
+    "duplicates_removed": 4,
+    "easy_apply_added": 3
+  },
+  {
+    "query": "Machine Learning Engineer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Machine Learning Engineer",
+    "role_priority": "strong_fit",
+    "raw_count": 7,
+    "unique_added": 6,
+    "duplicates_removed": 1,
+    "easy_apply_added": 6
+  },
+  {
+    "query": "Backend Developer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Backend Developer",
+    "role_priority": "strong_fit",
+    "raw_count": 7,
+    "unique_added": 6,
+    "duplicates_removed": 1,
+    "easy_apply_added": 6
+  },
+  {
+    "query": "Software Engineer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Software Engineer",
+    "role_priority": "strong_fit",
+    "raw_count": 7,
+    "unique_added": 4,
+    "duplicates_removed": 3,
+    "easy_apply_added": 4
+  },
+  {
+    "query": "Python Developer",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Python Developer",
+    "role_priority": "related",
+    "raw_count": 7,
+    "unique_added": 0,
+    "duplicates_removed": 7,
+    "easy_apply_added": 0
+  },
+  {
+    "query": "Reporting Analyst",
+    "location": "United States",
+    "portal": "linkedin",
+    "search_role": "Reporting Analyst",
+    "role_priority": "related",
+    "raw_count": 6,
+    "unique_added": 0,
+    "duplicates_removed": 6,
+    "easy_apply_added": 0
+  }
+]

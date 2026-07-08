@@ -2298,14 +2298,22 @@ def _reasoning_record_fields(result: AutomationResult) -> dict:
                     for item in log_event.get("answers", [])
                     if item.get("reasoning_used") or item.get("reasoning_type")
                 )
-    if not events:
+    # All confidently answered screening decisions (any stage) are surfaced for
+    # dashboard visibility, not only reasoning-engine ones. The reasoning summary
+    # fields still prefer a genuine reasoning event when one exists.
+    answered = [
+        item
+        for item in (result.screening_answers or [])
+        if item.get("selected_answer") is not None
+    ]
+    if not events and not answered:
         return {
             "reasoning_type": None,
             "reasoning_summary": None,
             "confidence_score": None,
             "evidence_sources": [],
         }
-    primary = events[0]
+    primary = events[0] if events else answered[0]
     return {
         "reasoning_type": primary.get("reasoning_type"),
         "reasoning_summary": primary.get("reasoning_summary") or primary.get("reason"),
@@ -2314,11 +2322,15 @@ def _reasoning_record_fields(result: AutomationResult) -> dict:
             {
                 "question": event.get("question_text"),
                 "answer": event.get("selected_answer"),
+                "source": event.get("source"),
                 "confidence": event.get("confidence"),
+                "reasoning": event.get("reason") or event.get("reasoning_summary"),
+                "category": event.get("category"),
+                "decision_stage": event.get("decision_stage"),
                 "reasoning_type": event.get("reasoning_type"),
                 "evidence": (event.get("evidence") or {}).get("evidence_used", []),
             }
-            for event in events
+            for event in (answered or events)
         ],
     }
 

@@ -1,0 +1,13 @@
+{
+  "portal": "dice",
+  "job_id": 4277,
+  "title": "Dice Data Analyst",
+  "company": "Dice Co",
+  "job_url": "https://www.dice.com/job-detail/b33895987fc64ffab7ee918a4c892e24",
+  "status": "unsupported_form",
+  "current_step": "dice_apply_unsupported_form",
+  "message": "Dice apply redirects to an external ATS; not automated.",
+  "submitted": false,
+  "screening_answers": [],
+  "missing_contact_fields": []
+}

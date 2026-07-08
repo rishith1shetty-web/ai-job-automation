@@ -1,0 +1,10 @@
+[
+  {
+    "captured_at": "2026-07-08T08:06:07.698449",
+    "missing_fields": [],
+    "unresolved_required_fields": [],
+    "validation_messages": [
+      "Enter a whole number between 0 and 99"
+    ]
+  }
+]

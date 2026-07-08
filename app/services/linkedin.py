@@ -3095,10 +3095,20 @@ class LinkedInAutomation:
                     } else {
                         value = el.value || '';
                     }
+                    const describedIds = (el.getAttribute('aria-describedby') || '').split(/\\s+/).filter(Boolean);
+                    const hintText = describedIds.map(id => (document.getElementById(id)?.innerText || '')).join(' ');
+                    const container = el.closest('.fb-dash-form-element, [data-test-form-element], .artdeco-text-input, .jobs-easy-apply-form-section__grouping') || el.parentElement;
+                    const containerText = container ? String(container.innerText || '') : '';
+                    const numericHint = /whole number|between 0 and 99|enter a number|numeric|must be a number/i.test(hintText + ' ' + containerText);
+                    const numeric = type === 'number'
+                        || (el.getAttribute('inputmode') || '').toLowerCase() === 'numeric'
+                        || /^\\(?\\[?0-9/.test(el.getAttribute('pattern') || '')
+                        || numericHint;
                     return {
                         tag,
                         type,
                         field_type: tag === 'select' ? 'select' : type,
+                        numeric: Boolean(numeric),
                         required: Boolean(el.required || el.getAttribute('aria-required') === 'true'),
                         has_value: Boolean(String(value).trim())
                     };
@@ -3109,6 +3119,7 @@ class LinkedInAutomation:
                 "tag": "input",
                 "type": "text",
                 "field_type": "input",
+                "numeric": False,
                 "required": False,
                 "has_value": False,
             }
@@ -3322,6 +3333,36 @@ class LinkedInAutomation:
                 screening_events.append(event)
                 field_traces.append(self._screening_field_trace(event, blank_reason))
                 continue
+            safe_value = self._typesafe_answer_value(
+                answer["answer"], state, options, question, resume, candidate_profile, screening_context
+            )
+            if safe_value is None:
+                # The computed answer was the wrong type for this control (e.g. a
+                # yes/no answer for a free-text box because the label mis-resolved).
+                # Leave it blank instead of writing an invalid value.
+                blank_reason = "Answer type did not match the field; left blank to avoid an invalid value."
+                event = {
+                    "question_text": question,
+                    "original_label": question,
+                    "normalized_field": normalized_field,
+                    "category": category,
+                    "field_type": state["field_type"],
+                    "detected_control_type": detected_control_type,
+                    "options": options,
+                    "selected_answer": None,
+                    "source": None,
+                    "confidence": "None",
+                    "reason": blank_reason,
+                    "mode": mode.title(),
+                    "aggressive_default_used": False,
+                    "filled_successfully": False,
+                    "decision_stage": answer.get("decision_stage"),
+                }
+                screening_events.append(event)
+                field_traces.append(self._screening_field_trace(event, blank_reason))
+                continue
+            answer["answer"] = safe_value
+            answer["selected_answer"] = safe_value
             try:
                 radio_writer = None
                 if state.get("type") in {"radio", "checkbox"} and radio_debug_dir is None:
@@ -3363,6 +3404,64 @@ class LinkedInAutomation:
         self._save_screening_debug(debug_dir, detected, screening_events, field_traces)
         self._save_reasoning_debug(job, resume, screening_events)
         return selected
+
+    def _typesafe_answer_value(
+        self,
+        raw_value,
+        state: dict,
+        options: list[str],
+        question: str,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+    ):
+        """Ensure the answer's type matches the control before it is written.
+
+        Prevents the LinkedIn failure where a numeric "years of experience" field
+        (a plain text input with 0-99 validation) receives a "Yes"/"No" because its
+        label mis-resolved to a neighbouring yes/no question. Choice controls are
+        left untouched; free-text/number inputs never receive a yes/no answer, and
+        numeric fields always receive digits (else the field is left blank).
+        """
+        field_type = str(state.get("field_type") or "").lower()
+        control = str(state.get("type") or "").lower()
+        if control in {"radio", "checkbox"} or field_type == "select":
+            return raw_value
+        value = str(raw_value).strip()
+        numeric_field = self._looks_numeric_screening_field(state, question)
+        # A yes/no answer must never be typed into a free-text/number input.
+        if not options and value.lower() in {"yes", "no"}:
+            if numeric_field:
+                return self._numeric_fallback_answer(question, resume, candidate_profile, screening_context)
+            return None
+        # A numeric field must receive a whole number.
+        if numeric_field and not re.fullmatch(r"-?\d+", value):
+            return self._numeric_fallback_answer(question, resume, candidate_profile, screening_context)
+        return raw_value
+
+    def _looks_numeric_screening_field(self, state: dict, question: str) -> bool:
+        if state.get("numeric"):
+            return True
+        if self._screening_question_category(question) in {"skill_years", "years"}:
+            return True
+        return bool(re.search(r"how many|number of|years of|\byears\b", question or "", re.I))
+
+    def _numeric_fallback_answer(
+        self,
+        question: str,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+    ) -> str:
+        """Best-effort whole-number answer for a numeric field: a skill-years
+        estimate when the skill is known, otherwise an honest 0."""
+        skill = self.screening.extract_skill_from_experience_question(question)
+        if skill:
+            estimate = self.screening.estimate_skill_years(skill, resume, candidate_profile)
+            years = estimate.get("years")
+            if estimate.get("found") and years is not None:
+                return str(int(years))
+        return "0"
 
     def _should_screening_handle_field(self, question: str, category: str) -> bool:
         if category in {

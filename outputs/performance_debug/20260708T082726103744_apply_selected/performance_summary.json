@@ -1,0 +1,24 @@
+{
+  "operation": "apply_selected",
+  "metadata": {
+    "resume_id": 2212,
+    "job_id": 11209,
+    "dry_run": true
+  },
+  "total_runtime_ms": 13.01,
+  "stage_count": 4,
+  "cache_hits": 0,
+  "cache_misses": 0,
+  "average_page_load_ms": 7.9,
+  "average_apply_time_ms": 7.9,
+  "average_screening_time_ms": 0,
+  "average_employment_history_time_ms": 0,
+  "slowest_operation": {
+    "stage": "easy_apply_application",
+    "elapsed_ms": 7.9,
+    "metadata": {
+      "job_id": 11209
+    }
+  },
+  "created_at": "2026-07-08T08:27:26.117126"
+}
