@@ -7,6 +7,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile
+from playwright.sync_api import Error as PlaywrightError
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 
@@ -447,7 +448,20 @@ def get_resume(resume_id: int, db: Session = Depends(get_db)) -> ResumeProfile:
 @app.post("/linkedin/connect")
 def connect_linkedin() -> dict:
     automation = LinkedInAutomation(settings)
-    automation.connect_account()
+    try:
+        automation.connect_account()
+    except (PlaywrightError, OSError) as exc:
+        # The browser/session could not be launched (e.g. Playwright driver subprocess
+        # failed to start). Surface a clear, actionable error instead of a raw 500.
+        logger.exception("LinkedIn connect could not launch the browser session.")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Could not launch the LinkedIn browser session. Start the API from the "
+                "project virtual environment via start_app.ps1 and ensure Playwright "
+                f"browsers are installed. ({type(exc).__name__}: {exc})"
+            ),
+        ) from exc
     dice_adapter().disconnect()
     with SessionLocal() as db:
         set_active_portal(db, "linkedin")
@@ -2035,6 +2049,12 @@ def _batch_job_status(record: ApplicationRecord) -> str:
         if record.current_step in {"dry_run_complete", "review_reached", "ready_to_submit"}:
             return "reached_review"
         return "skipped"
+    if record.status == ApplicationStatus.DRY_RUN_READY:
+        # Dry run reached the submit/review stage without submitting.
+        return "reached_review"
+    if record.status == ApplicationStatus.UNSUPPORTED_FORM:
+        # Form could not be automated safely; surface it for manual review.
+        return "needs_review"
     if record.status == ApplicationStatus.NEEDS_REVIEW:
         return "needs_review"
     if record.status == ApplicationStatus.FAILED:

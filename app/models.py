@@ -16,6 +16,10 @@ class ApplicationStatus(str, Enum):
     NEEDS_REVIEW = "needs_review"
     SKIPPED = "skipped"
     FAILED = "failed"
+    # Dry-run reached the submit/review stage successfully without submitting.
+    DRY_RUN_READY = "dry_run_ready"
+    # Form could not be automated safely (e.g. external ATS / unhandled fields).
+    UNSUPPORTED_FORM = "unsupported_form"
 
 
 class ResumeProfile(Base):

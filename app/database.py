@@ -20,6 +20,8 @@ def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrations = [
         "ALTER TYPE applicationstatus ADD VALUE IF NOT EXISTS 'NEEDS_REVIEW'",
+        "ALTER TYPE applicationstatus ADD VALUE IF NOT EXISTS 'DRY_RUN_READY'",
+        "ALTER TYPE applicationstatus ADD VALUE IF NOT EXISTS 'UNSUPPORTED_FORM'",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS technologies JSONB DEFAULT '[]'::jsonb NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS portal VARCHAR(50) DEFAULT 'linkedin' NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS domain_expertise JSONB DEFAULT '[]'::jsonb NOT NULL",

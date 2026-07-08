@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote_plus, urljoin
@@ -13,7 +14,9 @@ from playwright.sync_api import sync_playwright
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.find_matches import SearchVariation
+from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.linkedin import AutomationResult
+from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
 
 
 class DicePortalAdapter:
@@ -58,12 +61,38 @@ class DicePortalAdapter:
         "[aria-label*='location' i]",
     ]
 
+    # Label patterns for candidate contact fields (portal-agnostic decisions come
+    # from the shared engines; contact identity fields are filled from the profile).
+    CONTACT_FIELD_PATTERNS = [
+        ("first_name", r"first\s*name"),
+        ("last_name", r"last\s*name|surname"),
+        ("email", r"e[-\s]?mail"),
+        ("mobile_phone", r"phone|mobile|contact\s*number"),
+        ("current_location", r"location|city|where.*located"),
+        ("linkedin_url", r"linkedin"),
+    ]
+
     def __init__(self, settings: Settings):
         self.settings = settings
+        self._screening_engine: ScreeningAnswerEngine | None = None
+        self._form_engine: GeneralizedFormEngine | None = None
 
     @property
     def storage_state(self) -> Path:
         return self.settings.dice_storage_state
+
+    @property
+    def screening(self) -> ScreeningAnswerEngine:
+        # Shared, portal-agnostic decision engine (same instance type LinkedIn uses).
+        if self._screening_engine is None:
+            self._screening_engine = ScreeningAnswerEngine(self.settings)
+        return self._screening_engine
+
+    @property
+    def form_engine(self) -> GeneralizedFormEngine:
+        if self._form_engine is None:
+            self._form_engine = GeneralizedFormEngine(self.settings)
+        return self._form_engine
 
     def _debug_dir(self) -> Path:
         timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
@@ -414,29 +443,447 @@ class DicePortalAdapter:
         capture_evidence: bool,
         screening_context: dict | None = None,
     ) -> AutomationResult:
+        """Dice dry-run application (safe): fills the apply form using the shared
+        ScreeningAnswerEngine + GeneralizedFormEngine but NEVER clicks final submit.
+
+        Outcomes:
+          - dry_run_ready     : form filled to the submit-ready stage (not submitted)
+          - unsupported_form  : external ATS / no native form / unhandled controls
+          - needs_review      : a required answer is uncertain or profile data missing
+        """
         debug_dir = self._debug_dir() / f"job_{job.id}"
         debug_dir.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "portal": self.portal_name,
-            "job_id": job.id,
-            "title": job.title,
-            "company": job.company,
-            "job_url": job.job_url,
-            "dry_run": dry_run,
-            "status": "needs_review",
-            "reason": "Dice apply automation is in Phase 1 skeleton mode; manual review required for this portal form.",
-        }
-        self._write_debug(debug_dir, "apply_attempt.json", payload)
-        return AutomationResult(
-            status=ApplicationStatus.NEEDS_REVIEW,
-            message=payload["reason"],
-            current_step="dice_apply_unsupported",
-            evidence_path=str(debug_dir),
-            log=[
-                {"step": "job_opened", "status": "not_started", "portal": self.portal_name, "job_url": job.job_url},
-                {"step": "apply_supported", "status": "needs_review", "reason": payload["reason"]},
-            ],
+        screening_context = screening_context or {}
+        log: list[dict] = [
+            {"step": "apply_started", "portal": self.portal_name, "job_url": job.job_url, "dry_run": dry_run}
+        ]
+
+        # Live apply is intentionally not enabled for Dice: never submit.
+        if not dry_run:
+            return self._dice_result(
+                ApplicationStatus.NEEDS_REVIEW,
+                "Live apply is disabled for Dice; dry-run only (no submission performed).",
+                "dice_live_apply_disabled",
+                debug_dir,
+                job,
+                log=log,
+            )
+
+        try:
+            with self._apply_browser_context() as context:
+                page = context.new_page()
+                try:
+                    page.goto(self._apply_target_url(job), wait_until="domcontentloaded", timeout=60000)
+                except Exception as exc:  # navigation failure is non-fatal for classification
+                    log.append({"step": "job_open_failed", "error": str(exc)})
+                form = self._detect_apply_form(page, job)
+                log.append({"step": "apply_form_detected", "apply_type": form.get("apply_type"), "field_count": len(form.get("fields") or [])})
+                result = self._plan_dry_run(page, form, job, resume, candidate_profile, screening_context, debug_dir, log)
+                if capture_evidence:
+                    self._capture_apply_artifact(page, debug_dir)
+                return result
+        except PlaywrightError as exc:
+            return self._dice_result(
+                ApplicationStatus.FAILED,
+                f"Dice apply could not launch a browser session: {exc}",
+                "dice_apply_launch_failed",
+                debug_dir,
+                job,
+                log=log,
+            )
+
+    # ---- Apply-flow seams (overridable for tests; best-effort for live Dice) ----
+    @contextmanager
+    def _apply_browser_context(self):
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.launch(
+            headless=self.settings.linkedin_headless,
+            slow_mo=self.settings.linkedin_slow_mo_ms,
         )
+        kwargs = {"storage_state": str(self.storage_state)} if self.storage_state.exists() else {}
+        context = browser.new_context(**kwargs)
+        try:
+            yield context
+        finally:
+            try:
+                context.close()
+            finally:
+                browser.close()
+                playwright.stop()
+
+    def _apply_target_url(self, job: JobOpportunity) -> str:
+        meta = job.job_description_metadata or {}
+        return meta.get("apply_url") or job.job_url
+
+    def _detect_apply_form(self, page, job: JobOpportunity) -> dict:
+        """Return {apply_type, fields, submit_present}. Best-effort against live Dice.
+
+        apply_type: 'native' (Dice easy-apply form), 'external' (redirects to an ATS),
+        or 'none' (no apply form found). Tests override this seam with canned data.
+        """
+        if self._has_external_apply(page):
+            return {"apply_type": "external", "fields": [], "submit_present": False}
+        if not self._open_native_apply(page):
+            return {"apply_type": "none", "fields": [], "submit_present": False}
+        return {
+            "apply_type": "native",
+            "fields": self._collect_fields(page),
+            "submit_present": self._has_submit(page),
+        }
+
+    def _has_external_apply(self, page) -> bool:
+        for selector in (
+            "a:has-text('Apply on company site')",
+            "a:has-text('Apply on employer site')",
+            "[data-cy='external-apply']",
+        ):
+            try:
+                if page.locator(selector).first.count() > 0:
+                    return True
+            except Exception:
+                continue
+        return False
+
+    def _open_native_apply(self, page) -> bool:
+        for selector in (
+            "[data-cy='easy-apply-button']",
+            "button:has-text('Easy apply')",
+            "button:has-text('Easy Apply')",
+            "button:has-text('Apply now')",
+        ):
+            try:
+                button = page.locator(selector).first
+                if button.count() > 0:
+                    button.click(timeout=4000)
+                    page.wait_for_timeout(500)
+                    return True
+            except Exception:
+                continue
+        return False
+
+    def _collect_fields(self, page) -> list[dict]:
+        try:
+            return page.evaluate(self._collect_fields_script()) or []
+        except Exception:
+            return []
+
+    def _has_submit(self, page) -> bool:
+        for selector in (
+            "button:has-text('Submit')",
+            "[data-cy='submit-application']",
+            "button[type='submit']",
+        ):
+            try:
+                if page.locator(selector).first.count() > 0:
+                    return True
+            except Exception:
+                continue
+        return False
+
+    def _fill_fields(self, page, plan: list[dict]) -> None:
+        """Fill planned values in the live form (dry-run). NEVER submits."""
+        fillable = [entry for entry in plan if entry.get("value") is not None and entry.get("action") == "fill"]
+        if not fillable:
+            return
+        try:
+            page.evaluate(self._fill_fields_script(), fillable)
+        except Exception:
+            pass
+
+    def _capture_apply_artifact(self, page, debug_dir: Path) -> None:
+        try:
+            page.screenshot(path=str(debug_dir / "apply_form.png"), full_page=True)
+        except Exception:
+            pass
+
+    # ---- Dry-run planning / decisions (portal-agnostic, fully unit-tested) ----
+    def _plan_dry_run(
+        self,
+        page,
+        form: dict,
+        job: JobOpportunity,
+        resume: ResumeProfile,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+        debug_dir: Path,
+        log: list[dict],
+    ) -> AutomationResult:
+        apply_type = form.get("apply_type")
+        if apply_type in {"external", "none"}:
+            reason = (
+                "Dice apply redirects to an external ATS; not automated."
+                if apply_type == "external"
+                else "No Dice native apply form was found for this job."
+            )
+            log.append({"step": "apply_unsupported", "apply_type": apply_type, "reason": reason})
+            return self._dice_result(ApplicationStatus.UNSUPPORTED_FORM, reason, "dice_apply_unsupported_form", debug_dir, job, log=log)
+
+        fields = form.get("fields") or []
+        plan: list[dict] = []
+        screening_answers: list[dict] = []
+        missing_contact: list[str] = []
+        unanswered: list[dict] = []
+        unsupported_controls: list[dict] = []
+
+        for field in fields:
+            entry = self._field_plan_entry(field, resume, job, candidate_profile, screening_context)
+            plan.append(entry)
+            if entry["kind"] == "screening" and entry.get("event"):
+                screening_answers.append(entry["event"])
+            if entry["kind"] == "contact" and entry.get("value") is None and field.get("required"):
+                missing_contact.append(entry["normalized_field"])
+            if entry.get("action") == "needs_review":
+                unanswered.append({"label": entry["label"], "reason": entry["reason"]})
+            if entry.get("action") == "unsupported":
+                unsupported_controls.append({"label": entry["label"], "control": entry["control"]})
+
+        self._write_debug(
+            debug_dir,
+            "dry_run_plan.json",
+            {
+                "portal": self.portal_name,
+                "job_id": job.id,
+                "apply_type": apply_type,
+                "submit_present": form.get("submit_present"),
+                "plan": plan,
+                "unanswered": unanswered,
+                "unsupported_controls": unsupported_controls,
+                "missing_contact_fields": missing_contact,
+            },
+        )
+
+        if unanswered:
+            reason = "Dice dry run stopped: one or more required answers were uncertain (needs review)."
+            log.append({"step": "needs_review", "unanswered": unanswered})
+            return self._dice_result(
+                ApplicationStatus.NEEDS_REVIEW, reason, "dice_apply_needs_review", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            )
+        if unsupported_controls:
+            reason = "Dice form contains controls this automation does not yet support."
+            log.append({"step": "unsupported_controls", "controls": unsupported_controls})
+            return self._dice_result(
+                ApplicationStatus.UNSUPPORTED_FORM, reason, "dice_apply_unsupported_form", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            )
+
+        # All required fields are answerable: fill everything EXCEPT final submit.
+        self._fill_fields(page, plan)
+        log.append({"step": "dry_run_filled", "fields_planned": len(plan), "submitted": False})
+        reason = "Dice dry run reached the submit-ready stage; application was NOT submitted."
+        return self._dice_result(
+            ApplicationStatus.DRY_RUN_READY, reason, "dice_dry_run_ready", debug_dir, job,
+            log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+        )
+
+    def _field_plan_entry(
+        self,
+        field: dict,
+        resume: ResumeProfile,
+        job: JobOpportunity,
+        candidate_profile: CandidateProfile | None,
+        screening_context: dict,
+    ) -> dict:
+        label = str(field.get("label") or "").strip()
+        options = list(field.get("options") or [])
+        control = str(field.get("control") or field.get("kind") or "text").lower()
+        kind = str(field.get("kind") or control).lower()
+        required = bool(field.get("required"))
+
+        # Control-type detection via the shared GeneralizedFormEngine.
+        detection = self.form_engine.detect_field(
+            GeneralizedFieldInput(
+                label=label or "Unknown Field",
+                input_type=kind,
+                options=options,
+                required=required,
+                portal="dice",
+            )
+        )
+        base = {
+            "index": field.get("index"),
+            "label": label,
+            "control": control,
+            "kind": kind,
+            "required": required,
+            "options": options,
+            "normalized_field": detection.normalized_field_name,
+            "detected_control_type": detection.detected_control_type,
+        }
+
+        # 1) Resume upload
+        if detection.detected_control_type == "file_upload" or re.search(r"resume|cv|upload", label, re.I):
+            return {**base, "kind": "resume_upload", "action": "resume_upload", "value": None,
+                    "reason": "Resume upload planned (not performed in dry run)."}
+
+        # 2) Candidate contact identity fields (from saved profile)
+        contact_attr = self._contact_attr_for_label(label)
+        if contact_attr:
+            value = getattr(candidate_profile, contact_attr, None) if candidate_profile else None
+            value = (value or "").strip() or None
+            return {**base, "kind": "contact", "action": "fill" if value else ("needs_review" if required else "skip"),
+                    "value": value, "normalized_field": contact_attr,
+                    "reason": None if value else f"Candidate profile is missing '{contact_attr}'."}
+
+        # 3) Screening questions -> shared ScreeningAnswerEngine
+        decision = self.screening.decide(
+            ScreeningQuestion(text=label, field_type=control, field_kind=kind, options=options, portal="dice"),
+            resume=resume,
+            job=job,
+            candidate_profile=candidate_profile,
+            context=screening_context,
+        )
+        event = decision.to_event() or {
+            "question_text": label,
+            "selected_answer": None,
+            "source": None,
+            "confidence": decision.confidence,
+            "reason": decision.reasoning or "No confident answer; needs review.",
+            "category": decision.category,
+        }
+        event.setdefault("question_text", label)
+        event.setdefault("category", decision.category)
+        if decision.needs_review or decision.answer is None:
+            if required:
+                return {**base, "kind": "screening", "action": "needs_review", "value": None,
+                        "reason": "Screening answer was uncertain.", "event": event}
+            return {**base, "kind": "screening", "action": "skip", "value": None,
+                    "reason": "Optional screening question left blank.", "event": event}
+        return {**base, "kind": "screening", "action": "fill", "value": decision.answer, "event": event}
+
+    def _contact_attr_for_label(self, label: str) -> str | None:
+        lowered = (label or "").lower()
+        for attr, pattern in self.CONTACT_FIELD_PATTERNS:
+            if re.search(pattern, lowered):
+                return attr
+        return None
+
+    def _dice_result(
+        self,
+        status: ApplicationStatus,
+        message: str,
+        current_step: str,
+        debug_dir: Path,
+        job: JobOpportunity,
+        *,
+        log: list[dict] | None = None,
+        screening_answers: list[dict] | None = None,
+        missing_contact: list[str] | None = None,
+    ) -> AutomationResult:
+        log = list(log or [])
+        log.append({"step": "apply_result", "status": status.value, "current_step": current_step})
+        self._write_debug(
+            debug_dir,
+            "apply_attempt.json",
+            {
+                "portal": self.portal_name,
+                "job_id": job.id,
+                "title": job.title,
+                "company": job.company,
+                "job_url": job.job_url,
+                "status": status.value,
+                "current_step": current_step,
+                "message": message,
+                "submitted": False,
+                "screening_answers": screening_answers or [],
+                "missing_contact_fields": missing_contact or [],
+            },
+        )
+        return AutomationResult(
+            status=status,
+            message=message,
+            current_step=current_step,
+            evidence_path=str(debug_dir),
+            log=log,
+            screening_answers=screening_answers or [],
+            missing_contact_fields=missing_contact or [],
+        )
+
+    def _collect_fields_script(self) -> str:
+        return """
+            () => {
+                const forms = document.querySelectorAll(
+                    "[data-cy='easy-apply-form'], form[action*='apply'], .apply-form, [class*='apply']"
+                );
+                const root = forms[0] || document;
+                const controls = Array.from(root.querySelectorAll('input, textarea, select'))
+                    .filter(el => {
+                        const type = (el.type || '').toLowerCase();
+                        if (['hidden', 'submit', 'button'].includes(type)) return false;
+                        const rect = el.getBoundingClientRect();
+                        return rect.width > 0 && rect.height > 0;
+                    });
+                const seenGroups = new Set();
+                const fields = [];
+                const labelFor = el => {
+                    const id = el.id;
+                    const byFor = id ? document.querySelector(`label[for="${id}"]`) : null;
+                    const wrap = el.closest('label');
+                    const group = el.closest('fieldset, [role="group"], .form-group, [class*="field"]');
+                    const legend = group ? group.querySelector('legend, label, .label') : null;
+                    return String((byFor && byFor.innerText) || (wrap && wrap.innerText) || (legend && legend.innerText) || el.getAttribute('aria-label') || el.name || el.placeholder || '').replace(/\\s+/g, ' ').trim();
+                };
+                controls.forEach((el, index) => {
+                    const tag = el.tagName.toLowerCase();
+                    const type = (el.type || tag).toLowerCase();
+                    if (type === 'radio' || type === 'checkbox') {
+                        const name = el.getAttribute('name') || '';
+                        const key = name || labelFor(el);
+                        if (key && seenGroups.has(key)) return;
+                        if (key) seenGroups.add(key);
+                        const groupEls = name ? Array.from(root.querySelectorAll(`input[name="${name}"]`)) : [el];
+                        fields.push({
+                            index,
+                            label: labelFor(el),
+                            control: type,
+                            kind: type,
+                            required: groupEls.some(g => g.required),
+                            options: groupEls.map(g => labelFor(g) || g.value).filter(Boolean),
+                        });
+                        return;
+                    }
+                    let options = [];
+                    if (tag === 'select') options = Array.from(el.options).map(o => (o.textContent || o.value || '').trim()).filter(Boolean);
+                    fields.push({
+                        index,
+                        label: labelFor(el),
+                        control: tag === 'select' ? 'select' : (tag === 'textarea' ? 'textarea' : type),
+                        kind: tag === 'select' ? 'select' : (tag === 'textarea' ? 'textarea' : 'text'),
+                        required: Boolean(el.required),
+                        options,
+                    });
+                });
+                return fields;
+            }
+        """
+
+    def _fill_fields_script(self) -> str:
+        return """
+            (plan) => {
+                // Dry-run fill only. This function never submits the form.
+                const controls = Array.from(document.querySelectorAll('input, textarea, select'));
+                for (const entry of plan) {
+                    const el = controls[entry.index];
+                    if (!el) continue;
+                    const tag = el.tagName.toLowerCase();
+                    const type = (el.type || tag).toLowerCase();
+                    try {
+                        if (type === 'radio' || type === 'checkbox') {
+                            el.checked = true;
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        } else if (tag === 'select') {
+                            el.value = entry.value;
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        } else {
+                            el.value = entry.value;
+                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    } catch (_) { /* ignore individual field errors in dry run */ }
+                }
+                return true;
+            }
+        """
 
     def _safe_text(self, locator) -> str:
         try:

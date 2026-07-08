@@ -33,6 +33,28 @@ from app.models import (
 )
 from app.schemas import ApplyRequest, ApplySelectedRequest
 from app.services.linkedin import AutomationResult, LinkedInAutomation
+from app.services.portals.dice_portal import DicePortalAdapter
+
+
+@contextmanager
+def _fake_dice_ctx(self):
+    """Fake browser context so Dice dry-run apply tests never launch a real browser."""
+
+    class _Pg:
+        def goto(self, *a, **k):
+            return None
+
+        def screenshot(self, *a, **k):
+            return None
+
+        def wait_for_timeout(self, *a, **k):
+            return None
+
+    class _Ctx:
+        def new_page(self):
+            return _Pg()
+
+    yield _Ctx()
 
 
 class FakeApplicationAutomation:
@@ -874,7 +896,7 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(FakeApplicationAutomation.processed_resume_ids, [self.resume.id])
         self.assertEqual(FakeApplicationAutomation.processed_resume_paths, [self.resume.stored_path])
 
-    def test_apply_selected_dice_job_uses_dice_adapter_skeleton(self) -> None:
+    def test_apply_selected_dice_job_routes_to_dice_adapter(self) -> None:
         set_active_portal(self.db, "dice")
         self.resume.portal = "dice"
         self.db.add(self.resume)
@@ -894,15 +916,22 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.db.commit()
         self.db.refresh(dice_job)
 
-        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+        # External ATS -> Dice dry-run classifies as unsupported_form (never submits).
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation), patch.object(
+            DicePortalAdapter, "_apply_browser_context", _fake_dice_ctx
+        ), patch.object(
+            DicePortalAdapter, "_detect_apply_form",
+            return_value={"apply_type": "external", "fields": [], "submit_present": False},
+        ):
             record = apply_selected_job(
                 ApplySelectedRequest(resume_id=self.resume.id, job_id=dice_job.id, dry_run=True),
                 self.db,
             )
 
         self.assertEqual(record.portal, "dice")
-        self.assertEqual(record.status, ApplicationStatus.NEEDS_REVIEW)
-        self.assertEqual(record.current_step, "dice_apply_unsupported")
+        self.assertEqual(record.status, ApplicationStatus.UNSUPPORTED_FORM)
+        self.assertEqual(record.current_step, "dice_apply_unsupported_form")
+        # LinkedIn automation was NOT used for a Dice job (portal isolation).
         self.assertEqual(FakeApplicationAutomation.processed_job_ids, [])
 
     def test_apply_selected_rejects_wrong_resume_id(self) -> None:
@@ -980,7 +1009,12 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.db.commit()
         self.db.refresh(dice_job)
 
-        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation), patch.object(
+            DicePortalAdapter, "_apply_browser_context", _fake_dice_ctx
+        ), patch.object(
+            DicePortalAdapter, "_detect_apply_form",
+            return_value={"apply_type": "external", "fields": [], "submit_present": False},
+        ):
             records = apply_top_jobs(
                 ApplyRequest(resume_id=self.resume.id, limit=5, dry_run=True, portal="dice"),
                 self.db,
@@ -988,7 +1022,7 @@ class SingleJobApplicationTests(unittest.TestCase):
 
         self.assertEqual([record.job_id for record in records], [dice_job.id])
         self.assertEqual(records[0].portal, "dice")
-        self.assertEqual(records[0].status, ApplicationStatus.NEEDS_REVIEW)
+        self.assertEqual(records[0].status, ApplicationStatus.UNSUPPORTED_FORM)
         self.assertEqual(FakeApplicationAutomation.processed_job_ids, [])
 
     def test_apply_top_20_selects_20_jobs(self) -> None:

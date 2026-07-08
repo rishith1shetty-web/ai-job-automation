@@ -186,7 +186,9 @@ class PortalAdapterTests(unittest.TestCase):
         self.assertEqual({job.portal for job in ranked}, {"linkedin", "dice"})
         self.assertTrue(all(job.priority_score >= 0 for job in ranked))
 
-    def test_dice_unsupported_apply_marks_needs_review(self) -> None:
+    def test_dice_apply_without_native_form_is_unsupported_form(self) -> None:
+        from contextlib import contextmanager
+
         adapter = DicePortalAdapter(self.settings)
         job = JobOpportunity(
             id=99,
@@ -200,10 +202,32 @@ class PortalAdapterTests(unittest.TestCase):
             easy_apply=True,
         )
 
-        result = adapter.apply_to_job(job, self.resume, None, dry_run=True, capture_evidence=True)
+        class _FakePage:
+            def goto(self, *a, **k):
+                return None
 
-        self.assertEqual(result.status, ApplicationStatus.NEEDS_REVIEW)
-        self.assertEqual(result.current_step, "dice_apply_unsupported")
+            def screenshot(self, *a, **k):
+                return None
+
+            def wait_for_timeout(self, *a, **k):
+                return None
+
+        @contextmanager
+        def _fake_ctx():
+            class _Ctx:
+                def new_page(self):
+                    return _FakePage()
+
+            yield _Ctx()
+
+        # No native Dice apply form -> classified as unsupported_form (dry-run, no submit).
+        with patch.object(adapter, "_apply_browser_context", _fake_ctx), patch.object(
+            adapter, "_detect_apply_form", return_value={"apply_type": "none", "fields": [], "submit_present": False}
+        ):
+            result = adapter.apply_to_job(job, self.resume, None, dry_run=True, capture_evidence=True)
+
+        self.assertEqual(result.status, ApplicationStatus.UNSUPPORTED_FORM)
+        self.assertEqual(result.current_step, "dice_apply_unsupported_form")
         self.assertTrue(result.evidence_path)
 
     def test_existing_saved_dice_session_requires_authenticated_cookie(self) -> None:
