@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     openai_match_model: str = "gpt-4o-mini"
     linkedin_storage_state: Path = Path("storage/linkedin_state.json")
     dice_storage_state: Path = Path("storage/dice_state.json")
+    # Dice-only fallback for the wizard's required Work Authorization dropdown, used
+    # ONLY when neither the candidate profile nor a saved screening answer supplies
+    # one. It is configuration (env-overridable), never a value the automation
+    # invents about the candidate's legal status.
+    dice_default_work_authorization: str | None = "US Citizen"
     linkedin_headless: bool = False
     linkedin_slow_mo_ms: int = 50
     app_upload_dir: Path = Path("storage/uploads")

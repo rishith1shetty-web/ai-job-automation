@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from app.services.dashboard_tables import build_unique_display_frame
+from app.services.dashboard_tables import build_unique_display_frame, safe_dataframe_for_streamlit
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 GET_TIMEOUT_SECONDS = 30
@@ -124,6 +124,7 @@ def show_table(rows, *, column_config=None, height: int = TABLE_HEIGHT) -> None:
     if total > MAX_TABLE_ROWS:
         st.caption(f"Showing first {MAX_TABLE_ROWS} of {total} rows for faster rendering.")
         frame = frame.head(MAX_TABLE_ROWS)
+    frame = safe_dataframe_for_streamlit(frame)
     st.dataframe(
         frame,
         hide_index=True,
@@ -848,7 +849,7 @@ with tab_matches:
             screening_decisions = extract_screening_decisions(selected_result)
             if screening_decisions:
                 st.markdown("**Screening answers (dry run)**")
-                st.dataframe(
+                show_table(
                     [
                         {
                             "Question": decision.get("question"),
@@ -859,8 +860,7 @@ with tab_matches:
                         }
                         for decision in screening_decisions
                     ],
-                    use_container_width=True,
-                    hide_index=True,
+                    height=260,
                 )
                 needs_review = [d for d in screening_decisions if d.get("needs_review")]
                 if needs_review:

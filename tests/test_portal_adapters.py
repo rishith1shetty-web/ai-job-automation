@@ -116,6 +116,164 @@ class PortalAdapterTests(unittest.TestCase):
         self.assertTrue(jobs[0]["easy_apply"])
         self.assertEqual(jobs[0]["job_description_metadata"]["posted_date"], "2 days ago")
 
+    def _easy_apply_variation(self) -> SearchVariation:
+        return SearchVariation(
+            query="Data Analyst",
+            location="Remote",
+            role="Data Analyst",
+            expanded_role="Data Analyst",
+            pass_name="primary",
+            search_role="Data Analyst",
+            role_priority="primary",
+        )
+
+    def test_dice_easy_apply_cta_is_kept(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Data Analyst",
+                "company": "Native Co",
+                "location": "Remote",
+                "job_url": "/job-detail/1",
+                "apply_url": "/job-detail/1",
+                "apply_cta": "Easy apply",
+                "description": "Data Analyst\nNative Co\nRemote",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertTrue(job["easy_apply"])
+        self.assertTrue(job["job_description_metadata"]["apply_classification"].startswith("native_cta"))
+
+    def test_dice_plain_apply_cta_is_filtered(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Data Analyst",
+                "company": "Plain Co",
+                "location": "Remote",
+                "job_url": "/job-detail/2",
+                "apply_url": "/job-detail/2",
+                "apply_cta": "Apply",
+                "description": "Data Analyst\nPlain Co\nRemote",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertFalse(job["easy_apply"])
+        self.assertTrue(job["job_description_metadata"]["apply_classification"].startswith("non_native_cta"))
+
+    def test_dice_apply_now_cta_is_filtered(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Data Analyst",
+                "company": "Now Co",
+                "location": "Remote",
+                "job_url": "/job-detail/3",
+                "apply_url": "/job-detail/3",
+                "apply_cta": "Apply Now",
+                "description": "Data Analyst\nNow Co\nRemote",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertFalse(job["easy_apply"])
+
+    def test_dice_external_ats_apply_url_is_filtered(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Data Analyst",
+                "company": "Workday Co",
+                "location": "Remote",
+                "job_url": "/job-detail/4",
+                # Even with an "Easy apply"-looking chip, an external ATS host wins.
+                "apply_url": "https://company.wd1.myworkdayjobs.com/apply/123",
+                "apply_cta": "Easy apply",
+                "description": "Data Analyst\nWorkday Co\nRemote",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertFalse(job["easy_apply"])
+        self.assertEqual(job["job_description_metadata"]["apply_classification"], "external_ats:workday")
+
+    def test_dice_external_cta_phrase_is_filtered(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Data Analyst",
+                "company": "Site Co",
+                "location": "Remote",
+                "job_url": "/job-detail/5",
+                "apply_url": "/job-detail/5",
+                "apply_cta": "Apply on company site",
+                "description": "Data Analyst\nSite Co\nRemote",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertFalse(job["easy_apply"])
+        self.assertEqual(job["job_description_metadata"]["apply_classification"], "external_cta")
+
+    def test_dice_description_mentioning_ats_tool_is_not_falsely_filtered(self) -> None:
+        # A native Easy Apply job whose DESCRIPTION merely names an ATS tool must
+        # still be kept -- external detection only inspects the apply URL/CTA.
+        adapter = DicePortalAdapter(self.settings)
+        job = adapter.job_from_card_data(
+            {
+                "title": "Integrations Engineer",
+                "company": "Native Co",
+                "location": "Remote",
+                "job_url": "/job-detail/6",
+                "apply_url": "/job-detail/6",
+                "apply_cta": "Easy apply",
+                "description": "Integrations Engineer\nNative Co\nBuild Workday and Greenhouse integrations.",
+            },
+            self._easy_apply_variation(),
+        )
+        self.assertTrue(job["easy_apply"])
+
+    def test_dice_mixed_search_returns_only_easy_apply_with_reasons(self) -> None:
+        adapter = DicePortalAdapter(self.settings)
+        page = _FakeDiceSearchPage(
+            jobs=[
+                {
+                    "title": "Easy One", "company": "Native Co", "location": "Remote",
+                    "job_url": "/job-detail/1", "apply_url": "/job-detail/1",
+                    "apply_cta": "Easy apply", "description": "Easy One\nNative Co\nRemote",
+                },
+                {
+                    "title": "Plain Two", "company": "Plain Co", "location": "Remote",
+                    "job_url": "/job-detail/2", "apply_url": "/job-detail/2",
+                    "apply_cta": "Apply", "description": "Plain Two\nPlain Co\nRemote",
+                },
+                {
+                    "title": "Now Three", "company": "Now Co", "location": "Remote",
+                    "job_url": "/job-detail/3", "apply_url": "/job-detail/3",
+                    "apply_cta": "Apply Now", "description": "Now Three\nNow Co\nRemote",
+                },
+                {
+                    "title": "Workday Four", "company": "WD Co", "location": "Remote",
+                    "job_url": "/job-detail/4",
+                    "apply_url": "https://company.wd1.myworkdayjobs.com/apply/9",
+                    "apply_cta": "Apply", "description": "Workday Four\nWD Co\nRemote",
+                },
+            ]
+        )
+
+        jobs = adapter.search_jobs(page, self._easy_apply_variation(), limit=10, debug_dir=self.settings.dice_debug_dir, search_index=7)
+
+        self.assertEqual([job["title"] for job in jobs], ["Easy One"])
+        self.assertTrue(all(job["easy_apply"] for job in jobs))
+
+        filter_file = self.settings.dice_debug_dir / "search_7_easy_apply_filter.json"
+        self.assertTrue(filter_file.exists())
+        report = json.loads(filter_file.read_text(encoding="utf-8"))
+        self.assertEqual(report["total_jobs_found"], 4)
+        self.assertEqual(report["easy_apply_kept"], 1)
+        self.assertEqual(report["external_or_apply_filtered"], 3)
+        reasons = {row["title"]: row["reason"] for row in report["excluded_jobs"]}
+        self.assertTrue(reasons["Plain Two"].startswith("non_native_cta"))
+        self.assertTrue(reasons["Now Three"].startswith("non_native_cta"))
+        self.assertEqual(reasons["Workday Four"], "external_ats:workday")
+
     def test_dice_zero_result_search_logs_clear_reason(self) -> None:
         adapter = DicePortalAdapter(self.settings)
         variation = SearchVariation(

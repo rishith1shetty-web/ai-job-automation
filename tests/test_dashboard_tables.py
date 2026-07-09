@@ -1,8 +1,10 @@
 import unittest
 
+import json
+
 import pandas as pd
 
-from app.services.dashboard_tables import build_unique_display_frame
+from app.services.dashboard_tables import build_unique_display_frame, safe_dataframe_for_streamlit
 
 
 class DashboardTableFormattingTests(unittest.TestCase):
@@ -42,6 +44,40 @@ class DashboardTableFormattingTests(unittest.TestCase):
 
         self.assertEqual(list(display.columns), ["Job URL", "Job URL (2)"])
         self.assertEqual(len(display.columns), len(set(display.columns)))
+
+    def test_safe_dataframe_serializes_mixed_object_columns(self) -> None:
+        frame = pd.DataFrame(
+            [
+                {
+                    "job_title": "Data Analyst",
+                    "evidence_sources": [{"question": "SQL", "answer": "1"}],
+                    "screening_answers": ["Yes", "No"],
+                    "metadata": {"provider": "Dice"},
+                    "evidence": {"skills": ["SQL"]},
+                    "reasoning": {"source": "resume"},
+                    "plain_text": "ok",
+                    "score": 85,
+                },
+                {
+                    "job_title": "Data Engineer",
+                    "evidence_sources": "manual note",
+                    "screening_answers": None,
+                    "metadata": {"provider": "LinkedIn"},
+                    "evidence": set(["Python"]),
+                    "reasoning": "already text",
+                    "plain_text": "still ok",
+                    "score": 90,
+                },
+            ]
+        )
+
+        safe = safe_dataframe_for_streamlit(frame)
+
+        self.assertEqual(safe["score"].dtype, frame["score"].dtype)
+        for column in ["evidence_sources", "screening_answers", "metadata", "evidence", "reasoning"]:
+            self.assertTrue(all(isinstance(value, str) for value in safe[column]))
+        self.assertEqual(json.loads(safe.loc[0, "metadata"]), {"provider": "Dice"})
+        self.assertEqual(safe.loc[1, "screening_answers"], "")
 
 
 if __name__ == "__main__":

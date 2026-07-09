@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 
 
@@ -34,3 +36,44 @@ def build_unique_display_frame(
     if not selected:
         return pd.DataFrame()
     return frame[selected].rename(columns=output_names).copy()
+
+
+def safe_dataframe_for_streamlit(frame: pd.DataFrame) -> pd.DataFrame:
+    """Normalize mixed object columns so Streamlit/PyArrow can render them."""
+    if frame.empty:
+        return frame
+    safe = frame.copy()
+    for column in safe.columns:
+        if safe[column].dtype != "object":
+            continue
+        if safe[column].map(_needs_object_serialization).any():
+            safe[column] = safe[column].map(_stringify_dashboard_value)
+    return safe
+
+
+def _needs_object_serialization(value) -> bool:
+    if value is None:
+        return False
+    try:
+        if pd.isna(value):
+            return False
+    except (TypeError, ValueError):
+        pass
+    return isinstance(value, (dict, list, tuple, set))
+
+
+def _stringify_dashboard_value(value) -> str:
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, set):
+        value = sorted(value, key=str)
+    if isinstance(value, tuple):
+        value = list(value)
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, default=str, ensure_ascii=False)
+    return str(value)
