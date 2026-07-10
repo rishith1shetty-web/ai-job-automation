@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/ui/Logo";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/api";
 import { usePortalStatus } from "@/api/portal";

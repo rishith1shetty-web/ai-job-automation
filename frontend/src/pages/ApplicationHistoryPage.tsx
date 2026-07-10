@@ -1,12 +1,31 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert } from "@/components/ui/alert";
 import { SectionHeading, StatusBadge, EmptyState } from "@/components/ui/misc";
-import { applications } from "@/fixtures";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useLatestResume } from "@/api/resume";
+import { usePortalStatus } from "@/api/portal";
+import { useApplications } from "@/api/applications";
+import { useSession } from "@/store/session";
 
 export function ApplicationHistoryPage() {
+  const { data: resume } = useLatestResume();
+  const { data: portalStatus } = usePortalStatus();
+  const { selectedBatchId } = useSession();
+  const { data, isLoading, isError, error } = useApplications(
+    resume?.id,
+    selectedBatchId,
+    portalStatus?.active_portal,
+  );
+  const applications = data ?? [];
+
   return (
     <div className="space-y-4">
       <SectionHeading title="Application history" subtitle="Every apply attempt recorded for the active portal." />
-      {applications.length === 0 ? (
+      {isLoading ? (
+        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+      ) : isError ? (
+        <Alert variant="danger">{apiErrorMessage("Load application history", error)}</Alert>
+      ) : applications.length === 0 ? (
         <EmptyState message="No application history yet." />
       ) : (
         <Table>

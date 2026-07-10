@@ -136,6 +136,8 @@ export interface CandidateProfile {
   missing_required_after_apply: string[];
   missing_required_fields: string[];
   is_complete: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface EmploymentHistory {
@@ -206,6 +208,8 @@ export interface ApplyTopBatch {
 export interface ScreeningSetting {
   mode: ScreeningMode;
   notice_period_default: string | null;
+  id?: number;
+  updated_at?: string;
 }
 
 export interface ScreeningAnswer {
@@ -247,6 +251,20 @@ export interface SelectedApplicationResult {
   error_message: string | null;
   evidence_path: string | null;
   evidence_sources?: ScreeningDecision[];
+}
+
+// Live apply-selected result rendered in the "Selected application status" panel.
+// Carries the raw backend record fields (evidence_sources + run_log) so the screening
+// decisions can be extracted exactly as dashboard.py does.
+export interface ApplyResultView {
+  job_title: string;
+  company: string;
+  status: string;
+  current_step: string | null;
+  error_message: string | null;
+  evidence_path: string | null;
+  evidence_sources?: Record<string, unknown>[];
+  run_log?: Record<string, unknown>[];
 }
 
 export interface PerformanceSummary {

@@ -34,6 +34,32 @@ export function useCandidateProfile() {
   });
 }
 
+// PUT /candidate-profile — the 12 keys dashboard.py sends, in the same order, with NO
+// portal field (the backend resolves the active portal itself).
+export interface CandidateProfileInput {
+  first_name: string;
+  last_name: string;
+  email: string;
+  mobile_phone: string;
+  phone_country_code: string;
+  current_location: string;
+  linkedin_url: string;
+  portfolio_url: string;
+  github_url: string;
+  current_job_title: string;
+  current_company: string;
+  professional_headline: string;
+}
+
+export function useSaveCandidateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CandidateProfileInput) =>
+      apiRequest<CandidateProfile>("PUT", "/candidate-profile", { body: input }),
+    onSuccess: () => queryClient.invalidateQueries(), // mirror clear_cached_reads()
+  });
+}
+
 /** Upload + analyze a resume. Mirrors the Streamlit "Analyze resume" button, which
  *  POSTs the file to /resumes and then refreshes dashboard reads. */
 export function useUploadResume() {

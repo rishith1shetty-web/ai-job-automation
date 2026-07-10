@@ -2,17 +2,32 @@ import { useState } from "react";
 import { Field, Select } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SectionHeading, ProgressCell, EmptyState } from "@/components/ui/misc";
-import { formLearning } from "@/fixtures";
+import { useFormLearning, useFormLearningLatest } from "@/api/evidence";
+
+type Dict = Record<string, unknown>;
+const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v));
+const num = (v: unknown): number => (typeof v === "number" ? v : 0);
+const joinList = (v: unknown): string => (Array.isArray(v) ? v.map(String).join(", ") : "");
 
 export function FormLearningPage() {
-  const fields = formLearning;
-  const [selectedField, setSelectedField] = useState(fields[0]?.normalized_field ?? "");
-  const selected = fields.find((f) => f.normalized_field === selectedField) ?? null;
+  const learning = useFormLearning();
+  const latest = useFormLearningLatest();
+  const fields = learning.data ?? [];
+  const [selectedField, setSelectedField] = useState("");
+
+  const effectiveField = selectedField || str(fields[0]?.normalized_field);
+  const selected = fields.find((f) => str(f.normalized_field) === effectiveField) ?? null;
+  const history = selected ? (Array.isArray(selected.validation_history) ? (selected.validation_history as Dict[]) : []) : [];
+  const historyCols = history.length > 0 ? Object.keys(history[0]) : [];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeading title="AI Form Learning" />
-      {fields.length === 0 ? (
+      {latest.data?.available && <p className="text-xs text-[#8A8580]">Latest evidence: {str(latest.data.folder)}</p>}
+
+      {learning.isLoading ? (
+        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+      ) : fields.length === 0 ? (
         <EmptyState message="No learned form fields yet. They will appear after application dry-runs or submissions process fields." />
       ) : (
         <>
@@ -21,23 +36,27 @@ export function FormLearningPage() {
               <TableRow>
                 <TableHead>Normalized Field</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Original Labels</TableHead>
                 <TableHead>Companies Seen</TableHead>
                 <TableHead>Success Rate</TableHead>
                 <TableHead>Confidence</TableHead>
                 <TableHead>Times Learned</TableHead>
                 <TableHead>Times Used</TableHead>
+                <TableHead>Last Value Source</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fields.map((f) => (
-                <TableRow key={f.normalized_field}>
-                  <TableCell className="font-semibold text-ink">{f.normalized_field}</TableCell>
-                  <TableCell>{f.field_category}</TableCell>
-                  <TableCell>{f.companies_seen.join(", ")}</TableCell>
-                  <TableCell><ProgressCell value={f.success_rate} suffix="%" /></TableCell>
-                  <TableCell>{f.confidence}</TableCell>
-                  <TableCell className="tabular-nums">{f.times_seen}</TableCell>
-                  <TableCell className="tabular-nums">{f.times_used}</TableCell>
+              {fields.map((f, i) => (
+                <TableRow key={i}>
+                  <TableCell className="font-semibold text-ink">{str(f.normalized_field)}</TableCell>
+                  <TableCell>{str(f.field_category)}</TableCell>
+                  <TableCell>{joinList(f.original_labels)}</TableCell>
+                  <TableCell>{joinList(f.companies_seen)}</TableCell>
+                  <TableCell><ProgressCell value={num(f.success_rate)} suffix="%" /></TableCell>
+                  <TableCell>{str(f.confidence)}</TableCell>
+                  <TableCell className="tabular-nums">{str(f.times_seen)}</TableCell>
+                  <TableCell className="tabular-nums">{str(f.times_used)}</TableCell>
+                  <TableCell>{str(f.last_successful_value_source)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -45,29 +64,27 @@ export function FormLearningPage() {
 
           <Field label="Validation history" className="max-w-md">
             <Select
-              options={fields.map((f) => f.normalized_field)}
-              value={selectedField}
+              options={fields.map((f) => str(f.normalized_field))}
+              value={effectiveField}
               onChange={(e) => setSelectedField(e.target.value)}
             />
           </Field>
 
-          {selected && selected.validation_history.length > 0 ? (
+          {history.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Label</TableHead>
-                  <TableHead>Outcome</TableHead>
-                  <TableHead>Message</TableHead>
+                  {historyCols.map((c) => (
+                    <TableHead key={c} className="capitalize">{c.replace(/_/g, " ")}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {selected.validation_history.map((h, i) => (
+                {history.map((h, i) => (
                   <TableRow key={i}>
-                    <TableCell>{h.company}</TableCell>
-                    <TableCell>{h.label}</TableCell>
-                    <TableCell>{h.outcome}</TableCell>
-                    <TableCell>{h.message}</TableCell>
+                    {historyCols.map((c) => (
+                      <TableCell key={c}>{str(h[c])}</TableCell>
+                    ))}
                   </TableRow>
                 ))}
               </TableBody>

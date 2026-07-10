@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UploadCloud, Loader2 } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
