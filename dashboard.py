@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
+from app.services import dashboard_theme as theme
 from app.services.dashboard_tables import build_unique_display_frame, safe_dataframe_for_streamlit
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
@@ -15,8 +16,12 @@ ACTION_TIMEOUT_SECONDS = 240
 TABLE_HEIGHT = 520
 MAX_TABLE_ROWS = 250
 
-st.set_page_config(page_title="Job Match Console", page_icon="briefcase", layout="wide")
-st.title("Job Match Console")
+st.set_page_config(
+    page_title="Rising Path Recruiters — Recruitment Automation",
+    page_icon="assets/rising_path_logo.svg",
+    layout="wide",
+)
+st.markdown(theme.THEME_CSS, unsafe_allow_html=True)
 
 
 def api_request(method: str, path: str, **kwargs):
@@ -197,16 +202,28 @@ active_portal = str(active_status.get("active_portal") or "linkedin").lower()
 selected_portal = active_portal
 portal_choice = active_portal.title()
 
+st.markdown(
+    theme.top_nav(
+        active_portal,
+        bool(active_status.get("linkedin_connected")),
+        bool(active_status.get("dice_connected")),
+    ),
+    unsafe_allow_html=True,
+)
+st.markdown(theme.welcome_card(), unsafe_allow_html=True)
+
 
 with st.sidebar:
-    st.header("Candidate")
+    st.markdown(theme.sidebar_brand(), unsafe_allow_html=True)
     linkedin_connected = bool(active_status.get("linkedin_connected"))
     dice_connected = bool(active_status.get("dice_connected"))
-    st.subheader("Active Portal")
+    st.markdown(theme.section_label("Portals"), unsafe_allow_html=True)
     target_portal = st.radio(
         "Choose Active Portal",
         ["LinkedIn", "Dice"],
         index=1 if active_portal == "dice" else 0,
+        key="portal_radio",
+        label_visibility="collapsed",
     ).lower()
     if target_portal != active_portal:
         st.warning(
@@ -253,26 +270,6 @@ with st.sidebar:
                 except Exception as exc:
                     st.error(api_error_message("Dice disconnect", exc))
 
-    uploaded = st.file_uploader("Resume", type=["pdf", "docx", "txt"])
-    if st.button("Analyze resume", type="primary", disabled=uploaded is None, use_container_width=True):
-        with st.status("Analyzing resume and extracting profile data...", expanded=True) as status:
-            try:
-                st.write("Uploading resume...")
-                result = api_request(
-                    "POST",
-                    "/resumes",
-                    files={"upload": (uploaded.name, uploaded.getvalue(), uploaded.type)},
-                )
-                st.write("Refreshing dashboard data...")
-                clear_cached_reads()
-                st.session_state.resume = result
-                st.session_state.pop("jobs", None)
-                status.update(label="Resume analyzed", state="complete")
-                st.success("Resume analyzed")
-            except Exception as exc:
-                status.update(label="Resume analysis failed", state="error")
-                st.error(api_error_message("Resume analysis", exc))
-
     if active_portal == "linkedin" and st.button(
         "LinkedIn connected" if linkedin_connected else "Connect LinkedIn",
         disabled=linkedin_connected,
@@ -307,8 +304,32 @@ with st.sidebar:
                 status.update(label="Dice connection failed", state="error")
                 st.error(api_error_message("Dice connection", exc))
 
-    st.divider()
-    st.subheader("Candidate profile")
+    st.markdown(theme.section_label("Resume"), unsafe_allow_html=True)
+    uploaded = st.file_uploader(
+        "Upload Resume",
+        type=["pdf", "docx", "txt"],
+        help="Drag & drop or browse a PDF, DOCX or TXT file.",
+    )
+    if st.button("Analyze resume", type="primary", disabled=uploaded is None, use_container_width=True):
+        with st.status("Analyzing resume and extracting profile data...", expanded=True) as status:
+            try:
+                st.write("Uploading resume...")
+                result = api_request(
+                    "POST",
+                    "/resumes",
+                    files={"upload": (uploaded.name, uploaded.getvalue(), uploaded.type)},
+                )
+                st.write("Refreshing dashboard data...")
+                clear_cached_reads()
+                st.session_state.resume = result
+                st.session_state.pop("jobs", None)
+                status.update(label="Resume analyzed", state="complete")
+                st.success("Resume analyzed")
+            except Exception as exc:
+                status.update(label="Resume analysis failed", state="error")
+                st.error(api_error_message("Resume analysis", exc))
+
+    st.markdown(theme.section_label("Profile"), unsafe_allow_html=True)
     if candidate_profile and candidate_profile.get("is_complete"):
         st.success("Profile complete")
     elif candidate_profile:
@@ -387,8 +408,6 @@ if resume:
     if resume["domain_expertise"]:
         st.caption(f"Domain expertise: {', '.join(resume['domain_expertise'])}")
 
-st.info(f"Active Portal: {portal_choice}")
-
 search_batches = []
 selected_batch_id = None
 if resume:
@@ -424,8 +443,16 @@ if search_batches:
     if selected_batch.get("status") in {"queued", "running", "failed"}:
         search_batch_status_card(selected_batch)
     if selected_batch.get("status") in {"queued", "running"}:
-        clear_cached_reads()
+        # Poll without wiping the whole read-cache each tick: the batch status
+        # itself is fetched uncached above, so clearing here only caused every
+        # other GET to refetch every 2 seconds.
+        st.session_state["_search_batch_polling"] = True
         time.sleep(2)
+        st.rerun()
+    elif st.session_state.pop("_search_batch_polling", False):
+        # The batch just finished: refresh cached reads once so the new jobs,
+        # summary and tables appear immediately.
+        clear_cached_reads()
         st.rerun()
 elif resume:
     st.caption("No saved search batches yet. Existing legacy jobs remain available.")
@@ -445,17 +472,37 @@ try:
 except Exception:
     st.info("Start the FastAPI service to load live data.")
 
-summary_cols = st.columns(4)
-summary_cols[0].metric("Matched", summary["matched_jobs"])
-summary_cols[1].metric("Easy Apply", summary["easy_apply_jobs"])
-summary_cols[2].metric("Applied", summary["applied_jobs"])
-summary_cols[3].metric("Needs review", summary["needs_review"])
-st.caption(
-    f"Automation results: {summary['failed_jobs']} failed · "
-    f"{summary['skipped_jobs']} skipped"
+linkedin_connected_flag = bool(active_status.get("linkedin_connected"))
+dice_connected_flag = bool(active_status.get("dice_connected"))
+st.markdown(
+    theme.kpi_grid(
+        [
+            {"label": "Resume", "icon": "file", "tone": "good" if resume else "muted",
+             "value": "Ready" if resume else "Not loaded",
+             "note": (resume or {}).get("filename")},
+            {"label": "LinkedIn", "icon": "linkedin",
+             "tone": "good" if linkedin_connected_flag else "muted",
+             "value": "Connected" if linkedin_connected_flag else "Offline"},
+            {"label": "Dice", "icon": "dice",
+             "tone": "good" if dice_connected_flag else "muted",
+             "value": "Connected" if dice_connected_flag else "Offline"},
+            {"label": "Jobs matched", "icon": "target", "value": summary["matched_jobs"]},
+            {"label": "Easy Apply", "icon": "zap", "value": summary["easy_apply_jobs"]},
+            {"label": "Applications", "icon": "send", "value": summary["applied_jobs"], "tone": "good"},
+            {"label": "Needs review", "icon": "eye", "value": summary["needs_review"]},
+            {"label": "Failed / skipped", "icon": "alert",
+             "tone": "warn" if summary["failed_jobs"] else "muted",
+             "value": f"{summary['failed_jobs']} / {summary['skipped_jobs']}"},
+        ]
+    ),
+    unsafe_allow_html=True,
 )
 
-tab_matches, tab_history, tab_profile, tab_employment, tab_screening, tab_reasoning, tab_form_learning, tab_generalized_form, tab_performance = st.tabs(
+# Segmented navigation instead of st.tabs: st.tabs executes EVERY tab body on
+# every rerun; this renders only the active section (fewer API calls, faster
+# reruns). Purely a frontend change - each section's code is unchanged.
+nav_section = st.radio(
+    "Dashboard section",
     [
         "Matched jobs",
         "Application history",
@@ -466,10 +513,13 @@ tab_matches, tab_history, tab_profile, tab_employment, tab_screening, tab_reason
         "AI Form Learning",
         "Generalized Form Engine",
         "Performance",
-    ]
+    ],
+    horizontal=True,
+    label_visibility="collapsed",
+    key="main_nav",
 )
 
-with tab_matches:
+if nav_section == "Matched jobs":
     search_col, location_col, action_col = st.columns([2, 2, 1])
     suggested_roles = [
         item["role"]
@@ -872,7 +922,7 @@ with tab_matches:
     else:
         st.caption("No matched jobs yet.")
 
-with tab_history:
+if nav_section == "Application history":
     try:
         application_path = f"/applications?resume_id={resume['id']}" if resume else "/applications"
         application_path = add_query_params(application_path, search_batch_id=selected_batch_id, portal=selected_portal)
@@ -884,7 +934,7 @@ with tab_history:
     else:
         st.caption("No application history yet.")
 
-with tab_profile:
+if nav_section == "Profile":
     st.subheader("Candidate contact profile")
     with st.form("candidate_profile_form"):
         col_a, col_b = st.columns(2)
@@ -1034,7 +1084,7 @@ with tab_profile:
     else:
         st.caption("Upload and analyze a resume to view the profile.")
 
-with tab_employment:
+if nav_section == "Employment History":
     st.subheader("Employment history")
     try:
         employment_path = f"/employment-history?resume_id={resume['id']}" if resume else "/employment-history"
@@ -1156,7 +1206,7 @@ with tab_employment:
                 except Exception as exc:
                     st.error(api_error_message("Employment history delete", exc))
 
-with tab_screening:
+if nav_section == "Screening Knowledge":
     st.subheader("Screening automation")
     current_mode = (screening_settings.get("mode") or "safe").lower()
     mode_label = "Aggressive Mode" if current_mode == "aggressive" else "Safe Mode"
@@ -1289,7 +1339,7 @@ with tab_screening:
                 except Exception as exc:
                     st.error(api_error_message("Save screening answer", exc))
 
-with tab_reasoning:
+if nav_section == "AI Reasoning":
     st.subheader("AI reasoning")
     try:
         intelligence = cached_get("/resume-intelligence/latest")
@@ -1438,7 +1488,7 @@ with tab_reasoning:
             st.markdown("**Job description metadata**")
             st.json(job_description)
 
-with tab_form_learning:
+if nav_section == "AI Form Learning":
     st.subheader("AI Form Learning")
     try:
         learned_fields = cached_get("/form-learning")
@@ -1486,7 +1536,7 @@ with tab_form_learning:
     else:
         st.caption("No learned form fields yet. They will appear after application dry-runs or submissions process fields.")
 
-with tab_generalized_form:
+if nav_section == "Generalized Form Engine":
     st.subheader("Generalized Form Engine")
     st.caption("Detects field meaning and fill strategy only. Answers still come from the unified decision pipeline.")
     try:
@@ -1525,7 +1575,7 @@ with tab_generalized_form:
     else:
         st.caption("No generalized form diagnostics yet.")
 
-with tab_performance:
+if nav_section == "Performance":
     try:
         performance = cached_get("/performance/latest")
     except Exception:
