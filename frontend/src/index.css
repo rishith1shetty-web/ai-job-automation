@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn/ui semantic tokens mapped onto the Rising Path brand palette.
+   HSL triplets (no hsl() wrapper) so Tailwind's hsl(var(--x)) composition works. */
+@layer base {
+  :root {
+    --background: 40 33% 98%; /* #FAF9F7 parchment */
+    --foreground: 27 35% 18%; /* #3E2E1E ink */
+
+    --card: 0 0% 100%;
+    --card-foreground: 27 35% 18%;
+
+    --primary: 35 87% 54%; /* #F0A824 gold */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 52% 36%; /* #8A5A2B brown */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 36 30% 94%;
+    --muted-foreground: 30 8% 45%;
+
+    --accent: 37 90% 94%; /* #FEF3E2 amber */
+    --accent-foreground: 30 52% 27%;
+
+    --destructive: 0 72% 42%; /* #B91C1C */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 33 27% 87%; /* #E7E0D8 */
+    --input: 33 27% 87%;
+    --ring: 35 87% 54%; /* gold focus ring */
+
+    --radius: 14px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-parchment-bg text-foreground font-sans antialiased;
+  }
+}
