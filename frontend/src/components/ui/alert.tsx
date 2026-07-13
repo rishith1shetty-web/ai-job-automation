@@ -22,9 +22,17 @@ export interface AlertProps
 
 export function Alert({ className, variant = "info", children, ...props }: AlertProps) {
   const Icon = ICONS[variant ?? "info"];
+  // Errors/warnings announce assertively; info/success politely. Keeps screen-reader
+  // feedback meaningful without changing any of the visible wording.
+  const assertive = variant === "danger" || variant === "warn";
   return (
-    <div className={cn(alertVariants({ variant }), className)} role="status" {...props}>
-      <Icon className="mt-0.5 size-4 shrink-0" />
+    <div
+      className={cn(alertVariants({ variant }), className)}
+      role={assertive ? "alert" : "status"}
+      aria-live={assertive ? "assertive" : "polite"}
+      {...props}
+    >
+      <Icon className="mt-0.5 size-4 shrink-0" aria-hidden />
       <div className="font-semibold leading-snug">{children}</div>
     </div>
   );

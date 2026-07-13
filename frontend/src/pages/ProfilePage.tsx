@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert } from "@/components/ui/alert";
 import { SectionHeading, ProgressCell } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
 import { useCandidateProfile, useSaveCandidateProfile } from "@/api/resume";
 import { useLatestResume } from "@/api/resume";
@@ -87,7 +88,7 @@ export function ProfilePage() {
       <Card>
         <CardContent className="pt-4">
           {isLoading ? (
-            <div className="h-64 animate-pulse rounded-lg bg-[#F3EDE3]" />
+            <Skeleton className="h-64 border-0" />
           ) : (
             // Re-seed defaults whenever the saved profile changes (after save/refetch).
             <form key={profile?.updated_at ?? "new"} className="grid grid-cols-1 gap-4 md:grid-cols-2" onSubmit={onSubmit}>

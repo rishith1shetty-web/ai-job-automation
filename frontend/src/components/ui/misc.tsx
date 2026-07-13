@@ -1,3 +1,4 @@
+import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "./badge";
 import type { ApplicationStatus } from "@/types";
@@ -48,15 +49,18 @@ export function SectionHeading({ title, subtitle, className }: { title: string; 
 
 export function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-parchment-border bg-white/60 px-5 py-8 text-center text-sm text-[#7A7268]">
-      {message}
+    <div className="flex flex-col items-center gap-2.5 rounded-lg border border-dashed border-parchment-border bg-white/60 px-5 py-9 text-center">
+      <span className="flex size-10 items-center justify-center rounded-full bg-parchment-amber text-gold-text" aria-hidden>
+        <Inbox className="size-5" />
+      </span>
+      <p className="max-w-md text-sm text-[#6B6459]">{message}</p>
     </div>
   );
 }
 
 export function Metric({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
-    <div className="rounded-lg border border-parchment-border bg-card px-4 py-3 shadow-card transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lift">
+    <div className="flex min-h-[74px] flex-col justify-center rounded-lg border border-parchment-border bg-card px-4 py-3 shadow-card transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lift">
       <div className="text-[.72rem] font-semibold uppercase tracking-[.06em] text-[#8A8580]">{label}</div>
       <div className="mt-1 text-2xl font-extrabold tabular-nums text-ink">{value}</div>
       {hint && <div className="mt-0.5 text-xs text-[#8A8580]">{hint}</div>}

@@ -1,4 +1,5 @@
 import { Metric, SectionHeading, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePerformance } from "@/api/evidence";
 
 const secs = (ms: number | undefined) => `${((ms ?? 0) / 1000).toFixed(1)}s`;
@@ -7,7 +8,7 @@ export function PerformancePage() {
   const { data, isLoading } = usePerformance();
 
   if (isLoading) {
-    return <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />;
+    return <Skeleton className="h-40" />;
   }
   if (!data?.available) {
     return (

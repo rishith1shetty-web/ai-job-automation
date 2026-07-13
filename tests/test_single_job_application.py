@@ -79,7 +79,7 @@ class FakeApplicationAutomation:
         self.__class__.processed_resume_ids.append(_resume.id)
         self.__class__.processed_resume_paths.append(_resume.stored_path)
         return AutomationResult(
-            status=ApplicationStatus.SKIPPED if dry_run else ApplicationStatus.APPLIED,
+            status=ApplicationStatus.DRY_RUN_READY if dry_run else ApplicationStatus.APPLIED,
             message="Dry run completed." if dry_run else None,
             log=[{"event": "processed", "job_id": job.id}],
             current_step="dry_run_complete" if dry_run else "confirmation_received",
@@ -101,7 +101,7 @@ class FailingSecondJobAutomation(FakeApplicationAutomation):
         if len(self.__class__.processed_job_ids) == 2:
             raise RuntimeError("Synthetic per-job failure")
         return AutomationResult(
-            status=ApplicationStatus.SKIPPED,
+            status=ApplicationStatus.DRY_RUN_READY,
             message="Dry run completed.",
             log=[{"event": "processed", "job_id": job.id}],
             current_step="dry_run_complete",
@@ -125,7 +125,7 @@ class RadioFailureSecondJobAutomation(FakeApplicationAutomation):
         if len(self.__class__.processed_job_ids) == 2:
             raise RuntimeError("Radio option was clicked but LinkedIn did not accept the selection.")
         return AutomationResult(
-            status=ApplicationStatus.SKIPPED,
+            status=ApplicationStatus.DRY_RUN_READY,
             message="Dry run completed.",
             log=[{"event": "processed", "job_id": job.id}],
             current_step="dry_run_complete",
@@ -1267,7 +1267,8 @@ class SingleJobApplicationTests(unittest.TestCase):
                 )
 
             evidence_path = Path(result.evidence_path)
-            self.assertEqual(result.status, ApplicationStatus.SKIPPED)
+            # A dry run that reaches the submit/review stage is a successful completed run.
+            self.assertEqual(result.status, ApplicationStatus.DRY_RUN_READY)
             self.assertEqual(result.current_step, "dry_run_complete")
             self.assertTrue((evidence_path / "application_log.json").exists())
             screenshots = settings.live_test_output_dir / "screenshots" / evidence_path.name
@@ -1679,7 +1680,7 @@ class SingleJobApplicationTests(unittest.TestCase):
                     capture_evidence=True,
                 )
 
-            self.assertEqual(result.status, ApplicationStatus.SKIPPED)
+            self.assertEqual(result.status, ApplicationStatus.DRY_RUN_READY)
             self.assertEqual(result.current_step, "dry_run_complete")
             self.assertEqual(phone.filled_values, ["5551234567"])
             self.assertEqual(result.missing_contact_fields, [])

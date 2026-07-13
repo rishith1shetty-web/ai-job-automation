@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { SectionHeading, StatusBadge, ProgressCell, Metric, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
 import { downloadCsv } from "@/lib/csv";
 import { extractScreeningDecisions } from "@/lib/screening";
@@ -198,7 +199,9 @@ export function MatchedJobsPage() {
   const queryClient = useQueryClient();
 
   const portal = portalStatus?.active_portal;
-  const screeningMode = (screeningSettings?.mode ?? "safe").toLowerCase();
+  // Match dashboard.py's `(screening_settings.get("mode") or "safe").lower()` — Python
+  // `or` falls back on an empty string too, so use || (not ??) for exact parity.
+  const screeningMode = (screeningSettings?.mode || "safe").toLowerCase();
   const jobsQuery = useJobs(resume?.id, selectedBatchId, portal);
   const startSearch = useStartSearch();
   const jobs = jobsQuery.data ?? [];
@@ -250,9 +253,13 @@ export function MatchedJobsPage() {
   const applyBulkDisabled = resume == null || startApplyTop.isPending;
 
   const resolveKeywords = (): string | null => {
+    // Mirror dashboard.py exactly: "All suggested roles" -> None; "Manual override" ->
+    // the raw text_input value (may be ""); otherwise the substring after the FIRST
+    // ": " (Python's split(": ", 1)[1]) so role names containing ": " are preserved.
     if (searchChoice === "All suggested roles") return null;
-    if (searchChoice === "Manual override") return manualRole || null;
-    return searchChoice.split(": ", 2)[1] ?? null;
+    if (searchChoice === "Manual override") return manualRole;
+    const idx = searchChoice.indexOf(": ");
+    return idx === -1 ? searchChoice : searchChoice.slice(idx + 2);
   };
   const resolveLocation = () => (locationChoice === "Custom" ? customLocation : locationChoice);
 
@@ -306,6 +313,55 @@ export function MatchedJobsPage() {
       { key: "job_url", label: "Job URL" },
     ]);
 
+  // The matched-jobs table and single-job radio list can each hold up to ~250 rows.
+  // Memoise them so the heavy row work only reruns when the jobs (or the current radio
+  // selection) actually change — not on every Dry Run toggle or search-control keystroke.
+  const jobRows = useMemo(
+    () =>
+      jobs.map((job) => (
+        <TableRow key={job.id}>
+          <TableCell className="font-semibold text-ink">{job.title}</TableCell>
+          <TableCell>{job.company}</TableCell>
+          <TableCell className="capitalize">{job.portal}</TableCell>
+          <TableCell><ProgressCell value={job.match_score} /></TableCell>
+          <TableCell><ProgressCell value={job.application_friction_score} suffix="" /></TableCell>
+          <TableCell>
+            <Badge variant={job.recommended_apply_priority === "High" ? "success" : job.recommended_apply_priority === "Low" ? "muted" : "gold"}>
+              {job.recommended_apply_priority ?? "—"}
+            </Badge>
+          </TableCell>
+          <TableCell>{job.easy_apply ? "Yes" : "No"}</TableCell>
+          <TableCell><StatusBadge status={job.status} /></TableCell>
+          <TableCell>
+            <a href={job.job_url} target="_blank" rel="noreferrer" className="font-semibold text-gold-text hover:underline">
+              Open
+            </a>
+          </TableCell>
+        </TableRow>
+      )),
+    [jobs],
+  );
+
+  const jobRadios = useMemo(
+    () =>
+      jobs.map((job) => {
+        const label = jobRadioLabel(job);
+        return (
+          <label key={job.id} className="flex cursor-pointer items-center gap-2 text-sm text-[#4B5563]">
+            <input
+              type="radio"
+              name="job-select"
+              className="accent-[#D97706]"
+              checked={selectedLabel === label}
+              onChange={() => setSelectedLabel(label)}
+            />
+            {label}
+          </label>
+        );
+      }),
+    [jobs, selectedLabel],
+  );
+
   return (
     <div className="space-y-5">
       <SectionHeading title="Matched jobs" subtitle="Search, rank and dry-run apply to jobs for the active portal." />
@@ -357,7 +413,7 @@ export function MatchedJobsPage() {
 
       {/* Matched jobs table — LIVE: GET /jobs */}
       {jobsQuery.isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton className="h-40" />
       ) : jobsQuery.isError ? (
         <Alert variant="danger">{apiErrorMessage("Load jobs", jobsQuery.error)}</Alert>
       ) : jobs.length === 0 ? (
@@ -378,29 +434,7 @@ export function MatchedJobsPage() {
                 <TableHead>Job URL</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {jobs.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell className="font-semibold text-ink">{job.title}</TableCell>
-                  <TableCell>{job.company}</TableCell>
-                  <TableCell className="capitalize">{job.portal}</TableCell>
-                  <TableCell><ProgressCell value={job.match_score} /></TableCell>
-                  <TableCell><ProgressCell value={job.application_friction_score} suffix="" /></TableCell>
-                  <TableCell>
-                    <Badge variant={job.recommended_apply_priority === "High" ? "success" : job.recommended_apply_priority === "Low" ? "muted" : "gold"}>
-                      {job.recommended_apply_priority ?? "—"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{job.easy_apply ? "Yes" : "No"}</TableCell>
-                  <TableCell><StatusBadge status={job.status} /></TableCell>
-                  <TableCell>
-                    <a href={job.job_url} target="_blank" rel="noreferrer" className="font-semibold text-gold-text hover:underline">
-                      Open
-                    </a>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            <TableBody>{jobRows}</TableBody>
           </Table>
 
           <Button onClick={exportCsv}>
@@ -413,21 +447,7 @@ export function MatchedJobsPage() {
               <CardTitle>Select one job for individual testing</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {jobs.map((job) => {
-                const label = jobRadioLabel(job);
-                return (
-                  <label key={job.id} className="flex cursor-pointer items-center gap-2 text-sm text-[#4B5563]">
-                    <input
-                      type="radio"
-                      name="job-select"
-                      className="accent-[#D97706]"
-                      checked={selectedLabel === label}
-                      onChange={() => setSelectedLabel(label)}
-                    />
-                    {label}
-                  </label>
-                );
-              })}
+              {jobRadios}
               {selectedJob && (
                 <p className="pt-1 text-sm text-[#8A8580]">
                   Selected job: {selectedJob.title} at {selectedJob.company}

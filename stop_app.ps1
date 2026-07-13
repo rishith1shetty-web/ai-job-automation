@@ -10,7 +10,7 @@ function Stop-AppProcess {
     }
 }
 
-foreach ($name in @("api", "streamlit")) {
+foreach ($name in @("api", "vite", "streamlit")) {
     $pidFile = Join-Path $work "$name.pid"
     if (Test-Path $pidFile) {
         $savedProcessId = [int](Get-Content $pidFile)
@@ -19,7 +19,10 @@ foreach ($name in @("api", "streamlit")) {
     }
 }
 
-foreach ($port in @(8000, 8501)) {
+# Ports: 8000 FastAPI, 5173 React/Vite, 8501 Streamlit fallback. Only processes owned by
+# THIS project (by executable path or a command line referencing the project root) are
+# stopped, so unrelated Node/Python servers are never touched.
+foreach ($port in @(8000, 5173, 8501)) {
     $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue |
         Where-Object { $_.State -eq "Listen" -or $_.State -eq "Bound" }
     foreach ($connection in $connections) {
@@ -44,4 +47,4 @@ foreach ($port in @(8000, 8501)) {
     }
 }
 
-Write-Host "Job Match Console stopped."
+Write-Host "Rising Path Recruiters stopped (FastAPI, React/Vite and Streamlit fallback)."

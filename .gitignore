@@ -5,3 +5,15 @@ __pycache__/
 .pytest_cache/
 storage/
 .streamlit/
+
+# Runtime and generated files
+outputs/
+work/
+*.log
+*.pid
+__pycache__/
+.pytest_cache/
+*.pyc
+frontend/dist/
+frontend/node_modules/
+frontend/*.tsbuildinfo

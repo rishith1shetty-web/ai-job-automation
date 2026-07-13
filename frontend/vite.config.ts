@@ -42,5 +42,19 @@ export default defineConfig(({ mode }) => {
       host: "127.0.0.1",
       port: 4173,
     },
+    build: {
+      // Split rarely-changing vendor libraries into their own long-cache chunks so a
+      // change to app code doesn't bust the whole bundle. Page chunks are produced
+      // automatically by the React.lazy() route split in App.tsx.
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "react-vendor": ["react", "react-dom", "react-router-dom"],
+            "query-vendor": ["@tanstack/react-query"],
+            icons: ["lucide-react"],
+          },
+        },
+      },
+    },
   };
 });

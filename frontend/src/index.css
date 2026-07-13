@@ -39,7 +39,58 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-parchment-bg text-foreground font-sans antialiased;
+    /* Safeguard against accidental page-level horizontal scroll; wide content
+       (tables) scrolls inside its own overflow container, not the page. */
+    overflow-x: hidden;
+  }
+  /* Consistent keyboard focus affordance for links and native form controls that
+     don't already declare a focus-visible ring (buttons/inputs style their own). */
+  a:focus-visible,
+  [role="radio"]:focus-visible,
+  input[type="file"]:focus-visible + *,
+  input[type="radio"]:focus-visible,
+  input[type="checkbox"]:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Loading shimmer used by the shared Skeleton component. */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@layer utilities {
+  .skeleton {
+    background: linear-gradient(100deg, #efe8dd 30%, #f7f2ea 50%, #efe8dd 70%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+/* Accessibility: honour the user's reduced-motion preference everywhere. All brand
+   animations (fade-in, shimmer, hover lifts, progress transitions) collapse to an
+   instant, non-distracting state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
   }
 }

@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SectionHeading, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGeneralizedForm, useGeneralizedFormLatest } from "@/api/evidence";
 
 type Dict = Record<string, unknown>;
@@ -23,7 +24,7 @@ export function GeneralizedFormEnginePage() {
       />
 
       {metadata.isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton className="h-40" />
       ) : fields.length === 0 ? (
         <EmptyState message="No generalized form metadata stored yet." />
       ) : (

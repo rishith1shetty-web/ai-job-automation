@@ -30,6 +30,8 @@ def init_db() -> None:
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS generated_search_keywords JSONB DEFAULT '[]'::jsonb NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS generated_search_query TEXT",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS role_confidence DOUBLE PRECISION DEFAULT 0 NOT NULL",
+        "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS resume_fingerprint VARCHAR(64)",
+        "CREATE INDEX IF NOT EXISTS ix_resume_profiles_fingerprint ON resume_profiles (resume_fingerprint)",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS dry_run BOOLEAN DEFAULT TRUE NOT NULL",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS current_step VARCHAR(255)",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS evidence_path VARCHAR(1024)",
@@ -292,6 +294,18 @@ def init_db() -> None:
     with engine.begin() as connection:
         for statement in migrations:
             connection.execute(text(statement))
+
+    # Idempotent data backfills. Both only correct rows that predate a fix, so repeated
+    # startups are no-ops. Imported lazily to avoid an import cycle.
+    #   1. Derive resume fingerprints from already-stored parsed text.
+    #   2. Re-label historical successful dry runs that were persisted as SKIPPED so they
+    #      appear in Application History.
+    from app.services.application_outcome import backfill_dry_run_ready_records
+    from app.services.resume_identity import backfill_resume_fingerprints
+
+    with SessionLocal() as session:
+        backfill_resume_fingerprints(session)
+        backfill_dry_run_ready_records(session)
 
 
 def get_db() -> Generator[Session, None, None]:

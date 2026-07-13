@@ -22,6 +22,11 @@ export function Logo({ size = 40, className }: LogoProps) {
       alt="Rising Path Recruiters"
       width={size}
       height={size}
+      // Brand mark is above the fold on every route (TopNav/Sidebar), so load it eagerly
+      // at high priority; explicit width/height already reserve space (no layout shift).
+      // Every usage points at the same URL, so the browser fetches it exactly once.
+      loading="eager"
+      fetchPriority="high"
       decoding="async"
       draggable={false}
       className={cn("select-none object-contain", className)}

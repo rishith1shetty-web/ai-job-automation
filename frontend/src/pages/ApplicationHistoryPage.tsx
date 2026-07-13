@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert } from "@/components/ui/alert";
 import { SectionHeading, StatusBadge, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
 import { useLatestResume } from "@/api/resume";
 import { usePortalStatus } from "@/api/portal";
@@ -22,7 +23,7 @@ export function ApplicationHistoryPage() {
     <div className="space-y-4">
       <SectionHeading title="Application history" subtitle="Every apply attempt recorded for the active portal." />
       {isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton className="h-40" />
       ) : isError ? (
         <Alert variant="danger">{apiErrorMessage("Load application history", error)}</Alert>
       ) : applications.length === 0 ? (

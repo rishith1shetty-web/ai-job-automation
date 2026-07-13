@@ -51,6 +51,30 @@ The application never rewrites or tailors the uploaded resume. Browser automatio
 
 Open `http://localhost:8501`.
 
+### One-command local startup (recommended)
+
+`start_app.ps1` is the primary local workflow. It starts FastAPI and the **React
+dashboard** (the primary UI) and opens the browser to React. Streamlit is kept as an
+optional fallback and is not started unless you ask for it.
+
+```powershell
+.\start_app.ps1                 # FastAPI + React (primary); opens http://127.0.0.1:5173
+.\start_app.ps1 -WithStreamlit  # also start the Streamlit fallback on :8501
+.\start_app.ps1 -NoBrowser      # start without opening a browser
+.\stop_app.ps1                  # stop ONLY this project's FastAPI, React/Vite and Streamlit
+```
+
+Local URLs:
+
+- React dashboard (primary): `http://127.0.0.1:5173`
+- FastAPI backend / health: `http://127.0.0.1:8000` (`/health`)
+- Streamlit fallback (optional): `http://127.0.0.1:8501`
+
+React talks to FastAPI through the Vite dev proxy (`/api` → `http://localhost:8000`), so
+no CORS configuration is required. Streamlit remains fully supported as a fallback — run
+`streamlit run dashboard.py` directly, or start it alongside React with `-WithStreamlit`.
+`dashboard.py` is unchanged.
+
 ## First Run
 
 1. Upload and analyze a resume.

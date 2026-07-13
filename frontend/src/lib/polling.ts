@@ -1,0 +1,7 @@
+// Shared TanStack Query refetchInterval policy for background batches (job search and
+// apply-top). Poll every 2s while the batch is queued/running; stop once it reaches a
+// terminal state. This mirrors the Streamlit dashboard, which re-reads batch status on
+// each rerun only while the batch is still active.
+export function pollWhileActive(status: string | undefined | null): number | false {
+  return status === "queued" || status === "running" ? 2000 : false;
+}

@@ -70,7 +70,10 @@ export function Sidebar() {
     switchPortal.mutate(radio, { onSuccess: () => setRadioOverride(null) });
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col gap-3 border-r border-[#E3D9CB] bg-parchment-sidebar px-4 py-4">
+    <aside
+      aria-label="Portal, resume and profile controls"
+      className="sticky top-0 flex h-dvh w-72 shrink-0 flex-col gap-3 overflow-y-auto border-r border-[#E3D9CB] bg-parchment-sidebar px-4 py-4"
+    >
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-[#E3D9CB] pb-4">
         <Logo size={44} />

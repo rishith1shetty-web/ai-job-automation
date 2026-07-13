@@ -31,18 +31,20 @@ export function TopNav() {
         </div>
       </div>
       <div className="flex-1" />
-      <Badge variant="gold" dot>
-        Active portal: {portalLabel}
-      </Badge>
-      <Badge variant={linkedinConnected ? "success" : "muted"} dot>
-        {linkedinConnected ? "LinkedIn connected" : "LinkedIn offline"}
-      </Badge>
-      <Badge variant={diceConnected ? "success" : "muted"} dot>
-        {diceConnected ? "Dice connected" : "Dice offline"}
-      </Badge>
-      <Badge variant={health.isError ? "danger" : health.isLoading ? "muted" : "success"} dot>
-        {health.isError ? "Backend unreachable" : health.isLoading ? "Checking backend…" : "Backend online"}
-      </Badge>
+      <div className="flex flex-wrap items-center gap-2 sm:border-l sm:border-parchment-border sm:pl-3" role="status" aria-label="Portal and backend status">
+        <Badge variant="gold" dot>
+          Active portal: {portalLabel}
+        </Badge>
+        <Badge variant={linkedinConnected ? "success" : "muted"} dot>
+          {linkedinConnected ? "LinkedIn connected" : "LinkedIn offline"}
+        </Badge>
+        <Badge variant={diceConnected ? "success" : "muted"} dot>
+          {diceConnected ? "Dice connected" : "Dice offline"}
+        </Badge>
+        <Badge variant={health.isError ? "danger" : health.isLoading ? "muted" : "success"} dot>
+          {health.isError ? "Backend unreachable" : health.isLoading ? "Checking backend…" : "Backend online"}
+        </Badge>
+      </div>
     </header>
   );
 }

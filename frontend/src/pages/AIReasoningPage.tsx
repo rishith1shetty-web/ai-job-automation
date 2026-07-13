@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/input";
 import { SectionHeading, ProgressCell, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useResumeIntelligence, useReasoning } from "@/api/evidence";
 
 type Dict = Record<string, unknown>;
@@ -29,7 +30,7 @@ export function AIReasoningPage() {
   const jobDescription = reas?.job_description_analysis;
 
   if (intelligence.isLoading || reasoning.isLoading) {
-    return <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />;
+    return <Skeleton className="h-40" />;
   }
 
   return (

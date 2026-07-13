@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Metric, ProgressCell, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Field, Select } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
@@ -15,7 +16,7 @@ function StatSkeleton() {
   return (
     <div className="grid grid-cols-3 gap-3">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-[70px] animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton key={i} className="h-[70px]" />
       ))}
     </div>
   );

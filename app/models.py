@@ -30,6 +30,10 @@ class ResumeProfile(Base):
     filename: Mapped[str] = mapped_column(String(255))
     stored_path: Mapped[str] = mapped_column(String(1024))
     raw_text: Mapped[str] = mapped_column(Text)
+    # SHA-256 of the normalized parsed resume text — a stable identity for the same
+    # resume across repeated uploads (which may receive different ids). Nullable so
+    # legacy/unfingerprintable rows are left untouched. See services/resume_identity.py.
+    resume_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     skills: Mapped[list[str]] = mapped_column(JSONB, default=list)
     experience: Mapped[list[dict]] = mapped_column(JSONB, default=list)
     education: Mapped[list[dict]] = mapped_column(JSONB, default=list)

@@ -1,21 +1,34 @@
 param(
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$WithStreamlit
 )
 
 $ErrorActionPreference = "Stop"
 
 $projectRoot = $PSScriptRoot
 $python = Join-Path $projectRoot ".venv\Scripts\python.exe"
+$frontend = Join-Path $projectRoot "frontend"
 $outputs = Join-Path $projectRoot "outputs"
 $work = Join-Path $projectRoot "work"
 $apiStdout = Join-Path $outputs "api.stdout.log"
 $apiStderr = Join-Path $outputs "api.stderr.log"
+$viteStdout = Join-Path $outputs "vite.stdout.log"
+$viteStderr = Join-Path $outputs "vite.stderr.log"
 $streamlitStdout = Join-Path $outputs "streamlit.stdout.log"
 $streamlitStderr = Join-Path $outputs "streamlit.stderr.log"
 $playwrightBrowsers = Join-Path $projectRoot "storage\ms-playwright"
 
 if (-not (Test-Path $python)) {
     throw "Python virtual environment was not found at $python"
+}
+
+# Resolve Node now, while the full PATH is still available (it is minimised below so the
+# backend's Playwright uses the bundled browsers). Only the Vite dev server needs Node;
+# FastAPI and Streamlit do not.
+$nodeExe = (Get-Command node.exe -ErrorAction SilentlyContinue).Source
+if (-not $nodeExe) { $nodeExe = "C:\Program Files\nodejs\node.exe" }
+if (-not (Test-Path $nodeExe)) {
+    throw "Node.js was not found (looked for node.exe on PATH and at $nodeExe). Install Node.js to run the React dashboard."
 }
 
 New-Item -ItemType Directory -Force -Path $outputs, $work | Out-Null
@@ -63,7 +76,10 @@ function Stop-ProjectProcessOnPort {
         # (e.g. started from a different Python interpreter with the venv injected via
         # PYTHONPATH) are cleaned up instead of being left to serve on the port.
         $isAppCommand = $commandLine -and ($commandLine -match "uvicorn\s+app\.main:app" -or $commandLine -match "streamlit\s+run\s+dashboard\.py")
-        if ($isProjectPython -or ($isProjectCommand -and $isPython) -or $isAppCommand) {
+        # The React dev server runs as node.exe (outside the project tree), so match it by
+        # a command line that references THIS project's Vite entry — never an unrelated node.
+        $isProjectNode = $commandLine -and $commandLine.Contains($projectRoot) -and $process.ProcessName -match "node"
+        if ($isProjectPython -or ($isProjectCommand -and $isPython) -or $isAppCommand -or $isProjectNode) {
             Write-Step "Stopping stale process $($process.Id) on port $Port."
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         }
@@ -152,10 +168,12 @@ function Wait-HttpOk {
 [Environment]::SetEnvironmentVariable("Path", "C:\Windows\System32;C:\Windows", "Process")
 [Environment]::SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", $playwrightBrowsers, "Process")
 
-Write-Step "Checking ports 8000 and 8501."
+Write-Step "Checking ports 8000, 5173 and 8501."
 Stop-PidFileProcess "api"
+Stop-PidFileProcess "vite"
 Stop-PidFileProcess "streamlit"
 Stop-ProjectProcessOnPort 8000
+Stop-ProjectProcessOnPort 5173
 Stop-ProjectProcessOnPort 8501
 
 Write-Step "Checking PostgreSQL."
@@ -163,6 +181,8 @@ Start-PostgresIfAvailable
 
 Set-Content -Path $apiStdout -Value ""
 Set-Content -Path $apiStderr -Value ""
+Set-Content -Path $viteStdout -Value ""
+Set-Content -Path $viteStderr -Value ""
 Set-Content -Path $streamlitStdout -Value ""
 Set-Content -Path $streamlitStderr -Value ""
 
@@ -184,30 +204,73 @@ if ($api.HasExited) {
 }
 Wait-HttpOk "http://127.0.0.1:8000/health" "FastAPI" $apiStdout $apiStderr
 
-Write-Step "Starting Streamlit on http://127.0.0.1:8501."
-$dashboard = Start-Process `
-    -FilePath $python `
-    -ArgumentList "-m", "streamlit", "run", "dashboard.py", "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true" `
-    -WorkingDirectory $projectRoot `
-    -RedirectStandardOutput $streamlitStdout `
-    -RedirectStandardError $streamlitStderr `
+# Streamlit is now the OPTIONAL fallback (not the default). Start it only on request.
+if ($WithStreamlit) {
+    Write-Step "Starting Streamlit fallback on http://127.0.0.1:8501."
+    $dashboard = Start-Process `
+        -FilePath $python `
+        -ArgumentList "-m", "streamlit", "run", "dashboard.py", "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true" `
+        -WorkingDirectory $projectRoot `
+        -RedirectStandardOutput $streamlitStdout `
+        -RedirectStandardError $streamlitStderr `
+        -WindowStyle Hidden `
+        -PassThru
+    Set-Content (Join-Path $work "streamlit.pid") $dashboard.Id
+    Start-Sleep -Seconds 1
+    if ($dashboard.HasExited) {
+        Show-LogTail $streamlitStdout
+        Show-LogTail $streamlitStderr
+        throw "Streamlit exited during startup with code $($dashboard.ExitCode)."
+    }
+    Wait-HttpOk "http://127.0.0.1:8501" "Streamlit" $streamlitStdout $streamlitStderr
+}
+else {
+    Write-Step "Skipping Streamlit fallback (pass -WithStreamlit to start it on :8501)."
+}
+
+# React/Vite dev server — the PRIMARY local dashboard. Launch Vite through Node directly
+# so the recorded PID is the actual server (no npm.cmd wrapper to orphan). The Vite proxy
+# forwards /api to FastAPI, so no CORS/backend change is needed.
+$viteEntry = Join-Path $frontend "node_modules\vite\bin\vite.js"
+if (-not (Test-Path $viteEntry)) {
+    throw "Vite was not found at $viteEntry. Run 'npm install' in the frontend folder first."
+}
+Write-Step "Starting React (Vite) on http://127.0.0.1:5173."
+$vite = Start-Process `
+    -FilePath $nodeExe `
+    -ArgumentList $viteEntry `
+    -WorkingDirectory $frontend `
+    -RedirectStandardOutput $viteStdout `
+    -RedirectStandardError $viteStderr `
     -WindowStyle Hidden `
     -PassThru
-Set-Content (Join-Path $work "streamlit.pid") $dashboard.Id
+Set-Content (Join-Path $work "vite.pid") $vite.Id
 Start-Sleep -Seconds 1
-if ($dashboard.HasExited) {
-    Show-LogTail $streamlitStdout
-    Show-LogTail $streamlitStderr
-    throw "Streamlit exited during startup with code $($dashboard.ExitCode)."
+if ($vite.HasExited) {
+    Show-LogTail $viteStdout
+    Show-LogTail $viteStderr
+    throw "React (Vite) exited during startup with code $($vite.ExitCode)."
 }
-Wait-HttpOk "http://127.0.0.1:8501" "Streamlit" $streamlitStdout $streamlitStderr
+Wait-HttpOk "http://127.0.0.1:5173" "React" $viteStdout $viteStderr
 
+# Open the React dashboard (the primary UI) — not Streamlit.
 if (-not $NoBrowser) {
-    Start-Process "http://127.0.0.1:8501"
+    Start-Process "http://127.0.0.1:5173"
 }
+
+$streamlitStatus = if ($WithStreamlit) { "running at http://127.0.0.1:8501" } else { "not started  (run: .\start_app.ps1 -WithStreamlit)" }
 
 Write-Host ""
-Write-Host "Job Match Console is running:"
-Write-Host "  Dashboard: http://127.0.0.1:8501"
-Write-Host "  API health: http://127.0.0.1:8000/health"
+Write-Host "Rising Path Recruiters is running:"
+Write-Host "  React dashboard (PRIMARY): http://127.0.0.1:5173"
+Write-Host "  FastAPI backend:           http://127.0.0.1:8000"
+Write-Host "  FastAPI health:            http://127.0.0.1:8000/health"
+Write-Host "  Streamlit fallback:        $streamlitStatus"
+Write-Host ""
+Write-Host "  Process status:"
+Write-Host "    FastAPI  (work\api.pid):   $($api.Id)"
+Write-Host "    React    (work\vite.pid):  $($vite.Id)"
+if ($WithStreamlit) { Write-Host "    Streamlit (work\streamlit.pid): $($dashboard.Id)" }
+Write-Host ""
 Write-Host "  Logs: $outputs"
+Write-Host "  Stop everything with: .\stop_app.ps1"

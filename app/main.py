@@ -9,7 +9,7 @@ from uuid import uuid4
 from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile
 from playwright.sync_api import Error as PlaywrightError
 from sqlalchemy import asc, desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from app.config import get_settings
 from app.database import SessionLocal, get_db, init_db
@@ -50,6 +50,17 @@ from app.schemas import (
 )
 from app.services.linkedin import AutomationResult, LinkedInAutomation
 from app.services.find_matches import FindMatchesEngine
+from app.services.application_outcome import (
+    DRY_RUN_COMPLETE_STEPS,
+    SUCCESS_APPLICATION_STATUSES,
+    outcome_supersedes,
+    reset_attempt_specific_fields,
+)
+from app.services.resume_identity import (
+    compute_resume_fingerprint,
+    resume_family_ids_for,
+    successful_jobs_for_fingerprint,
+)
 from app.services.form_learning import FormLearningEngine
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.matcher import MatchScorer
@@ -382,6 +393,7 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
         filename=upload.filename or Path(stored_path).name,
         stored_path=str(stored_path.resolve()),
         raw_text=raw_text,
+        resume_fingerprint=compute_resume_fingerprint(raw_text),
         skills=profile["skills"],
         experience=profile["experience"],
         education=profile["education"],
@@ -1257,6 +1269,27 @@ def _search_jobs_sync(
                 )
                 if key
             }
+            # Portal-scoped exclusion of jobs already SUCCESSFULLY completed for this
+            # resume's fingerprint family. A prior success (live submit or submit-ready
+            # dry run) must not reappear for the same resume identity + portal — even
+            # after the resume is re-uploaded under a new id. Keyed by portal so a
+            # LinkedIn success never blocks a Dice job (and vice versa). Reuses the exact
+            # same stable job identity (engine.duplicate_key) as duplicate detection.
+            excluded_success_keys_by_portal: dict[str, set[str]] = {}
+            for exclusion_portal in portals:
+                success_keys: set[str] = set()
+                for successful_job in successful_jobs_for_fingerprint(db, resume, exclusion_portal):
+                    for key in engine.duplicate_key(
+                        {
+                            "job_url": successful_job.job_url,
+                            "title": successful_job.title,
+                            "company": successful_job.company,
+                            "location": successful_job.location,
+                        }
+                    ):
+                        if key:
+                            success_keys.add(key)
+                excluded_success_keys_by_portal[exclusion_portal] = success_keys
         collection_plan = engine.collection_plan(target_count, len(search_variations))
         selected_variations = search_variations[: collection_plan["selected_variation_count"]]
         limit_per_query = collection_plan["limit_per_query"]
@@ -1344,6 +1377,7 @@ def _search_jobs_sync(
         for portal, variation, raw_jobs in variation_results:
             before_variation_count = len(jobs)
             before_duplicate_count = len(duplicate_jobs)
+            excluded_for_portal = excluded_success_keys_by_portal.get(portal, set())
             if batch is not None:
                 _update_search_batch(
                     db,
@@ -1361,6 +1395,8 @@ def _search_jobs_sync(
                     duplicate_reason = "Duplicate in current search batch"
                 elif any(key in previous_keys for key in keys):
                     duplicate_reason = "Already present in previous batch for this resume"
+                elif any(key in excluded_for_portal for key in keys):
+                    duplicate_reason = "Already successfully applied for this resume and portal"
                 if duplicate_reason:
                     duplicate_jobs.append(
                         {
@@ -2046,7 +2082,9 @@ def _batch_job_status(record: ApplicationRecord) -> str:
     if "timeout" in combined or "timed out" in combined:
         return "timed_out"
     if record.status == ApplicationStatus.SKIPPED:
-        if record.current_step in {"dry_run_complete", "review_reached", "ready_to_submit"}:
+        # Legacy rows only: successful dry runs are now stored as DRY_RUN_READY, but
+        # records written before that fix are still SKIPPED with a dry-run-complete step.
+        if record.current_step in DRY_RUN_COMPLETE_STEPS:
             return "reached_review"
         return "skipped"
     if record.status == ApplicationStatus.DRY_RUN_READY:
@@ -2159,8 +2197,9 @@ def _process_application(
             db.add(candidate_profile)
             _save_skill_experience_estimates(db, candidate_profile, resume, result)
         _save_form_learning_observations(db, job, result)
-        record = ApplicationRecord(
-            job_id=job.id,
+        record = _record_application_outcome(
+            db,
+            job,
             portal=job.portal,
             status=result.status,
             dry_run=dry_run,
@@ -2176,8 +2215,9 @@ def _process_application(
     except Exception as exc:
         logger.exception("Application failed for job %s", job.id)
         job.status = ApplicationStatus.FAILED
-        record = ApplicationRecord(
-            job_id=job.id,
+        record = _record_application_outcome(
+            db,
+            job,
             portal=job.portal,
             status=ApplicationStatus.FAILED,
             dry_run=dry_run,
@@ -2190,6 +2230,43 @@ def _process_application(
     db.commit()
     db.refresh(record)
     return record
+
+
+def _record_application_outcome(db: Session, job: JobOpportunity, **fields) -> ApplicationRecord:
+    """Persist the outcome of an apply attempt as the job's single history record.
+
+    Application History is permanent, so every attempt is recorded -- but a job gets ONE
+    row, not one per attempt. Re-applying the same job updates that row in place instead of
+    inserting a duplicate history entry.
+
+    A success is authoritative and can never be erased by a later attempt: the incoming
+    outcome only overwrites the stored one when it ranks at least as high (see
+    ``outcome_supersedes``). So a live apply upgrades a submit-ready dry run, but a later
+    failure/skip/needs-review leaves the recorded success -- and its evidence -- intact.
+    ``attempt_count`` still increments either way, so a superseded attempt is counted rather
+    than silently discarded.
+    """
+    existing = db.scalars(
+        select(ApplicationRecord)
+        .where(ApplicationRecord.job_id == job.id)
+        .order_by(desc(ApplicationRecord.application_date), desc(ApplicationRecord.id))
+        .limit(1)
+    ).first()
+    if existing is None:
+        return ApplicationRecord(job_id=job.id, **fields)
+    if outcome_supersedes(fields.get("status"), existing.status):
+        # The new attempt replaces the stored one, so the row must describe THAT attempt and
+        # nothing else. Clear every attempt-specific column the new attempt does not write,
+        # otherwise it inherits the previous attempt's evidence/reasoning/upload status.
+        reset_attempt_specific_fields(existing, keep=fields.keys())
+        for key, value in fields.items():
+            setattr(existing, key, value)
+        existing.application_date = datetime.utcnow()
+    # Otherwise the stored outcome outranks this attempt (e.g. FAILED after DRY_RUN_READY):
+    # keep the successful status, evidence, reasoning and original date untouched, so the
+    # job stays in Application History.
+    existing.attempt_count = (existing.attempt_count or 0) + 1
+    return existing
 
 
 def _save_skill_experience_estimates(
@@ -2380,14 +2457,48 @@ def list_applications(
     portal: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[dict]:
+    # Application History is PERMANENT history, not batch data. It is scoped by exactly two
+    # things -- resume fingerprint family + portal -- and contains only successful runs
+    # (APPLIED live submits and DRY_RUN_READY submit-ready dry runs).
+    #
+    # `search_batch_id` is accepted for API compatibility (both dashboard.py and React still
+    # send the selected batch) but is deliberately NOT applied: narrowing history to the
+    # currently selected search batch is what made earlier runs disappear after a new search
+    # or a resume re-upload.
+    #
+    # The response reads job fields (title, company, job_url, portal) for every row. The
+    # join to JobOpportunity is needed for filtering anyway, so `contains_eager` reuses THAT
+    # join to populate ApplicationRecord.job from the same result rows -- no second join, and
+    # no lazy SELECT per record. Without it this endpoint was one query per history row.
     active = request_portal_or_active(db, portal)
-    statement = select(ApplicationRecord).join(JobOpportunity)
-    statement = statement.where(JobOpportunity.portal == active)
+    statement = (
+        select(ApplicationRecord)
+        .join(ApplicationRecord.job)
+        .options(contains_eager(ApplicationRecord.job))
+        .where(JobOpportunity.portal == active)
+        .where(ApplicationRecord.status.in_(SUCCESS_APPLICATION_STATUSES))
+    )
     if resume_id:
-        statement = statement.where(JobOpportunity.resume_id == resume_id)
-    if search_batch_id:
-        statement = statement.where(JobOpportunity.search_batch_id == search_batch_id)
-    records = list(db.scalars(statement.order_by(desc(ApplicationRecord.application_date))).all())
+        # Resolve the resume to its fingerprint family so a re-uploaded resume (which gets
+        # a new id) still shows the same portal-specific history. Portal isolation is
+        # preserved by the JobOpportunity.portal filter above.
+        family_ids = resume_family_ids_for(db, resume_id)
+        statement = statement.where(JobOpportunity.resume_id.in_(family_ids))
+    records = list(
+        db.scalars(
+            statement.order_by(desc(ApplicationRecord.application_date), desc(ApplicationRecord.id))
+        ).all()
+    )
+    # One history row per job: newest record wins. New records are upserted per job, so this
+    # only collapses duplicates written before that change.
+    seen_job_ids: set[int] = set()
+    deduped: list[ApplicationRecord] = []
+    for record in records:
+        if record.job_id in seen_job_ids:
+            continue
+        seen_job_ids.add(record.job_id)
+        deduped.append(record)
+    records = deduped
     return [
         {
             "id": record.id,

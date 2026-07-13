@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
+import { pollWhileActive } from "@/lib/polling";
 import type { ApplicationHistory, ApplyTopBatch, Portal } from "@/types";
 
 // GET /applications — scoped by resume_id / search_batch_id / portal exactly as
@@ -84,10 +85,7 @@ export function useApplyTopBatch(batchId: string | null) {
     queryKey: ["apply-top-batch", batchId],
     queryFn: () => apiRequest<ApplyTopBatch>("GET", `/applications/apply-top/batches/${batchId}`),
     enabled: batchId != null,
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      return status === "queued" || status === "running" ? 2000 : false;
-    },
+    refetchInterval: (query) => pollWhileActive(query.state.data?.status),
   });
 }
 

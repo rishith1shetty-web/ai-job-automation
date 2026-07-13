@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert } from "@/components/ui/alert";
 import { SectionHeading, ProgressCell, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
 import { useLatestResume } from "@/api/resume";
 import { useEmploymentHistory, useSaveEmployment, useDeleteEmployment } from "@/api/employment";
@@ -46,7 +47,9 @@ function EmploymentForm({
       id: record?.id ?? null,
       payload: {
         resume_id: resumeId ?? record?.resume_id ?? null,
-        display_order: record?.display_order ?? recordsCount,
+        // dashboard.py uses Python `or` (falsy fallback), so a stored display_order of 0
+        // becomes len(records). Use || (not ??) to match that exactly.
+        display_order: record?.display_order || recordsCount,
         company_name: s("company_name"),
         job_title: s("job_title"),
         city: s("city"),
@@ -61,7 +64,7 @@ function EmploymentForm({
         description: s("description"),
         skills_used: splitList(s("skills")),
         technologies_used: splitList(s("technologies")),
-        confidence: record?.confidence ?? 100,
+        confidence: record?.confidence || 100, // dashboard.py: `confidence or 100`
         source: record ? record.source || "Manual" : "Manual",
       },
     });
@@ -122,7 +125,7 @@ export function EmploymentHistoryPage() {
       <SectionHeading title="Employment history" />
 
       {isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton className="h-40" />
       ) : isError ? (
         <Alert variant="danger">{apiErrorMessage("Load employment history", error)}</Alert>
       ) : records.length === 0 ? (

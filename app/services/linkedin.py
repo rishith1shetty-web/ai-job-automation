@@ -1148,8 +1148,14 @@ class LinkedInAutomation:
                                 run_log,
                                 contact_events=contact_events,
                             )
+                            # A dry run that reaches the submit/review stage is a *successful*
+                            # completed automation run (it just never clicks Submit). It is
+                            # DRY_RUN_READY -- the same terminal-success status Dice returns --
+                            # so it persists into Application History. It used to return
+                            # SKIPPED, which made a successful dry run indistinguishable from
+                            # a genuinely skipped job once written to the database.
                             return AutomationResult(
-                                ApplicationStatus.SKIPPED,
+                                ApplicationStatus.DRY_RUN_READY,
                                 message,
                                 run_log,
                                 current_step,

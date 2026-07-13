@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
+import { pollWhileActive } from "@/lib/polling";
 import type { DashboardSummary, Job, Portal, SearchBatch } from "@/types";
 
 // Phase 4.2: job-search module wired to the real backend. Endpoints (unchanged):
@@ -35,10 +36,7 @@ export function useSearchBatch(batchId: string | null) {
     queryKey: ["search-batch", batchId],
     queryFn: () => apiRequest<SearchBatch>("GET", `/jobs/search-batches/${batchId}`),
     enabled: batchId != null,
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      return status === "queued" || status === "running" ? 2000 : false;
-    },
+    refetchInterval: (query) => pollWhileActive(query.state.data?.status),
   });
 }
 

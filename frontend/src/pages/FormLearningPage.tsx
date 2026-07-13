@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Field, Select } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SectionHeading, ProgressCell, EmptyState } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useFormLearning, useFormLearningLatest } from "@/api/evidence";
 
 type Dict = Record<string, unknown>;
@@ -26,7 +27,7 @@ export function FormLearningPage() {
       {latest.data?.available && <p className="text-xs text-[#8A8580]">Latest evidence: {str(latest.data.folder)}</p>}
 
       {learning.isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg border border-parchment-border bg-[#F3EDE3]" />
+        <Skeleton className="h-40" />
       ) : fields.length === 0 ? (
         <EmptyState message="No learned form fields yet. They will appear after application dry-runs or submissions process fields." />
       ) : (
