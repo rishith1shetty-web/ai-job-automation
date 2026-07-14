@@ -14,6 +14,7 @@ from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import sync_playwright
 
 from app.config import Settings
+from app.services.manual_assist import ManualAssistMixin, ManualOutcome
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.find_matches import SearchVariation
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
@@ -21,7 +22,7 @@ from app.services.linkedin import AutomationResult
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
 
 
-class DicePortalAdapter:
+class DicePortalAdapter(ManualAssistMixin):
     portal_name = "dice"
     login_timeout_seconds = 600
     AUTH_COOKIE_RE = re.compile(r"(auth|access|refresh|id[_-]?token|jwt|session|sso)", re.I)
@@ -1963,6 +1964,38 @@ class DicePortalAdapter:
         except Exception:
             return []
 
+    def _fields_completed(self, page, labels: list[str]) -> bool:
+        """Manual-assist re-validation: re-read the LIVE DOM and confirm every field that
+        blocked automation now carries an answer.
+
+        Runs on the automation thread (the only thread allowed to touch the page). It does
+        NOT re-run the decision pipeline -- that decides from resume/profile data and would
+        still report the field unanswered even after the user typed into it. Completion is
+        read straight from the DOM via `_collect_fields`' `completed` flag.
+
+        A blocked label that has vanished from the form is treated as resolved: the user
+        advanced the wizard past it, so there is nothing left to block on.
+        """
+        wanted = [label for label in labels if label]
+        if not wanted:
+            return False
+        fields = self._collect_fields(page)
+        if not fields:
+            # The form could not be read at all (page closed/crashed, or Dice re-rendered).
+            # "Cannot verify" is NEVER "completed" -- otherwise a dead browser would look
+            # like a satisfied field and automation would resume into nothing. Re-pause.
+            return False
+        fresh: dict[str, dict] = {}
+        for field in fields:
+            fresh.setdefault(str(field.get("label") or ""), field)
+        for label in wanted:
+            field = fresh.get(label)
+            if field is None:
+                continue
+            if not field.get("completed"):
+                return False
+        return True
+
     # The FINAL submit control, identified by its text/data hooks only.
     #
     # `button[type='submit']` is deliberately NOT here: the live Dice wizard renders
@@ -2187,6 +2220,39 @@ class DicePortalAdapter:
                 "missing_contact_fields": missing_contact,
             },
         )
+
+        if unanswered:
+            # FINAL FALLBACK (in-form only). The unified decision pipeline has already run and
+            # could not answer these required fields. Pause with the Dice form still open so
+            # the user can complete just those fields, then resume from exactly here. This is
+            # the same shared lifecycle LinkedIn uses (ManualAssistMixin); with no coordinator
+            # attached the behaviour below is unchanged.
+            blocked_labels = [str(item.get("label") or "") for item in unanswered]
+            manual = self.pause_for_manual_input(
+                portal=self.portal_name,
+                job=job,
+                dry_run=True,
+                current_step="manual_input_required",
+                question="; ".join(label for label in blocked_labels if label),
+                reason=(
+                    "Automation could not answer these required Dice fields: "
+                    + ", ".join(item.get("reason") or item.get("label") or "" for item in unanswered)
+                ),
+                validate=lambda: self._fields_completed(page, blocked_labels),
+                on_event=lambda event, detail: log.append({"step": event, "detail": detail}),
+            )
+            if manual is ManualOutcome.SKIPPED:
+                reason = "Skipped by user while automation was paused for manual input."
+                log.append({"step": "skipped_by_user", "unanswered": unanswered})
+                return self._dice_result(
+                    ApplicationStatus.SKIPPED, reason, "dice_apply_skipped_by_user", debug_dir, job,
+                    log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+                )
+            if manual is ManualOutcome.COMPLETED:
+                # The user filled the blocked fields and the live DOM confirms it. Fall through
+                # to the normal submit-ready path exactly as if automation had answered them.
+                unanswered = []
+                log.append({"step": "manual_input_completed", "fields": blocked_labels})
 
         if unanswered:
             reason = "Dice dry run stopped: one or more required answers were uncertain (needs review)."
@@ -2820,6 +2886,10 @@ class DicePortalAdapter:
                             kind: type,
                             required: groupEls.some(g => g.required),
                             options: groupEls.map(g => labelFor(g) || g.value).filter(Boolean),
+                            // Live DOM completion state. Read-only, additive: existing callers
+                            // ignore it. Manual assist uses it to verify that a field the user
+                            // answered by hand is genuinely filled before automation resumes.
+                            completed: groupEls.some(g => g.checked),
                         });
                         return;
                     }
@@ -2834,6 +2904,11 @@ class DicePortalAdapter:
                     else if (type === 'file') kind = 'file';
                     else if (numericTypes.includes(type)) kind = type;
                     else kind = 'text';
+                    // Live DOM completion state (see the radio/checkbox branch above). A file
+                    // input counts as completed only when a file is actually attached.
+                    const completed = type === 'file'
+                        ? Boolean(el.files && el.files.length > 0)
+                        : String(el.value == null ? '' : el.value).trim() !== '';
                     fields.push({
                         index,
                         label: labelFor(el),
@@ -2841,6 +2916,7 @@ class DicePortalAdapter:
                         kind,
                         required: Boolean(el.required),
                         options,
+                        completed,
                     });
                 });
                 return fields;

@@ -296,3 +296,10 @@ class ScreeningKnowledgeAnswerOut(ScreeningKnowledgeAnswerIn):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ManualAssistRequest(BaseModel):
+    """Optional guards so a stale UI cannot resolve a pause it was not looking at."""
+
+    batch_id: str | None = None
+    sequence: int | None = None

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import { ManualAssistPanel } from "@/components/apply/ManualAssistPanel";
 import { SectionHeading, StatusBadge, ProgressCell, Metric, EmptyState } from "@/components/ui/misc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
@@ -477,6 +478,10 @@ export function MatchedJobsPage() {
             </Alert>
           )}
           {startApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Start Apply batch", startApplyTop.error)}</Alert>}
+
+          {/* Manual Input Required — visible while the batch is paused on a job that needs
+              a field completed by hand. Self-hides when nothing is paused. Portal-agnostic. */}
+          <ManualAssistPanel batchStatus={liveBatch?.status} applying={applySelected.isPending} />
 
           {/* Apply Top batch status card — LIVE with 2s polling */}
           {liveBatch && (

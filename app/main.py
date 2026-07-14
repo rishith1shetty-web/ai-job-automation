@@ -35,6 +35,7 @@ from app.schemas import (
     ApplyTopBatchOut,
     ApplyRequest,
     ApplySelectedRequest,
+    ManualAssistRequest,
     CandidateProfileIn,
     CandidateProfileOut,
     CandidateEmploymentHistoryIn,
@@ -50,6 +51,12 @@ from app.schemas import (
 )
 from app.services.linkedin import AutomationResult, LinkedInAutomation
 from app.services.find_matches import FindMatchesEngine
+from app.services.manual_assist import (
+    ManualAssistCoordinator,
+    ManualDecision,
+    ManualPauseState,
+    manual_assist_coordinator,
+)
 from app.services.application_outcome import (
     DRY_RUN_COMPLETE_STEPS,
     SUCCESS_APPLICATION_STATUSES,
@@ -1761,20 +1768,29 @@ def apply_top_jobs(request: ApplyRequest, db: Session = Depends(get_db)) -> list
                     ensure_employment_history_for_resume(db, candidate_profile, resume)
                 ),
             }
-        for index, job in enumerate(jobs, start=1):
-            with recorder.stage("easy_apply_application", job_id=job.id, index=index):
-                records.append(
-                    _process_application(
-                        db,
-                        automation,
-                        job,
-                        resume,
-                        candidate_profile,
-                        dry_run,
-                        capture_evidence=dry_run,
-                        screening_context=screening_context,
+        # Same reasoning as apply-selected: every apply entry point arms manual assist, so a
+        # recoverable in-form failure pauses with the browser open instead of closing it.
+        owner = f"apply-top-sync:{uuid4().hex}"
+        _bind_manual_assist(owner)
+        try:
+            for index, job in enumerate(jobs, start=1):
+                with recorder.stage("easy_apply_application", job_id=job.id, index=index):
+                    records.append(
+                        _process_application(
+                            db,
+                            automation,
+                            job,
+                            resume,
+                            candidate_profile,
+                            dry_run,
+                            capture_evidence=dry_run,
+                            screening_context=screening_context,
+                            manual_assist=manual_assist_coordinator,
+                            batch_id=owner,
+                        )
                     )
-                )
+        finally:
+            manual_assist_coordinator.release(owner)
         return records
     finally:
         recorder.save()
@@ -1812,6 +1828,48 @@ def get_latest_apply_top_batch(
         .where(ApplyTopBatch.portal == active)
     )
     return db.scalar(statement.order_by(desc(ApplyTopBatch.created_at)).limit(1))
+
+
+# --------------------------------------------------------------------------------------
+# Manual assist. These handlers ONLY signal the coordinator -- they never touch Playwright.
+# Re-validation happens on the automation thread (the only thread allowed to drive the page).
+# --------------------------------------------------------------------------------------
+@app.get("/applications/apply-top/manual-assist")
+def get_manual_assist_state() -> dict:
+    state = manual_assist_coordinator.snapshot()
+    if not state:
+        return {"active": False}
+    return {"active": True, **state}
+
+
+def _resolve_manual_assist(decision: ManualDecision, batch_id: str | None, sequence: int | None) -> dict:
+    state = manual_assist_coordinator.snapshot()
+    if not state:
+        raise HTTPException(status_code=409, detail="Automation is not waiting for manual input.")
+    if batch_id and state.get("batch_id") and batch_id != state["batch_id"]:
+        raise HTTPException(status_code=409, detail="That pause belongs to a different apply batch.")
+    if sequence is not None and sequence != state.get("sequence"):
+        # The pause moved on (e.g. re-validation failed and it re-paused with a new reason),
+        # so this click refers to a stale pause and must not resolve the current one.
+        raise HTTPException(status_code=409, detail="This pause has already been resolved. Reload the current state.")
+    if not manual_assist_coordinator.resolve(decision):
+        raise HTTPException(status_code=409, detail="Automation is not waiting for manual input.")
+    return {"accepted": True, "decision": decision.value, "sequence": state.get("sequence")}
+
+
+@app.post("/applications/apply-top/manual-assist/continue")
+def continue_manual_assist(request: ManualAssistRequest | None = None) -> dict:
+    request = request or ManualAssistRequest()
+    return _resolve_manual_assist(ManualDecision.CONTINUE, request.batch_id, request.sequence)
+
+
+@app.post("/applications/apply-top/manual-assist/skip")
+def skip_manual_assist(request: ManualAssistRequest | None = None) -> dict:
+    return _resolve_manual_assist(
+        ManualDecision.SKIP,
+        (request or ManualAssistRequest()).batch_id,
+        (request or ManualAssistRequest()).sequence,
+    )
 
 
 @app.post("/applications/apply-selected", response_model=ApplicationRecordOut)
@@ -1852,17 +1910,30 @@ def apply_selected_job(
                     ensure_employment_history_for_resume(db, candidate_profile, resume)
                 ),
             }
-        with recorder.stage("easy_apply_application", job_id=job.id):
-            return _process_application(
-                db,
-                automation,
-                job,
-                resume,
-                candidate_profile,
-                dry_run,
-                capture_evidence=True,
-                screening_context=screening_context,
-            )
+        # Manual assist is armed here too, not only in the Apply Top batch runner. Without this
+        # the coordinator is None, `pause_for_manual_input` short-circuits to UNAVAILABLE, and a
+        # recoverable in-form failure falls through to its needs-review exit -- which unwinds the
+        # browser context and closes the browser on the user. This request BLOCKS while paused:
+        # that is the point, since the automation thread is the only thread allowed to touch the
+        # page. The pause is resolved by the manual-assist endpoints on a different thread.
+        owner = f"apply-selected:{job.id}:{uuid4().hex}"
+        _bind_manual_assist(owner)
+        try:
+            with recorder.stage("easy_apply_application", job_id=job.id):
+                return _process_application(
+                    db,
+                    automation,
+                    job,
+                    resume,
+                    candidate_profile,
+                    dry_run,
+                    capture_evidence=True,
+                    screening_context=screening_context,
+                    manual_assist=manual_assist_coordinator,
+                    batch_id=owner,
+                )
+        finally:
+            manual_assist_coordinator.release(owner)
     finally:
         recorder.save()
 
@@ -1925,6 +1996,65 @@ def _create_apply_top_batch(request: ApplyRequest, db: Session) -> ApplyTopBatch
     return apply_batch
 
 
+def _set_apply_top_batch_state(batch_id: str, status: str, message: str) -> None:
+    """Persist a batch status flip from the AUTOMATION thread (its own short-lived session,
+    because the batch runner's session is parked inside the paused apply)."""
+    with SessionLocal() as db:
+        batch = db.get(ApplyTopBatch, batch_id)
+        if not batch:
+            return
+        batch.status = status
+        batch.latest_status_message = message
+        db.add(batch)
+        db.commit()
+        _write_apply_top_debug(batch)
+
+
+def _bind_manual_assist(owner: str, batch_id: str | None = None) -> None:
+    """Arm manual assist for ONE apply run, whichever entry point started it.
+
+    `owner` scopes cleanup so a late-unwinding run cannot disarm the run that came after it.
+    `batch_id` is the ApplyTopBatch whose row should mirror the pause; an apply-selected run
+    has no batch row, so it passes None and only the coordinator state changes -- which is what
+    the Manual Assist panel actually reads.
+
+    `paused` is a NON-TERMINAL batch status: the worker thread is blocked inside the current job
+    with its browser open, so no next job starts and no application record is written for the
+    pause itself.
+    """
+
+    def on_pause(state: ManualPauseState) -> None:
+        if batch_id:
+            _set_apply_top_batch_state(
+                batch_id,
+                "paused",
+                f"Manual input required on {state.company or 'this job'}: {state.reason}",
+            )
+
+    def on_resume(decision: ManualDecision) -> None:
+        if batch_id:
+            _set_apply_top_batch_state(
+                batch_id,
+                "running",
+                "Skipping this job at your request."
+                if decision is ManualDecision.SKIP
+                else "Manual input received. Resuming automation.",
+            )
+
+    manual_assist_coordinator.clear()
+    manual_assist_coordinator.set_listeners(on_pause=on_pause, on_resume=on_resume, owner=owner)
+
+
+def _bind_apply_top_coordinator(batch_id: str) -> None:
+    _bind_manual_assist(batch_id, batch_id)
+
+
+def _release_apply_top_coordinator(batch_id: str) -> None:
+    """Never leak a coordinator (or its listeners) between runs. Owner-scoped so a late
+    unwinding run cannot disarm the pause handling of the run that came after it."""
+    manual_assist_coordinator.release(batch_id)
+
+
 def _run_apply_top_batch(batch_id: str) -> None:
     with SessionLocal() as db:
         batch = db.get(ApplyTopBatch, batch_id)
@@ -1953,6 +2083,12 @@ def _run_apply_top_batch(batch_id: str) -> None:
             db.add(batch)
             db.commit()
 
+            # Manual assist: one coordinator for this batch. The listeners run on the
+            # automation thread (on_pause fires just before it blocks inside the apply, with
+            # the browser still open), so they may safely write to the database. The batch
+            # thread stays parked inside the current job while paused -- which is exactly what
+            # stops the next job from starting.
+            _bind_apply_top_coordinator(batch.id)
             automation = LinkedInAutomation(settings)
             candidate_profile = default_candidate_profile(db)
             screening_setting = default_screening_setting(db)
@@ -1984,11 +2120,16 @@ def _run_apply_top_batch(batch_id: str) -> None:
                         batch.dry_run,
                         capture_evidence=batch.dry_run,
                         screening_context=screening_context,
+                        manual_assist=manual_assist_coordinator,
+                        batch_id=batch.id,
                     )
                     result = _apply_top_job_result(index, job, record, started)
                 except Exception as exc:
                     logger.exception("Apply Top batch %s failed on job %s", batch.id, job.id)
                     result = _apply_top_failure_result(index, job, started, exc)
+                finally:
+                    # A job never ends while still paused (completed, skipped or crashed).
+                    manual_assist_coordinator.clear()
                 _append_apply_top_result(db, batch.id, result)
 
             batch = db.get(ApplyTopBatch, batch.id)
@@ -2013,6 +2154,8 @@ def _run_apply_top_batch(batch_id: str) -> None:
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
+        finally:
+            _release_apply_top_coordinator(batch_id)
 
 
 def _apply_top_jobs_statement(resume_id: int, search_batch_id: str | None, portal: str | None = None):
@@ -2171,10 +2314,24 @@ def _process_application(
     dry_run: bool,
     capture_evidence: bool,
     screening_context: dict | None = None,
+    manual_assist: ManualAssistCoordinator | None = None,
+    batch_id: str | None = None,
 ) -> ApplicationRecord:
+    # `manual_assist` is supplied only by the Apply Top batch runner. Every other caller
+    # (apply-selected, tests) passes nothing, so the adapter runs with no coordinator and
+    # behaves exactly as it did before manual assist existed.
+    def _attach(adapter) -> None:
+        # Optional: an adapter that predates ManualAssistMixin (or a test double) simply runs
+        # with no coordinator and keeps its existing behaviour.
+        attach = getattr(adapter, "attach_manual_assist", None)
+        if callable(attach):
+            attach(manual_assist, batch_id)
+
     try:
         if job.portal == "dice":
-            result = dice_adapter().apply_to_job(
+            adapter = dice_adapter()
+            _attach(adapter)
+            result = adapter.apply_to_job(
                 job,
                 resume,
                 candidate_profile,
@@ -2183,6 +2340,7 @@ def _process_application(
                 screening_context=screening_context,
             )
         else:
+            _attach(automation)
             result = automation.apply_to_job(
                 job,
                 resume,

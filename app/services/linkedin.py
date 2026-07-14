@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import re
 import hashlib
 import mimetypes
@@ -14,6 +15,7 @@ from playwright.sync_api import BrowserContext, Error as PlaywrightError, Page, 
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from app.config import Settings
+from app.services.manual_assist import ManualAssistMixin, ManualOutcome
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.reasoning import AIReasoningEngine
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
@@ -35,7 +37,13 @@ class AutomationResult:
     resume_upload_diagnostics: dict = field(default_factory=dict)
 
 
-class LinkedInAutomation:
+class LinkedInAutomation(ManualAssistMixin):
+    """Manual-assist: when an in-form required field cannot be completed automatically, the
+    adapter pauses here (browser stays open) instead of abandoning the job. See
+    services/manual_assist.py. With no coordinator attached the behaviour is unchanged."""
+
+    portal_name = "linkedin"
+
     def __init__(self, settings: Settings):
         self.settings = settings
         self.reasoning = AIReasoningEngine(settings)
@@ -551,6 +559,95 @@ class LinkedInAutomation:
         stop=stop_after_attempt(3),
         reraise=True,
     )
+    # -- manual assist -------------------------------------------------------------------
+    # Shared by every in-form pause site below, so the pause/skip shape is defined once.
+    def _request_manual_input(
+        self, *, job, dry_run: bool, question: str, reason: str, validate, run_log: list[dict]
+    ) -> ManualOutcome:
+        return self.pause_for_manual_input(
+            portal=self.portal_name,
+            job=job,
+            dry_run=dry_run,
+            current_step="manual_input_required",
+            question=question,
+            reason=reason,
+            validate=validate,
+            on_event=lambda event, detail: self._log(run_log, event, detail),
+        )
+
+    def _skipped_by_user(
+        self, job, dry_run: bool, run_log: list[dict], evidence_dir, contact_events, screening_events
+    ) -> AutomationResult:
+        """"Skip This Job" while paused: an unsuccessful-but-not-failed outcome. The batch
+        continues with the next job."""
+        current_step = "skipped_by_user"
+        message = "Skipped by user while automation was paused for manual input."
+        self._log(run_log, current_step, message)
+        self._persist_run_log(
+            evidence_dir, job, dry_run, current_step, run_log, contact_events=contact_events
+        )
+        return AutomationResult(
+            ApplicationStatus.SKIPPED,
+            message,
+            run_log,
+            current_step,
+            str(evidence_dir) if evidence_dir else None,
+            self._contact_detected(contact_events),
+            self._contact_filled(contact_events),
+            self._contact_missing(contact_events),
+            screening_events,
+        )
+
+    def _resume_step_manual_assist(
+        self, modal, job, dry_run: bool, diagnostics: dict, run_log: list[dict]
+    ) -> ManualOutcome:
+        """Pause on a resume-step failure the user can fix by hand, keeping the Easy Apply
+        modal open. Returns UNAVAILABLE (caller keeps its existing needs-review exit) when the
+        resume step is not actually on screen -- there is nothing for a human to click then.
+
+        Identity safety: re-validation is `_resume_selection_verified`, which requires the
+        SELECTED card's filename to match the active ResumeProfile. A user cannot resume the
+        run having picked some other resume.
+        """
+        expected_filename = diagnostics.get("resume_original_filename")
+        if modal is None or not expected_filename:
+            return ManualOutcome.UNAVAILABLE
+        # The mismatch flag can come from the old whole-modal text scrape, which reports the LAST
+        # filename in the DOM rather than the selected one. Before interrupting anybody, ask the
+        # authoritative question: is the right resume actually selected? If so this was a false
+        # alarm and automation carries on -- a spurious pause is its own kind of failure.
+        if self._resume_selection_verified(modal, expected_filename):
+            return ManualOutcome.COMPLETED
+        # An unreadable card list is NOT a reason to give up. It means automation could not parse
+        # the resume step -- which is exactly when a human is needed, and the human can still see
+        # and click the modal that is sitting open in front of them. Returning UNAVAILABLE here
+        # would drop back to the needs-review exit and close the browser on the one failure the
+        # user is there to fix. Re-validation below stays strict, so an unparseable step simply
+        # re-pauses rather than ever resuming with an unverified resume.
+        cards = self._resume_cards(modal)
+        listed = ", ".join(str(card.get("filename")) for card in cards if card.get("filename"))
+        return self._request_manual_input(
+            job=job,
+            dry_run=dry_run,
+            question=f"Select the resume {expected_filename!r} on the LinkedIn resume step",
+            reason=(
+                "Automation could not confirm the correct resume is selected. "
+                f"Please select {expected_filename!r} in the open LinkedIn modal"
+                + (f" (it lists: {listed})." if listed else ".")
+            ),
+            validate=lambda: self._resume_selection_verified(modal, expected_filename),
+            run_log=run_log,
+        )
+
+    def _form_stop_cleared(self, modal) -> bool:
+        """Re-validation for a stopped form (disabled Next/Submit, or a classified stop): the
+        current navigation button must be enabled AND no required field may remain unresolved.
+        Uses only the existing predicates -- no new heuristics."""
+        navigation = self._find_navigation_button(modal)
+        if navigation.get("locator") is not None and not navigation.get("enabled"):
+            return False
+        return not self._form_required_fields(modal, unresolved_only=True)
+
     def apply_to_job(
         self,
         job: JobOpportunity,
@@ -749,6 +846,18 @@ class LinkedInAutomation:
                     page.wait_for_timeout(1200)
                     self._capture_screenshot(page, evidence_dir, "03_resume_upload")
                 if resume_upload_diagnostics.get("mismatch_detected"):
+                    manual = self._resume_step_manual_assist(
+                        modal, job, dry_run, resume_upload_diagnostics, run_log
+                    )
+                    if manual is ManualOutcome.SKIPPED:
+                        return self._skipped_by_user(
+                            job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                        )
+                    if manual is ManualOutcome.COMPLETED:
+                        resume_upload_diagnostics["mismatch_detected"] = False
+                        resume_upload_diagnostics["upload_success"] = True
+                        resume_upload_diagnostics["reason_if_failed"] = None
+                if resume_upload_diagnostics.get("mismatch_detected"):
                     current_step = "needs_review"
                     message = resume_upload_diagnostics.get("reason_if_failed") or "Resume upload mismatch detected."
                     self._log(run_log, current_step, message)
@@ -820,6 +929,33 @@ class LinkedInAutomation:
                         workflow_started_at,
                     )
                     if inspection["repeated_count"] >= 3:
+                        # A required control kept refusing the automated value (the radio-button
+                        # class of failure): the workflow lands on the same page over and over.
+                        # Pause with the modal open; resolved once no required field is left
+                        # unresolved (existing predicate).
+                        manual = self._request_manual_input(
+                            job=job,
+                            dry_run=dry_run,
+                            question=(
+                                f"{inspection['detected_page_type']} step is not accepting "
+                                "automated input"
+                            ),
+                            reason=(
+                                "Automation could not complete a required control on this step "
+                                f"({inspection['detected_page_type']} repeated "
+                                f"{inspection['repeated_count']} times without progress)."
+                            ),
+                            validate=lambda: not self._form_required_fields(modal, unresolved_only=True),
+                            run_log=run_log,
+                        )
+                        if manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
+                        if manual is ManualOutcome.COMPLETED:
+                            inspection = dict(inspection, repeated_count=0)
+                            page.wait_for_timeout(300)
+                    if inspection["repeated_count"] >= 3:
                         current_step = "needs_review"
                         message = (
                             "Repeated workflow state detected: "
@@ -871,6 +1007,18 @@ class LinkedInAutomation:
                         page.wait_for_timeout(1200)
                         self._capture_screenshot(page, evidence_dir, "03_resume_upload")
                     if resume_upload_diagnostics.get("mismatch_detected"):
+                        manual = self._resume_step_manual_assist(
+                            modal, job, dry_run, resume_upload_diagnostics, run_log
+                        )
+                        if manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
+                        if manual is ManualOutcome.COMPLETED:
+                            resume_upload_diagnostics["mismatch_detected"] = False
+                            resume_upload_diagnostics["upload_success"] = True
+                            resume_upload_diagnostics["reason_if_failed"] = None
+                    if resume_upload_diagnostics.get("mismatch_detected"):
                         current_step = "needs_review"
                         message = resume_upload_diagnostics.get("reason_if_failed") or "Resume upload mismatch detected."
                         self._log(run_log, current_step, message)
@@ -903,6 +1051,35 @@ class LinkedInAutomation:
                         profile_apply_debug_dir,
                         contact_events,
                     )
+                    if contact_missing:
+                        # Re-validation re-runs the SAME filler: it fills whatever it can and
+                        # returns what is still missing, so once the user types the value by
+                        # hand it comes back empty.
+                        manual = self._request_manual_input(
+                            job=job,
+                            dry_run=dry_run,
+                            question="Required contact fields: " + ", ".join(contact_missing),
+                            reason=(
+                                "Automation could not complete these required contact fields: "
+                                f"{', '.join(contact_missing)}."
+                            ),
+                            validate=lambda: not self._fill_contact_fields(
+                                modal,
+                                candidate_profile,
+                                resume,
+                                contact_debug_dir,
+                                profile_apply_debug_dir,
+                                contact_events,
+                            ),
+                            run_log=run_log,
+                        )
+                        if manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
+                        if manual is ManualOutcome.COMPLETED:
+                            contact_missing = []
+                            page.wait_for_timeout(300)
                     if contact_missing:
                         current_step = "needs_review"
                         message = (
@@ -981,6 +1158,34 @@ class LinkedInAutomation:
                         )
                         page.wait_for_timeout(500)
                     if employment_missing:
+                        # Same shape as contact: the existing employment filler is the detector.
+                        manual = self._request_manual_input(
+                            job=job,
+                            dry_run=dry_run,
+                            question="Required employment fields: " + ", ".join(employment_missing[:8]),
+                            reason=(
+                                "Automation could not complete these required employment fields: "
+                                f"{', '.join(employment_missing[:8])}."
+                            ),
+                            validate=lambda: not self._fill_employment_history_fields(
+                                modal,
+                                screening_context.get("employment_history") or [],
+                                candidate_profile,
+                                resume,
+                                screening_context.get("mode") or "safe",
+                                employment_history_debug_dir,
+                                employment_events,
+                            ),
+                            run_log=run_log,
+                        )
+                        if manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
+                        if manual is ManualOutcome.COMPLETED:
+                            employment_missing = []
+                            page.wait_for_timeout(300)
+                    if employment_missing:
                         current_step = "needs_review"
                         message = "Required employment fields need review: " + ", ".join(employment_missing[:8]) + "."
                         self._log(run_log, current_step, message)
@@ -1017,6 +1222,31 @@ class LinkedInAutomation:
                         )
 
                     blocker = self._detect_unanswered_custom_questions(modal)
+                    if blocker:
+                        # FINAL FALLBACK. Every automatic strategy (saved answer -> learned
+                        # mapping -> evidence -> reasoning -> estimator -> generated answer,
+                        # plus the existing retries/validation) has already run and failed for
+                        # this question. Rather than abandoning the job, pause with the Easy
+                        # Apply modal still open so the user can answer just this one question,
+                        # then resume from exactly here. No coordinator attached -> unchanged.
+                        manual = self.pause_for_manual_input(
+                            portal="linkedin",
+                            job=job,
+                            dry_run=dry_run,
+                            current_step="manual_input_required",
+                            question=blocker,
+                            reason=f"Automation could not answer this screening question: {blocker}",
+                            validate=lambda: not self._detect_unanswered_custom_questions(modal),
+                            on_event=lambda event, detail: self._log(run_log, event, detail),
+                        )
+                        if manual is ManualOutcome.COMPLETED:
+                            blocker = None
+                            current_step = "manual_input_completed"
+                            page.wait_for_timeout(300)
+                        elif manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
                     if blocker:
                         current_step = "needs_review"
                         self._log(run_log, current_step, blocker)
@@ -1061,6 +1291,26 @@ class LinkedInAutomation:
                     validation_messages = self._validation_messages(modal)
                     if validation_messages and employment_events and not self._form_required_fields(modal, unresolved_only=True):
                         validation_messages = []
+                    if validation_messages:
+                        # LinkedIn's own inline errors. Cleared once the form reports none.
+                        manual = self._request_manual_input(
+                            job=job,
+                            dry_run=dry_run,
+                            question="; ".join(validation_messages[:5]),
+                            reason=(
+                                "LinkedIn reported validation errors automation could not clear: "
+                                + "; ".join(validation_messages[:5])
+                            ),
+                            validate=lambda: not self._validation_messages(modal),
+                            run_log=run_log,
+                        )
+                        if manual is ManualOutcome.SKIPPED:
+                            return self._skipped_by_user(
+                                job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                            )
+                        if manual is ManualOutcome.COMPLETED:
+                            validation_messages = []
+                            page.wait_for_timeout(300)
                     if validation_messages:
                         current_step = "needs_review"
                         message = "Validation error: " + "; ".join(validation_messages[:5])
@@ -1276,6 +1526,30 @@ class LinkedInAutomation:
                                     )
                                     continue
                                 navigation_failure = f"Navigation revealed unresolved required fields: {unresolved_after_screening}"
+                            # Multi-step validation: the next page still holds unresolved required
+                            # fields. Pause on that page; once none remain, `continue` re-enters
+                            # the form loop at the current page -- the application is never
+                            # restarted and the job is never reopened.
+                            manual = self._request_manual_input(
+                                job=job,
+                                dry_run=dry_run,
+                                question=str(navigation_failure),
+                                reason=(
+                                    "Automation could not resolve the required fields on this step: "
+                                    f"{navigation_failure}"
+                                ),
+                                validate=lambda: not self._form_required_fields(
+                                    after_modal, unresolved_only=True
+                                ),
+                                run_log=run_log,
+                            )
+                            if manual is ManualOutcome.SKIPPED:
+                                return self._skipped_by_user(
+                                    job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                                )
+                            if manual is ManualOutcome.COMPLETED:
+                                self._log(run_log, "manual_input_completed", str(navigation_failure))
+                                continue
                             current_step = "needs_review"
                             self._log(run_log, current_step, navigation_failure)
                             self._record_workflow_trace(
@@ -1364,6 +1638,25 @@ class LinkedInAutomation:
                         reason = f"Disabled button: {navigation['text']}"
                     else:
                         reason = self._classify_form_stop_reason(modal)
+
+                    # The form is stopped: Next/Submit is disabled, or a required field blocks
+                    # it. Pause here; `_form_stop_cleared` re-checks the CURRENT button and the
+                    # unresolved required fields, then `continue` resumes the same form loop.
+                    manual = self._request_manual_input(
+                        job=job,
+                        dry_run=dry_run,
+                        question=str(reason),
+                        reason=f"Automation could not advance this form: {reason}",
+                        validate=lambda: self._form_stop_cleared(modal),
+                        run_log=run_log,
+                    )
+                    if manual is ManualOutcome.SKIPPED:
+                        return self._skipped_by_user(
+                            job, dry_run, run_log, evidence_dir, contact_events, screening_events
+                        )
+                    if manual is ManualOutcome.COMPLETED:
+                        self._log(run_log, "manual_input_completed", str(reason))
+                        continue
 
                     current_step = "needs_review"
                     message = reason
@@ -2748,6 +3041,207 @@ class LinkedInAutomation:
             "detected_filename": detected_filename,
         }
 
+    # -- resume step: existing-resume selection ------------------------------------------
+    # LinkedIn's Easy Apply resume step usually already lists the resume(s) previously
+    # uploaded. The right move is to SELECT the matching card, not upload a duplicate.
+    #
+    # These helpers deliberately key off SEMANTICS (a real selection control + the filename
+    # it labels), never LinkedIn's CSS class names, so a markup refresh does not break them.
+    # A visible highlight/border is never treated as proof of selection: only a checked
+    # radio/checkbox or aria-checked/aria-selected counts.
+    _RESUME_CARDS_JS = """
+        (root) => {
+            const FILE_RE = /[A-Za-z0-9][^\\r\\n]{2,}\\.(?:pdf|docx?|txt)\\b/i;
+            const controls = Array.from(root.querySelectorAll(
+                "input[type='radio'], input[type='checkbox'], [role='radio'], [role='option'], [aria-checked]"
+            ));
+            const cards = [];
+            controls.forEach((el, index) => {
+                // Climb to the nearest ancestor that actually shows a filename: that element
+                // is the resume card this control selects.
+                let node = el, filename = null, depth = 0;
+                while (node && depth < 6) {
+                    const match = (node.innerText || '').match(FILE_RE);
+                    if (match) { filename = match[0].trim(); break; }
+                    node = node.parentElement; depth += 1;
+                }
+                if (!filename) return;
+                const selected = el.tagName === 'INPUT'
+                    ? Boolean(el.checked)
+                    : (el.getAttribute('aria-checked') === 'true'
+                       || el.getAttribute('aria-selected') === 'true');
+                cards.push({ index, filename, selected: Boolean(selected) });
+            });
+            return cards;
+        }
+    """
+
+    _CLICK_RESUME_CARD_JS = """
+        (root, wanted) => {
+            const FILE_RE = /[A-Za-z0-9][^\\r\\n]{2,}\\.(?:pdf|docx?|txt)\\b/i;
+            const base = name => String(name || '').split(/[\\\\/]/).pop().trim().toLowerCase();
+            const controls = Array.from(root.querySelectorAll(
+                "input[type='radio'], input[type='checkbox'], [role='radio'], [role='option'], [aria-checked]"
+            ));
+            for (const el of controls) {
+                let node = el, filename = null, depth = 0;
+                while (node && depth < 6) {
+                    const match = (node.innerText || '').match(FILE_RE);
+                    if (match) { filename = match[0].trim(); break; }
+                    node = node.parentElement; depth += 1;
+                }
+                if (!filename || base(filename) !== base(wanted)) continue;
+                // A styled radio is often visually hidden behind its label -- click the label.
+                const label = el.id ? root.querySelector('label[for="' + el.id + '"]') : null;
+                (label || el.closest('label') || el).click();
+                return true;
+            }
+            return false;
+        }
+    """
+
+    _RESUME_BUSY_JS = """
+        (root) => {
+            const spinner = root.querySelector(
+                "[role='progressbar'], [aria-busy='true'], [class*='spinner'], [class*='loader']"
+            );
+            if (!spinner) return false;
+            const rect = spinner.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+        }
+    """
+
+    def _resume_cards(self, modal) -> list[dict]:
+        """Every resume card on the step, as {index, filename, selected}. [] when unreadable."""
+        try:
+            return modal.evaluate(self._RESUME_CARDS_JS) or []
+        except Exception:
+            return []
+
+    def _wait_for_resume_ready(self, modal, timeout_ms: int = 6000) -> bool:
+        """Bounded wait for LinkedIn's spinner to clear after a selection (it re-renders the
+        cards). Polls rather than sleeping for a fixed period; returns False on timeout so the
+        caller never clicks Next while LinkedIn is still processing."""
+        deadline = time.monotonic() + (timeout_ms / 1000)
+        while time.monotonic() < deadline:
+            try:
+                busy = modal.evaluate(self._RESUME_BUSY_JS)
+            except Exception:
+                return False
+            if not busy:
+                return True
+            try:
+                modal.page.wait_for_timeout(150)
+            except Exception:
+                return False
+        return False
+
+    def _resume_selection_verified(self, modal, expected_filename: str | None) -> bool:
+        """The single source of truth for "the right resume is selected and we may click Next".
+
+        Used both to confirm automatic selection AND as the manual-assist re-validation
+        predicate, so a human can never resume the run with the wrong resume selected.
+        An unreadable modal is NEVER treated as success.
+        """
+        if not expected_filename:
+            return False
+        cards = self._resume_cards(modal)
+        if not cards:
+            return False                      # step gone / unreadable -> not verified
+        selected = [card for card in cards if card.get("selected")]
+        if len(selected) != 1:
+            return False                      # nothing selected, or an ambiguous multi-select
+        if not self._filenames_match(expected_filename, selected[0].get("filename")):
+            return False                      # a DIFFERENT resume is selected
+        for message in self._validation_messages(modal) or []:
+            if re.search(r"resume|document|cv\b", str(message), re.I):
+                return False                  # a resume-related error is still showing
+        navigation = self._find_navigation_button(modal)
+        if navigation.get("locator") is not None and not navigation.get("enabled"):
+            return False                      # LinkedIn is still not ready to advance
+        return True
+
+    def _select_existing_resume(self, modal, expected_filename: str | None) -> bool:
+        """Select the already-present resume that matches the active ResumeProfile.
+
+        Returns True only when the selection is verified after LinkedIn's re-render.
+        """
+        if not expected_filename:
+            return False
+        self._wait_for_resume_ready(modal)
+        cards = self._resume_cards(modal)
+        matching = [
+            card for card in cards
+            if self._filenames_match(expected_filename, card.get("filename"))
+        ]
+        if not matching:
+            return False                      # nothing to select -> caller may upload once
+        if matching[0].get("selected") and self._resume_selection_verified(modal, expected_filename):
+            return True                       # already correctly selected: touch nothing
+        try:
+            clicked = modal.evaluate(self._CLICK_RESUME_CARD_JS, expected_filename)
+        except Exception:
+            return False
+        if not clicked:
+            return False
+        # LinkedIn shows a spinner and re-renders the cards; re-resolve them afterwards
+        # instead of trusting the pre-click handles.
+        self._wait_for_resume_ready(modal)
+        return self._resume_selection_verified(modal, expected_filename)
+
+    def _file_input_count(self, modal) -> int:
+        try:
+            return modal.locator("input[type='file']").count()
+        except Exception:
+            return 0
+
+    #: How long LinkedIn gets to process a freshly uploaded resume and re-render the step.
+    resume_upload_timeout_ms = 20000
+
+    def _wait_for_uploaded_resume_card(
+        self, modal, expected_filename: str | None, timeout_ms: int | None = None
+    ) -> bool:
+        """Bounded wait for LinkedIn to finish processing a freshly uploaded resume and re-render
+        the step with a card for it. Polls the real DOM (spinner, then the card list) rather than
+        sleeping for a guessed period, so we never read the pre-upload render."""
+        if not expected_filename:
+            return False
+        timeout_ms = self.resume_upload_timeout_ms if timeout_ms is None else timeout_ms
+        deadline = time.monotonic() + (timeout_ms / 1000)
+        while time.monotonic() < deadline:
+            self._wait_for_resume_ready(modal)
+            for card in self._resume_cards(modal):
+                if self._filenames_match(expected_filename, card.get("filename")):
+                    return True
+            try:
+                modal.page.wait_for_timeout(250)
+            except Exception:
+                return False
+        return False
+
+    def _record_resume_ready(self, diagnostics, diagnostics_dir, modal, *, uploaded: bool) -> None:
+        if diagnostics is None:
+            return
+        selected = next((c for c in self._resume_cards(modal) if c.get("selected")), {})
+        diagnostics["existing_resume_selected"] = not uploaded
+        diagnostics["linkedin_filename_detected_after_upload"] = selected.get("filename")
+        diagnostics["upload_completed"] = True
+        diagnostics["upload_success"] = True
+        diagnostics["mismatch_detected"] = False
+        diagnostics["reason_if_failed"] = None
+        self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+
+    def _record_resume_unresolved(self, diagnostics, diagnostics_dir, reason: str) -> None:
+        """CASE 3: automation genuinely could not put the right resume in place. The caller turns
+        this into a manual-assist pause (browser stays open), never a silent duplicate upload."""
+        if diagnostics is None:
+            return
+        diagnostics["existing_resume_selected"] = False
+        diagnostics["upload_success"] = False
+        diagnostics["mismatch_detected"] = True
+        diagnostics["reason_if_failed"] = reason
+        self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+
     def _upload_resume_if_needed(
         self,
         modal,
@@ -2755,57 +3249,91 @@ class LinkedInAutomation:
         diagnostics: dict | None = None,
         diagnostics_dir: Path | None = None,
     ) -> bool:
-        status = self._resume_upload_status(modal)
-        if diagnostics is not None:
-            diagnostics["linkedin_filename_detected_after_upload"] = status.get("detected_filename")
-            if diagnostics.get("upload_success") and not diagnostics.get("mismatch_detected"):
-                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
-                return False
-        if not status["resume_upload_present"]:
-            if diagnostics is not None:
-                diagnostics["reason_if_failed"] = diagnostics.get("reason_if_failed") or "No resume upload input was present on this form step."
-                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
-            return False
-        upload_inputs = modal.locator("input[type='file']")
-        if status["selected_resume_present"] and upload_inputs.count() == 0:
-            if diagnostics is not None:
-                detected_filename = status.get("detected_filename")
-                expected_filename = diagnostics.get("resume_original_filename")
-                diagnostics["upload_completed"] = True
-                diagnostics["upload_success"] = self._filenames_match(expected_filename, detected_filename)
-                diagnostics["mismatch_detected"] = not diagnostics["upload_success"]
-                diagnostics["reason_if_failed"] = (
-                    None
-                    if diagnostics["upload_success"]
-                    else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
-                )
-                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
-            return False
-        uploaded = False
-        for index in range(upload_inputs.count()):
-            if diagnostics is not None:
-                diagnostics["upload_started"] = True
-                diagnostics["file_passed_to_playwright"] = str(resume_path)
-            upload_inputs.nth(index).set_input_files(
-                self._resume_upload_payload(resume_path, diagnostics)
-            )
-            uploaded = True
-        if diagnostics is not None:
-            refreshed_status = self._resume_upload_status(modal)
-            detected_filename = refreshed_status.get("detected_filename")
-            expected_filename = diagnostics.get("resume_original_filename")
-            diagnostics["linkedin_filename_detected_after_upload"] = detected_filename
-            diagnostics["upload_completed"] = uploaded
-            diagnostics["upload_success"] = bool(uploaded) and (
-                detected_filename is None or self._filenames_match(expected_filename, detected_filename)
-            )
-            diagnostics["mismatch_detected"] = bool(detected_filename) and not self._filenames_match(expected_filename, detected_filename)
-            diagnostics["reason_if_failed"] = (
-                None
-                if diagnostics["upload_success"] and not diagnostics["mismatch_detected"]
-                else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
-            )
+        """The LinkedIn resume step, as one explicit decision tree.
+
+        LinkedIn only remembers resumes it has already seen. So the presence of some OTHER saved
+        resume says nothing about the active one -- it is NOT a mismatch, it just means the active
+        resume is new to this account and must be uploaded once.
+
+          CASE 1  the active resume is already saved  -> select it, verify, never duplicate it.
+          CASE 2  it is not saved yet                 -> upload it, wait out the spinner and the
+                                                         re-render, then select + verify it.
+          CASE 3  upload or verification really failed-> flag it; the caller pauses for manual
+                                                         assist with the modal still open.
+
+        Returns True only when a file was actually uploaded (the caller logs/screenshots that).
+        """
+        expected_filename = (diagnostics or {}).get("resume_original_filename")
+
+        if diagnostics is not None and diagnostics.get("upload_success") and not diagnostics.get("mismatch_detected"):
             self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+            return False                        # already resolved earlier in this application
+
+        self._wait_for_resume_ready(modal)
+        cards = self._resume_cards(modal)
+        already_saved = bool(expected_filename) and any(
+            self._filenames_match(expected_filename, card.get("filename")) for card in cards
+        )
+
+        # -- CASE 1 -------------------------------------------------------------------------
+        if already_saved:
+            if self._select_existing_resume(modal, expected_filename):
+                self._record_resume_ready(diagnostics, diagnostics_dir, modal, uploaded=False)
+                return False                    # reused: no duplicate, nothing uploaded
+            self._record_resume_unresolved(
+                diagnostics,
+                diagnostics_dir,
+                f"{expected_filename!r} is already listed on the LinkedIn resume step, but "
+                "automation could not confirm it is the selected one.",
+            )
+            return False                        # present but unverifiable -> assist, never duplicate
+
+        # -- CASE 2 -------------------------------------------------------------------------
+        # Not saved on this LinkedIn account yet. Upload it. Other saved resumes are irrelevant.
+        if not expected_filename:
+            self._record_resume_unresolved(
+                diagnostics, diagnostics_dir, "No active resume filename to upload."
+            )
+            return False
+        if not self._file_input_count(modal):
+            self._record_resume_unresolved(
+                diagnostics,
+                diagnostics_dir,
+                "No resume upload input was present on this form step.",
+            )
+            return False
+
+        upload_inputs = modal.locator("input[type='file']")
+        uploaded = False
+        try:
+            for index in range(upload_inputs.count()):
+                if diagnostics is not None:
+                    diagnostics["upload_started"] = True
+                    diagnostics["file_passed_to_playwright"] = str(resume_path)
+                upload_inputs.nth(index).set_input_files(
+                    self._resume_upload_payload(resume_path, diagnostics)
+                )
+                uploaded = True
+        except Exception as exc:
+            self._record_resume_unresolved(
+                diagnostics, diagnostics_dir, f"Uploading {expected_filename!r} to LinkedIn failed: {exc}"
+            )
+            return False
+
+        # LinkedIn processes the file and re-renders the step: wait for the new card to exist,
+        # then select + verify it from the RE-READ DOM. We never trust the pre-upload render.
+        if self._wait_for_uploaded_resume_card(modal, expected_filename) and self._select_existing_resume(
+            modal, expected_filename
+        ):
+            self._record_resume_ready(diagnostics, diagnostics_dir, modal, uploaded=True)
+            return uploaded
+
+        # -- CASE 3 -------------------------------------------------------------------------
+        self._record_resume_unresolved(
+            diagnostics,
+            diagnostics_dir,
+            f"Uploaded {expected_filename!r} but LinkedIn did not confirm it as the selected resume.",
+        )
         return uploaded
 
     def _create_resume_upload_diagnostics(self, job: JobOpportunity, resume: ResumeProfile) -> tuple[Path, dict]:

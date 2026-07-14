@@ -1,5 +1,37 @@
-INFO:     Started server process [12800]
+INFO:     Started server process [3184]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-2026-07-08 13:25:19,884 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+2026-07-14 10:38:09,856 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+2026-07-14 10:38:23,179 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+2026-07-14 10:38:38,754 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+2026-07-14 10:40:57,517 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+2026-07-14 10:42:38,296 INFO [app.services.linkedin] LinkedIn job page did not reach network idle within 10 seconds.
+node:events:496
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at PipeTransport.send (C:\Users\DELL\Documents\Codex\2026-06-23\build-a-python-application-that-allows\.venv\Lib\site-packages\playwright\driver\package\lib\protocol\transport.js:51:21)
+    at dispatcherConnection.onmessage (C:\Users\DELL\Documents\Codex\2026-06-23\build-a-python-application-that-allows\.venv\Lib\site-packages\playwright\driver\package\lib\cli\driver.js:59:57)
+    at DispatcherConnection.sendEvent (C:\Users\DELL\Documents\Codex\2026-06-23\build-a-python-application-that-allows\.venv\Lib\site-packages\playwright\driver\package\lib\server\dispatchers\dispatcher.js:178:10)
+    at FrameDispatcher._dispatchEvent (C:\Users\DELL\Documents\Codex\2026-06-23\build-a-python-application-that-allows\.venv\Lib\site-packages\playwright\driver\package\lib\server\dispatchers\dispatcher.js:108:22)
+    at Frame.<anonymous> (C:\Users\DELL\Documents\Codex\2026-06-23\build-a-python-application-that-allows\.venv\Lib\site-packages\playwright\driver\package\lib\server\dispatchers\frameDispatcher.js:58:12)
+    at Frame.emit (node:events:518:28)
+Emitted 'error' event on Socket instance at:
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at runNextTicks (node:internal/process/task_queues:69:3)
+    at listOnTimeout (node:internal/timers:555:9)
+    at process.processTimers (node:internal/timers:529:7) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+
+Node.js v22.11.0

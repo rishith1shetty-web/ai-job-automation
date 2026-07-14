@@ -65,6 +65,7 @@ export const handlers = [
     HttpResponse.json({ matched_jobs: 0, easy_apply_jobs: 0, applied_jobs: 0, needs_review: 0, failed_jobs: 0, skipped_jobs: 0 }),
   ),
   http.get(`${BASE}/applications/apply-top/latest`, () => HttpResponse.json(null)),
+  http.get(`${BASE}/applications/apply-top/manual-assist`, () => HttpResponse.json({ active: false })),
   http.get(`${BASE}/applications/apply-top/batches/:id`, () => HttpResponse.json(null)),
 ];
 
