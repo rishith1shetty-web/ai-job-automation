@@ -2,7 +2,10 @@
 
 The apply flow is exercised without a real browser by overriding the three
 interaction seams (`_apply_browser_context`, `_detect_apply_form`, `_fill_fields`).
-Safety is asserted: the flow NEVER submits and only ever reports dry-run outcomes.
+
+Safety: a DRY RUN never submits. Live apply (dry_run=False) is now enabled and does submit,
+but only after every safety gate passes -- see tests/test_dice_live_apply.py, which pins the
+submit/confirm contract. No test here or there performs a real submission.
 """
 
 import contextlib
@@ -115,12 +118,23 @@ class DiceApplyTests(unittest.TestCase):
         )
         return adapter, result
 
-    def test_live_apply_is_disabled_and_never_submits(self):
+    def test_live_apply_fills_and_reaches_the_submit_stage(self):
+        """Live apply is now ENABLED (it used to hard-stop at `dice_live_apply_disabled`).
+
+        This FakePage exposes no Submit control, so the adapter must report that honestly
+        instead of claiming success -- and it must still never mark anything submitted.
+        """
         adapter, result = self._apply({"apply_type": "native", "fields": []}, dry_run=False)
         self.assertEqual(result.status, ApplicationStatus.NEEDS_REVIEW)
-        self.assertEqual(result.current_step, "dice_live_apply_disabled")
+        self.assertEqual(result.current_step, "dice_submit_not_found")
         self.assertFalse(adapter.page.submitted)
-        self.assertIsNone(adapter.filled_plan)  # no filling in live-disabled path
+        self.assertIsNotNone(adapter.filled_plan)      # live mode DOES fill the form
+        self.assertNotEqual(result.status, ApplicationStatus.DRY_RUN_READY)
+
+    def test_dry_run_never_submits_even_though_live_apply_exists(self):
+        adapter, result = self._apply({"apply_type": "native", "fields": []}, dry_run=True)
+        self.assertEqual(result.status, ApplicationStatus.DRY_RUN_READY)
+        self.assertFalse(adapter.page.submitted)
 
     def test_external_form_is_unsupported(self):
         _, result = self._apply({"apply_type": "external", "fields": []})

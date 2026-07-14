@@ -707,18 +707,10 @@ class DicePortalAdapter:
         self._review_missing_required = None
         self._city_commit_failure = None
         self._trace("apply_started", job_id=job.id, job_url=job.job_url, dry_run=dry_run)
-
-        # Live apply is intentionally not enabled for Dice: never submit.
-        if not dry_run:
-            self._trace_return("apply_to_job", "dry_run=False; live apply disabled for Dice", log)
-            return self._dice_result(
-                ApplicationStatus.NEEDS_REVIEW,
-                "Live apply is disabled for Dice; dry-run only (no submission performed).",
-                "dice_live_apply_disabled",
-                debug_dir,
-                job,
-                log=log,
-            )
+        # Live apply is enabled for Dice. dry_run=False reaches the real submit path in
+        # _plan_dry_run, which clicks Submit ONLY after every existing safety check has passed
+        # and returns APPLIED only once submission is positively confirmed.
+        self._dry_run = dry_run
 
         try:
             with self._apply_browser_context() as context:
@@ -749,7 +741,8 @@ class DicePortalAdapter:
                 self._trace("apply_form_detected", apply_type=form.get("apply_type"),
                             field_count=len(form.get("fields") or []),
                             opened_new_tab=active_page is not page)
-                result = self._plan_dry_run(active_page, form, job, resume, candidate_profile, screening_context, debug_dir, log)
+                result = self._plan_dry_run(active_page, form, job, resume, candidate_profile,
+                                            screening_context, debug_dir, log, dry_run=dry_run)
                 if capture_evidence:
                     self._capture_apply_artifact(active_page, debug_dir)
                 self._final_status = result.status.value
@@ -2068,7 +2061,10 @@ class DicePortalAdapter:
         screening_context: dict,
         debug_dir: Path,
         log: list[dict],
+        dry_run: bool = True,
     ) -> AutomationResult:
+        # dry_run defaults to True so any caller/test that predates live apply stays SAFE:
+        # an omitted flag can never mean "submit".
         apply_type = form.get("apply_type")
         # Honor the wizard runner's terminal classification: a run that could not
         # advance past a step is NOT a success -- map its exact reason to a status
@@ -2220,17 +2216,129 @@ class DicePortalAdapter:
                 log=log, screening_answers=screening_answers, missing_contact=missing_contact,
             )
 
-        # All required fields are answerable: fill everything EXCEPT final submit.
+        # Every safety check above has passed: the form is native, the wizard reached the end,
+        # nothing is unanswered, nothing is unsupported, and the review step reported no missing
+        # required fields. Only now may the two modes diverge.
         self._fill_fields(page, plan)
-        log.append({"step": "dry_run_filled", "fields_planned": len(plan), "submitted": False})
-        reason = "Dice dry run reached the submit-ready stage; application was NOT submitted."
-        self._trace_return("_plan_dry_run",
-                           f"all fields answerable; wizard stop_code={stop_code or 'none'} -> submit-ready", log,
-                           status="dry_run_ready", stop_code=stop_code, stop_at=stop_at,
-                           fields_planned=len(plan))
+
+        if dry_run:
+            # DRY RUN: fill everything EXCEPT final submit. Unchanged behaviour.
+            log.append({"step": "dry_run_filled", "fields_planned": len(plan), "submitted": False})
+            reason = "Dice dry run reached the submit-ready stage; application was NOT submitted."
+            self._trace_return("_plan_dry_run",
+                               f"all fields answerable; wizard stop_code={stop_code or 'none'} -> submit-ready", log,
+                               status="dry_run_ready", stop_code=stop_code, stop_at=stop_at,
+                               fields_planned=len(plan))
+            return self._dice_result(
+                ApplicationStatus.DRY_RUN_READY, reason, "dice_dry_run_ready", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            )
+
+        # LIVE APPLY: really submit. Reaching submit-ready is NOT success here -- only a
+        # positively confirmed submission is.
+        log.append({"step": "live_apply_filled", "fields_planned": len(plan)})
+        return self._submit_application(
+            page, job, debug_dir, log,
+            screening_answers=screening_answers, missing_contact=missing_contact,
+            fields_planned=len(plan),
+        )
+
+    # ---- Live submission ------------------------------------------------------------------
+    #: Positive proof Dice accepted the application. Absence of proof is NEVER treated as
+    #: success -- an unconfirmed click is reported for review, not as APPLIED.
+    SUBMIT_CONFIRMATION_RE = re.compile(
+        r"application\s+(?:was\s+)?(?:submitted|sent|received|complete)"
+        r"|(?:you(?:'ve| have)?\s+)?(?:successfully\s+)?applied\b"
+        r"|thanks?\s+for\s+applying"
+        r"|your\s+application\s+(?:has\s+been\s+)?(?:submitted|sent)",
+        re.I,
+    )
+
+    def _find_submit_control(self, page):
+        for selector in self.SUBMIT_SELECTORS:
+            try:
+                locator = page.locator(selector).first
+                if locator.count() > 0 and locator.is_enabled():
+                    return locator
+            except Exception:
+                continue
+        return None
+
+    def _submission_confirmed(self, page, timeout_ms: int = 15000) -> bool:
+        """Wait for Dice to positively confirm the submission. Returns False on timeout -- the
+        caller must NOT report APPLIED without this."""
+        deadline = time.monotonic() + (timeout_ms / 1000)
+        while time.monotonic() < deadline:
+            try:
+                if self.SUBMIT_CONFIRMATION_RE.search(page.inner_text("body")):
+                    return True
+            except Exception:
+                pass
+            time.sleep(0.25)
+        return False
+
+    def _submit_application(
+        self,
+        page,
+        job: JobOpportunity,
+        debug_dir: Path,
+        log: list[dict],
+        *,
+        screening_answers: list[dict],
+        missing_contact: list[str],
+        fields_planned: int,
+    ) -> AutomationResult:
+        """Click Dice's final Submit and confirm it landed.
+
+        APPLIED is returned ONLY on positive confirmation. A click we cannot confirm is
+        genuinely ambiguous (it may or may not have gone through), so it is surfaced for review
+        rather than recorded as a success or as a clean failure.
+        """
+        submit = self._find_submit_control(page)
+        if submit is None:
+            reason = "Dice live apply reached the submit stage but no enabled Submit control was found."
+            log.append({"step": "submit_not_found", "submitted": False})
+            self._trace_return("_submit_application", reason, log, status="needs_review")
+            return self._dice_result(
+                ApplicationStatus.NEEDS_REVIEW, reason, "dice_submit_not_found", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            )
+
+        self._capture_named(page, "before_submit")
+        try:
+            submit.click()
+        except Exception as exc:
+            reason = f"Dice Submit click failed: {exc}"
+            log.append({"step": "submit_click_failed", "submitted": False, "error": str(exc)})
+            self._trace_return("_submit_application", reason, log, status="failed")
+            return self._dice_result(
+                ApplicationStatus.FAILED, reason, "dice_submit_failed", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            )
+
+        self._trace("submit_clicked", job_id=job.id, url=self._safe_page_url(page))
+        confirmed = self._submission_confirmed(page)
+        self._capture_named(page, "after_submit")
+        self._capture_html(page, "after_submit")
+
+        if not confirmed:
+            reason = ("Dice Submit was clicked but the confirmation could not be verified. "
+                      "Check this application manually before re-applying.")
+            log.append({"step": "submit_unconfirmed", "submitted": None})
+            self._trace_return("_submit_application", reason, log, status="needs_review")
+            return self._dice_result(
+                ApplicationStatus.NEEDS_REVIEW, reason, "dice_submit_unconfirmed", debug_dir, job,
+                log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+                submitted=None,
+            )
+
+        reason = "Dice live apply: application submitted and confirmed."
+        log.append({"step": "submitted", "fields_planned": fields_planned, "submitted": True})
+        self._trace_return("_submit_application", reason, log, status="applied")
         return self._dice_result(
-            ApplicationStatus.DRY_RUN_READY, reason, "dice_dry_run_ready", debug_dir, job,
+            ApplicationStatus.APPLIED, reason, "dice_submitted", debug_dir, job,
             log=log, screening_answers=screening_answers, missing_contact=missing_contact,
+            submitted=True,
         )
 
     def _field_plan_entry(
@@ -2729,7 +2837,10 @@ class DicePortalAdapter:
         log: list[dict] | None = None,
         screening_answers: list[dict] | None = None,
         missing_contact: list[str] | None = None,
+        submitted: bool | None = False,
     ) -> AutomationResult:
+        # `submitted` defaults to False: every non-submit outcome is, by construction, not a
+        # submission. Only the live submit path passes True (confirmed) or None (unconfirmed).
         log = list(log or [])
         log.append({"step": "apply_result", "status": status.value, "current_step": current_step})
         self._write_debug(
@@ -2744,7 +2855,7 @@ class DicePortalAdapter:
                 "status": status.value,
                 "current_step": current_step,
                 "message": message,
-                "submitted": False,
+                "submitted": submitted,
                 "screening_answers": screening_answers or [],
                 "missing_contact_fields": missing_contact or [],
             },

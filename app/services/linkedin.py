@@ -3,6 +3,7 @@ import logging
 import re
 import hashlib
 import mimetypes
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -2748,6 +2749,336 @@ class LinkedInAutomation:
             "detected_filename": detected_filename,
         }
 
+    # -- resume step ------------------------------------------------------------------------
+    # RULE: every LinkedIn Easy Apply run uploads the ACTIVE analyzed resume. Resumes already
+    # saved on the account are ignored entirely -- never reused, never matched, never selected.
+    #
+    # Identifying the card we just created cannot rely on the filename: LinkedIn happily keeps
+    # several cards with the SAME name. So the card list is MARKED before the upload, and the one
+    # unmarked control afterwards is, by construction, the card we just added.
+    #
+    # Cards are found semantically (a real selection control next to a filename), never by
+    # LinkedIn CSS class names, which churn.
+
+    #: Stamp every control that already exists, so the post-upload diff can spot the new one.
+    _MARK_RESUME_CARDS_JS = """
+    (root) => {
+      const CONTROL = "input[type='radio'],input[type='checkbox'],[role='radio'],[role='option'],[aria-checked]";
+      const controls = Array.from(root.querySelectorAll(CONTROL));
+      controls.forEach((el) => el.setAttribute("data-rp-preexisting", "1"));
+      return controls.length;
+    }
+    """
+
+    _RESUME_CARDS_JS = r"""
+    (root) => {
+      const FILE_RE = /\.(pdf|docx?|txt)\s*$/i;
+      const ANY_FILE_RE = /[^\n\r]*\.(?:pdf|docx?|txt)\b/i;
+      const CONTROL = "input[type='radio'],input[type='checkbox'],[role='radio'],[role='option'],[aria-checked]";
+      const cards = [];
+      for (const control of Array.from(root.querySelectorAll(CONTROL))) {
+        let node = control, container = null;
+        for (let i = 0; i < 6 && node; i++) {
+          node = node.parentElement;
+          if (!node) break;
+          if (ANY_FILE_RE.test(node.innerText || "")) { container = node; break; }
+        }
+        let filename = null;
+        if (container) {
+          for (const leaf of Array.from(container.querySelectorAll("*"))) {
+            if (leaf.children.length) continue;
+            const text = (leaf.textContent || "").trim();
+            if (FILE_RE.test(text)) { filename = text; break; }
+          }
+          if (!filename) {
+            const match = (container.innerText || "").match(ANY_FILE_RE);
+            if (match) filename = match[0].trim();
+          }
+        }
+        if (!filename) {
+          // The control carries the name too: "Select resume X.pdf" -> "Deselect resume X.pdf"
+          // once it is chosen.
+          const label = control.getAttribute("aria-label") || "";
+          const match = label.match(ANY_FILE_RE);
+          if (match) filename = match[0].trim();
+        }
+        if (!filename) continue;
+        cards.push({
+          filename,
+          selected: control.checked === true
+            || control.getAttribute("aria-checked") === "true"
+            || control.getAttribute("aria-selected") === "true",
+          is_new: !control.hasAttribute("data-rp-preexisting"),
+        });
+      }
+      return cards;
+    }
+    """
+
+    #: Click the ONE control that did not exist before the upload.
+    _SELECT_NEW_RESUME_CARD_JS = """
+    (root) => {
+      const CONTROL = "input[type='radio'],input[type='checkbox'],[role='radio'],[role='option'],[aria-checked]";
+      for (const control of Array.from(root.querySelectorAll(CONTROL))) {
+        if (control.hasAttribute("data-rp-preexisting")) continue;
+        // .click() on the real control commits React state even when the radio is visually
+        // hidden behind a styled card; clicking the card chrome often does not.
+        control.click();
+        return true;
+      }
+      return false;
+    }
+    """
+
+    _RESUME_BUSY_JS = """
+    (root) => {
+      const BUSY = "[role='progressbar'],[aria-busy='true'],[class*='spinner'],[class*='loader']";
+      return Array.from(root.querySelectorAll(BUSY)).some((el) => {
+        const style = window.getComputedStyle(el);
+        return style.display !== "none" && style.visibility !== "hidden";
+      });
+    }
+    """
+
+    #: LinkedIn's card control is a TOGGLE: its label reads "Select resume X.pdf" while unselected
+    #: and flips to "DEselect resume X.pdf" once chosen. Missing the "de" here is exactly what made
+    #: a perfectly good upload look like a mismatch and closed the browser mid-run.
+    _RESUME_LABEL_PREFIX_RE = re.compile(r"^(?:(?:de)?select|choose|use)?\s*(?:resume|cv)\s+", re.I)
+
+    def _normalize_resume_name(self, name: str | None) -> str:
+        return Path(name).name.strip().lower() if name else ""
+
+    def _clean_resume_filename(self, name: str | None) -> str:
+        """Strip a control label ("Deselect resume X.pdf") down to the bare filename."""
+        normalized = self._normalize_resume_name(name)
+        return self._RESUME_LABEL_PREFIX_RE.sub("", normalized).strip()
+
+    def _resume_names_match(self, expected: str | None, detected: str | None) -> bool:
+        expected_name = self._normalize_resume_name(expected)
+        detected_name = self._normalize_resume_name(detected)
+        if not expected_name or not detected_name:
+            return False
+        return expected_name in (detected_name, self._clean_resume_filename(detected))
+
+    def _resume_cards(self, modal) -> list[dict]:
+        """Every resume card on screen. [] means the step is unreadable (or absent) -- never
+        "there are none", so callers must not treat [] as proof of anything."""
+        try:
+            cards = modal.evaluate(self._RESUME_CARDS_JS)
+        except Exception:
+            return []
+        return cards if isinstance(cards, list) else []
+
+    def _mark_existing_resume_cards(self, modal) -> int:
+        """Snapshot the PRE-upload card set. Returns -1 when the step is unreadable."""
+        try:
+            return int(modal.evaluate(self._MARK_RESUME_CARDS_JS))
+        except Exception:
+            return -1
+
+    def _new_resume_cards(self, modal) -> list[dict]:
+        return [card for card in self._resume_cards(modal) if card.get("is_new")]
+
+    #: Bounded waits for the resume step. Overridable so tests need not sit through them.
+    RESUME_READY_TIMEOUT_MS = 8000
+    RESUME_CARD_TIMEOUT_MS = 15000
+
+    def _wait_for_resume_ready(self, modal, timeout_ms: int | None = None) -> bool:
+        """Bounded poll until LinkedIn stops processing. No arbitrary sleeps, and Next is never
+        clicked while a spinner is still running."""
+        timeout_ms = self.RESUME_READY_TIMEOUT_MS if timeout_ms is None else timeout_ms
+        deadline = time.monotonic() + (timeout_ms / 1000)
+        while time.monotonic() < deadline:
+            try:
+                if not modal.evaluate(self._RESUME_BUSY_JS):
+                    return True
+            except Exception:
+                return True  # unreadable: nothing to wait on, let verification decide
+            time.sleep(0.15)
+        return False
+
+    def _wait_for_new_resume_card(self, modal, timeout_ms: int | None = None) -> bool:
+        """Wait for the post-upload re-render to actually produce the new card."""
+        timeout_ms = self.RESUME_CARD_TIMEOUT_MS if timeout_ms is None else timeout_ms
+        deadline = time.monotonic() + (timeout_ms / 1000)
+        while time.monotonic() < deadline:
+            if self._new_resume_cards(modal):
+                return True
+            time.sleep(0.15)
+        return False
+
+    def _resume_validation_error(self, modal) -> bool:
+        return any(
+            re.search(r"resume|cv|document", message, re.I)
+            for message in self._validation_messages(modal)
+        )
+
+    #: Conditions that may VETO success. Everything else the check reports is diagnostic only.
+    #:
+    #: Verification must never be stricter than LinkedIn itself. It previously demanded exactly ONE
+    #: card carrying the `is_new` marker -- but LinkedIn re-renders the resume list after an upload
+    #: and REPLACES the DOM nodes, which wipes the data-rp-preexisting attributes off the surviving
+    #: cards. Every card then looks new, `exactly_one_new_card` went False, and a resume LinkedIn
+    #: had already accepted (right filename, green radio, Next enabled) was rejected. The marker is
+    #: still used to TARGET the click; it is no longer trusted to JUDGE the outcome.
+    _RESUME_VERIFY_GATES = (
+        "selected_filename_matches_active_resume",
+        "no_validation_error",
+        "next_enabled",
+    )
+
+    def _check_resume_selection(self, modal, expected_filename: str | None) -> dict:
+        """Evaluate every verification condition SEPARATELY so a failure can name itself.
+
+        Returns each boolean plus `verified` and `failed_conditions`. Only the gates in
+        _RESUME_VERIFY_GATES can veto; the rest are recorded for diagnosis.
+        """
+        cards = self._resume_cards(modal)
+        selected = [card for card in cards if card.get("selected")]
+        new_cards = [card for card in cards if card.get("is_new")]
+        matching_selected = [
+            card for card in selected
+            if self._resume_names_match(expected_filename, card.get("filename"))
+        ]
+        messages = self._validation_messages(modal)
+        navigation = self._find_navigation_button(modal)
+        next_found = navigation.get("locator") is not None
+
+        checks = {
+            # -- gates ------------------------------------------------------------------
+            "selected_filename_matches_active_resume": bool(matching_selected),
+            "no_validation_error": not self._resume_validation_error(modal),
+            "next_enabled": (not next_found) or bool(navigation.get("enabled")),
+            # -- diagnostic only (must NOT veto: all of these can legitimately flip after a
+            #    LinkedIn re-render even though the application is perfectly submittable) ----
+            "cards_readable": bool(cards),
+            "card_count": len(cards),
+            "selected_card_found": bool(selected),
+            "exactly_one_selected": len(selected) == 1,
+            "new_card_found": bool(new_cards),
+            "exactly_one_new_card": len(new_cards) == 1,
+            "new_card_is_selected": bool(new_cards) and bool(new_cards[0].get("selected")),
+            "next_found": next_found,
+            "selected_filename": (selected[0].get("filename") if selected else None),
+            "expected_filename": expected_filename,
+            "validation_messages": messages,
+        }
+        checks["failed_conditions"] = [
+            gate for gate in self._RESUME_VERIFY_GATES if not checks[gate]
+        ]
+        # Success = LinkedIn's own bar: the resume we uploaded is the selected radio, nothing is
+        # complaining about it, and Next is live.
+        checks["verified"] = not checks["failed_conditions"]
+        return checks
+
+    def _resume_selection_verified(self, modal, expected_filename: str | None) -> bool:
+        return self._check_resume_selection(modal, expected_filename)["verified"]
+
+    def _select_new_resume(self, modal, expected_filename: str | None) -> dict:
+        """Select the freshly uploaded card (LinkedIn usually auto-selects it; if so, leave it
+        alone) and return the full per-condition verification result."""
+        self._wait_for_resume_ready(modal)
+        checks = self._check_resume_selection(modal, expected_filename)
+        if checks["verified"]:
+            return checks
+        try:
+            clicked = modal.evaluate(self._SELECT_NEW_RESUME_CARD_JS)
+        except Exception:
+            clicked = False
+        if not clicked:
+            checks["select_click_failed"] = True
+            return checks
+        self._wait_for_resume_ready(modal)     # selecting re-renders
+        return self._check_resume_selection(modal, expected_filename)
+
+    def _resume_upload_verified(self, modal, expected_filename: str | None) -> dict:
+        """Verification after the upload.
+
+        When the card list is readable this is the per-condition check above. When it is NOT
+        readable -- an upload-only step with no card list, or a DOM we cannot parse -- fall back to
+        the pre-existing text signal so this stays no STRICTER than the old behaviour: only an
+        explicitly different filename fails, never an unreadable one.
+        """
+        if self._resume_cards(modal):
+            return self._select_new_resume(modal, expected_filename)
+
+        detected = self._resume_upload_status(modal).get("detected_filename")
+        no_error = not self._resume_validation_error(modal)
+        name_ok = detected is None or self._resume_names_match(expected_filename, detected)
+        checks = {
+            "cards_readable": False,
+            "selected_filename_matches_active_resume": name_ok,
+            "no_validation_error": no_error,
+            "next_enabled": True,
+            "selected_filename": detected,
+            "expected_filename": expected_filename,
+        }
+        checks["failed_conditions"] = [
+            gate for gate in self._RESUME_VERIFY_GATES if not checks.get(gate, True)
+        ]
+        checks["verified"] = not checks["failed_conditions"]
+        return checks
+
+    def _record_resume_outcome(
+        self,
+        diagnostics: dict | None,
+        diagnostics_dir: Path | None,
+        modal,
+        expected_filename: str | None,
+        *,
+        uploaded: bool,
+        checks: dict,
+        pre_upload_cards: int,
+    ) -> None:
+        if diagnostics is None:
+            return
+        verified = bool(checks.get("verified"))
+        detected = checks.get("selected_filename")
+        diagnostics["linkedin_filename_detected_after_upload"] = detected
+        diagnostics["resume_cards_before_upload"] = pre_upload_cards
+        diagnostics["resume_cards_after_upload"] = checks.get("card_count")
+        diagnostics["new_resume_card_selected"] = verified
+        diagnostics["upload_completed"] = uploaded
+        diagnostics["upload_success"] = verified
+        # Every individual condition, so a failure can be diagnosed without re-running the browser.
+        diagnostics["resume_verification"] = {
+            key: value for key, value in checks.items() if key != "verified"
+        }
+        diagnostics["mismatch_detected"] = not verified
+        # Name the EXACT condition(s) that failed. Never a generic "could not confirm".
+        failed = checks.get("failed_conditions") or []
+        diagnostics["reason_if_failed"] = (
+            None
+            if verified
+            else (
+                "Resume verification failed on: "
+                + ", ".join(f"{gate}=False" for gate in failed)
+                + f" (expected={expected_filename!r}, selected={detected!r}, "
+                f"cards before={pre_upload_cards}, after={checks.get('card_count')}, "
+                f"validation={checks.get('validation_messages')})"
+            )
+        )
+        self._log_resume_verification(checks)
+        self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+
+    def _log_resume_verification(self, checks: dict) -> None:
+        """One line per condition, so the log says exactly which one was False."""
+        for key in (
+            "cards_readable", "card_count", "selected_card_found", "exactly_one_selected",
+            "new_card_found", "exactly_one_new_card", "new_card_is_selected",
+            "selected_filename_matches_active_resume", "no_validation_error",
+            "next_found", "next_enabled",
+        ):
+            if key in checks:
+                logger.info("resume_verification %s=%s", key, checks[key])
+        if checks.get("failed_conditions"):
+            logger.warning(
+                "resume_verification FAILED on %s (selected=%r expected=%r)",
+                ", ".join(checks["failed_conditions"]),
+                checks.get("selected_filename"),
+                checks.get("expected_filename"),
+            )
+
     def _upload_resume_if_needed(
         self,
         modal,
@@ -2755,32 +3086,38 @@ class LinkedInAutomation:
         diagnostics: dict | None = None,
         diagnostics_dir: Path | None = None,
     ) -> bool:
+        """Upload the ACTIVE analyzed resume, every time, and select the card it creates.
+
+        Resumes already saved on the account are ignored completely -- whether they differ from the
+        active resume, match it, are already selected, or there are several of them. Returns True
+        when a file was uploaded. On genuine failure it sets mismatch_detected, which the caller
+        turns into NEEDS_REVIEW with full diagnostics (unchanged behaviour).
+        """
         status = self._resume_upload_status(modal)
-        if diagnostics is not None:
-            diagnostics["linkedin_filename_detected_after_upload"] = status.get("detected_filename")
-            if diagnostics.get("upload_success") and not diagnostics.get("mismatch_detected"):
-                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
-                return False
+        expected_filename = (
+            (diagnostics or {}).get("resume_original_filename") or resume_path.name
+        )
+        if diagnostics is not None and diagnostics.get("upload_success") and not diagnostics.get("mismatch_detected"):
+            # Already uploaded and verified earlier in this run: do not upload it twice.
+            self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+            return False
+
         if not status["resume_upload_present"]:
             if diagnostics is not None:
-                diagnostics["reason_if_failed"] = diagnostics.get("reason_if_failed") or "No resume upload input was present on this form step."
-                self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
-            return False
-        upload_inputs = modal.locator("input[type='file']")
-        if status["selected_resume_present"] and upload_inputs.count() == 0:
-            if diagnostics is not None:
-                detected_filename = status.get("detected_filename")
-                expected_filename = diagnostics.get("resume_original_filename")
-                diagnostics["upload_completed"] = True
-                diagnostics["upload_success"] = self._filenames_match(expected_filename, detected_filename)
-                diagnostics["mismatch_detected"] = not diagnostics["upload_success"]
                 diagnostics["reason_if_failed"] = (
-                    None
-                    if diagnostics["upload_success"]
-                    else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
+                    diagnostics.get("reason_if_failed")
+                    or "No resume upload input was present on this form step."
                 )
                 self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
             return False
+
+        # 1. Snapshot the card set BEFORE uploading, so the new card can be told apart from any
+        #    existing one -- including one carrying an identical filename.
+        self._wait_for_resume_ready(modal)
+        pre_upload_cards = self._mark_existing_resume_cards(modal)
+
+        # 2. Upload the active analyzed resume. Always.
+        upload_inputs = modal.locator("input[type='file']")
         uploaded = False
         for index in range(upload_inputs.count()):
             if diagnostics is not None:
@@ -2790,22 +3127,18 @@ class LinkedInAutomation:
                 self._resume_upload_payload(resume_path, diagnostics)
             )
             uploaded = True
-        if diagnostics is not None:
-            refreshed_status = self._resume_upload_status(modal)
-            detected_filename = refreshed_status.get("detected_filename")
-            expected_filename = diagnostics.get("resume_original_filename")
-            diagnostics["linkedin_filename_detected_after_upload"] = detected_filename
-            diagnostics["upload_completed"] = uploaded
-            diagnostics["upload_success"] = bool(uploaded) and (
-                detected_filename is None or self._filenames_match(expected_filename, detected_filename)
-            )
-            diagnostics["mismatch_detected"] = bool(detected_filename) and not self._filenames_match(expected_filename, detected_filename)
-            diagnostics["reason_if_failed"] = (
-                None
-                if diagnostics["upload_success"] and not diagnostics["mismatch_detected"]
-                else f"LinkedIn shows {detected_filename!r}, expected {expected_filename!r}."
-            )
-            self._save_resume_upload_diagnostics(diagnostics_dir, diagnostics)
+        if not uploaded:
+            return False
+
+        # 3. Let LinkedIn parse the file and re-render, then find + select the NEW card and verify
+        #    it for real. Grading a stale DOM is what produced phantom mismatches.
+        self._wait_for_resume_ready(modal)
+        self._wait_for_new_resume_card(modal)
+        checks = self._resume_upload_verified(modal, expected_filename)
+        self._record_resume_outcome(
+            diagnostics, diagnostics_dir, modal, expected_filename,
+            uploaded=True, checks=checks, pre_upload_cards=pre_upload_cards,
+        )
         return uploaded
 
     def _create_resume_upload_diagnostics(self, job: JobOpportunity, resume: ResumeProfile) -> tuple[Path, dict]:
