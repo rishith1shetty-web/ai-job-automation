@@ -61,6 +61,7 @@ from app.services.resume_identity import (
     resume_family_ids_for,
     successful_jobs_for_fingerprint,
 )
+from app.services.runtime_session import get_runtime_session, reset_runtime_session
 from app.services.form_learning import FormLearningEngine
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.matcher import MatchScorer
@@ -349,6 +350,12 @@ def write_profile_debug(
 @app.on_event("startup")
 def startup() -> None:
     init_db()
+    # Every backend start begins with a clean active dashboard session: no portal marked
+    # connected, no active resume, no batch, no matches, zeroed counters. Persistent data
+    # (resumes, batches, jobs, history) and saved portal storage-state files are untouched;
+    # the user reaches them again by explicitly connecting a portal and re-analysing a
+    # resume (which reattaches to its existing fingerprint family).
+    reset_runtime_session()
 
 
 @app.get("/health")
@@ -357,26 +364,36 @@ def health() -> dict:
 
 
 @app.get("/portal/active")
-def get_active_portal_status(db: Session = Depends(get_db)) -> dict:
-    active = get_active_portal(db)
-    disconnect_inactive_portal(active)
+def get_active_portal_status() -> dict:
+    # The ACTIVE session, not persisted preference and not "a storage-state file exists".
+    # A portal is connected only after an explicit Connect in this process, so a fresh
+    # backend start always reports both portals disconnected with no active portal.
+    # Read-only on purpose: this endpoint must never delete a saved portal session.
+    session = get_runtime_session()
     return {
-        "active_portal": active,
-        "linkedin_connected": (
-            LinkedInAutomation(settings).has_authenticated_session()
-            if active == "linkedin"
-            else False
-        ),
-        "dice_connected": dice_adapter().is_connected() if active == "dice" else False,
+        "active_portal": session.active_portal,
+        "linkedin_connected": session.linkedin_connected,
+        "dice_connected": session.dice_connected,
     }
 
 
 @app.post("/portal/active/{portal}")
 def switch_active_portal(portal: str, db: Session = Depends(get_db)) -> dict:
+    # normalize_portal rejects anything that is not LinkedIn/Dice with a 400.
     requested = normalize_portal(portal)
-    disconnect_inactive_portal(requested)
-    state = set_active_portal(db, requested)
-    return {"active_portal": state.active_portal, "status": "active"}
+    # Persist the internal portal preference (endpoints that need a concrete portal still
+    # resolve it from here)...
+    set_active_portal(db, requested)
+    # ...and mirror it into the runtime session. GET /portal/active reports the SESSION, so
+    # without this the switch is invisible to the dashboard: it would keep reading
+    # active_portal: null, fall back to the LinkedIn panel, and the other portal's Connect
+    # button could never be reached.
+    session = get_runtime_session()
+    session.select_portal(requested)
+    # Selecting a portal is NOT connecting: connected flags stay false until an explicit
+    # Connect, and neither portal's saved storage-state file is deleted, so that Connect can
+    # still reuse a valid saved session. No resume is required to switch.
+    return {"active_portal": session.active_portal, "status": "active"}
 
 
 @app.post("/resumes", response_model=ResumeProfileOut)
@@ -410,6 +427,12 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
     db.add(resume)
     db.commit()
     db.refresh(resume)
+    # Analysing a resume is the explicit action that makes it active for this session. The
+    # fingerprint above reattaches it to its existing family, so the candidate profile,
+    # employment history, screening answers and application history for that resume identity
+    # come back with it -- while any PREVIOUS session's batch/matches stay cleared, so old
+    # Find Matches results never reappear on re-analysis.
+    get_runtime_session().activate_resume(resume.id)
 
     candidate = get_or_create_candidate_profile(db, active)
     db.add(candidate)
@@ -437,13 +460,14 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
 
 @app.get("/resumes/latest", response_model=ResumeProfileOut)
 def latest_resume(db: Session = Depends(get_db)) -> ResumeProfile:
-    active = get_active_portal(db)
-    resume = db.scalar(
-        select(ResumeProfile)
-        .where(ResumeProfile.portal == active)
-        .order_by(desc(ResumeProfile.created_at))
-        .limit(1)
-    )
+    # The resume ACTIVE IN THIS SESSION -- never "the newest row in the database". A fresh
+    # backend start has none, so the dashboard shows no analysed resume until the user
+    # uploads and analyses one again (which reattaches to its existing fingerprint family
+    # and brings its persistent profile/history back with it).
+    session = get_runtime_session()
+    if session.active_resume_id is None:
+        raise HTTPException(status_code=404, detail="No resume has been analyzed.")
+    resume = db.get(ResumeProfile, session.active_resume_id)
     if not resume:
         raise HTTPException(status_code=404, detail="No resume has been analyzed.")
     return resume
@@ -477,17 +501,21 @@ def connect_linkedin() -> dict:
     dice_adapter().disconnect()
     with SessionLocal() as db:
         set_active_portal(db, "linkedin")
+    # Explicit user Connect -> this session may now show LinkedIn as connected.
+    get_runtime_session().mark_connected("linkedin")
     return {"status": "connected", "storage_state": str(settings.linkedin_storage_state)}
 
 
 @app.get("/linkedin/status")
 def linkedin_status() -> dict:
-    return {"connected": LinkedInAutomation(settings).has_authenticated_session()}
+    # Session-scoped: a saved storage-state file on disk must not read as connected.
+    return {"connected": get_runtime_session().linkedin_connected}
 
 
 @app.post("/linkedin/disconnect")
 def disconnect_linkedin() -> dict:
     LinkedInAutomation(settings).disconnect_account()
+    get_runtime_session().mark_disconnected("linkedin")
     return {"status": "disconnected"}
 
 
@@ -499,17 +527,21 @@ def connect_dice() -> dict:
     LinkedInAutomation(settings).disconnect_account()
     with SessionLocal() as db:
         set_active_portal(db, "dice")
+    # Explicit user Connect -> this session may now show Dice as connected.
+    get_runtime_session().mark_connected("dice")
     return result
 
 
 @app.get("/dice/status")
 def dice_status() -> dict:
-    return {"connected": dice_adapter().is_connected()}
+    # Session-scoped: a saved storage-state file on disk must not read as connected.
+    return {"connected": get_runtime_session().dice_connected}
 
 
 @app.post("/dice/disconnect")
 def disconnect_dice() -> dict:
     dice_adapter().disconnect()
+    get_runtime_session().mark_disconnected("dice")
     return {"status": "disconnected"}
 
 
@@ -1253,32 +1285,23 @@ def _search_jobs_sync(
         jobs_found: list[dict] = []
         jobs_per_variation: list[dict] = []
         with recorder.stage("duplicate_key_loading"):
-            previous_jobs = list(
-                db.scalars(select(JobOpportunity).where(JobOpportunity.resume_id == resume.id)).all()
-            )
-            previous_keys = {
-                key
-                for previous_job in previous_jobs
-                for key in engine.duplicate_key(
-                    {
-                        "job_url": previous_job.job_url,
-                        "title": previous_job.title,
-                        "company": previous_job.company,
-                        "location": previous_job.location,
-                    }
-                )
-                if key
-            }
-            # Portal-scoped exclusion of jobs already SUCCESSFULLY completed for this
-            # resume's fingerprint family. A prior success (live submit or submit-ready
-            # dry run) must not reappear for the same resume identity + portal — even
-            # after the resume is re-uploaded under a new id. Keyed by portal so a
-            # LinkedIn success never blocks a Dice job (and vice versa). Reuses the exact
-            # same stable job identity (engine.duplicate_key) as duplicate detection.
+            # NOTE: merely appearing in an EARLIER Find Matches batch must never exclude a
+            # job. Only a confirmed live APPLIED outcome may (see below). Jobs whose history
+            # is MATCHED / DRY_RUN_READY / FAILED / NEEDS_REVIEW / SKIPPED / TIMED_OUT /
+            # UNSUPPORTED_FORM stay searchable and are collected again on every run.
+            #
+            # Portal-scoped exclusion of jobs already successfully APPLIED for this resume's
+            # fingerprint family. A confirmed live submission must not reappear for the same
+            # resume identity + portal — even after the resume is re-uploaded under a new id.
+            # Keyed by portal so a LinkedIn success never blocks a Dice job (and vice versa).
+            # Reuses the exact same stable job identity (engine.duplicate_key) as duplicate
+            # detection. APPLIED only: a submit-ready dry run is not a submission.
             excluded_success_keys_by_portal: dict[str, set[str]] = {}
             for exclusion_portal in portals:
                 success_keys: set[str] = set()
-                for successful_job in successful_jobs_for_fingerprint(db, resume, exclusion_portal):
+                for successful_job in successful_jobs_for_fingerprint(
+                    db, resume, exclusion_portal, statuses=(ApplicationStatus.APPLIED,)
+                ):
                     for key in engine.duplicate_key(
                         {
                             "job_url": successful_job.job_url,
@@ -1394,8 +1417,6 @@ def _search_jobs_sync(
                 duplicate_reason = None
                 if any(key in seen_keys for key in keys):
                     duplicate_reason = "Duplicate in current search batch"
-                elif any(key in previous_keys for key in keys):
-                    duplicate_reason = "Already present in previous batch for this resume"
                 elif any(key in excluded_for_portal for key in keys):
                     duplicate_reason = "Already successfully applied for this resume and portal"
                 if duplicate_reason:
@@ -2533,6 +2554,18 @@ def list_applications(
     ]
 
 
+def _empty_dashboard_summary() -> dict:
+    """The zeroed counters a clean active session shows."""
+    return {
+        "matched_jobs": 0,
+        "easy_apply_jobs": 0,
+        "applied_jobs": 0,
+        "needs_review": 0,
+        "failed_jobs": 0,
+        "skipped_jobs": 0,
+    }
+
+
 @app.get("/dashboard/summary")
 def dashboard_summary(
     resume_id: int | None = None,
@@ -2541,16 +2574,17 @@ def dashboard_summary(
     db: Session = Depends(get_db),
 ) -> dict:
     active = request_portal_or_active(db, portal)
-    job_statement = select(JobOpportunity)
-    job_statement = job_statement.where(JobOpportunity.portal == active)
-    if resume_id:
-        job_statement = job_statement.where(JobOpportunity.resume_id == resume_id)
-        if search_batch_id is None:
-            latest_batch = latest_search_batch(db, resume_id, active)
-            if latest_batch:
-                search_batch_id = latest_batch.id
-    if search_batch_id:
-        job_statement = job_statement.where(JobOpportunity.search_batch_id == search_batch_id)
+    # A clean session (no active resume) summarises nothing: never fall back to counting
+    # every stored job for the portal, and never adopt the newest batch as the active one.
+    # The caller states which resume/batch it is looking at; without that, counters are zero.
+    if not resume_id or not search_batch_id:
+        return _empty_dashboard_summary()
+    job_statement = (
+        select(JobOpportunity)
+        .where(JobOpportunity.portal == active)
+        .where(JobOpportunity.resume_id == resume_id)
+        .where(JobOpportunity.search_batch_id == search_batch_id)
+    )
     jobs = list(db.scalars(job_statement).all())
     job_ids = [job.id for job in jobs]
     if not job_ids:

@@ -16,11 +16,12 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
+from collections.abc import Iterable
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import ApplicationRecord, JobOpportunity, ResumeProfile
+from app.models import ApplicationRecord, ApplicationStatus, JobOpportunity, ResumeProfile
 from app.services.application_outcome import SUCCESS_APPLICATION_STATUSES
 
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -73,18 +74,27 @@ def resume_family_ids_for(db: Session, resume_id: int) -> list[int]:
 
 
 def successful_jobs_for_fingerprint(
-    db: Session, resume: ResumeProfile, portal: str
+    db: Session,
+    resume: ResumeProfile,
+    portal: str,
+    statuses: Iterable[ApplicationStatus] | None = None,
 ) -> list[JobOpportunity]:
     """Jobs that have been *successfully* completed for this resume's fingerprint family
     on the given portal. Portal-isolated: only jobs whose ``portal`` matches are returned,
-    so a LinkedIn success never affects Dice results and vice versa."""
+    so a LinkedIn success never affects Dice results and vice versa.
+
+    ``statuses`` narrows which application outcomes count as "successful". It defaults to
+    SUCCESS_APPLICATION_STATUSES (live submit or submit-ready dry run) so existing callers
+    keep their exact behaviour. Find Matches passes APPLIED only, because a submit-ready dry
+    run must stay searchable -- only a confirmed live submission may hide a job from search.
+    """
     family_ids = resume_fingerprint_family_ids(db, resume)
     statement = (
         select(JobOpportunity)
         .join(ApplicationRecord, ApplicationRecord.job_id == JobOpportunity.id)
         .where(JobOpportunity.resume_id.in_(family_ids))
         .where(JobOpportunity.portal == portal)
-        .where(ApplicationRecord.status.in_(SUCCESS_APPLICATION_STATUSES))
+        .where(ApplicationRecord.status.in_(tuple(statuses or SUCCESS_APPLICATION_STATUSES)))
     )
     return list(db.scalars(statement).unique().all())
 

@@ -201,6 +201,10 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                     first_batch_id = jobs[0].search_batch_id
                     self.assertIsNotNone(first_batch_id)
                     self.assertIsNotNone(jobs[0].search_timestamp)
+                    # The fake returns the same job for every search variation, so the extras
+                    # are removed as in-batch duplicates. A re-run must remove exactly the
+                    # same number -- no additional cross-batch suppression.
+                    first_duplicates_removed = batch.duplicates_removed
 
                     with patch("app.main.LinkedInAutomation", FakeLinkedInAutomation):
                         second_batch = _create_search_batch(request, db)
@@ -214,9 +218,13 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                             ).all()
                         )
 
-                    self.assertEqual(len(second_jobs), 0)
+                    # The job was only MATCHED in the first batch -- never applied -- so it
+                    # must stay searchable and be collected again. Merely appearing in an
+                    # earlier Find Matches batch never excludes a job; only a confirmed live
+                    # APPLIED outcome does (see tests/test_previous_batch_suppression.py).
+                    self.assertEqual(len(second_jobs), 1)
                     self.assertEqual(second_batch.status, "completed")
-                    self.assertGreaterEqual(second_batch.duplicates_removed, 1)
+                    self.assertEqual(second_batch.duplicates_removed, first_duplicates_removed)
                     stored_versions = list(
                         db.scalars(
                             select(JobOpportunity).where(
@@ -226,7 +234,13 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                             )
                         ).all()
                     )
-                    self.assertEqual(len(stored_versions), 1)
+                    # One row per batch: the same job legitimately reappears in the new batch
+                    # (uniqueness is scoped to job_url + resume + search_batch_id).
+                    self.assertEqual(len(stored_versions), 2)
+                    self.assertEqual(
+                        {row.search_batch_id for row in stored_versions},
+                        {first_batch_id, second_batch.id},
+                    )
 
                     db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))
                     db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))

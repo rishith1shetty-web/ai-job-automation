@@ -121,6 +121,9 @@ export function DetectedProfilePanel() {
   );
 }
 
+// Placeholder shown when no batch is selected — the state a fresh session starts in.
+const NO_BATCH_OPTION = "Select a search batch…";
+
 function batchOptionLabel(b: SearchBatch): string {
   const portal = b.portal.charAt(0).toUpperCase() + b.portal.slice(1);
   return `${b.created_at.slice(0, 19).replace("T", " ")} | ${portal} | ${b.location} | ${b.job_count} jobs`;
@@ -162,11 +165,15 @@ export function SearchBatchBar() {
   const queryClient = useQueryClient();
   const prevStatus = useRef<string | null>(null);
 
-  // Default the selection to the most recent batch once the list loads.
+  // A previous batch is NEVER auto-selected: a fresh session starts with nothing selected
+  // so old Find Matches results cannot reappear on the dashboard. Historical batches stay
+  // available in the dropdown and are shown only when the user explicitly picks one; a new
+  // search selects its own batch (MatchedJobsPage). Only drop a selection that no longer
+  // exists in the list (e.g. after switching resume/portal).
   useEffect(() => {
-    if (!batches || batches.length === 0) return;
-    if (selectedBatchId == null || !batches.some((b) => b.id === selectedBatchId)) {
-      setSelectedBatchId(batches[0].id);
+    if (selectedBatchId == null || !batches) return;
+    if (!batches.some((b) => b.id === selectedBatchId)) {
+      setSelectedBatchId(null);
     }
   }, [batches, selectedBatchId, setSelectedBatchId]);
 
@@ -189,23 +196,35 @@ export function SearchBatchBar() {
 
   const options = batches.map(batchOptionLabel);
   const selectedIndex = batches.findIndex((b) => b.id === selectedBatchId);
-  const selectedListEntry = batches[selectedIndex] ?? batches[0];
-  const effective = polled.data ?? selectedListEntry;
-  const showStatusCard = ["queued", "running", "failed"].includes(effective.status);
-  const shortfall = effective.status === "completed" && effective.jobs_collected < effective.requested_limit;
+  // Nothing selected means nothing shown — no falling back to the most recent batch, which
+  // would put a previous session's results back on the dashboard.
+  const selectedListEntry = selectedIndex >= 0 ? batches[selectedIndex] : null;
+  const effective = selectedListEntry ? polled.data ?? selectedListEntry : null;
+  const showStatusCard = effective != null && ["queued", "running", "failed"].includes(effective.status);
+  const shortfall =
+    effective != null &&
+    effective.status === "completed" &&
+    effective.jobs_collected < effective.requested_limit;
 
   return (
     <section className="space-y-2">
       <Field label="Search batch">
         <Select
-          options={options}
-          value={options[selectedIndex >= 0 ? selectedIndex : 0]}
-          onChange={(e) => setSelectedBatchId(batches[options.indexOf(e.target.value)].id)}
+          options={[NO_BATCH_OPTION, ...options]}
+          value={selectedIndex >= 0 ? options[selectedIndex] : NO_BATCH_OPTION}
+          onChange={(e) => {
+            const picked = e.target.value;
+            setSelectedBatchId(
+              picked === NO_BATCH_OPTION ? null : batches[options.indexOf(picked)].id,
+            );
+          }}
         />
       </Field>
-      <p className="text-sm text-[#8A8580]">Search query: {selectedListEntry.search_query}</p>
-      {showStatusCard && <SearchBatchStatusCard batch={effective} />}
-      {shortfall && (
+      {selectedListEntry && (
+        <p className="text-sm text-[#8A8580]">Search query: {selectedListEntry.search_query}</p>
+      )}
+      {showStatusCard && effective && <SearchBatchStatusCard batch={effective} />}
+      {shortfall && effective && (
         <Alert variant="warn">
           Found {effective.jobs_collected} jobs out of requested {effective.requested_limit} based on current
           results.

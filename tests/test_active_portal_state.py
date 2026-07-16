@@ -30,6 +30,7 @@ from app.models import (
     ResumeProfile,
 )
 from app.schemas import ApplySelectedRequest, SearchRequest
+from app.services.runtime_session import reset_runtime_session
 
 
 class ActivePortalStateTests(unittest.TestCase):
@@ -51,20 +52,26 @@ class ActivePortalStateTests(unittest.TestCase):
             self.assertEqual(count, 1)
             self.assertEqual(get_active_portal(db), "dice")
 
-    def test_active_status_disconnects_inactive_portal(self) -> None:
+    def test_active_status_reports_session_and_never_deletes_a_saved_session(self) -> None:
+        # GET /portal/active now reports the ACTIVE SESSION, not the persisted preference and
+        # not "a storage-state file exists". A fresh session shows both portals disconnected
+        # with no active portal, even though the DB still records a portal preference and a
+        # saved storage-state file may exist. It is read-only: polling it must never delete a
+        # saved portal session.
         fake_dice = _FakeDiceAdapter(connected=True)
+        reset_runtime_session()
         with SessionLocal() as db:
             set_active_portal(db, "linkedin")
-            with patch("app.main.dice_adapter", return_value=fake_dice), patch(
-                "app.main.LinkedInAutomation",
-                _FakeLinkedInAutomation,
-            ):
-                status = get_active_portal_status(db)
+        with patch("app.main.dice_adapter", return_value=fake_dice), patch(
+            "app.main.LinkedInAutomation",
+            _FakeLinkedInAutomation,
+        ):
+            status = get_active_portal_status()
 
-        self.assertEqual(status["active_portal"], "linkedin")
-        self.assertTrue(status["linkedin_connected"])
+        self.assertIsNone(status["active_portal"])
+        self.assertFalse(status["linkedin_connected"])
         self.assertFalse(status["dice_connected"])
-        self.assertEqual(fake_dice.disconnect_calls, 1)
+        self.assertEqual(fake_dice.disconnect_calls, 0)
 
     def test_connecting_dice_disconnects_linkedin_and_sets_active_portal(self) -> None:
         fake_dice = _FakeDiceAdapter(connected=True)
