@@ -1371,6 +1371,7 @@ def _search_jobs_sync(
                         selected_variations,
                         limit_per_query,
                         progress_callback=dice_progress_callback,
+                        global_target=target_count,
                     )
             for variation, raw_jobs in portal_results:
                 variation_results.append((portal, variation, raw_jobs))
@@ -1413,6 +1414,10 @@ def _search_jobs_sync(
                 seen_keys.update(keys)
                 enriched = engine.enrich_raw_job(raw, variation)
                 enriched["portal"] = raw.get("portal") or portal
+                # Persist a per-job-unique URL so distinct jobs that share a search-results
+                # fallback URL do not collide on uq_job_url_resume_batch (which would roll back
+                # the whole batch insert). No-op for real per-job URLs.
+                enriched["job_url"] = engine.storage_job_url(raw)
                 job = JobOpportunity(
                     resume_id=resume.id,
                     search_batch_id=search_batch.id,

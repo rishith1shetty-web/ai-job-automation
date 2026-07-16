@@ -63,6 +63,16 @@ class DicePortalAdapter:
         "[aria-label*='location' i]",
     ]
 
+    # Card-scan allocation for Find Matches. The per-query *eligible-return* target comes from
+    # FindMatchesEngine.collection_plan (limit_per_query). A single query must INSPECT many more
+    # DOM cards than that, because Dice's result list is Easy Apply-filtered client-side and most
+    # scanned cards are dropped -- capping the scan at the return target (the old bug) starved the
+    # pipeline (7 cards scanned -> ~2 kept). These bound how many UNIQUE job cards one query
+    # inspects before stopping; scanning still stops early once enough eligible jobs are collected.
+    DICE_SCAN_MULTIPLIER = 6
+    DICE_MIN_SCAN = 25
+    DICE_MAX_SCAN = 60
+
     # Label patterns for candidate contact fields (portal-agnostic decisions come
     # from the shared engines; contact identity fields are filled from the profile).
     CONTACT_FIELD_PATTERNS = [
@@ -294,6 +304,7 @@ class DicePortalAdapter:
         variations: list[SearchVariation],
         limit_per_query: int,
         progress_callback=None,
+        global_target: int | None = None,
     ) -> list[tuple[SearchVariation, list[dict]]]:
         debug_dir = self._debug_dir()
         results: list[tuple[SearchVariation, list[dict]]] = []
@@ -326,7 +337,14 @@ class DicePortalAdapter:
                 return [(variation, []) for variation in variations]
             page = context.new_page()
             for index, variation in enumerate(variations, start=1):
-                raw_jobs = self.search_jobs(page, variation, limit_per_query, debug_dir=debug_dir, search_index=index)
+                raw_jobs = self.search_jobs(
+                    page,
+                    variation,
+                    limit_per_query,
+                    debug_dir=debug_dir,
+                    search_index=index,
+                    global_target=global_target,
+                )
                 results.append((variation, raw_jobs))
                 event = {
                     "portal": self.portal_name,
@@ -375,8 +393,10 @@ class DicePortalAdapter:
         limit: int,
         debug_dir: Path | None = None,
         search_index: int = 1,
+        global_target: int | None = None,
     ) -> list[dict]:
         url = self.search_url(variation)
+        scan_limit = self._dice_scan_limit(limit)
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
             try:
@@ -394,6 +414,37 @@ class DicePortalAdapter:
 
         self._capture_search_artifacts(page, debug_dir, search_index, "loaded")
         blocker = self._detect_search_blocker(page)
+
+        # --- Read-only pipeline diagnostics (NO business-logic change). Records the count at
+        # every stage so a real run makes the first stage that becomes zero obvious. Never logs
+        # cookies/credentials/session data -- only URLs, the page title, and counts. ---
+        diag: dict = {
+            "search_index": search_index,
+            "query": variation.query,
+            "location": variation.location,
+            "generated_search_url": url,
+            "final_browser_url": self._safe_page_url(page),
+            "page_title": self._safe_page_title(page),
+            "login_or_challenge_detected": blocker,
+            "raw_html_length": self._safe_html_length(page),
+            "result_card_containers_found": self._count_result_cards(page),
+            "requested_global_limit": global_target,
+            "per_query_scan_target": scan_limit,
+            "per_query_return_target": max(1, int(limit or 1)),
+            "unique_candidate_cards": 0,
+            "cards_scanned_by_extractor": 0,
+            "scan_stop_reason": "no_cards",
+            "cumulative_eligible_jobs": 0,
+            "parsed_jobs": 0,
+            "rejected_missing_title": 0,
+            "rejected_missing_company": 0,
+            "rejected_missing_url": 0,
+            "easy_apply_identified": 0,
+            "easy_apply_kept_after_filter": 0,
+            "final_returned_count": 0,
+            "extraction_path": None,
+        }
+
         if blocker:
             self._write_search_failure(
                 debug_dir,
@@ -401,15 +452,33 @@ class DicePortalAdapter:
                 blocker,
                 {"url": self._safe_page_url(page), "query": variation.query, "location": variation.location},
             )
+            self._write_dice_search_diagnostics(debug_dir, search_index, diag)
             return []
 
-        parsed_jobs = self._extract_jobs_from_dom(page, variation, limit)
+        parsed_jobs = self._extract_jobs_from_dom(
+            page, variation, limit, scan_limit=scan_limit, diagnostics=diag
+        )
         if parsed_jobs:
-            return self._filter_easy_apply_only(parsed_jobs, debug_dir, search_index)
+            # Cap the eligible jobs this single query contributes to its allotted share so results
+            # stay spread across variations; scanning inspected more cards to FIND them.
+            kept = self._filter_easy_apply_only(parsed_jobs, debug_dir, search_index)[: max(1, int(limit or 1))]
+            diag["extraction_path"] = "dom"
+            diag["easy_apply_kept_after_filter"] = len(kept)
+            diag["final_returned_count"] = len(kept)
+            self._write_dice_search_diagnostics(debug_dir, search_index, diag)
+            return kept
 
         fallback_jobs = self._extract_jobs_from_locators(page, variation, limit)
         if fallback_jobs:
-            return self._filter_easy_apply_only(fallback_jobs, debug_dir, search_index)
+            kept = self._filter_easy_apply_only(fallback_jobs, debug_dir, search_index)
+            diag["extraction_path"] = "locators"
+            diag["cards_scanned_by_extractor"] = len(fallback_jobs)
+            diag["parsed_jobs"] = len(fallback_jobs)
+            diag["easy_apply_identified"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
+            diag["easy_apply_kept_after_filter"] = len(kept)
+            diag["final_returned_count"] = len(kept)
+            self._write_dice_search_diagnostics(debug_dir, search_index, diag)
+            return kept
 
         self._write_search_failure(
             debug_dir,
@@ -422,6 +491,8 @@ class DicePortalAdapter:
                 "selectors_tried": self.CARD_SELECTORS,
             },
         )
+        diag["extraction_path"] = "none"
+        self._write_dice_search_diagnostics(debug_dir, search_index, diag)
         return []
 
     def _classify_dice_apply(self, *, card_text: str, cta_text: str, apply_url: str) -> tuple[bool, str]:
@@ -531,11 +602,26 @@ class DicePortalAdapter:
             },
         }
 
-    def _extract_jobs_from_dom(self, page, variation: SearchVariation, limit: int) -> list[dict]:
+    def _dice_scan_limit(self, limit: int) -> int:
+        """Number of UNIQUE job cards a single query may inspect. Decoupled from (and larger
+        than) the eligible-return target so Easy Apply-only filtering does not starve the run."""
+        target = max(1, int(limit or 1))
+        return max(self.DICE_MIN_SCAN, min(self.DICE_MAX_SCAN, target * self.DICE_SCAN_MULTIPLIER))
+
+    def _extract_jobs_from_dom(
+        self,
+        page,
+        variation: SearchVariation,
+        limit: int,
+        scan_limit: int | None = None,
+        diagnostics: dict | None = None,
+    ) -> list[dict]:
+        if scan_limit is None:
+            scan_limit = self._dice_scan_limit(limit)
         try:
             raw_cards = page.evaluate(
                 """
-                ({ cardSelectors, titleSelectors, companySelectors, locationSelectors, limit }) => {
+                ({ cardSelectors, titleSelectors, companySelectors, locationSelectors, scanLimit }) => {
                   const textOf = (root, selectors) => {
                     for (const selector of selectors) {
                       const element = root.querySelector(selector);
@@ -552,12 +638,26 @@ class DicePortalAdapter:
                     }
                     return '';
                   };
+                  // Collapse nested sub-element matches onto their real job-card container.
+                  // The over-broad [data-testid*='job-card'] selector also matches per-card
+                  // children (job-card-company-name, job-card-save-btn, the hrefless overlay
+                  // job-search-job-card-link), which would otherwise be scanned as separate
+                  // "cards". closest() walks up to the actual card so one job == one scan.
+                  const canonicalOf = (el) => (
+                    el.closest("[data-testid='job-card'], [data-job-guid], [data-id]") || el
+                  );
                   const seen = new Set();
+                  const seenKeys = new Set();
                   const cards = [];
                   for (const selector of cardSelectors) {
-                    document.querySelectorAll(selector).forEach((card) => {
-                      if (cards.length >= limit) return;
+                    document.querySelectorAll(selector).forEach((matched) => {
+                      if (cards.length >= scanLimit) return;
+                      const card = canonicalOf(matched);
                       if (seen.has(card)) return;
+                      // Dedup by the stable job identity too, so the same job reached through
+                      // different selectors/wrappers is never counted twice.
+                      const key = card.getAttribute('data-job-guid') || card.getAttribute('data-id') || '';
+                      if (key && seenKeys.has(key)) return;
                       const text = (card.innerText || '').trim();
                       const jobUrl = hrefOf(card, [
                         "a[href*='/job-detail/']",
@@ -567,6 +667,7 @@ class DicePortalAdapter:
                       ]);
                       if (!text && !jobUrl) return;
                       seen.add(card);
+                      if (key) seenKeys.add(key);
                       const applyLink = hrefOf(card, [
                         "a[href*='apply']"
                       ]);
@@ -574,13 +675,20 @@ class DicePortalAdapter:
                       // NOT a loose match over the whole card text. Python then decides
                       // native-vs-external. Prefer dedicated apply chips/ribbons first.
                       const applyCta = (() => {
+                        // Dice renders the native badge as
+                        //   <div sm:hidden aria-labelledby="easyApply-label"><p id="easyApply-label">Easy Apply</p></div>
+                        // The container is sm:hidden (display:none on desktop), so card.innerText and the
+                        // old class/button selectors never see it. Match the stable id / aria-labelledby
+                        // marker FIRST and read textContent (works even when the element is display:none).
                         const ctaEls = card.querySelectorAll(
-                          "[data-cy*='easyApply' i], [data-cy*='apply' i], [class*='easyApply' i], "
+                          "[id*='easyApply' i], [id*='quickApply' i], "
+                          + "[aria-labelledby*='easyApply' i], [aria-labelledby*='quickApply' i], "
+                          + "[data-cy*='easyApply' i], [data-cy*='apply' i], [class*='easyApply' i], "
                           + "[class*='ribbon' i], [class*='badge' i], [class*='chip' i], "
                           + "button, a[href*='apply' i], [role='button']"
                         );
                         for (const el of ctaEls) {
-                          const t = ((el.innerText || el.textContent) || '').replace(/\\s+/g, ' ').trim();
+                          const t = ((el.textContent || el.innerText) || '').replace(/\\s+/g, ' ').trim();
                           if (t && /apply/i.test(t) && t.length <= 40) return t;
                         }
                         return '';
@@ -597,9 +705,9 @@ class DicePortalAdapter:
                         description: text
                       });
                     });
-                    if (cards.length >= limit) break;
+                    if (cards.length >= scanLimit) break;
                   }
-                  return cards.slice(0, limit);
+                  return cards.slice(0, scanLimit);
                 }
                 """,
                 {
@@ -607,20 +715,68 @@ class DicePortalAdapter:
                     "titleSelectors": self.TITLE_SELECTORS,
                     "companySelectors": self.COMPANY_SELECTORS,
                     "locationSelectors": self.LOCATION_SELECTORS,
-                    "limit": limit,
+                    "scanLimit": scan_limit,
                 },
             )
         except Exception:
             return []
         jobs: list[dict] = []
+        parsed = missing_title = missing_company = missing_url = easy_apply = 0
+        real_job_detail_url = search_url_fallback = 0
+        unique_candidates = len(raw_cards or [])
+        return_target = max(1, int(limit or 1))
+        scanned = 0
+        eligible = 0
+        scan_stop_reason = "no_cards"
         for item in raw_cards or []:
+            scanned += 1
+            scan_stop_reason = "cards_exhausted"
             try:
                 job = self.job_from_card_data(item, variation)
             except Exception:
                 continue
-            if job["title"] and job["company"] and job["job_url"]:
+            has_title = bool(job["title"])
+            has_company = bool(job["company"])
+            has_url = bool(job["job_url"])
+            if has_title and has_company and has_url:
                 jobs.append(job)
-        return jobs[:limit]
+                parsed += 1
+                if job.get("easy_apply"):
+                    easy_apply += 1
+                    eligible += 1
+                # A card with no real href gets job_url = the search URL (fallback in
+                # job_from_card_data), so "missing URL" reads 0 -- split it out so the URL
+                # problem is still visible.
+                if "/job-detail/" in (job.get("job_url") or ""):
+                    real_job_detail_url += 1
+                else:
+                    search_url_fallback += 1
+                # Stop as soon as this query has produced enough eligible (Easy Apply) jobs to
+                # meet its share of the requested total -- no need to inspect the rest of the page.
+                if eligible >= return_target:
+                    scan_stop_reason = "eligible_target_reached"
+                    break
+            elif not has_title:
+                missing_title += 1
+            elif not has_company:
+                missing_company += 1
+            else:
+                missing_url += 1
+        if diagnostics is not None:
+            diagnostics["per_query_scan_target"] = scan_limit
+            diagnostics["per_query_return_target"] = return_target
+            diagnostics["unique_candidate_cards"] = unique_candidates
+            diagnostics["cards_scanned_by_extractor"] = scanned
+            diagnostics["scan_stop_reason"] = scan_stop_reason
+            diagnostics["cumulative_eligible_jobs"] = eligible
+            diagnostics["parsed_jobs"] = parsed
+            diagnostics["rejected_missing_title"] = missing_title
+            diagnostics["rejected_missing_company"] = missing_company
+            diagnostics["rejected_missing_url"] = missing_url
+            diagnostics["parsed_with_real_job_detail_url"] = real_job_detail_url
+            diagnostics["parsed_with_search_url_fallback"] = search_url_fallback
+            diagnostics["easy_apply_identified"] = easy_apply
+        return jobs
 
     def _extract_jobs_from_locators(self, page, variation: SearchVariation, limit: int) -> list[dict]:
         cards = page.locator(", ".join(self.CARD_SELECTORS))
@@ -3006,6 +3162,44 @@ class DicePortalAdapter:
             return str(page.url)
         except Exception:
             return ""
+
+    def _safe_page_title(self, page) -> str:
+        """Page <title>, bounded; read-only diagnostic. Never raises."""
+        try:
+            return (page.title() or "")[:300]
+        except Exception:
+            return ""
+
+    def _safe_html_length(self, page) -> int:
+        """Length of the current page HTML; read-only diagnostic. Never raises."""
+        try:
+            return len(page.content() or "")
+        except Exception:
+            return 0
+
+    def _count_result_cards(self, page) -> int:
+        """Count result-card containers currently in the DOM across all CARD_SELECTORS. This is
+        the true number of cards on the page (independent of the per-query scan ``limit``), so a
+        run can show 'N cards on page but only K parsed'. Read-only; returns -1 on failure."""
+        try:
+            return int(
+                page.evaluate(
+                    "(sels) => document.querySelectorAll(sels.join(',')).length",
+                    self.CARD_SELECTORS,
+                )
+                or 0
+            )
+        except Exception:
+            return -1
+
+    def _write_dice_search_diagnostics(
+        self, debug_dir: Path | None, search_index: int, diagnostics: dict
+    ) -> None:
+        """Persist the per-search pipeline diagnostics. Counts/URLs/title only -- no cookies,
+        credentials or session data."""
+        if debug_dir is None:
+            return
+        self._write_debug(debug_dir, f"search_{search_index}_diagnostics.json", diagnostics)
 
     def _absolute_dice_url(self, value: str) -> str:
         value = (value or "").strip()

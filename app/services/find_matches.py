@@ -1,3 +1,4 @@
+import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
@@ -553,13 +554,51 @@ class FindMatchesEngine:
             return {"score": 25, "label": "Older"}
         return {"score": 50, "label": "Unknown"}
 
+    # Last-path-segment tokens that name a listing/search page, NOT a single job. When a
+    # portal cannot resolve a per-job URL and falls back to the shared search-results URL
+    # (e.g. Dice's "https://www.dice.com/jobs?..."), the stripped URL and its last path
+    # segment are IDENTICAL for every job in the list. Emitting them as identity keys would
+    # collapse every distinct job onto the first one. Real per-job URLs (LinkedIn
+    # /jobs/view/<id>, Dice /job-detail/<guid>) never hit this set, so their identity is
+    # unchanged -- this only rescues the fallback-URL case.
+    NON_IDENTIFYING_URL_TOKENS = {"", "jobs", "job", "search", "job-search", "jobsearch", "results"}
+
     def duplicate_key(self, raw: dict) -> tuple[str, ...]:
         job_url = str(raw.get("job_url") or "").split("?")[0].rstrip("/")
         job_id = self.linkedin_job_id(job_url)
         title = self._normalize(raw.get("title") or "")
         company = self._normalize(raw.get("company") or "")
         location = self._normalize(raw.get("location") or "")
-        return (job_url, job_id, f"{title}|{company}|{location}")
+        content_key = f"{title}|{company}|{location}"
+        # A search-results / listing URL is not a per-job identity. Drop the URL-based keys so
+        # distinct jobs that only share the fallback URL are not treated as duplicates; identity
+        # then comes from the (title, company, location) content key, which stays distinct.
+        if job_id.lower() in self.NON_IDENTIFYING_URL_TOKENS:
+            return (content_key,)
+        return (job_url, job_id, content_key)
+
+    def storage_job_url(self, raw: dict) -> str:
+        """The job_url to PERSIST. The job_opportunities table enforces UNIQUE
+        (job_url, resume_id, search_batch_id). When a portal could not resolve a per-job URL
+        and fell back to the shared search-results URL, every distinct job in a batch carries
+        the SAME job_url and would collide on that constraint -- so the whole insert flush
+        rolls back and nothing persists. Disambiguate such fallback URLs with a stable per-job
+        fragment derived from the job's own content identity (the same identity dedup uses), so
+        every distinct job gets a distinct stored URL. Real per-job URLs are returned unchanged.
+        The fragment is a URL no-op (ignored on navigation), so the apply/URL-resolution flow is
+        unaffected."""
+        url = str(raw.get("job_url") or "")
+        stripped = url.split("?")[0].rstrip("/")
+        if self.linkedin_job_id(stripped).lower() not in self.NON_IDENTIFYING_URL_TOKENS:
+            return url
+        title = self._normalize(raw.get("title") or "")
+        company = self._normalize(raw.get("company") or "")
+        location = self._normalize(raw.get("location") or "")
+        identity = f"{title}|{company}|{location}"
+        if not identity.strip("|") or not url:
+            return url
+        digest = hashlib.sha1(identity.encode("utf-8")).hexdigest()[:12]
+        return f"{url}#job-{digest}"
 
     def linkedin_job_id(self, job_url: str) -> str:
         match = re.search(r"/jobs/view/(\d+)", job_url or "")
