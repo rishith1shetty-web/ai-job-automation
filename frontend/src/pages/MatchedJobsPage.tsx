@@ -465,11 +465,11 @@ export function MatchedJobsPage() {
               </Button>
               <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(10)}>Apply Top 10</Button>
               <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(20)}>Apply Top 20</Button>
-              <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(Math.min(jobs.length, 50))}>Apply All</Button>
+              <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(Math.min(jobs.length, 100))}>Apply All</Button>
             </div>
           </div>
-          {jobs.length > 50 && (
-            <p className="text-sm text-[#8A8580]">Apply All is safety-capped at 50 ranked jobs per batch.</p>
+          {jobs.length > 100 && (
+            <p className="text-sm text-[#8A8580]">Apply All processes up to 100 ranked jobs per batch.</p>
           )}
           {startApplyTop.isPending && (
             <Alert variant="info">

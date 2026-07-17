@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     linkedin_headless: bool = False
     linkedin_slow_mo_ms: int = 50
     app_upload_dir: Path = Path("storage/uploads")
-    max_applications_per_run: int = 50
+    # Apply All processes every eligible job in the selected Find Matches batch, capped at the
+    # same ceiling Find Matches itself uses (find_matches_max_results). One click == one batch of
+    # up to this many jobs; there is no lower artificial Apply All limit.
+    max_applications_per_run: int = 100
     find_matches_default_limit: int = 100
     find_matches_max_results: int = 100
     auto_apply_dry_run: bool = True

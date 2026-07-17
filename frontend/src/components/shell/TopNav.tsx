@@ -3,6 +3,7 @@ import { Logo } from "@/components/ui/Logo";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/api";
 import { usePortalStatus } from "@/api/portal";
+import { NewSessionButton } from "@/components/shell/NewSessionButton";
 
 // Health ping carried over from Phase 2 — read-only, not an operational endpoint.
 function useHealth() {
@@ -44,6 +45,7 @@ export function TopNav() {
         <Badge variant={health.isError ? "danger" : health.isLoading ? "muted" : "success"} dot>
           {health.isError ? "Backend unreachable" : health.isLoading ? "Checking backend…" : "Backend online"}
         </Badge>
+        <NewSessionButton />
       </div>
     </header>
   );

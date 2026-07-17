@@ -377,6 +377,38 @@ def get_active_portal_status() -> dict:
     }
 
 
+def _runtime_session_payload(session) -> dict:
+    """Serialise the in-memory active session for the dashboard. Pure read of runtime state --
+    no persistent data (resumes, batches, jobs, history) is consulted or reported here."""
+    return {
+        "active_portal": session.active_portal,
+        "linkedin_connected": session.linkedin_connected,
+        "dice_connected": session.dice_connected,
+        "active_resume_id": session.active_resume_id,
+        "active_search_batch_id": session.active_search_batch_id,
+        "current_matches": session.current_matches,
+        "current_apply_queue": session.current_apply_queue,
+        "current_progress": session.current_progress,
+        "current_run_status": session.current_run_status,
+        "current_run_error": session.current_run_error,
+    }
+
+
+@app.post("/session/reset")
+def reset_session() -> dict:
+    """Start a fresh dashboard session WITHOUT restarting the backend -- the same clean state a
+    process gets on startup. Resets only the in-memory RuntimeSession and returns it.
+
+    Deliberately scoped: it performs no database read/write, unlinks no file, and never calls
+    LinkedIn/Dice automation. In particular it does NOT call the explicit portal disconnect
+    functions (those delete saved storage-state files); a portal simply reads as disconnected
+    until the user explicitly Connects again, which can still reuse the saved session. Resetting
+    an already-clean session is a no-op, so this is safe to call repeatedly.
+    """
+    session = reset_runtime_session()
+    return _runtime_session_payload(session)
+
+
 @app.post("/portal/active/{portal}")
 def switch_active_portal(portal: str, db: Session = Depends(get_db)) -> dict:
     # normalize_portal rejects anything that is not LinkedIn/Dice with a 400.

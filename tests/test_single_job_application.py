@@ -1043,14 +1043,47 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(len(records), 20)
         self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 20)
 
-    def test_apply_all_selects_all_ranked_jobs_up_to_safety_cap(self) -> None:
-        self._ensure_job_count(60)
+    def test_apply_all_with_20_eligible_jobs_processes_20(self) -> None:
+        # Apply All == process every eligible job in the batch. With 20 eligible, all 20 run
+        # in ONE batch (no truncation to a lower artificial cap).
+        self._ensure_job_count(20)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=20, dry_run=True), self.db)
+
+        self.assertEqual(len(records), 20)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 20)
+
+    def test_apply_all_with_50_eligible_jobs_processes_50(self) -> None:
+        # The old artificial Apply All cap was exactly 50 -- 50 eligible must all process now.
+        self._ensure_job_count(50)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=50, dry_run=True), self.db)
+
+        self.assertEqual(len(records), 50)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 50)
+
+    def test_apply_all_with_100_eligible_jobs_processes_100(self) -> None:
+        # Find Matches is capped at 100, so Apply All must process all 100 in one batch.
+        self._ensure_job_count(100)
+
+        with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
+            records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=100, dry_run=True), self.db)
+
+        self.assertEqual(len(records), 100)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 100)
+
+    def test_apply_all_never_exceeds_100_even_with_more_jobs_or_higher_limit(self) -> None:
+        # 120 eligible jobs and an over-large requested limit still stop at the 100 ceiling
+        # (which equals the Find Matches cap) -- never higher, never the old 50.
+        self._ensure_job_count(120)
 
         with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
             records = apply_top_jobs(ApplyRequest(resume_id=self.resume.id, limit=999, dry_run=True), self.db)
 
-        self.assertEqual(len(records), 50)
-        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 50)
+        self.assertEqual(len(records), 100)
+        self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 100)
 
     def test_apply_top_orders_jobs_by_final_apply_priority(self) -> None:
         self.jobs[0].match_score = 95
@@ -1171,23 +1204,27 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(refreshed.completed_count, 20)
         self.assertEqual(len(refreshed.job_results), 20)
 
-    def test_apply_top_background_batch_supports_apply_all_safety_cap(self) -> None:
-        self._ensure_job_count(60)
+    def test_apply_top_background_batch_apply_all_processes_full_batch_up_to_100(self) -> None:
+        # The background Apply All path: 120 eligible jobs, over-large limit -> one batch of
+        # exactly 100 (the Find Matches ceiling), and total_count/progress reflect that total.
+        self._ensure_job_count(120)
 
         with patch("app.main.LinkedInAutomation", FakeApplicationAutomation):
             batch = _create_apply_top_batch(
                 ApplyRequest(resume_id=self.resume.id, limit=999, dry_run=True),
                 self.db,
             )
+            # Progress total is set at batch creation, before any job runs -> must be 100.
+            self.assertEqual(batch.total_count, 100)
             _run_apply_top_batch(batch.id)
 
         self.db.expire_all()
         refreshed = self.db.get(ApplyTopBatch, batch.id)
 
         self.assertEqual(refreshed.status, "completed")
-        self.assertEqual(refreshed.limit, 50)
-        self.assertEqual(refreshed.completed_count, 50)
-        self.assertEqual(len(refreshed.job_results), 50)
+        self.assertEqual(refreshed.total_count, 100)
+        self.assertEqual(refreshed.completed_count, 100)
+        self.assertEqual(len(refreshed.job_results), 100)
 
     def test_apply_top_background_batch_continues_after_one_job_failure(self) -> None:
         FailingSecondJobAutomation.processed_job_ids = []

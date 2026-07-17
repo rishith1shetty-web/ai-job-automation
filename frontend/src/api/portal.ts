@@ -59,3 +59,19 @@ export function useDisconnectDice() {
     onSuccess: () => queryClient.invalidateQueries(),
   });
 }
+
+// New Session: start a fresh dashboard without restarting the backend.
+//   POST /session/reset -> resets ONLY the in-memory RuntimeSession (no DB/file/automation
+//   change) and returns the clean session state.
+// clear() drops every cached query so stale resume/jobs/batch responses can't repaint the
+// dashboard before the fresh (now-empty) reads land -- the same blank state as a cold start.
+export function useResetSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiRequest("POST", "/session/reset"),
+    onSuccess: async () => {
+      queryClient.clear();
+      await queryClient.refetchQueries({ queryKey: portalKey });
+    },
+  });
+}

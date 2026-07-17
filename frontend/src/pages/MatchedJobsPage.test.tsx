@@ -86,7 +86,8 @@ describe("MatchedJobsPage apply request fidelity", () => {
     expect(body!.search_batch_id).toBeNull();
   });
 
-  it("Apply All is safety-capped at 50 (min(job_count, 50))", async () => {
+  it("Apply All sends every eligible job (min(job_count, 100))", async () => {
+    // 60 jobs -> Apply All processes all 60 in one batch (the old cap was 50).
     let body: Record<string, unknown> | null = null;
     server.use(
       http.post(`${BASE}/applications/apply-top/start`, async ({ request }) => {
@@ -94,12 +95,29 @@ describe("MatchedJobsPage apply request fidelity", () => {
         return HttpResponse.json(applyBatch);
       }),
     );
-    await renderWithJobs(Array.from({ length: 51 }, (_, i) => makeJob(i + 1)));
-    expect(screen.getByText("Apply All is safety-capped at 50 ranked jobs per batch.")).toBeInTheDocument();
+    await renderWithJobs(Array.from({ length: 60 }, (_, i) => makeJob(i + 1)));
+    // No cap note below 100.
+    expect(screen.queryByText(/Apply All processes up to 100/)).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Apply All" }));
     await waitFor(() => expect(body).not.toBeNull());
-    expect(body!.limit).toBe(50);
+    expect(body!.limit).toBe(60);
+  });
+
+  it("Apply All is capped at 100 when more than 100 jobs are matched", async () => {
+    let body: Record<string, unknown> | null = null;
+    server.use(
+      http.post(`${BASE}/applications/apply-top/start`, async ({ request }) => {
+        body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(applyBatch);
+      }),
+    );
+    await renderWithJobs(Array.from({ length: 101 }, (_, i) => makeJob(i + 1)));
+    expect(screen.getByText("Apply All processes up to 100 ranked jobs per batch.")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Apply All" }));
+    await waitFor(() => expect(body).not.toBeNull());
+    expect(body!.limit).toBe(100);
   });
 });
 
