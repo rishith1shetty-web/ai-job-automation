@@ -193,7 +193,7 @@ class ActivePortalStateTests(unittest.TestCase):
                 title="Data Analyst",
                 company="Dice Co",
                 location="Remote",
-                job_url="https://www.dice.com/job-detail/active-portal-test",
+                job_url="https://www.dice.com/job-detail/00000007-2222-4333-8444-555555555555",
                 description="SQL Python",
                 easy_apply=True,
             )

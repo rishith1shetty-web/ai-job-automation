@@ -45,11 +45,15 @@ def _variation() -> SearchVariation:
 
 
 def _card(i: int, easy: bool) -> dict:
+    # A real Dice card carries no /job-detail/ href of its own; its corroborated
+    # data-job-guid is what yields the canonical job URL.
     return {
+        "job_guid": f"{i:08d}-2222-4333-8444-555555555555",
+        "guid_corroborated": True,
         "title": f"Data Analyst {i}",
         "company": f"Company {i}",
         "location": "Remote",
-        "job_url": f"https://www.dice.com/job-detail/guid-{i}",
+        "job_url": "",
         "apply_url": "",
         # Easy Apply is decided ONLY by the CTA badge text -- unchanged classification path.
         "apply_cta": "Easy Apply" if easy else "",

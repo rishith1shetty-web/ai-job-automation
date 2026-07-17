@@ -24,6 +24,22 @@ from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuesti
 class DicePortalAdapter:
     portal_name = "dice"
     login_timeout_seconds = 600
+    # Dice's authoritative per-job identity is the card's data-job-guid, and its canonical
+    # route is /job-detail/<guid>. A guid is only trusted once the page itself corroborates
+    # that route (an embedded detailsPageUrl or a real /job-detail/<guid> href) -- we never
+    # guess a route from an identifier, and never fall back to the shared search-results URL.
+    JOB_GUID_RE = re.compile(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I
+    )
+    CANONICAL_JOB_URL_RE = re.compile(
+        r"^https://www\.dice\.com/job-detail/"
+        r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        re.I,
+    )
+    URL_STATUS_CANONICAL = "CANONICAL"
+    URL_STATUS_UNRESOLVED = "URL_UNRESOLVED"
+    IDENTITY_OK = "IDENTITY_VERIFIED"
+    IDENTITY_MISMATCH = "JOB_IDENTITY_MISMATCH"
     AUTH_COOKIE_RE = re.compile(r"(auth|access|refresh|id[_-]?token|jwt|session|sso)", re.I)
     ANONYMOUS_COOKIE_RE = re.compile(r"(anonymous|anon|guest|consent|preference|tracking|analytics|csrf|xsrf)", re.I)
     AUTH_STORAGE_RE = re.compile(r"(auth|access|refresh|id[_-]?token|jwt|session|sso)", re.I)
@@ -573,6 +589,16 @@ class DicePortalAdapter:
             or variation.location
         )
         href = self._absolute_dice_url(str(data.get("job_url") or data.get("href") or ""))
+        # Canonical identity. The guid is authoritative only when the page corroborated it
+        # (detailsPageUrl / a real /job-detail/<guid> href); a real canonical href on the card
+        # is itself proof. Anything else stays URL_UNRESOLVED -- no search-URL fallback, no
+        # guessed route, no pseudo-URL.
+        guid = str(data.get("job_guid") or "").strip().lower()
+        canonical_url = self._canonical_job_url(guid) if data.get("guid_corroborated") else ""
+        if not canonical_url and self.CANONICAL_JOB_URL_RE.match(href or ""):
+            canonical_url = href
+            guid = guid or self._guid_from_url(href)
+        url_status = self.URL_STATUS_CANONICAL if canonical_url else self.URL_STATUS_UNRESOLVED
         # Keep the raw (possibly external) apply URL for classification before the
         # dice.com fallback, so an external-ATS host is still detectable.
         raw_apply_url = str(data.get("apply_url") or "")
@@ -587,12 +613,15 @@ class DicePortalAdapter:
             "title": title[:255],
             "company": company[:255],
             "location": location_text[:255] if location_text else variation.location,
-            "job_url": href or self.search_url(variation),
+            # Empty when unresolved -- the extractor drops such jobs. NEVER the search URL.
+            "job_url": canonical_url,
             "description": text or " ".join(item for item in [title, company, location_text, posted_date] if item),
             "easy_apply": easy_apply,
             "form_provider": "dice",
             "job_description_metadata": {
                 "portal": self.portal_name,
+                "job_guid": guid,
+                "url_status": url_status,
                 "posted_date": posted_date,
                 "apply_url": apply_url,
                 "apply_cta": apply_cta,
@@ -601,6 +630,23 @@ class DicePortalAdapter:
                 "source_search_location": variation.location,
             },
         }
+
+    def _canonical_job_url(self, guid: str) -> str:
+        """The canonical Dice route for a corroborated guid, or '' if the guid is not a guid.
+        Only ever called with a guid the page itself proved routes to /job-detail/<guid>."""
+        candidate = str(guid or "").strip().lower()
+        if not self.JOB_GUID_RE.fullmatch(candidate):
+            return ""
+        return f"https://www.dice.com/job-detail/{candidate}"
+
+    def _guid_from_url(self, url: str) -> str:
+        match = self.CANONICAL_JOB_URL_RE.match(str(url or "").strip())
+        return match.group(1).lower() if match else ""
+
+    def is_canonical_job_url(self, url: str) -> bool:
+        """True only for https://www.dice.com/job-detail/<guid>. Search-results URLs,
+        #job-<hash> pseudo-URLs and guessed routes are all rejected."""
+        return bool(self.CANONICAL_JOB_URL_RE.match(str(url or "").strip()))
 
     def _dice_scan_limit(self, limit: int) -> int:
         """Number of UNIQUE job cards a single query may inspect. Decoupled from (and larger
@@ -646,6 +692,25 @@ class DicePortalAdapter:
                   const canonicalOf = (el) => (
                     el.closest("[data-testid='job-card'], [data-job-guid], [data-id]") || el
                   );
+                  // Every job GUID Dice itself proves is routable as /job-detail/<guid>, from
+                  // its own page data: the embedded detailsPageUrl entries (Next.js/RSC payload)
+                  // plus any real /job-detail/<guid> anchors. A card GUID is only trusted when it
+                  // appears here -- the card link itself is an hrefless overlay, so without this
+                  // corroboration there is no route evidence and we must not invent one.
+                  const corroborated = new Set();
+                  const G = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+                  const html = document.documentElement.innerHTML || '';
+                  const detailsRe = new RegExp(
+                    'detailsPageUrl\\\\\\\\?\"?\\\\s*:\\\\s*\\\\\\\\?\"?https://www\\\\.dice\\\\.com/job-detail/(' + G + ')',
+                    'g'
+                  );
+                  let m;
+                  while ((m = detailsRe.exec(html)) !== null) corroborated.add(m[1].toLowerCase());
+                  const hrefRe = new RegExp('/job-detail/(' + G + ')');
+                  document.querySelectorAll("a[href*='/job-detail/']").forEach((a) => {
+                    const hit = (a.getAttribute('href') || '').match(hrefRe);
+                    if (hit) corroborated.add(hit[1].toLowerCase());
+                  });
                   const seen = new Set();
                   const seenKeys = new Set();
                   const cards = [];
@@ -694,7 +759,10 @@ class DicePortalAdapter:
                         return '';
                       })();
                       const postedMatch = text.match(/(?:posted\\s*)?(?:today|just now|\\d+\\s+(?:hours?|days?|weeks?|months?)\\s+ago)/i);
+                      const guid = (card.getAttribute('data-job-guid') || '').toLowerCase();
                       cards.push({
+                        job_guid: guid,
+                        guid_corroborated: !!guid && corroborated.has(guid),
                         title: textOf(card, titleSelectors),
                         company: textOf(card, companySelectors),
                         location: textOf(card, locationSelectors),
@@ -737,20 +805,17 @@ class DicePortalAdapter:
                 continue
             has_title = bool(job["title"])
             has_company = bool(job["company"])
-            has_url = bool(job["job_url"])
+            # Only a corroborated canonical /job-detail/<guid> counts as a URL. An unresolved
+            # job is dropped here: it can never be applied to safely, so it must not enter the
+            # queue with a shared search URL standing in for its identity.
+            has_url = self.is_canonical_job_url(job["job_url"])
             if has_title and has_company and has_url:
                 jobs.append(job)
                 parsed += 1
                 if job.get("easy_apply"):
                     easy_apply += 1
                     eligible += 1
-                # A card with no real href gets job_url = the search URL (fallback in
-                # job_from_card_data), so "missing URL" reads 0 -- split it out so the URL
-                # problem is still visible.
-                if "/job-detail/" in (job.get("job_url") or ""):
-                    real_job_detail_url += 1
-                else:
-                    search_url_fallback += 1
+                real_job_detail_url += 1
                 # Stop as soon as this query has produced enough eligible (Easy Apply) jobs to
                 # meet its share of the requested total -- no need to inspect the rest of the page.
                 if eligible >= return_target:
@@ -762,6 +827,7 @@ class DicePortalAdapter:
                 missing_company += 1
             else:
                 missing_url += 1
+                search_url_fallback += 1
         if diagnostics is not None:
             diagnostics["per_query_scan_target"] = scan_limit
             diagnostics["per_query_return_target"] = return_target
@@ -774,7 +840,10 @@ class DicePortalAdapter:
             diagnostics["rejected_missing_company"] = missing_company
             diagnostics["rejected_missing_url"] = missing_url
             diagnostics["parsed_with_real_job_detail_url"] = real_job_detail_url
-            diagnostics["parsed_with_search_url_fallback"] = search_url_fallback
+            # Jobs whose guid no Dice-provided source corroborated: dropped, never queued.
+            diagnostics["url_unresolved_dropped"] = search_url_fallback
+            # Structurally 0 now -- the search URL is no longer a fallback identity.
+            diagnostics["parsed_with_search_url_fallback"] = 0
             diagnostics["easy_apply_identified"] = easy_apply
         return jobs
 
@@ -863,6 +932,30 @@ class DicePortalAdapter:
         self._review_missing_required = None
         self._city_commit_failure = None
         self._trace("apply_started", job_id=job.id, job_url=job.job_url, dry_run=dry_run)
+        # GATE 1 -- stored-URL canonicality, before any browser opens. Rows collected before
+        # canonical identity existed carry a shared /jobs?q=... search URL (some with a
+        # #job-<hash> fragment): opening one lands on a results list and would apply to
+        # whichever job is selected there. Such a row cannot be repaired without guessing, so
+        # it is refused outright: no navigation, no click, no fill, no submission.
+        if not self.is_canonical_job_url(job.job_url):
+            log.append({
+                "step": "url_unresolved",
+                "status": self.URL_STATUS_UNRESOLVED,
+                "job_url": job.job_url,
+                "reason": "stored job_url is not a canonical https://www.dice.com/job-detail/<guid>",
+            })
+            self._trace("url_unresolved", job_id=job.id, job_url=job.job_url)
+            return AutomationResult(
+                status=ApplicationStatus.SKIPPED,
+                message=(
+                    "This Dice job has no verified job-detail URL, so it cannot be opened safely "
+                    "without risking applying to a different job. Run Find Matches again to "
+                    "collect a fresh, verified row for it."
+                ),
+                current_step=self.URL_STATUS_UNRESOLVED,
+                evidence_path=str(debug_dir),
+                log=log,
+            )
         # Live apply is enabled for Dice. dry_run=False reaches the real submit path in
         # _plan_dry_run, which clicks Submit ONLY after every existing safety check has passed
         # and returns APPLIED only once submission is positively confirmed.
@@ -882,6 +975,23 @@ class DicePortalAdapter:
                 except Exception as exc:  # navigation failure is non-fatal for classification
                     log.append({"step": "job_open_failed", "error": str(exc)})
                     self._trace("job_open_failed", error=str(exc), error_type=type(exc).__name__)
+                # GATE 2 -- the opened page must BE this job. Runs before Apply detection, so a
+                # mismatch can never reach a click, a form fill or a submission. On failure we
+                # stop; we never search Dice for another job to substitute.
+                identity_ok, identity = self._verify_job_identity(page, job, log)
+                if not identity_ok:
+                    reason = identity.get("reason") or self.IDENTITY_MISMATCH
+                    return AutomationResult(
+                        status=ApplicationStatus.SKIPPED,
+                        message=(
+                            f"Opened job identity does not match this dashboard job "
+                            f"(expected guid {identity.get('expected_guid') or 'none'}, "
+                            f"opened {identity.get('actual_guid') or 'unknown'}). No application was started."
+                        ),
+                        current_step=reason,
+                        evidence_path=str(debug_dir),
+                        log=log,
+                    )
                 form = self._detect_apply_form(page, job)
                 # If clicking Apply opened a new tab (Dice sometimes routes the
                 # application through a popup rather than an in-page modal),
@@ -962,8 +1072,66 @@ class DicePortalAdapter:
                 playwright.stop()
 
     def _apply_target_url(self, job: JobOpportunity) -> str:
-        meta = job.job_description_metadata or {}
-        return meta.get("apply_url") or job.job_url
+        """Always the job's own canonical URL. The metadata apply_url is card-derived and can
+        point at a shared/deep-linked route, which is exactly how a run ends up on a different
+        job than the dashboard row -- identity comes from job_url alone."""
+        return job.job_url
+
+    @staticmethod
+    def _normalize_identity(value: str) -> str:
+        """Lowercase, drop punctuation, collapse whitespace -- so harmless formatting
+        differences between the card and the job page never look like a different job."""
+        return re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).strip()
+
+    def _verify_job_identity(self, page, job: JobOpportunity, log: list[dict] | None = None) -> tuple[bool, dict]:
+        """Confirm the opened page IS the dashboard job. The GUID decides: it must match
+        exactly. Title/company are recorded as secondary corroboration and may never override
+        the GUID verdict in either direction."""
+        expected_guid = self._guid_from_url(job.job_url)
+        actual_url = self._safe_page_url(page)
+        actual_guid = self._guid_from_url(actual_url)
+        if not actual_guid:
+            # The page URL may have been rewritten; fall back to the page's own job identity.
+            try:
+                marker = page.evaluate(
+                    "() => { const el = document.querySelector('[data-job-guid]');"
+                    " return el ? el.getAttribute('data-job-guid') : ''; }"
+                )
+            except Exception:
+                marker = ""
+            found = self.JOB_GUID_RE.search(str(marker or "") + " " + str(actual_url or ""))
+            actual_guid = found.group(0).lower() if found else ""
+        try:
+            page_title = page.title()
+        except Exception:
+            page_title = ""
+        detail = {
+            "expected_guid": expected_guid,
+            "actual_guid": actual_guid,
+            "expected_url": job.job_url,
+            "actual_url": actual_url,
+            "expected_title": job.title,
+            "expected_company": job.company,
+            "actual_page_title": page_title,
+            "title_corroborated": bool(
+                self._normalize_identity(job.title)
+                and self._normalize_identity(job.title) in self._normalize_identity(page_title)
+            ),
+        }
+        if not expected_guid:
+            detail["reason"] = self.URL_STATUS_UNRESOLVED
+            self._log_identity(log, detail, matched=False)
+            return False, detail
+        matched = bool(actual_guid) and actual_guid == expected_guid
+        detail["reason"] = self.IDENTITY_OK if matched else self.IDENTITY_MISMATCH
+        self._log_identity(log, detail, matched=matched)
+        return matched, detail
+
+    def _log_identity(self, log: list[dict] | None, detail: dict, *, matched: bool) -> None:
+        entry = {"step": "job_identity_check", "identity_matched": matched, **detail}
+        if log is not None:
+            log.append(entry)
+        self._trace("job_identity_check", **{k: v for k, v in entry.items() if k != "step"})
 
     def _detect_apply_form(self, page, job: JobOpportunity) -> dict:
         """Return {apply_type, fields, submit_present, detection_log, page}. Best-effort

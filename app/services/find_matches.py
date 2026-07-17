@@ -1,4 +1,3 @@
-import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
@@ -578,27 +577,16 @@ class FindMatchesEngine:
         return (job_url, job_id, content_key)
 
     def storage_job_url(self, raw: dict) -> str:
-        """The job_url to PERSIST. The job_opportunities table enforces UNIQUE
-        (job_url, resume_id, search_batch_id). When a portal could not resolve a per-job URL
-        and fell back to the shared search-results URL, every distinct job in a batch carries
-        the SAME job_url and would collide on that constraint -- so the whole insert flush
-        rolls back and nothing persists. Disambiguate such fallback URLs with a stable per-job
-        fragment derived from the job's own content identity (the same identity dedup uses), so
-        every distinct job gets a distinct stored URL. Real per-job URLs are returned unchanged.
-        The fragment is a URL no-op (ignored on navigation), so the apply/URL-resolution flow is
-        unaffected."""
-        url = str(raw.get("job_url") or "")
-        stripped = url.split("?")[0].rstrip("/")
-        if self.linkedin_job_id(stripped).lower() not in self.NON_IDENTIFYING_URL_TOKENS:
-            return url
-        title = self._normalize(raw.get("title") or "")
-        company = self._normalize(raw.get("company") or "")
-        location = self._normalize(raw.get("location") or "")
-        identity = f"{title}|{company}|{location}"
-        if not identity.strip("|") or not url:
-            return url
-        digest = hashlib.sha1(identity.encode("utf-8")).hexdigest()[:12]
-        return f"{url}#job-{digest}"
+        """The job_url to PERSIST: always the portal's own resolved URL, never a manufactured
+        one.
+
+        This used to append a stable ``#job-<hash>`` fragment to shared search-results URLs so
+        distinct jobs would not collide on UNIQUE (job_url, resume_id, search_batch_id). That
+        made the rows insertable but left them pointing at the same search page, so Apply
+        opened a results list and applied to whichever job was selected there. A portal now
+        resolves a real per-job URL or reports the job URL_UNRESOLVED and drops it, so there is
+        no shared URL left to disambiguate -- and nothing here may invent identity."""
+        return str(raw.get("job_url") or "")
 
     def linkedin_job_id(self, job_url: str) -> str:
         match = re.search(r"/jobs/view/(\d+)", job_url or "")

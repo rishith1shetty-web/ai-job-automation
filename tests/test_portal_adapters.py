@@ -53,7 +53,7 @@ class PortalAdapterTests(unittest.TestCase):
 
         job = adapter.job_from_card_text(
             "Data Analyst\nCompany\nDice Analytics\nRemote\nQuick Apply\nPython SQL dashboards",
-            "https://www.dice.com/job-detail/123",
+            "https://www.dice.com/job-detail/00000123-2222-4333-8444-555555555555",
             variation,
         )
 
@@ -97,8 +97,8 @@ class PortalAdapterTests(unittest.TestCase):
                     "title": "Data Analyst",
                     "company": "Dice Analytics",
                     "location": "Remote",
-                    "job_url": "/job-detail/abc123",
-                    "apply_url": "/job-detail/abc123?apply=true",
+                    "job_url": "/job-detail/00000123-2222-4333-8444-555555555555",
+                    "apply_url": "/job-detail/00000123-2222-4333-8444-555555555555?apply=true",
                     "posted_date": "2 days ago",
                     "description": "Data Analyst\nDice Analytics\nRemote\nQuick Apply\nPython SQL Excel",
                     "easy_apply": True,
@@ -112,7 +112,7 @@ class PortalAdapterTests(unittest.TestCase):
         self.assertEqual(jobs[0]["portal"], "dice")
         self.assertEqual(jobs[0]["title"], "Data Analyst")
         self.assertEqual(jobs[0]["company"], "Dice Analytics")
-        self.assertEqual(jobs[0]["job_url"], "https://www.dice.com/job-detail/abc123")
+        self.assertEqual(jobs[0]["job_url"], "https://www.dice.com/job-detail/00000123-2222-4333-8444-555555555555")
         self.assertTrue(jobs[0]["easy_apply"])
         self.assertEqual(jobs[0]["job_description_metadata"]["posted_date"], "2 days ago")
 
@@ -134,8 +134,8 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Data Analyst",
                 "company": "Native Co",
                 "location": "Remote",
-                "job_url": "/job-detail/1",
-                "apply_url": "/job-detail/1",
+                "job_url": "/job-detail/00000001-2222-4333-8444-555555555555",
+                "apply_url": "/job-detail/00000001-2222-4333-8444-555555555555",
                 "apply_cta": "Easy apply",
                 "description": "Data Analyst\nNative Co\nRemote",
             },
@@ -151,8 +151,8 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Data Analyst",
                 "company": "Plain Co",
                 "location": "Remote",
-                "job_url": "/job-detail/2",
-                "apply_url": "/job-detail/2",
+                "job_url": "/job-detail/00000002-2222-4333-8444-555555555555",
+                "apply_url": "/job-detail/00000002-2222-4333-8444-555555555555",
                 "apply_cta": "Apply",
                 "description": "Data Analyst\nPlain Co\nRemote",
             },
@@ -168,8 +168,8 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Data Analyst",
                 "company": "Now Co",
                 "location": "Remote",
-                "job_url": "/job-detail/3",
-                "apply_url": "/job-detail/3",
+                "job_url": "/job-detail/00000003-2222-4333-8444-555555555555",
+                "apply_url": "/job-detail/00000003-2222-4333-8444-555555555555",
                 "apply_cta": "Apply Now",
                 "description": "Data Analyst\nNow Co\nRemote",
             },
@@ -184,7 +184,7 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Data Analyst",
                 "company": "Workday Co",
                 "location": "Remote",
-                "job_url": "/job-detail/4",
+                "job_url": "/job-detail/00000004-2222-4333-8444-555555555555",
                 # Even with an "Easy apply"-looking chip, an external ATS host wins.
                 "apply_url": "https://company.wd1.myworkdayjobs.com/apply/123",
                 "apply_cta": "Easy apply",
@@ -202,8 +202,8 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Data Analyst",
                 "company": "Site Co",
                 "location": "Remote",
-                "job_url": "/job-detail/5",
-                "apply_url": "/job-detail/5",
+                "job_url": "/job-detail/00000005-2222-4333-8444-555555555555",
+                "apply_url": "/job-detail/00000005-2222-4333-8444-555555555555",
                 "apply_cta": "Apply on company site",
                 "description": "Data Analyst\nSite Co\nRemote",
             },
@@ -221,8 +221,8 @@ class PortalAdapterTests(unittest.TestCase):
                 "title": "Integrations Engineer",
                 "company": "Native Co",
                 "location": "Remote",
-                "job_url": "/job-detail/6",
-                "apply_url": "/job-detail/6",
+                "job_url": "/job-detail/00000006-2222-4333-8444-555555555555",
+                "apply_url": "/job-detail/00000006-2222-4333-8444-555555555555",
                 "apply_cta": "Easy apply",
                 "description": "Integrations Engineer\nNative Co\nBuild Workday and Greenhouse integrations.",
             },
@@ -236,22 +236,22 @@ class PortalAdapterTests(unittest.TestCase):
             jobs=[
                 {
                     "title": "Easy One", "company": "Native Co", "location": "Remote",
-                    "job_url": "/job-detail/1", "apply_url": "/job-detail/1",
+                    "job_url": "/job-detail/00000001-2222-4333-8444-555555555555", "apply_url": "/job-detail/00000001-2222-4333-8444-555555555555",
                     "apply_cta": "Easy apply", "description": "Easy One\nNative Co\nRemote",
                 },
                 {
                     "title": "Plain Two", "company": "Plain Co", "location": "Remote",
-                    "job_url": "/job-detail/2", "apply_url": "/job-detail/2",
+                    "job_url": "/job-detail/00000002-2222-4333-8444-555555555555", "apply_url": "/job-detail/00000002-2222-4333-8444-555555555555",
                     "apply_cta": "Apply", "description": "Plain Two\nPlain Co\nRemote",
                 },
                 {
                     "title": "Now Three", "company": "Now Co", "location": "Remote",
-                    "job_url": "/job-detail/3", "apply_url": "/job-detail/3",
+                    "job_url": "/job-detail/00000003-2222-4333-8444-555555555555", "apply_url": "/job-detail/00000003-2222-4333-8444-555555555555",
                     "apply_cta": "Apply Now", "description": "Now Three\nNow Co\nRemote",
                 },
                 {
                     "title": "Workday Four", "company": "WD Co", "location": "Remote",
-                    "job_url": "/job-detail/4",
+                    "job_url": "/job-detail/00000004-2222-4333-8444-555555555555",
                     "apply_url": "https://company.wd1.myworkdayjobs.com/apply/9",
                     "apply_cta": "Apply", "description": "Workday Four\nWD Co\nRemote",
                 },
@@ -301,7 +301,7 @@ class PortalAdapterTests(unittest.TestCase):
             title="Data Analyst",
             company="Dice Analytics",
             location="Remote",
-            job_url="https://www.dice.com/job-detail/123",
+            job_url="https://www.dice.com/job-detail/00000123-2222-4333-8444-555555555555",
             description="Python SQL Excel Power BI dashboards",
             easy_apply=True,
         )
@@ -331,7 +331,7 @@ class PortalAdapterTests(unittest.TestCase):
             title="Data Analyst",
             company="Dice Co",
             location="Remote",
-            job_url="https://www.dice.com/job-detail/1",
+            job_url="https://www.dice.com/job-detail/00000001-2222-4333-8444-555555555555",
             description="Python SQL Excel Power BI",
             easy_apply=True,
             match_score=82,
@@ -355,14 +355,22 @@ class PortalAdapterTests(unittest.TestCase):
             title="Data Analyst",
             company="Dice Co",
             location="Remote",
-            job_url="https://www.dice.com/job-detail/99",
+            job_url="https://www.dice.com/job-detail/00000099-2222-4333-8444-555555555555",
             description="Python SQL",
             easy_apply=True,
         )
 
         class _FakePage:
-            def goto(self, *a, **k):
+            # Navigation is reflected in `url`, as a real browser does, so the pre-apply
+            # identity gate can confirm this page is the job it was asked to open.
+            url = ""
+
+            def goto(self, url=None, *a, **k):
+                self.url = url or ""
                 return None
+
+            def title(self):
+                return "Data Analyst - Dice.com"
 
             def screenshot(self, *a, **k):
                 return None

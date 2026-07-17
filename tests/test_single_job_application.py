@@ -42,8 +42,16 @@ def _fake_dice_ctx(self):
     """Fake browser context so Dice dry-run apply tests never launch a real browser."""
 
     class _Pg:
-        def goto(self, *a, **k):
+        # Navigation is reflected in `url`, as a real browser does, so the pre-apply
+        # identity gate can confirm this page is the job it was asked to open.
+        url = ""
+
+        def goto(self, url=None, *a, **k):
+            self.url = url or ""
             return None
+
+        def title(self):
+            return "Dice Data Analyst - Dice.com"
 
         def screenshot(self, *a, **k):
             return None
@@ -908,7 +916,7 @@ class SingleJobApplicationTests(unittest.TestCase):
             title="Dice Data Analyst",
             company="Dice Co",
             location="Remote",
-            job_url=f"https://www.dice.com/job-detail/{uuid4().hex}",
+            job_url=f"https://www.dice.com/job-detail/{uuid4()}",
             description="Python SQL",
             easy_apply=True,
             match_score=95,
@@ -998,7 +1006,7 @@ class SingleJobApplicationTests(unittest.TestCase):
             title="Dice Data Analyst",
             company="Dice Co",
             location="Remote",
-            job_url=f"https://www.dice.com/job-detail/{uuid4().hex}",
+            job_url=f"https://www.dice.com/job-detail/{uuid4()}",
             description="Python SQL",
             easy_apply=True,
             match_score=99,

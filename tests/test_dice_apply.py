@@ -21,12 +21,25 @@ from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, Resu
 from app.services.portals.dice_portal import DicePortalAdapter
 
 
+# The canonical URL of the job every fake page here stands in for. The pre-apply identity
+# gate requires the opened page to BE this job, so the fakes below reflect navigation in
+# `url` exactly as a real browser does.
+JOB_DETAIL_URL = "https://www.dice.com/job-detail/00000001-2222-4333-8444-555555555555"
+
+
 class FakePage:
     def __init__(self):
         self.submitted = False  # never set by the adapter -> proves no submission
+        # Navigation is reflected in `url`, as in a real browser, so the pre-apply identity
+        # gate can confirm the opened page is the job it was asked to open.
+        self.url = JOB_DETAIL_URL
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or self.url
         return None
+
+    def title(self):
+        return "Data Analyst - Dice.com"
 
     def wait_for_timeout(self, *a, **k):
         return None
@@ -88,7 +101,7 @@ def make_resume(**overrides):
 def make_job():
     return JobOpportunity(
         resume_id=1, title="Data Analyst", company="Example",
-        location="United States", job_url="https://www.dice.com/job-detail/abc",
+        location="United States", job_url=JOB_DETAIL_URL,
     )
 
 
@@ -350,7 +363,8 @@ class BareApplyButtonPage:
         self.submitted = False
         self.filled_plan = None
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_timeout(self, *a, **k):
@@ -388,7 +402,8 @@ class BareApplyLinkPage:
         self.submitted = False
         self.filled_plan = None
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_timeout(self, *a, **k):
@@ -427,7 +442,8 @@ class OverlayThenApplyPage:
         self.submitted = False
         self.filled_plan = None
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_timeout(self, *a, **k):
@@ -472,7 +488,8 @@ class MultiStepApplyPage:
         self.submitted = False
         self.filled_plan = None
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_timeout(self, *a, **k):
@@ -577,7 +594,8 @@ class PopupApplyPage:
         self.spawned_popup: PopupPage | None = None
         self.submitted = False
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_timeout(self, *a, **k):
@@ -689,7 +707,7 @@ class WizardWaitPage:
     through the delayed render instead of closing after ~2s, and (c) never submits.
     """
 
-    START_URL = "https://www.dice.com/job-detail/abc"
+    START_URL = "https://www.dice.com/job-detail/00000001-2222-4333-8444-555555555555"
     APPLY_HREF = "/job-applications/9da9-1234/start-apply"
     WIZARD_URL = "https://www.dice.com/job-applications/9da9-1234/wizard"
 
@@ -704,8 +722,9 @@ class WizardWaitPage:
 
     def goto(self, url, **k):
         self.navigated_to.append(url)
-        # start-apply immediately redirects to the wizard.
-        self.url = self.WIZARD_URL
+        # Only start-apply redirects to the wizard; opening the job itself lands on the
+        # job-detail page, where the identity gate confirms this is the right job.
+        self.url = self.WIZARD_URL if "start-apply" in (url or "") else (url or self.url)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -862,7 +881,7 @@ class ScriptedWizardPage(CityAutocompleteFake):
     def __init__(self, steps, confirm_uploads: bool = True):
         self.steps = steps
         self.step_index = 0
-        self.url = self.WIZARD_URL
+        self.url = JOB_DETAIL_URL
         self.uploaded_files: list = []
         self.uploaded_count = 0
         self.confirm_uploads = confirm_uploads
@@ -872,7 +891,8 @@ class ScriptedWizardPage(CityAutocompleteFake):
         self._init_city()
 
     # --- misc page API ---
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -926,9 +946,10 @@ class ScriptedWizardPage(CityAutocompleteFake):
         return FakeLocator(False)
 
     def get_by_role(self, role, name):
-        # The Apply control that opens the wizard (already at wizard URL). Only
-        # matches an Apply-named query so the Next role fallback stays honest.
-        return FakeLocator(role == "button" and bool(name.search("Apply")))
+        # The Apply control that opens the wizard. Only matches an Apply-named
+        # query so the Next role fallback stays honest.
+        return FakeLocator(role == "button" and bool(name.search("Apply")),
+                           on_click=lambda: setattr(self, "url", self.WIZARD_URL))
 
     def evaluate(self, script, *args):
         if args:
@@ -946,14 +967,15 @@ class ResumeOnlyNoNextPage:
     WIZARD_URL = "https://www.dice.com/job-applications/x/wizard"
 
     def __init__(self, confirm_uploads: bool = True):
-        self.url = self.WIZARD_URL
+        self.url = JOB_DETAIL_URL
         self.uploaded_files: list = []
         self.uploaded_count = 0
         self.confirm_uploads = confirm_uploads
         self.submitted = False
         self.next_clicks = 0
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -1235,14 +1257,15 @@ class PreUploadedResumeNoNextPage:
     WIZARD_URL = "https://www.dice.com/job-applications/pre/wizard"
 
     def __init__(self):
-        self.url = self.WIZARD_URL
+        self.url = JOB_DETAIL_URL
         self.uploaded_files: list = []
         self.uploaded_count = 0
         self.confirm_uploads = True
         self.submitted = False
         self.next_clicks = 0
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -1270,7 +1293,9 @@ class PreUploadedResumeNoNextPage:
         return FakeLocator(False)  # no Next, no Submit
 
     def get_by_role(self, role, name):
-        return FakeLocator(role == "button" and bool(name.search("Apply")))
+        # Clicking Apply is what navigates this page into the wizard.
+        return FakeLocator(role == "button" and bool(name.search("Apply")),
+                           on_click=lambda: setattr(self, "url", self.WIZARD_URL))
 
     def evaluate(self, script, *args):
         if args:
@@ -1299,7 +1324,7 @@ class LiveDiceStep1Page(CityAutocompleteFake):
     RESUME_NAME = "Rishith_Shetty_Resume (1).pdf"
 
     def __init__(self):
-        self.url = self.WIZARD_URL
+        self.url = JOB_DETAIL_URL
         self.step = 1
         self.uploaded_files: list = []
         self.uploaded_count = 0
@@ -1310,7 +1335,8 @@ class LiveDiceStep1Page(CityAutocompleteFake):
         self.captured_html = 0
         self._init_city()
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -1732,7 +1758,7 @@ class LiveDiceWizardPage(CityAutocompleteFake):
 
     def __init__(self, work_auth_options=None, missing_required=None,
                  city_suggestions=None, commit_on_suggestion_click=True):
-        self.url = self.WIZARD_URL
+        self.url = JOB_DETAIL_URL
         self.step = 1
         self.uploaded_files: list = []
         self.uploaded_count = 0
@@ -1745,7 +1771,8 @@ class LiveDiceWizardPage(CityAutocompleteFake):
         self.missing_required = missing_required or []
         self._init_city(city_suggestions, commit_on_suggestion_click)
 
-    def goto(self, *a, **k):
+    def goto(self, url=None, *a, **k):
+        self.url = url or getattr(self, 'url', JOB_DETAIL_URL)
         return None
 
     def wait_for_url(self, *a, **k):
@@ -1785,7 +1812,9 @@ class LiveDiceWizardPage(CityAutocompleteFake):
         return FakeLocator(False)
 
     def get_by_role(self, role, name):
-        return FakeLocator(role == "button" and bool(name.search("Apply")))
+        # Clicking Apply is what navigates this page into the wizard.
+        return FakeLocator(role == "button" and bool(name.search("Apply")),
+                           on_click=lambda: setattr(self, "url", self.WIZARD_URL))
 
     def get_by_text(self, text, exact=False):
         return FakeLocator(self.step == 1 and text == self.RESUME_NAME)
