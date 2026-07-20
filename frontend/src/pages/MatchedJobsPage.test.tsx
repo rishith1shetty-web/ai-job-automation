@@ -48,6 +48,85 @@ describe("MatchedJobsPage apply request fidelity", () => {
     expect(screen.getByRole("switch", { name: "Dry run" })).toHaveAttribute("aria-checked", "true");
   });
 
+  it("renders rows in the backend's order and shows each job's posted age", async () => {
+    // The dashboard must mirror the backend's freshness-aware ranking exactly: no client-side
+    // re-sorting, and the portal's raw posted text is displayed per row ("Unknown" when absent).
+    await renderWithJobs([
+      makeJob(2, { job_description_metadata: { posted_date: "7 minutes ago", posted_at: "2026-07-17T14:23:00" } }),
+      makeJob(1, { job_description_metadata: { posted_date: "3 days ago", posted_at: "2026-07-14T14:30:00" } }),
+      makeJob(3), // no posted metadata -> unknown
+    ]);
+    const cells = screen.getAllByRole("cell").map((cell) => cell.textContent);
+    const titleOrder = ["Job 2", "Job 1", "Job 3"].map((title) => cells.indexOf(title));
+    expect(titleOrder).toEqual([...titleOrder].sort((a, b) => a - b)); // backend order preserved
+    expect(cells).toContain("7 minutes ago");
+    expect(cells).toContain("3 days ago");
+    expect(cells).toContain("Unknown");
+  });
+
+  it("shows only the intended columns — Match and Friction are removed", async () => {
+    await renderWithJobs([makeJob(1, { job_description_metadata: { posted_date: "5 min ago" } })]);
+    const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);
+    expect(headers).toEqual([
+      "Title", "Company", "Portal", "Posted", "Apply Priority", "Easy Apply", "Status", "Job URL",
+    ]);
+    // The removed cells' bar/score renderings are gone: match rendered as its own "90.0%"
+    // text node and friction as "10.0" -- neither may appear anywhere now. (The job radio
+    // label embeds the match % inside one longer string, which exact matching ignores.)
+    expect(screen.queryByText("90.0%")).toBeNull();
+    expect(screen.queryByText("10.0")).toBeNull();
+    // Every row has exactly one cell per remaining header, and Posted styling is intact.
+    expect(screen.getAllByRole("cell")).toHaveLength(headers.length);
+    expect(
+      screen.getByText("5 min ago").closest("[data-posted-tier]")?.getAttribute("data-posted-tier"),
+    ).toBe("minutes");
+  });
+
+  it("gives posted ages tiered visual emphasis without altering text or order", async () => {
+    // Display-only: recent ages get emphasized Badge presentation, older ages are neutral,
+    // unknown is muted -- while the raw text and the backend row order stay untouched.
+    await renderWithJobs([
+      makeJob(1, { job_description_metadata: { posted_date: "Just now" } }),
+      makeJob(2, { job_description_metadata: { posted_date: "5 min ago" } }),
+      makeJob(3, { job_description_metadata: { posted_date: "2 hours ago" } }),
+      makeJob(4, { job_description_metadata: { posted_date: "Today" } }),
+      makeJob(5, { job_description_metadata: { posted_date: "3 days ago" } }),
+      makeJob(6), // unknown
+    ]);
+    const tierOf = (text: string) =>
+      screen.getByText(text).closest("[data-posted-tier]")?.getAttribute("data-posted-tier");
+    expect(tierOf("Just now")).toBe("instant");
+    expect(tierOf("5 min ago")).toBe("minutes");
+    expect(tierOf("2 hours ago")).toBe("hours");
+    expect(tierOf("Today")).toBe("today");
+    expect(tierOf("3 days ago")).toBe("older");
+    expect(tierOf("Unknown")).toBe("unknown");
+    // Backend order still intact with the styling applied.
+    const cells = screen.getAllByRole("cell").map((cell) => cell.textContent);
+    const titleOrder = [1, 2, 3, 4, 5, 6].map((i) => cells.indexOf(`Job ${i}`));
+    expect(titleOrder).toEqual([...titleOrder].sort((a, b) => a - b));
+  });
+
+  it("shows the Dice posted_display relative age, never the raw ISO or stale badge; LinkedIn text unchanged", async () => {
+    // Dice backend supplies posted_display (derived from the exact posted_at); posted_date
+    // holds the coarse badge or raw ISO for diagnostics and must never reach the cell.
+    // LinkedIn has no posted_display -> its own relative text is shown verbatim (unchanged).
+    await renderWithJobs([
+      makeJob(1, { portal: "dice", job_description_metadata: {
+        posted_date: "Today", posted_at: "2026-07-15T09:00:00", posted_display: "2 days ago" } }),
+      makeJob(2, { portal: "dice", job_description_metadata: {
+        posted_date: "2026-07-17T13:36:16Z", posted_at: "2026-07-17T13:36:16", posted_display: "7 minutes ago" } }),
+      makeJob(3, { portal: "linkedin", job_description_metadata: {
+        posted_date: "Reposted 2 weeks ago", posted_at: "2026-07-03T14:30:00" } }),
+    ]);
+    const cells = screen.getAllByRole("cell").map((cell) => cell.textContent);
+    expect(cells).toContain("2 days ago");     // Dice: relative posted_display, not "Today"
+    expect(cells).toContain("7 minutes ago");  // Dice: relative posted_display, not the ISO
+    expect(cells).not.toContain("Today");      // stale badge is never displayed
+    expect(cells.some((c) => c !== null && /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(c))).toBe(false);
+    expect(cells).toContain("Reposted 2 weeks ago"); // LinkedIn: raw relative text preserved
+  });
+
   it("Apply Selected Job POSTs resume_id/job_id/dry_run/screening_mode and NO portal", async () => {
     let body: Record<string, unknown> | null = null;
     server.use(

@@ -7,6 +7,13 @@ from urllib.parse import urlparse
 
 from app.config import Settings
 from app.models import JobOpportunity, ResumeProfile
+from app.services.posting_time import (
+    UNKNOWN_FRESHNESS,
+    extract_posted_phrase,
+    freshness_score_for,
+    parse_posted_text,
+    relative_posted_label,
+)
 
 
 @dataclass(frozen=True)
@@ -317,7 +324,12 @@ class FindMatchesEngine:
         }
         return queries, plan
 
-    def enrich_raw_job(self, raw: dict, variation: SearchVariation) -> dict:
+    def enrich_raw_job(
+        self,
+        raw: dict,
+        variation: SearchVariation,
+        reference_time: datetime | None = None,
+    ) -> dict:
         description = raw.get("description") or ""
         title = raw.get("title") or ""
         location = raw.get("location") or ""
@@ -330,11 +342,46 @@ class FindMatchesEngine:
         )
         if portal == "dice":
             complexity["form_provider"] = self.dice_form_provider_label(raw, complexity.get("form_provider"))
-        freshness = self.estimate_freshness(location + " " + description)
-        return {
+        # Posting-time normalization. One reference timestamp per Find Matches run (the
+        # caller passes the run's search_timestamp) so every relative phrase in the run is
+        # measured against the same instant. The portal's own posted text is authoritative;
+        # when the adapter did not isolate one, the phrase is rescued from the card text.
+        # Unknown stays unknown -- discovery time is never substituted for posting time.
+        reference = reference_time or datetime.utcnow()
+        metadata = dict(raw.get("job_description_metadata") or {})
+        posted_raw = str(metadata.get("posted_date") or raw.get("posted_date") or "").strip()
+        # PRECEDENCE: an adapter that supplied a posted_date field (even an empty one) has
+        # already done SCOPED, portal-aware extraction -- its verdict is final, including
+        # "no reliable value" (Unknown). The loose text rescue below runs ONLY for raw jobs
+        # that never attempted extraction at all; free-scanning a card/description here can
+        # promote prose ("apply today") or a neighboring "Updated" age into a posting date.
+        adapter_supplied = "posted_date" in metadata or "posted_date" in raw
+        if not posted_raw and not adapter_supplied:
+            posted_raw = extract_posted_phrase(location, description)
+        # An adapter-supplied EXACT timestamp (Dice's embedded postedDate) outranks the
+        # display text for normalization; the display text keeps the portal's visible wording.
+        posted_iso = str(metadata.get("posted_iso") or "").strip()
+        posted_at = None
+        if posted_iso:
+            posted_at = parse_posted_text(posted_iso, reference)
+        if posted_at is None:
+            posted_at = parse_posted_text(posted_raw, reference)
+        metadata["posted_date"] = posted_raw
+        metadata["posted_at"] = posted_at.isoformat() if posted_at else None
+        # DISPLAY value (never used for sorting). Dice's card badge is coarse and often stale
+        # ("Today" on a 2-day-old job) and its payload fallback is a raw ISO string, so the
+        # visible age is derived from the authoritative posted_at against this run's reference
+        # -- keeping the label consistent with the newest-to-oldest ordering. Other portals
+        # (LinkedIn) already expose correct relative text; theirs is preserved verbatim.
+        if portal == "dice":
+            metadata["posted_display"] = relative_posted_label(posted_at, reference)
+        else:
+            metadata["posted_display"] = posted_raw
+        enriched = {
             **raw,
             **complexity,
-            "freshness_score": freshness["score"],
+            "freshness_score": freshness_score_for(posted_at, reference),
+            "job_description_metadata": metadata,
             "search_query_used": variation.query,
             "role_detected": variation.role,
             "expanded_role": variation.expanded_role,
@@ -343,6 +390,9 @@ class FindMatchesEngine:
             "priority_reason": "",
             "match_reason": "",
         }
+        # Raw posting text lives in the metadata, not as a JobOpportunity column.
+        enriched.pop("posted_date", None)
+        return enriched
 
     def dice_form_provider_label(self, raw: dict, fallback: str | None = None) -> str:
         provider = str(raw.get("form_provider") or fallback or "").strip().lower()
@@ -539,19 +589,24 @@ class FindMatchesEngine:
             return "Custom/Unknown"
         return "LinkedIn Easy Apply"
 
-    def estimate_freshness(self, text: str) -> dict:
-        lowered = text.lower()
-        if "today" in lowered or "just now" in lowered:
-            return {"score": 100, "label": "Today"}
-        if "hour" in lowered or "24 hours" in lowered:
-            return {"score": 92, "label": "Last 24 hours"}
-        if re.search(r"\b[123]\s+days?\s+ago\b", lowered):
-            return {"score": 82, "label": "Last 3 days"}
-        if "week" in lowered or re.search(r"\b[4-7]\s+days?\s+ago\b", lowered):
-            return {"score": 65, "label": "Last week"}
-        if "month" in lowered:
-            return {"score": 25, "label": "Older"}
-        return {"score": 50, "label": "Unknown"}
+    def estimate_freshness(self, text: str, reference_time: datetime | None = None) -> dict:
+        """Freshness from loose text, via the shared deterministic posting-time parser (one
+        authority for all portals). Unknown text scores UNKNOWN_FRESHNESS -- below every
+        confirmed date -- and no date is ever invented."""
+        reference = reference_time or datetime.utcnow()
+        posted_at = parse_posted_text(extract_posted_phrase(text), reference)
+        if posted_at is None:
+            return {"score": UNKNOWN_FRESHNESS, "label": "Unknown"}
+        age_hours = max(0.0, (reference - posted_at).total_seconds() / 3600.0)
+        if age_hours <= 24:
+            label = "Today"
+        elif age_hours <= 48:
+            label = "Yesterday"
+        elif age_hours <= 24 * 7:
+            label = "Last week"
+        else:
+            label = "Older"
+        return {"score": freshness_score_for(posted_at, reference), "label": label}
 
     # Last-path-segment tokens that name a listing/search page, NOT a single job. When a
     # portal cannot resolve a per-job URL and falls back to the shared search-results URL

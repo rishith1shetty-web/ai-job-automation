@@ -603,7 +603,21 @@ class DicePortalAdapter:
         # dice.com fallback, so an external-ATS host is still detectable.
         raw_apply_url = str(data.get("apply_url") or "")
         apply_url = self._absolute_dice_url(raw_apply_url) or href
-        posted_date = str(data.get("posted_date") or "").strip()
+        # Posting time, tied to THIS card's canonical GUID (proven live sources, in order):
+        #   posted_iso   -- exact per-job timestamp from Dice's embedded search payload
+        #                   ("postedDate"; the "Updated" value is the separate modifiedDate
+        #                   field, which is never read). Authoritative for ranking.
+        #   posted_badge -- the card's own visible age badge (e.g. "Today"), a whole-node
+        #                   match that prose can't produce. Preferred for DISPLAY because it
+        #                   is the portal's exact visible text.
+        #   card text    -- scoped "Posted <age>" phrase extraction as a last resort.
+        # Neither display value overrides the exact timestamp during normalization.
+        posted_iso = str(data.get("posted_iso") or "").strip()
+        posted_date = (
+            str(data.get("posted_badge") or "").strip()
+            or self.extract_dice_posted_phrase(str(data.get("posted_date") or ""), text)
+            or posted_iso
+        )
         apply_cta = str(data.get("apply_cta") or "").strip()
         easy_apply, apply_reason = self._classify_dice_apply(
             card_text=text, cta_text=apply_cta, apply_url=raw_apply_url or apply_url
@@ -623,6 +637,7 @@ class DicePortalAdapter:
                 "job_guid": guid,
                 "url_status": url_status,
                 "posted_date": posted_date,
+                "posted_iso": posted_iso,
                 "apply_url": apply_url,
                 "apply_cta": apply_cta,
                 "apply_classification": apply_reason,
@@ -630,6 +645,41 @@ class DicePortalAdapter:
                 "source_search_location": variation.location,
             },
         }
+
+    # Dice posting-age extraction, scoped so the wrong phrase can never win:
+    #   1. A "Posted <age>" (or "Reposted <age>") phrase is authoritative -- the prefix ties
+    #      it to the job's own posting event and naturally stops before "- Updated <age>".
+    #   2. Without that prefix, only STRONG bare forms count ("just now", "N units ago"),
+    #      and never one preceded by "Updated ". Bare "today"/"yesterday" are rejected:
+    #      prose like "apply today" is indistinguishable from an age, which is exactly how
+    #      the live dashboard filled up with false "Today" values.
+    #   3. Nothing matched -> "" (Unknown). Never guessed, never scrape time.
+    DICE_AGE_VOCABULARY = (
+        r"today|yesterday|just\s+now|moments?\s+ago|"
+        r"\d+\s*\+?\s*(?:sec(?:ond)?s?|min(?:ute)?s?|hrs?|hours?|days?|weeks?|months?)\s+ago"
+    )
+    POSTED_PREFIXED_RE = re.compile(rf"\b(?:re)?posted\s+(?:{DICE_AGE_VOCABULARY})", re.I)
+    BARE_STRONG_AGE_RE = re.compile(
+        r"(?<!updated\s)\b(?:just\s+now|moments?\s+ago|"
+        r"\d+\s*\+?\s*(?:sec(?:ond)?s?|min(?:ute)?s?|hrs?|hours?|days?|weeks?|months?)\s+ago)\b",
+        re.I,
+    )
+
+    def extract_dice_posted_phrase(self, *texts: str) -> str:
+        """THIS job's own posting-age phrase from the given texts (most-scoped source first:
+        the card's dedicated posted element, then the card text). A Posted-prefixed phrase in
+        ANY source beats a bare phrase in any source, so a precise 'Posted 2 days ago' is
+        never overwritten by weaker or unrelated text. 'Updated <age>' never qualifies."""
+        normalized = [re.sub(r"\s+", " ", str(text or "")) for text in texts]
+        for candidate in normalized:
+            match = self.POSTED_PREFIXED_RE.search(candidate)
+            if match:
+                return match.group(0).strip()
+        for candidate in normalized:
+            match = self.BARE_STRONG_AGE_RE.search(candidate)
+            if match:
+                return match.group(0).strip()
+        return ""
 
     def _canonical_job_url(self, guid: str) -> str:
         """The canonical Dice route for a corroborated guid, or '' if the guid is not a guid.
@@ -711,6 +761,23 @@ class DicePortalAdapter:
                     const hit = (a.getAttribute('href') || '').match(hrefRe);
                     if (hit) corroborated.add(hit[1].toLowerCase());
                   });
+                  // Exact posting timestamps from the SAME embedded payload (proven live:
+                  // every card GUID has \\"postedDate\\":\\"<ISO>\\" in its own job object,
+                  // with the "Updated" value as a SEPARATE modifiedDate field we never read).
+                  // Segment scan: each guid owns the fields up to the next guid, so a
+                  // timestamp can never bind to a different job.
+                  const postedByGuid = {};
+                  const E = '\\\\\\\\';
+                  const guidKeyRe = new RegExp(E + '\"guid' + E + '\":' + E + '\"(' + G + ')' + E + '\"', 'g');
+                  const postedRe = new RegExp(E + '\"postedDate' + E + '\":' + E + '\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z?)');
+                  const guidHits = [];
+                  let gm;
+                  while ((gm = guidKeyRe.exec(html)) !== null) guidHits.push({ guid: gm[1].toLowerCase(), start: gm.index });
+                  for (let i = 0; i < guidHits.length; i++) {
+                    const end = i + 1 < guidHits.length ? guidHits[i + 1].start : guidHits[i].start + 3000;
+                    const pm = html.slice(guidHits[i].start, end).match(postedRe);
+                    if (pm && !(guidHits[i].guid in postedByGuid)) postedByGuid[guidHits[i].guid] = pm[1];
+                  }
                   const seen = new Set();
                   const seenKeys = new Set();
                   const cards = [];
@@ -758,7 +825,13 @@ class DicePortalAdapter:
                         }
                         return '';
                       })();
-                      const postedMatch = text.match(/(?:posted\\s*)?(?:today|just now|\\d+\\s+(?:hours?|days?|weeks?|months?)\\s+ago)/i);
+                      // THIS card's visible age badge: a bare text node like >Today< or
+                      // >2 days ago< (proven live -- the card exposes NO date-ish attributes
+                      // or dedicated posted element). The anchors >...< require the age to be
+                      // the ENTIRE node, so prose like "apply today" can never match.
+                      const badgeMatch = (card.innerHTML || '').match(
+                        />\\s*((?:Today|Yesterday|Just\\s+now|Moments?\\s+ago|\\d+\\s*(?:minute|min|hour|hr|day|week|month)s?\\s+ago))\\s*</i
+                      );
                       const guid = (card.getAttribute('data-job-guid') || '').toLowerCase();
                       cards.push({
                         job_guid: guid,
@@ -769,7 +842,9 @@ class DicePortalAdapter:
                         job_url: jobUrl,
                         apply_url: applyLink,
                         apply_cta: applyCta,
-                        posted_date: postedMatch ? postedMatch[0] : '',
+                        posted_iso: postedByGuid[guid] || '',
+                        posted_badge: badgeMatch ? badgeMatch[1].replace(/\\s+/g, ' ').trim() : '',
+                        posted_date: '',
                         description: text
                       });
                     });
@@ -796,6 +871,10 @@ class DicePortalAdapter:
         scanned = 0
         eligible = 0
         scan_stop_reason = "no_cards"
+        # Structured posting-time diagnostics for the saved search_N_diagnostics.json (same
+        # existing debug channel; no cookies/sessions/descriptions). One compact entry per
+        # scanned card: where the value came from, or why it stayed Unknown.
+        posted_diag: list[dict] = []
         for item in raw_cards or []:
             scanned += 1
             scan_stop_reason = "cards_exhausted"
@@ -803,6 +882,25 @@ class DicePortalAdapter:
                 job = self.job_from_card_data(item, variation)
             except Exception:
                 continue
+            if diagnostics is not None:
+                meta = job.get("job_description_metadata") or {}
+                accepted = meta.get("posted_date") or ""
+                source = (
+                    "payload_postedDate" if meta.get("posted_iso")
+                    else "card_badge" if str(item.get("posted_badge") or "").strip()
+                    else "card_text_phrase" if accepted
+                    else "none"
+                )
+                posted_diag.append({
+                    "guid": meta.get("job_guid") or "",
+                    "title": str(job.get("title") or "")[:60],
+                    "source": source,
+                    "posted_iso": meta.get("posted_iso") or "",
+                    "card_badge": str(item.get("posted_badge") or "")[:40],
+                    "accepted_posted_date": accepted,
+                    "rejection_reason": "" if accepted or meta.get("posted_iso")
+                    else "no payload timestamp, no badge, no Posted phrase on card",
+                })
             has_title = bool(job["title"])
             has_company = bool(job["company"])
             # Only a corroborated canonical /job-detail/<guid> counts as a URL. An unresolved
@@ -840,6 +938,7 @@ class DicePortalAdapter:
             diagnostics["rejected_missing_company"] = missing_company
             diagnostics["rejected_missing_url"] = missing_url
             diagnostics["parsed_with_real_job_detail_url"] = real_job_detail_url
+            diagnostics["posted_extraction"] = posted_diag
             # Jobs whose guid no Dice-provided source corroborated: dropped, never queued.
             diagnostics["url_unresolved_dropped"] = search_url_fallback
             # Structurally 0 now -- the search URL is no longer a fallback identity.
@@ -879,6 +978,9 @@ class DicePortalAdapter:
             "form_provider": "dice",
             "job_description_metadata": {
                 "portal": self.portal_name,
+                # Same scoped extraction as the DOM path -- the engine never free-scans
+                # Dice card text for ages.
+                "posted_date": self.extract_dice_posted_phrase(text),
                 "apply_url": href,
                 "apply_cta": "",
                 "apply_classification": apply_reason,

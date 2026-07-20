@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
-import { SectionHeading, StatusBadge, ProgressCell, Metric, EmptyState } from "@/components/ui/misc";
+import { SectionHeading, StatusBadge, Metric, EmptyState } from "@/components/ui/misc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/apiError";
+import { postedTier } from "@/lib/postedAge";
 import { downloadCsv } from "@/lib/csv";
 import { extractScreeningDecisions } from "@/lib/screening";
 import { useLatestResume } from "@/api/resume";
@@ -39,6 +40,26 @@ function jobRadioLabel(job: Job): string {
 
 const titleize = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const dictCell = (v: unknown) => (v === null || v === undefined ? "—" : String(v));
+
+/** Posted-age display. Purely visual emphasis over the EXACT raw portal text -- the value is
+ *  never rounded, relabeled, or recalculated from posted_at; only its container styling varies
+ *  by tier (never color-only; the strongest tier adds the Badge dot as a shape cue). Sorting
+ *  and data are unaffected. "Unknown" appears only when the portal exposed no value at all. */
+function PostedAge({ raw }: { raw?: string | null }) {
+  const tier = postedTier(raw);
+  if (tier === "unknown") {
+    return <span data-posted-tier="unknown" className="text-[#8A8580]">{raw?.trim() || "Unknown"}</span>;
+  }
+  if (tier === "older") {
+    return <span data-posted-tier="older" className="text-[#57534E]">{raw}</span>;
+  }
+  const variant = tier === "today" ? "default" : tier === "hours" ? "gold" : "success";
+  return (
+    <Badge data-posted-tier={tier} variant={variant} dot={tier === "instant"}>
+      {raw}
+    </Badge>
+  );
+}
 
 /** Live "Apply Top 10 batch status" card (mirrors dashboard.py apply_top_status_card). */
 function ApplyTopStatusCard({
@@ -323,8 +344,12 @@ export function MatchedJobsPage() {
           <TableCell className="font-semibold text-ink">{job.title}</TableCell>
           <TableCell>{job.company}</TableCell>
           <TableCell className="capitalize">{job.portal}</TableCell>
-          <TableCell><ProgressCell value={job.match_score} /></TableCell>
-          <TableCell><ProgressCell value={job.application_friction_score} suffix="" /></TableCell>
+          <TableCell className="whitespace-nowrap">
+            {/* posted_display is the human-readable age to show (derived from posted_at for
+                Dice, the portal's own text for LinkedIn); fall back to posted_date only for
+                rows saved before posted_display existed. Ordering is untouched. */}
+            <PostedAge raw={job.job_description_metadata?.posted_display ?? job.job_description_metadata?.posted_date} />
+          </TableCell>
           <TableCell>
             <Badge variant={job.recommended_apply_priority === "High" ? "success" : job.recommended_apply_priority === "Low" ? "muted" : "gold"}>
               {job.recommended_apply_priority ?? "—"}
@@ -426,8 +451,7 @@ export function MatchedJobsPage() {
                 <TableHead>Title</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Portal</TableHead>
-                <TableHead>Match</TableHead>
-                <TableHead>Friction</TableHead>
+                <TableHead>Posted</TableHead>
                 <TableHead>Apply Priority</TableHead>
                 <TableHead>Easy Apply</TableHead>
                 <TableHead>Status</TableHead>

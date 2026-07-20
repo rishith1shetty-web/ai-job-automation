@@ -16,6 +16,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.posting_time import extract_posted_phrase
 from app.services.reasoning import AIReasoningEngine
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
 
@@ -324,6 +325,8 @@ class LinkedInAutomation:
                                 "description": description,
                                 "job_url": job_url,
                                 "easy_apply": easy_apply,
+                                # Raw posted-age text for the shared normalization pass.
+                                "job_description_metadata": {"posted_date": self._posted_phrase(page, place)},
                             }
                         )
                 except Exception as exc:
@@ -540,6 +543,8 @@ class LinkedInAutomation:
                             "description": description,
                             "job_url": job_url,
                             "easy_apply": easy_apply,
+                            # Raw posted-age text for the shared normalization pass.
+                            "job_description_metadata": {"posted_date": self._posted_phrase(page, place)},
                         }
                     )
             except Exception as exc:
@@ -1816,6 +1821,26 @@ class LinkedInAutomation:
                 if text:
                     return text
         return ""
+
+    # LinkedIn's posted-age text lives in the job-detail top card: a dedicated posted-date
+    # element when present, otherwise embedded in the tertiary/primary description line
+    # ("Company · New York · Reposted 2 weeks ago · 55 applicants").
+    POSTED_DATE_SELECTORS = [
+        ".jobs-unified-top-card__posted-date",
+        ".job-details-jobs-unified-top-card__tertiary-description-container",
+        ".posted-time-ago__text",
+        "main time",
+    ]
+
+    def _posted_phrase(self, page: Page, place: str) -> str:
+        """The job's raw posting-age phrase ('' when the page exposes none). Scoped to the
+        top-card sources for THIS job -- never the whole page, where similar-jobs modules
+        carry other jobs' ages. Parsing/normalization happens in the shared engine pass."""
+        try:
+            posted_text = self._first_text(page, self.POSTED_DATE_SELECTORS)
+        except Exception:
+            posted_text = ""
+        return extract_posted_phrase(posted_text, place)
 
     def _wait_for_easy_apply_modal(self, page: Page):
         self._dismiss_interfering_dialogs(page)

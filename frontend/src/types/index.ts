@@ -89,6 +89,16 @@ export interface Job {
   priority_reason: string | null;
   apply_priority_reason: string | null;
   friction_reasons: string[];
+  /** Portal + enrichment metadata; posted_date is the portal's raw posting-age text,
+   *  posted_at its normalized UTC timestamp (null when the portal exposed none), and
+   *  posted_display the human-readable relative age to render (derived from posted_at for
+   *  Dice, the portal's own relative text for LinkedIn). */
+  job_description_metadata?: {
+    posted_date?: string | null;
+    posted_at?: string | null;
+    posted_display?: string | null;
+    [key: string]: unknown;
+  };
   status: ApplicationStatus;
 }
 

@@ -1465,7 +1465,9 @@ def _search_jobs_sync(
                     )
                     continue
                 seen_keys.update(keys)
-                enriched = engine.enrich_raw_job(raw, variation)
+                # One reference timestamp for the whole run: every relative posting age in
+                # this batch is normalized against the same instant.
+                enriched = engine.enrich_raw_job(raw, variation, reference_time=search_timestamp)
                 enriched["portal"] = raw.get("portal") or portal
                 # The portal's own resolved per-job URL, verbatim.
                 enriched["job_url"] = engine.storage_job_url(raw)
@@ -1542,7 +1544,10 @@ def _search_jobs_sync(
             for job in ranked:
                 metadata = reasoning.analyze_job_description(job)
                 comparison = reasoning.compare_resume_to_job(resume, job)
-                job.job_description_metadata = metadata
+                # MERGE, never replace: the portal/enrichment metadata (posted_date,
+                # posted_at, Dice job_guid/url_status, apply_url, ...) must survive the
+                # reasoning pass. Key sets are disjoint, so reasoning loses nothing either.
+                job.job_description_metadata = {**(job.job_description_metadata or {}), **metadata}
                 job.matched_skills = comparison["matched_skills"]
                 job.missing_skills = comparison["missing_skills"]
                 job.semantic_match_score = float(comparison["overall_semantic_match"])
@@ -2086,13 +2091,24 @@ def _apply_top_jobs_statement(resume_id: int, search_batch_id: str | None, porta
 
 
 def _job_apply_ordering():
+    # Global posting-time order for the completed batch. Relevance and eligibility decide
+    # whether a job ENTERS the matched set (collection/scoring, unchanged); posted time alone
+    # decides WHERE an included job displays -- across every search variation, with no
+    # grouping by variation, discovery sequence, or insertion order.
+    #
+    # freshness_score is the SQL-sortable proxy for normalized posted_at: within a run it is
+    # a strictly age-monotone function of posted_at (see posting_time.freshness_score_for),
+    # with unknown/unparseable dates at exactly 0 -- below the confirmed floor of 5 -- so
+    # "confirmed newest -> confirmed oldest -> unknown" falls out of one descending key. Its
+    # 4-decimal rounding can only collide timestamps closer than portal text precision
+    # (sub-minute), so the tie-breakers below can never lift an older confirmed job above a
+    # meaningfully newer one. It is derived from posted_at only -- never created_at,
+    # discovery time, or variation index.
     return (
-        desc(JobOpportunity.easy_apply),
-        desc(JobOpportunity.completion_likelihood_score),
-        asc(JobOpportunity.application_friction_score),
-        desc(JobOpportunity.match_score),
         desc(JobOpportunity.freshness_score),
+        desc(JobOpportunity.match_score),
         desc(JobOpportunity.priority_score),
+        asc(JobOpportunity.id),
     )
 
 

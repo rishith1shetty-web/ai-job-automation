@@ -1085,22 +1085,16 @@ class SingleJobApplicationTests(unittest.TestCase):
         self.assertEqual(len(records), 100)
         self.assertEqual(len(FakeApplicationAutomation.processed_job_ids), 100)
 
-    def test_apply_top_orders_jobs_by_final_apply_priority(self) -> None:
+    def test_apply_top_orders_jobs_by_global_posting_time(self) -> None:
+        # Apply Top follows the SAME ranking the dashboard shows: global posting-time order
+        # (freshness_score is the posted_at proxy; newest first, unknown last), with match
+        # score only breaking exact posted-time ties. Variation/insertion order is irrelevant.
         self.jobs[0].match_score = 95
-        self.jobs[0].priority_score = 62
-        self.jobs[0].completion_likelihood_score = 30
-        self.jobs[0].application_friction_score = 70
-        self.jobs[0].recommended_apply_priority = "Complex"
+        self.jobs[0].freshness_score = 40      # 1 day old
         self.jobs[1].match_score = 76
-        self.jobs[1].priority_score = 88
-        self.jobs[1].completion_likelihood_score = 92
-        self.jobs[1].application_friction_score = 8
-        self.jobs[1].recommended_apply_priority = "Simple"
+        self.jobs[1].freshness_score = 90      # minutes old -> applied first despite low match
         self.jobs[2].match_score = 80
-        self.jobs[2].priority_score = 74
-        self.jobs[2].completion_likelihood_score = 65
-        self.jobs[2].application_friction_score = 35
-        self.jobs[2].recommended_apply_priority = "Medium"
+        self.jobs[2].freshness_score = 60      # hours old
         self.db.add_all(self.jobs)
         self.db.commit()
 
