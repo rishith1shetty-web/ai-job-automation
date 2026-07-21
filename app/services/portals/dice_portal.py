@@ -15,7 +15,7 @@ from playwright.sync_api import sync_playwright
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
-from app.services.find_matches import SearchVariation
+from app.services.find_matches import SearchVariation, per_variation_limits
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.linkedin import AutomationResult
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
@@ -318,13 +318,16 @@ class DicePortalAdapter:
         self,
         resume: ResumeProfile,
         variations: list[SearchVariation],
-        limit_per_query: int,
+        limit_per_query: int | list[int],
         progress_callback=None,
         global_target: int | None = None,
     ) -> list[tuple[SearchVariation, list[dict]]]:
         debug_dir = self._debug_dir()
         results: list[tuple[SearchVariation, list[dict]]] = []
         search_events: list[dict] = []
+        # limit_per_query may be uniform (int) or a per-variation list, so the top variations
+        # can inspect a larger candidate budget than later ones.
+        limits = per_variation_limits(limit_per_query, len(variations))
         if not self.storage_state.exists():
             self._write_debug(
                 debug_dir,
@@ -356,7 +359,7 @@ class DicePortalAdapter:
                 raw_jobs = self.search_jobs(
                     page,
                     variation,
-                    limit_per_query,
+                    limits[index - 1],
                     debug_dir=debug_dir,
                     search_index=index,
                     global_target=global_target,

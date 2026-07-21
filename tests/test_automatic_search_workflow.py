@@ -10,6 +10,7 @@ from app.database import SessionLocal, init_db
 from app.main import _create_search_batch, _run_find_matches_batch, search_jobs, set_active_portal, settings
 from app.models import JobOpportunity, JobSearchBatch, ResumeProfile
 from app.schemas import SearchRequest
+from app.services.find_matches import per_variation_limits
 
 
 class FakeLinkedInAutomation:
@@ -39,12 +40,16 @@ class FakeManyLinkedInAutomation:
         pass
 
     def search_jobs_many(self, _resume, variations, limit_per_query, collect_card_diagnostics=False):
-        self.__class__.received_collection_plan.append((len(variations), limit_per_query))
+        # limit_per_query is now a per-variation budget (uniform int or weighted list); mirror
+        # the real adapter contract so the top variations can inspect a larger candidate budget.
+        variations = list(variations)
+        limits = per_variation_limits(limit_per_query, len(variations))
+        self.__class__.received_collection_plan.append((len(variations), limits))
         results = []
         counter = 0
-        for variation in variations:
+        for index, variation in enumerate(variations):
             raw_jobs = []
-            for _index in range(limit_per_query):
+            for _index in range(limits[index]):
                 counter += 1
                 raw_jobs.append(
                     {
@@ -60,11 +65,82 @@ class FakeManyLinkedInAutomation:
         return results
 
 
+class FakeDedupLinkedIn:
+    """Returns the SAME canonical job under two variations (positions 2 and 5) plus a
+    non-Easy-Apply external job under variation 3, to exercise earliest-variation ownership
+    and the Easy-Apply-only gate."""
+
+    SHARED_URL = "https://www.linkedin.com/jobs/view/777000777"
+    EXTERNAL_URL = "https://boards.greenhouse.io/acme/jobs/999"
+
+    def __init__(self, _settings) -> None:
+        pass
+
+    def search_jobs_many(self, _resume, variations, limit_per_query, collect_card_diagnostics=False):
+        variations = list(variations)
+        shared = {"title": "Shared Role", "company": "Shared Co", "location": "Remote",
+                  "description": "Python FastAPI SQL", "job_url": self.SHARED_URL, "easy_apply": True}
+        external = {"title": "External Role", "company": "Ext Co", "location": "Remote",
+                    "description": "Python", "job_url": self.EXTERNAL_URL, "easy_apply": False}
+        results = []
+        for i, variation in enumerate(variations):
+            raw: list[dict] = []
+            if i in (1, 4):            # variation_index 2 and 5 both discover the shared job
+                raw.append(dict(shared))
+            if i == 2:                 # variation_index 3 discovers a non-Easy-Apply external job
+                raw.append(dict(external))
+            results.append((variation, raw))
+        return results
+
+
 class AutomaticSearchWorkflowTests(unittest.TestCase):
     def setUp(self) -> None:
         init_db()
         with SessionLocal() as db:
             set_active_portal(db, "linkedin")
+
+    def test_cross_variation_dedup_owns_earliest_and_keeps_easy_apply_only(self) -> None:
+        with tempfile.NamedTemporaryFile(suffix=".json") as state_file:
+            with patch.object(settings, "linkedin_storage_state", Path(state_file.name)):
+                with SessionLocal() as db:
+                    resume = ResumeProfile(
+                        filename="dedup-resume.txt", stored_path="dedup-resume.txt",
+                        raw_text="Python FastAPI SQL REST APIs backend developer",
+                        skills=["python", "fastapi", "sql"], experience=[], education=[],
+                        job_titles=[], keywords=["python", "fastapi", "sql"],
+                        technologies=["Python", "FastAPI", "SQL"],
+                        domain_expertise=["Backend Engineering"], detected_role="Backend Developer",
+                        generated_search_keywords=["Backend Developer", "Python Developer",
+                                                   "FastAPI Developer", "Software Engineer"],
+                        role_confidence=95,
+                    )
+                    db.add(resume)
+                    db.commit()
+                    db.refresh(resume)
+                    # limit 50 -> >=8 variations selected, so positions 2 and 5 both run.
+                    request = SearchRequest(resume_id=resume.id, location="United States",
+                                            keywords=None, limit=50)
+                    try:
+                        with patch("app.main.LinkedInAutomation", FakeDedupLinkedIn):
+                            batch = _create_search_batch(request, db)
+                            _run_find_matches_batch(batch.id)
+                            jobs = list(db.scalars(
+                                select(JobOpportunity).where(JobOpportunity.search_batch_id == batch.id)
+                            ).all())
+                        shared = [j for j in jobs if j.job_url == FakeDedupLinkedIn.SHARED_URL]
+                        # 13: the canonical job found under two variations appears exactly once.
+                        self.assertEqual(len(shared), 1)
+                        # 14: it is owned by the EARLIEST (highest-priority) variation -- index 2.
+                        self.assertEqual(shared[0].job_description_metadata.get("variation_index"), 2)
+                        # Easy-Apply-only: the external, non-Easy-Apply job never entered the batch,
+                        # and every persisted job is Easy Apply.
+                        self.assertFalse(any(j.job_url == FakeDedupLinkedIn.EXTERNAL_URL for j in jobs))
+                        self.assertTrue(all(j.easy_apply for j in jobs))
+                    finally:
+                        db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))
+                        db.execute(delete(JobSearchBatch).where(JobSearchBatch.resume_id == resume.id))
+                        db.delete(resume)
+                        db.commit()
 
     def test_find_matches_endpoint_returns_background_batch_immediately(self) -> None:
         with tempfile.NamedTemporaryFile(suffix=".json") as state_file:
@@ -299,9 +375,10 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                         self.assertEqual(batch.status, "completed")
                         self.assertEqual(batch.jobs_collected, 100)
                         self.assertTrue(all(job.easy_apply for job in jobs))
-                        selected_variations, limit_per_query = FakeManyLinkedInAutomation.received_collection_plan[0]
+                        selected_variations, limits = FakeManyLinkedInAutomation.received_collection_plan[0]
                         self.assertGreaterEqual(selected_variations, 14)
-                        self.assertGreaterEqual(limit_per_query, 8)
+                        self.assertGreaterEqual(min(limits), 8)          # base per-query budget preserved
+                        self.assertGreater(limits[0], limits[-1])        # top-five inspect a larger budget
                         self.assertEqual(len({job.job_url for job in jobs}), 100)
                     finally:
                         db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))

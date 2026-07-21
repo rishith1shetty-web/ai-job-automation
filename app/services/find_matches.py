@@ -1,6 +1,6 @@
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
@@ -16,6 +16,21 @@ from app.services.posting_time import (
 )
 
 
+def per_variation_limits(limit_per_query: "int | list[int]", count: int) -> list[int]:
+    """Normalize a search budget into one integer per variation. Accepts a single int (uniform)
+    or a list aligned with the variations (weighted -- the top variations get a larger candidate
+    budget). A short list is padded with its last value and a long one truncated, so a portal
+    adapter can accept either form without special-casing. Portal-independent."""
+    if isinstance(limit_per_query, (list, tuple)):
+        limits = [int(value) for value in limit_per_query]
+        if not limits:
+            return [0] * count
+        if len(limits) < count:
+            limits = limits + [limits[-1]] * (count - len(limits))
+        return limits[:count]
+    return [int(limit_per_query)] * count
+
+
 @dataclass(frozen=True)
 class SearchVariation:
     query: str
@@ -26,6 +41,11 @@ class SearchVariation:
     search_role: str = ""
     role_priority: str = "related"
     role_confidence: float = 0
+    # 1-based priority position in the resume-derived search plan (1 = strongest role/skill).
+    # Set once in build_search_plan; the completed dashboard groups jobs by this index so a
+    # variation's rows stay contiguous, and a job keeps the index of the variation that first
+    # discovered it. 0 means "unassigned" (never happens for a planned run).
+    variation_index: int = 0
 
 
 class FindMatchesEngine:
@@ -94,6 +114,82 @@ class FindMatchesEngine:
             "selected_variation_count": selected_variation_count,
             "limit_per_query": limit_per_query,
         }
+
+    # Weight given to the strongest resume-derived variations (1..TOP_VARIATION_COUNT) when
+    # sharing the overall Find Matches limit. A soft preference, never a relevance change.
+    TOP_VARIATION_COUNT = 5
+    TOP_VARIATION_WEIGHT = 2
+
+    def soft_allocation(
+        self,
+        target_count: int,
+        variation_count: int,
+        top_n: int | None = None,
+        top_weight: int | None = None,
+    ) -> list[int]:
+        """Soft per-variation share of the overall target, derived from the SAME weighting for
+        every requested limit (Find 20/50/100/custom). The top `top_n` variations carry
+        `top_weight` (default 2) versus 1 for the rest, so they receive a larger share while
+        every variation still gets at least one slot. The total never exceeds `target_count`.
+        Purely a collection-effort preference: acceptance still applies the unchanged relevance
+        and eligibility rules, so a weak variation is never padded with irrelevant jobs.
+        """
+        top_n = self.TOP_VARIATION_COUNT if top_n is None else top_n
+        top_weight = self.TOP_VARIATION_WEIGHT if top_weight is None else top_weight
+        if variation_count <= 0 or target_count <= 0:
+            return []
+        # Can't give every variation >=1 without exceeding the target; the highest-priority
+        # variations (which the caller already lists first) win the available slots.
+        count = min(variation_count, target_count)
+        weights = [top_weight if i < top_n else 1 for i in range(count)]
+        total_weight = sum(weights)
+        alloc = [max(1, target_count * weight // total_weight) for weight in weights]
+        total = sum(alloc)
+        # Trim any overshoot from the LOWEST-priority variations first, never below 1.
+        i = count - 1
+        while total > target_count and i >= 0:
+            cut = min(alloc[i] - 1, total - target_count)
+            alloc[i] -= cut
+            total -= cut
+            i -= 1
+        # Hand the rounding remainder to the HIGHEST-priority variations first.
+        i = 0
+        while total < target_count:
+            alloc[i % count] += 1
+            total += 1
+            i += 1
+        return alloc
+
+    def weighted_take(
+        self,
+        available: list[int],
+        target_count: int,
+        top_n: int | None = None,
+        top_weight: int | None = None,
+    ) -> list[int]:
+        """How many eligible jobs to KEEP from each variation, given how many each actually has
+        (`available`, in priority order). Starts from the weighted soft allocation, caps each by
+        real availability, then reallocates any unused budget to the highest-priority variations
+        that still have spare eligible jobs. The total never exceeds `target_count`, and when the
+        combined eligible supply is short the result is honestly smaller -- nothing is invented.
+        """
+        n = len(available)
+        if n == 0 or target_count <= 0:
+            return [0] * n
+        soft = self.soft_allocation(target_count, n, top_n, top_weight)
+        soft = (soft + [0] * n)[:n]
+        take = [min(available[i], soft[i]) for i in range(n)]
+        total = sum(take)
+        # Reallocate the remaining budget to spare capacity, highest priority first.
+        i = 0
+        while total < target_count and i < n:
+            spare = available[i] - take[i]
+            if spare > 0:
+                add = min(spare, target_count - total)
+                take[i] += add
+                total += add
+            i += 1
+        return take
 
     def detect_roles(self, resume: ResumeProfile, manual_keywords: str | None = None) -> list[dict]:
         manual = (manual_keywords or "").strip()
@@ -311,7 +407,10 @@ class FindMatchesEngine:
                 role_priority="fallback",
                 role_confidence=float(grouped_roles[0].get("confidence") or 0),
             )
-        queries = queries[:24]
+        # Freeze the priority order: the 1-based index of each variation in this list is its
+        # permanent group key on the completed dashboard. Assigned here (once), never inferred
+        # later from a job title.
+        queries = [replace(query, variation_index=index + 1) for index, query in enumerate(queries[:24])]
         plan = {
             "roles": roles,
             "role_groups": grouped_roles,
@@ -377,6 +476,9 @@ class FindMatchesEngine:
             metadata["posted_display"] = relative_posted_label(posted_at, reference)
         else:
             metadata["posted_display"] = posted_raw
+        # The variation that DISCOVERED this job (its 1-based priority). The completed dashboard
+        # groups strictly by this index, so it must be the owning variation, not re-inferred.
+        metadata["variation_index"] = variation.variation_index or None
         enriched = {
             **raw,
             **complexity,

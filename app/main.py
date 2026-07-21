@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile
 from playwright.sync_api import Error as PlaywrightError
-from sqlalchemy import asc, desc, func, select
+from sqlalchemy import Integer, asc, cast, desc, func, select
 from sqlalchemy.orm import Session, contains_eager
 
 from app.config import get_settings
@@ -1314,6 +1314,7 @@ def _search_jobs_sync(
         jobs: list[JobOpportunity] = []
         seen_keys: set[str] = set()
         duplicate_jobs: list[dict] = []
+        ineligible_jobs: list[dict] = []
         jobs_found: list[dict] = []
         jobs_per_variation: list[dict] = []
         with recorder.stage("duplicate_key_loading"):
@@ -1348,6 +1349,14 @@ def _search_jobs_sync(
         collection_plan = engine.collection_plan(target_count, len(search_variations))
         selected_variations = search_variations[: collection_plan["selected_variation_count"]]
         limit_per_query = collection_plan["limit_per_query"]
+        # Weighted CANDIDATE effort: the top-five variations inspect a larger per-query budget
+        # than later ones, so they genuinely try to find more jobs (not just keep more). Every
+        # variation is still searched. This is the search-side companion to the weighted
+        # acceptance allocation below.
+        search_limits = [
+            limit_per_query * engine.TOP_VARIATION_WEIGHT if i < engine.TOP_VARIATION_COUNT else limit_per_query
+            for i in range(len(selected_variations))
+        ]
         if batch is not None:
             _update_search_batch(
                 db,
@@ -1384,22 +1393,23 @@ def _search_jobs_sync(
                         portal_results = adapter.search_jobs_many(
                             resume,
                             selected_variations,
-                            limit_per_query,
+                            search_limits,
                             collect_card_diagnostics=False,
                         )
                     else:
                         portal_results = []
-                        for variation in selected_variations:
+                        for i, variation in enumerate(selected_variations):
+                            per_variation_limit = search_limits[i]
                             try:
                                 raw_jobs = adapter.search_jobs(
                                     resume,
                                     variation.location,
                                     variation.query,
-                                    limit_per_query,
+                                    per_variation_limit,
                                     collect_card_diagnostics=False,
                                 )
                             except TypeError:
-                                raw_jobs = adapter.search_jobs(resume, variation.location, variation.query, limit_per_query)
+                                raw_jobs = adapter.search_jobs(resume, variation.location, variation.query, per_variation_limit)
                             portal_results.append((variation, raw_jobs))
                 else:
                     dice_progress_totals = {"jobs": 0, "easy_apply": 0}
@@ -1424,26 +1434,19 @@ def _search_jobs_sync(
                     portal_results = adapter.search_jobs_many(
                         resume,
                         selected_variations,
-                        limit_per_query,
+                        search_limits,
                         progress_callback=dice_progress_callback,
                         global_target=target_count,
                     )
             for variation, raw_jobs in portal_results:
                 variation_results.append((portal, variation, raw_jobs))
+        # Pass 1 -- canonical dedup in variation-PRIORITY order. The first (highest-priority)
+        # variation that finds a job OWNS it; a later/lower variation can neither move nor
+        # duplicate it. This is where cross-variation duplicate ownership is enforced.
+        owned_by_variation: list[dict] = []
         for portal, variation, raw_jobs in variation_results:
-            before_variation_count = len(jobs)
-            before_duplicate_count = len(duplicate_jobs)
             excluded_for_portal = excluded_success_keys_by_portal.get(portal, set())
-            if batch is not None:
-                _update_search_batch(
-                    db,
-                    batch,
-                    current_search_variation=variation.query,
-                    jobs_collected=len(jobs),
-                    easy_apply_count=sum(1 for item in jobs if item.easy_apply),
-                    duplicates_removed=len(duplicate_jobs),
-                    latest_status_message=f"Processing {portal.title()} search variation: {variation.query}",
-                )
+            kept: list[dict] = []
             for raw in raw_jobs:
                 keys = [key for key in engine.duplicate_key(raw) if key]
                 duplicate_reason = None
@@ -1464,7 +1467,61 @@ def _search_jobs_sync(
                         }
                     )
                     continue
+                # Easy Apply / quick-apply ONLY may enter the final matched batch. Each portal's
+                # own detection sets raw["easy_apply"] (LinkedIn Easy Apply, Dice quick-apply);
+                # a non-Easy-Apply or external-site job is never accepted -- and in particular is
+                # never used to fill a weighted quota. It is NOT marked seen, so a genuine Easy
+                # Apply listing of the same canonical job under another variation can still count.
+                if not raw.get("easy_apply"):
+                    ineligible_jobs.append(
+                        {
+                            "title": raw.get("title"),
+                            "company": raw.get("company"),
+                            "job_url": raw.get("job_url"),
+                            "reason": "Not Easy Apply / external application",
+                            "search_query_used": variation.query,
+                            "search_role": variation.search_role,
+                            "role_priority": variation.role_priority,
+                        }
+                    )
+                    continue
                 seen_keys.update(keys)
+                kept.append(raw)
+            owned_by_variation.append({"portal": portal, "variation": variation, "raw": kept, "raw_count": len(raw_jobs)})
+
+        # Weighted soft allocation over the eligible jobs each variation actually owns: the
+        # top-five variations get a larger share of the SAME overall target, and any unused
+        # budget is reallocated to the highest-priority variations first. The total never
+        # exceeds target_count; a variation with few eligible jobs simply contributes fewer --
+        # nothing irrelevant is added and relevance/eligibility above are untouched.
+        available = [len(entry["raw"]) for entry in owned_by_variation]
+        take_per_variation = engine.weighted_take(available, target_count)
+        engine.write_debug(
+            debug_dir,
+            "weighted_allocation.json",
+            {
+                "target_count": target_count,
+                "top_variation_count": engine.TOP_VARIATION_COUNT,
+                "top_variation_weight": engine.TOP_VARIATION_WEIGHT,
+                "per_variation": [
+                    {
+                        "variation_index": entry["variation"].variation_index,
+                        "query": entry["variation"].query,
+                        "portal": entry["portal"],
+                        "eligible_available": available[i],
+                        "allocated": take_per_variation[i],
+                    }
+                    for i, entry in enumerate(owned_by_variation)
+                ],
+            },
+        )
+
+        # Pass 2 -- keep each variation's allocated share, in priority order, and persist.
+        for entry, take_n in zip(owned_by_variation, take_per_variation):
+            portal = entry["portal"]
+            variation = entry["variation"]
+            before_variation_count = len(jobs)
+            for raw in entry["raw"][:take_n]:
                 # One reference timestamp for the whole run: every relative posting age in
                 # this batch is normalized against the same instant.
                 enriched = engine.enrich_raw_job(raw, variation, reference_time=search_timestamp)
@@ -1489,13 +1546,10 @@ def _search_jobs_sync(
                         "search_query_used": job.search_query_used,
                         "search_role": job.search_role,
                         "role_priority": job.role_priority,
+                        "variation_index": variation.variation_index,
                         "location": job.location,
                     }
                 )
-                if len(jobs) >= target_count or sum(1 for item in jobs if item.easy_apply) >= target_count:
-                    break
-            engine.write_debug(debug_dir, "jobs_found.json", jobs_found)
-            engine.write_debug(debug_dir, "duplicate_jobs.json", duplicate_jobs)
             jobs_per_variation.append(
                 {
                     "query": variation.query,
@@ -1503,13 +1557,13 @@ def _search_jobs_sync(
                     "portal": portal,
                     "search_role": variation.search_role,
                     "role_priority": variation.role_priority,
-                    "raw_count": len(raw_jobs),
+                    "variation_index": variation.variation_index,
+                    "raw_count": entry["raw_count"],
+                    "eligible_available": len(entry["raw"]),
+                    "allocated": take_n,
                     "unique_added": len(jobs) - before_variation_count,
-                    "duplicates_removed": len(duplicate_jobs) - before_duplicate_count,
-                    "easy_apply_added": sum(1 for item in jobs[before_variation_count:] if item.easy_apply),
                 }
             )
-            engine.write_debug(debug_dir, "jobs_per_variation.json", jobs_per_variation)
             if batch is not None:
                 _update_search_batch(
                     db,
@@ -1522,8 +1576,10 @@ def _search_jobs_sync(
                         f"Collected {len(jobs)} unique jobs; removed {len(duplicate_jobs)} duplicates."
                     ),
                 )
-            if len(jobs) >= target_count or sum(1 for item in jobs if item.easy_apply) >= target_count:
-                break
+        engine.write_debug(debug_dir, "jobs_found.json", jobs_found)
+        engine.write_debug(debug_dir, "duplicate_jobs.json", duplicate_jobs)
+        engine.write_debug(debug_dir, "ineligible_jobs.json", ineligible_jobs)
+        engine.write_debug(debug_dir, "jobs_per_variation.json", jobs_per_variation)
 
         scorer = MatchScorer(settings)
         if batch is not None:
@@ -2091,20 +2147,25 @@ def _apply_top_jobs_statement(resume_id: int, search_batch_id: str | None, porta
 
 
 def _job_apply_ordering():
-    # Global posting-time order for the completed batch. Relevance and eligibility decide
-    # whether a job ENTERS the matched set (collection/scoring, unchanged); posted time alone
-    # decides WHERE an included job displays -- across every search variation, with no
-    # grouping by variation, discovery sequence, or insertion order.
+    # Skill-priority GROUPED order for the completed batch. Relevance and eligibility decide
+    # whether a job ENTERS the matched set (collection/scoring, unchanged); the search variation
+    # that discovered it then decides its GROUP, and posted time orders it only WITHIN that group.
     #
-    # freshness_score is the SQL-sortable proxy for normalized posted_at: within a run it is
-    # a strictly age-monotone function of posted_at (see posting_time.freshness_score_for),
-    # with unknown/unparseable dates at exactly 0 -- below the confirmed floor of 5 -- so
-    # "confirmed newest -> confirmed oldest -> unknown" falls out of one descending key. Its
-    # 4-decimal rounding can only collide timestamps closer than portal text precision
-    # (sub-minute), so the tie-breakers below can never lift an older confirmed job above a
-    # meaningfully newer one. It is derived from posted_at only -- never created_at,
-    # discovery time, or variation index.
+    # 1. search variation index ascending -- variation 1's jobs, then variation 2's, ... so each
+    #    variation's rows stay contiguous. Read from job_description_metadata.variation_index
+    #    (JSON, no schema change); rows without it (legacy batches) sort last.
+    # 2-3. freshness_score descending WITHIN the group: it is the SQL-sortable proxy for
+    #    normalized posted_at (strictly age-monotone; unknown/unparseable at exactly 0, below the
+    #    confirmed floor of 5), so "confirmed newest -> confirmed oldest -> unknown" falls out of
+    #    one descending key. Posting time is NEVER compared across different variations.
+    # 4-6. match_score, then priority_score, then id break ties only within one variation+time.
+    #    id is a deterministic final tie-break, not a source of ordering -- variation and posted
+    #    time dominate, so database insertion order has no influence.
+    variation_index = cast(
+        JobOpportunity.job_description_metadata["variation_index"].astext, Integer
+    )
     return (
+        asc(variation_index).nullslast(),
         desc(JobOpportunity.freshness_score),
         desc(JobOpportunity.match_score),
         desc(JobOpportunity.priority_score),

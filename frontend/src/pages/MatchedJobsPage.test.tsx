@@ -64,6 +64,22 @@ describe("MatchedJobsPage apply request fidelity", () => {
     expect(cells).toContain("Unknown");
   });
 
+  it("preserves the backend's variation-grouped order exactly (no client regroup/sort)", async () => {
+    // Backend returns jobs already grouped by variation (var1 newest-first, then var2, ...).
+    // The table must render that exact order -- a newer variation-2 job must NOT jump above
+    // variation-1 jobs on the client.
+    await renderWithJobs([
+      makeJob(1, { job_description_metadata: { posted_display: "7 minutes ago", posted_at: "2026-07-17T14:23:00", variation_index: 1 } }),
+      makeJob(2, { job_description_metadata: { posted_display: "1 hour ago", posted_at: "2026-07-17T13:30:00", variation_index: 1 } }),
+      makeJob(3, { job_description_metadata: { posted_display: "1 minute ago", posted_at: "2026-07-17T14:29:00", variation_index: 2 } }),
+    ]);
+    // Job 3 is the newest by time but belongs to variation 2, so it must stay LAST -- the
+    // client renders the backend's grouped order verbatim, never re-sorting by time.
+    const cells = screen.getAllByRole("cell").map((cell) => cell.textContent);
+    const order = ["Job 1", "Job 2", "Job 3"].map((title) => cells.indexOf(title));
+    expect(order).toEqual([...order].sort((a, b) => a - b)); // exact backend order preserved
+  });
+
   it("shows only the intended columns — Match and Friction are removed", async () => {
     await renderWithJobs([makeJob(1, { job_description_metadata: { posted_date: "5 min ago" } })]);
     const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);

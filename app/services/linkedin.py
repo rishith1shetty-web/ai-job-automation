@@ -16,6 +16,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.find_matches import per_variation_limits
 from app.services.posting_time import extract_posted_phrase
 from app.services.reasoning import AIReasoningEngine
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
@@ -337,14 +338,18 @@ class LinkedInAutomation:
         self,
         resume: ResumeProfile,
         variations,
-        limit_per_query: int,
+        limit_per_query: int | list[int],
         collect_card_diagnostics: bool = False,
     ) -> list[tuple[object, list[dict]]]:
+        # limit_per_query may be a single int (uniform) OR a per-variation list aligned with
+        # `variations`, so the caller can give the top variations a larger candidate budget.
+        variations = list(variations)
+        limits = per_variation_limits(limit_per_query, len(variations))
         debug_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
         results: list[tuple[object, list[dict]]] = []
         with self._browser_context() as context:
             page = context.new_page()
-            for variation in variations:
+            for index, variation in enumerate(variations):
                 results.append(
                     (
                         variation,
@@ -354,7 +359,7 @@ class LinkedInAutomation:
                             resume,
                             getattr(variation, "location", ""),
                             getattr(variation, "query", None),
-                            limit_per_query,
+                            limits[index],
                             collect_card_diagnostics,
                             debug_timestamp,
                         ),
