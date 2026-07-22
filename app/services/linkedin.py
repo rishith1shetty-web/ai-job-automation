@@ -16,6 +16,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.browser_focus import focus_browser_window
 from app.services.find_matches import per_variation_limits
 from app.services.posting_time import extract_posted_phrase
 from app.services.reasoning import AIReasoningEngine
@@ -74,6 +75,8 @@ class LinkedInAutomation:
             context = browser.new_context()
             page = context.new_page()
             page.goto("https://www.linkedin.com/login", wait_until="domcontentloaded")
+            # The user must SEE the login page to sign in; this browser is always headed.
+            focus_browser_window(page, headless=False, reason="linkedin_login")
             try:
                 for _ in range(360):
                     cookies = context.cookies()
@@ -173,6 +176,8 @@ class LinkedInAutomation:
         with self._browser_context() as context:
             page = context.new_page()
             page.goto(url, wait_until="domcontentloaded")
+            # Find Matches begins -- show the run once, not per card/interaction.
+            focus_browser_window(page, headless=self.settings.linkedin_headless, reason="linkedin_search")
             page.wait_for_timeout(2500)
             card_selector = (
                 "li[data-occludable-job-id], .scaffold-layout__list-item, "
@@ -349,6 +354,8 @@ class LinkedInAutomation:
         results: list[tuple[object, list[dict]]] = []
         with self._browser_context() as context:
             page = context.new_page()
+            # Find Matches begins -- once for the whole multi-variation run.
+            focus_browser_window(page, headless=self.settings.linkedin_headless, reason="linkedin_search")
             for index, variation in enumerate(variations):
                 results.append(
                     (
@@ -617,6 +624,9 @@ class LinkedInAutomation:
                 page = context.new_page()
                 current_step = "job_opened"
                 page.goto(job.job_url, wait_until="domcontentloaded")
+                # Navigating to the next application form (also covers Apply All, which drives
+                # this method once per job) -- one focus per job, never per field.
+                focus_browser_window(page, headless=self.settings.linkedin_headless, reason="linkedin_apply")
                 readiness = self._wait_for_job_page(page)
                 navigation = self._navigation_state(page, "application_job_navigation")
                 self._log(run_log, current_step, json.dumps(navigation))

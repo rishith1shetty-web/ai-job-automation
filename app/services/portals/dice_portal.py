@@ -6,7 +6,7 @@ import re
 import time
 import traceback
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus, urljoin
 
@@ -17,7 +17,9 @@ from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.find_matches import SearchVariation, per_variation_limits
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
+from app.services.browser_focus import focus_browser_window
 from app.services.linkedin import AutomationResult
+from app.services.posting_time import parse_posted_text
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
 
 
@@ -88,6 +90,29 @@ class DicePortalAdapter:
     DICE_SCAN_MULTIPLIER = 6
     DICE_MIN_SCAN = 25
     DICE_MAX_SCAN = 60
+
+    # Two-pass freshness retrieval (Dice-only). Pass A queries Dice's own last-24h facet
+    # (confirmed live: the "Posted Date" facet is named `postedDate` with radio values
+    # NO_PREFERENCE|ONE|THREE|SEVEN, ONE == last 24 hours; Dice's URL facet convention is
+    # `filters.<facetName>=`, corroborated live for filters.workplaceTypes / filters.clientBrandNameFilter).
+    # Pass A inspects a BOUNDED number of pages/cards and does NOT early-stop on the eligible
+    # quota, so fresh jobs deeper in the list are not skipped. Pass B is the existing relevance
+    # search, run only when Pass A supplies too few eligible jobs. Bounds keep the run finite:
+    # no infinite scroll, capped pages, capped card inspection, and a wall-clock timeout.
+    FRESH_MAX_PAGES = 3
+    FRESH_MAX_CARDS = 90
+    FRESH_PASS_TIMEOUT_MS = 45000
+    # Dice's confirmed last-24h recency facet value ("Today" radio == last 24 hours).
+    DICE_POSTED_WITHIN_24H = "ONE"
+    # Age buckets for the per-variation freshness diagnostics (hours, upper-exclusive).
+    FRESHNESS_BUCKETS = (
+        ("0-1h", 1.0),
+        ("1-6h", 6.0),
+        ("6-12h", 12.0),
+        ("12-24h", 24.0),
+        ("1-3d", 72.0),
+        ("4-7d", 168.0),
+    )
 
     # Label patterns for candidate contact fields (portal-agnostic decisions come
     # from the shared engines; contact identity fields are filled from the profile).
@@ -275,6 +300,8 @@ class DicePortalAdapter:
             context = browser.new_context()
             page = context.new_page()
             page.goto("https://www.dice.com/dashboard/login", wait_until="domcontentloaded", timeout=60000)
+            # The user must SEE the login page to sign in; this browser is always headed.
+            focus_browser_window(page, headless=False, reason="dice_login")
             deadline = time.monotonic() + self.login_timeout_seconds
             connected = False
             final_url = page.url
@@ -355,6 +382,8 @@ class DicePortalAdapter:
                 browser.close()
                 return [(variation, []) for variation in variations]
             page = context.new_page()
+            # Find Matches begins -- once for the whole multi-variation run, never per page load.
+            focus_browser_window(page, headless=self.settings.linkedin_headless, reason="dice_search")
             for index, variation in enumerate(variations, start=1):
                 raw_jobs = self.search_jobs(
                     page,
@@ -394,16 +423,27 @@ class DicePortalAdapter:
         )
         return results
 
-    def search_url(self, variation: SearchVariation, page_number: int = 1) -> str:
+    def search_url(
+        self,
+        variation: SearchVariation,
+        page_number: int = 1,
+        posted_within_24h: bool = False,
+    ) -> str:
         query = quote_plus(variation.query)
         location = quote_plus(variation.location or "")
         # easyApply mirrors LinkedIn's f_AL=true: ask Dice's own search to only
         # return Easy Apply jobs (client-side filtering in _filter_easy_apply_only
         # still applies as a guarantee if Dice ignores/renames this param).
-        return (
+        url = (
             "https://www.dice.com/jobs"
             f"?q={query}&location={location}&radius=30&radiusUnit=mi&page={page_number}&pageSize=20&easyApply=true"
         )
+        if posted_within_24h:
+            # Native last-24h recency filter (confirmed live from a captured search page's own
+            # `postedDate` facet radios). This scopes Pass A's pool to jobs Dice itself considers
+            # posted within the last day; our own posted_at parsing still decides the exact age.
+            url += f"&filters.postedDate={self.DICE_POSTED_WITHIN_24H}"
+        return url
 
     def search_jobs(
         self,
@@ -414,88 +454,99 @@ class DicePortalAdapter:
         search_index: int = 1,
         global_target: int | None = None,
     ) -> list[dict]:
-        url = self.search_url(variation)
+        """Two-pass Dice search that prioritizes jobs posted within the last 24 hours.
+
+        Pass A queries Dice's native last-24h facet across a BOUNDED number of pages and does
+        NOT early-stop on the eligible quota, so recent jobs deeper in the list are not skipped.
+        Pass B is the existing relevance search (page 1), run only when Pass A yields too few
+        eligible jobs. Both passes are merged on canonical Dice identity (Pass A first, so the
+        fresher copy wins within a variation); cross-variation ownership and the per-variation
+        weighted final limits are enforced unchanged by the caller. Easy Apply classification,
+        canonical identity, and the final application ordering are untouched."""
+        return_target = max(1, int(limit or 1))
         scan_limit = self._dice_scan_limit(limit)
-        try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            try:
-                page.wait_for_load_state("networkidle", timeout=15000)
-            except Exception:
-                page.wait_for_timeout(2500)
-        except Exception as exc:
-            self._write_search_failure(
-                debug_dir,
-                search_index,
-                "search_page_failed_to_load",
-                {"url": url, "error": str(exc), "query": variation.query, "location": variation.location},
-            )
-            return []
+        # Diagnostics-only reference clock; ordering always uses the run-wide reference in enrich.
+        reference = datetime.utcnow()
 
-        self._capture_search_artifacts(page, debug_dir, search_index, "loaded")
-        blocker = self._detect_search_blocker(page)
+        # --- Pass A: fresh (last-24h), bounded pagination, no early-stop on quota. ---
+        fresh_jobs, fresh_blocker, fresh_cards, fresh_stop = self._run_fresh_pass(
+            page, variation, limit, scan_limit, debug_dir, search_index
+        )
 
-        # --- Read-only pipeline diagnostics (NO business-logic change). Records the count at
-        # every stage so a real run makes the first stage that becomes zero obvious. Never logs
-        # cookies/credentials/session data -- only URLs, the page title, and counts. ---
         diag: dict = {
             "search_index": search_index,
             "query": variation.query,
             "location": variation.location,
-            "generated_search_url": url,
+            "fresh_search_url": self.search_url(variation, posted_within_24h=True),
+            "relevance_search_url": self.search_url(variation),
             "final_browser_url": self._safe_page_url(page),
             "page_title": self._safe_page_title(page),
-            "login_or_challenge_detected": blocker,
-            "raw_html_length": self._safe_html_length(page),
-            "result_card_containers_found": self._count_result_cards(page),
+            "login_or_challenge_detected": fresh_blocker,
             "requested_global_limit": global_target,
             "per_query_scan_target": scan_limit,
-            "per_query_return_target": max(1, int(limit or 1)),
-            "unique_candidate_cards": 0,
-            "cards_scanned_by_extractor": 0,
-            "scan_stop_reason": "no_cards",
-            "cumulative_eligible_jobs": 0,
-            "parsed_jobs": 0,
-            "rejected_missing_title": 0,
-            "rejected_missing_company": 0,
-            "rejected_missing_url": 0,
-            "easy_apply_identified": 0,
-            "easy_apply_kept_after_filter": 0,
-            "final_returned_count": 0,
+            "per_query_return_target": return_target,
+            "fresh_max_pages": self.FRESH_MAX_PAGES,
+            "fresh_max_cards": self.FRESH_MAX_CARDS,
+            "fresh_pass_stop_reason": fresh_stop,
+            "cards_inspected_fresh_pass": fresh_cards,
+            "cards_inspected_fallback_pass": 0,
+            "fallback_pass_ran": False,
+            "fresh_eligible_before_fallback": 0,
+            "jobs_within_24h": 0,
+            "duplicates_removed": 0,
+            "easy_apply_retained": 0,
+            "final_jobs_accepted": 0,
+            "freshness_buckets": {},
             "extraction_path": None,
         }
 
-        if blocker:
+        # A login/challenge blocker on the fresh pass is terminal (same as the old single pass).
+        if fresh_blocker:
             self._write_search_failure(
                 debug_dir,
                 search_index,
-                blocker,
+                fresh_blocker,
                 {"url": self._safe_page_url(page), "query": variation.query, "location": variation.location},
             )
             self._write_dice_search_diagnostics(debug_dir, search_index, diag)
             return []
 
-        parsed_jobs = self._extract_jobs_from_dom(
-            page, variation, limit, scan_limit=scan_limit, diagnostics=diag
-        )
-        if parsed_jobs:
-            # Cap the eligible jobs this single query contributes to its allotted share so results
-            # stay spread across variations; scanning inspected more cards to FIND them.
-            kept = self._filter_easy_apply_only(parsed_jobs, debug_dir, search_index)[: max(1, int(limit or 1))]
+        fresh_eligible = [job for job in fresh_jobs if job.get("easy_apply")]
+        diag["fresh_eligible_before_fallback"] = len(fresh_eligible)
+
+        # --- Pass B: relevance fallback (page 1), only when the fresh pass is short. ---
+        fallback_jobs: list[dict] = []
+        if len(fresh_eligible) < return_target:
+            diag["fallback_pass_ran"] = True
+            fallback_jobs, _fallback_blocker, fallback_cards = self._run_relevance_pass(
+                page, variation, limit, scan_limit, debug_dir, search_index
+            )
+            diag["cards_inspected_fallback_pass"] = fallback_cards
+            diag["final_browser_url"] = self._safe_page_url(page)
+
+        # --- Merge on canonical Dice identity; the fresh copy owns any duplicate. ---
+        merged, duplicates_removed = self._merge_by_identity(fresh_jobs, fallback_jobs)
+        diag["duplicates_removed"] = duplicates_removed
+        diag["jobs_within_24h"] = sum(1 for job in merged if self._within_24h(job, reference))
+        diag["freshness_buckets"] = self._freshness_buckets(merged, reference)
+
+        if merged:
+            # Preserve the per-variation cap (weighted final limits): keep only this variation's
+            # allotted share. Fresh jobs sit first, so the share is drawn from the freshest pool.
+            kept = self._filter_easy_apply_only(merged, debug_dir, search_index)[:return_target]
             diag["extraction_path"] = "dom"
-            diag["easy_apply_kept_after_filter"] = len(kept)
-            diag["final_returned_count"] = len(kept)
+            diag["easy_apply_retained"] = len(kept)
+            diag["final_jobs_accepted"] = len(kept)
             self._write_dice_search_diagnostics(debug_dir, search_index, diag)
             return kept
 
-        fallback_jobs = self._extract_jobs_from_locators(page, variation, limit)
-        if fallback_jobs:
-            kept = self._filter_easy_apply_only(fallback_jobs, debug_dir, search_index)
+        # DOM produced nothing across both passes: try the locator fallback on the loaded page.
+        fallback_locators = self._extract_jobs_from_locators(page, variation, limit)
+        if fallback_locators:
+            kept = self._filter_easy_apply_only(fallback_locators, debug_dir, search_index)
             diag["extraction_path"] = "locators"
-            diag["cards_scanned_by_extractor"] = len(fallback_jobs)
-            diag["parsed_jobs"] = len(fallback_jobs)
-            diag["easy_apply_identified"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
-            diag["easy_apply_kept_after_filter"] = len(kept)
-            diag["final_returned_count"] = len(kept)
+            diag["easy_apply_retained"] = len(kept)
+            diag["final_jobs_accepted"] = len(kept)
             self._write_dice_search_diagnostics(debug_dir, search_index, diag)
             return kept
 
@@ -513,6 +564,198 @@ class DicePortalAdapter:
         diag["extraction_path"] = "none"
         self._write_dice_search_diagnostics(debug_dir, search_index, diag)
         return []
+
+    def _load_and_extract_page(
+        self,
+        page,
+        url: str,
+        variation: SearchVariation,
+        limit: int,
+        scan_limit: int,
+        stop_at_target: bool,
+        debug_dir: Path | None,
+        search_index: int,
+        suffix: str,
+    ) -> tuple[list[dict], str | None, dict]:
+        """Navigate to one Dice search URL, capture artifacts, detect blockers, and extract DOM
+        jobs. Returns (jobs, blocker, page_diag). Never raises on load failure -- a failed load
+        is reported as the "load_failed" blocker so the caller can decide whether to continue."""
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            try:
+                page.wait_for_load_state("networkidle", timeout=15000)
+            except Exception:
+                page.wait_for_timeout(2500)
+        except Exception as exc:
+            return [], "load_failed", {"error": str(exc)}
+        self._capture_search_artifacts(page, debug_dir, search_index, suffix)
+        blocker = self._detect_search_blocker(page)
+        if blocker:
+            return [], blocker, {}
+        page_diag: dict = {}
+        jobs = self._extract_jobs_from_dom(
+            page,
+            variation,
+            limit,
+            scan_limit=scan_limit,
+            stop_at_target=stop_at_target,
+            diagnostics=page_diag,
+        )
+        return jobs, None, page_diag
+
+    def _run_fresh_pass(
+        self,
+        page,
+        variation: SearchVariation,
+        limit: int,
+        scan_limit: int,
+        debug_dir: Path | None,
+        search_index: int,
+    ) -> tuple[list[dict], str | None, int, str]:
+        """Pass A: collect jobs from Dice's native last-24h facet across up to FRESH_MAX_PAGES
+        pages, bounded by FRESH_MAX_CARDS inspected and FRESH_PASS_TIMEOUT_MS wall-clock. It does
+        NOT stop when the eligible quota is met (stop_at_target=False), so fresher jobs lower in
+        the list are still retrieved. Returns (jobs, blocker, cards_inspected, stop_reason)."""
+        seen: set[str] = set()
+        fresh: list[dict] = []
+        cards_inspected = 0
+        blocker: str | None = None
+        stop_reason = "max_pages"
+        start = datetime.utcnow()
+        for page_number in range(1, self.FRESH_MAX_PAGES + 1):
+            if (datetime.utcnow() - start).total_seconds() * 1000 >= self.FRESH_PASS_TIMEOUT_MS:
+                stop_reason = "timeout"
+                break
+            remaining = self.FRESH_MAX_CARDS - cards_inspected
+            if remaining <= 0:
+                stop_reason = "card_budget_reached"
+                break
+            url = self.search_url(variation, page_number=page_number, posted_within_24h=True)
+            page_scan = max(1, min(scan_limit, remaining))
+            jobs, page_blocker, page_diag = self._load_and_extract_page(
+                page, url, variation, limit, page_scan, stop_at_target=False,
+                debug_dir=debug_dir, search_index=search_index, suffix=f"fresh_p{page_number}",
+            )
+            # A login/challenge blocker on the first fresh page is terminal for the whole search;
+            # a mere load failure just ends the fresh pass and lets the relevance fallback run.
+            if page_blocker == "load_failed":
+                stop_reason = "load_failed"
+                break
+            if page_blocker:
+                blocker = page_blocker
+                stop_reason = "blocker"
+                break
+            cards_inspected += int(page_diag.get("cards_scanned_by_extractor", len(jobs)) or 0)
+            new_count = 0
+            for job in jobs:
+                key = self._identity_key(job)
+                if key and key in seen:
+                    continue
+                if key:
+                    seen.add(key)
+                fresh.append(job)
+                new_count += 1
+            # No new unique jobs on this page means the fresh result set is exhausted -- stop
+            # paginating rather than re-scanning the same cards (also avoids an endless loop).
+            if new_count == 0:
+                stop_reason = "no_new_cards"
+                break
+        return fresh, blocker, cards_inspected, stop_reason
+
+    def _run_relevance_pass(
+        self,
+        page,
+        variation: SearchVariation,
+        limit: int,
+        scan_limit: int,
+        debug_dir: Path | None,
+        search_index: int,
+    ) -> tuple[list[dict], str | None, int]:
+        """Pass B: the existing relevance search (page 1), with the original early-stop behavior
+        (stop_at_target=True). Returns (jobs, blocker, cards_inspected)."""
+        url = self.search_url(variation)
+        jobs, blocker, page_diag = self._load_and_extract_page(
+            page, url, variation, limit, scan_limit, stop_at_target=True,
+            debug_dir=debug_dir, search_index=search_index, suffix="loaded",
+        )
+        cards_inspected = int(page_diag.get("cards_scanned_by_extractor", len(jobs)) or 0)
+        return jobs, blocker, cards_inspected
+
+    def _identity_key(self, job: dict) -> str:
+        """The canonical Dice identity used ONLY to merge the two passes: the corroborated
+        /job-detail/<guid> URL, else the job guid. Read-only -- it never mints or alters an
+        identity, so canonical-identity behavior elsewhere is unchanged."""
+        url = str(job.get("job_url") or "").strip().lower()
+        if url:
+            return url
+        meta = job.get("job_description_metadata") or {}
+        return str(meta.get("job_guid") or "").strip().lower()
+
+    def _merge_by_identity(
+        self, primary: list[dict], secondary: list[dict]
+    ) -> tuple[list[dict], int]:
+        """Merge two passes on canonical identity, keeping the FIRST occurrence (primary/fresh
+        wins). Returns (merged, duplicates_removed)."""
+        seen: set[str] = set()
+        merged: list[dict] = []
+        duplicates = 0
+        for job in list(primary) + list(secondary):
+            key = self._identity_key(job)
+            if key and key in seen:
+                duplicates += 1
+                continue
+            if key:
+                seen.add(key)
+            merged.append(job)
+        return merged, duplicates
+
+    def _posted_at_for_diag(self, job: dict, reference: datetime):
+        """The job's posted_at for diagnostics, preferring Dice's exact embedded ISO timestamp
+        over the coarse relative phrase. Mirrors the authoritative enrich precedence but is used
+        only for the read-only freshness counts here (never for ordering)."""
+        meta = job.get("job_description_metadata") or {}
+        iso = str(meta.get("posted_iso") or "").strip()
+        if iso:
+            parsed = parse_posted_text(iso, reference)
+            if parsed is not None:
+                return parsed
+        phrase = str(meta.get("posted_date") or "").strip()
+        return parse_posted_text(phrase, reference)
+
+    def _within_24h(self, job: dict, reference: datetime) -> bool:
+        """True only when the job is provably posted within the last 24 hours. An exact ISO
+        timestamp or a minutes/hours phrase is trusted directly; a bare "yesterday" badge with
+        no exact timestamp is NOT counted (it may be older than 24h)."""
+        meta = job.get("job_description_metadata") or {}
+        iso = str(meta.get("posted_iso") or "").strip()
+        if not iso and "yesterday" in str(meta.get("posted_date") or "").strip().lower():
+            return False
+        posted_at = self._posted_at_for_diag(job, reference)
+        if posted_at is None:
+            return False
+        return timedelta(0) <= (reference - posted_at) <= timedelta(hours=24)
+
+    def _freshness_buckets(self, jobs: list[dict], reference: datetime) -> dict:
+        """Per-variation freshness distribution for diagnostics: one count per age bucket plus
+        an 'unknown' bucket for jobs with no parseable posting time. Read-only."""
+        counts = {label: 0 for label, _ in self.FRESHNESS_BUCKETS}
+        counts["7d+"] = 0
+        counts["unknown"] = 0
+        for job in jobs:
+            posted_at = self._posted_at_for_diag(job, reference)
+            if posted_at is None:
+                counts["unknown"] += 1
+                continue
+            age_hours = max(0.0, (reference - posted_at).total_seconds() / 3600.0)
+            placed = False
+            for label, upper in self.FRESHNESS_BUCKETS:
+                if age_hours < upper:
+                    counts[label] += 1
+                    placed = True
+                    break
+            if not placed:
+                counts["7d+"] += 1
+        return counts
 
     def _classify_dice_apply(self, *, card_text: str, cta_text: str, apply_url: str) -> tuple[bool, str]:
         """Return (is_native_easy_apply, reason).
@@ -714,6 +957,7 @@ class DicePortalAdapter:
         limit: int,
         scan_limit: int | None = None,
         diagnostics: dict | None = None,
+        stop_at_target: bool = True,
     ) -> list[dict]:
         if scan_limit is None:
             scan_limit = self._dice_scan_limit(limit)
@@ -919,9 +1163,12 @@ class DicePortalAdapter:
                 real_job_detail_url += 1
                 # Stop as soon as this query has produced enough eligible (Easy Apply) jobs to
                 # meet its share of the requested total -- no need to inspect the rest of the page.
+                # The fresh (last-24h) pass passes stop_at_target=False so it keeps inspecting its
+                # bounded budget instead of stopping on quota, and thus does not skip fresher jobs.
                 if eligible >= return_target:
                     scan_stop_reason = "eligible_target_reached"
-                    break
+                    if stop_at_target:
+                        break
             elif not has_title:
                 missing_title += 1
             elif not has_company:
@@ -1072,6 +1319,9 @@ class DicePortalAdapter:
                 page = context.new_page()
                 try:
                     page.goto(self._apply_target_url(job), wait_until="domcontentloaded", timeout=60000)
+                    # Navigating to the next application form (also covers Apply All, which drives
+                    # this method once per job) -- one focus per job, never per field.
+                    focus_browser_window(page, headless=self.settings.linkedin_headless, reason="dice_apply")
                     log.append({"step": "job_opened", "url": self._safe_page_url(page)})
                     self._trace("job_opened", url=self._safe_page_url(page))
                     # Consent banner can cover the Apply/Next controls: clear it and

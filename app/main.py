@@ -69,7 +69,7 @@ from app.services.performance import PerformanceRecorder, latest_performance_sum
 from app.services.portals.dice_portal import DicePortalAdapter
 from app.services.reasoning import AIReasoningEngine
 from app.services.resume_intelligence import ResumeIntelligenceEngine
-from app.services.resume_parser import ResumeParser
+from app.services.resume_parser import ResumeParser, apply_role_profile_compat
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -437,6 +437,10 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
     if not raw_text.strip():
         raise HTTPException(status_code=400, detail="Could not extract text from resume.")
     profile = parser.parse(raw_text)
+    # Phase 4: the persisted/visible role analysis is the Phase-3 role_profile (not the legacy
+    # ROLE_PROFILES output). Search variations read role_profile directly; these mapped fields drive
+    # the dashboard display and the legacy-compatible fallback.
+    apply_role_profile_compat(profile)
     resume = ResumeProfile(
         portal=active,
         filename=upload.filename or Path(stored_path).name,
@@ -455,6 +459,8 @@ def upload_resume(upload: UploadFile = File(...), db: Session = Depends(get_db))
         generated_search_keywords=profile["generated_search_keywords"],
         generated_search_query=profile["generated_search_query"],
         role_confidence=profile["role_confidence"],
+        domain_profile=profile.get("domain_profile") or {},
+        role_profile=profile.get("role_profile") or {},
     )
     db.add(resume)
     db.commit()

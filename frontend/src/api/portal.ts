@@ -63,15 +63,17 @@ export function useDisconnectDice() {
 // New Session: start a fresh dashboard without restarting the backend.
 //   POST /session/reset -> resets ONLY the in-memory RuntimeSession (no DB/file/automation
 //   change) and returns the clean session state.
-// clear() drops every cached query so stale resume/jobs/batch responses can't repaint the
-// dashboard before the fresh (now-empty) reads land -- the same blank state as a cold start.
+// resetQueries() returns EVERY cached query to its initial (blank) state and refetches the
+// active ones. Unlike clear(), it notifies each query's observers, so components that would
+// not otherwise re-render -- the TopNav portal badges and the resume strip -- also repaint
+// from the fresh backend reads (resume 404 -> empty, portals offline). No manual refresh, and
+// no stale data lingering. Historical endpoints simply re-read the DB, so history is intact.
 export function useResetSession() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => apiRequest("POST", "/session/reset"),
     onSuccess: async () => {
-      queryClient.clear();
-      await queryClient.refetchQueries({ queryKey: portalKey });
+      await queryClient.resetQueries();
     },
   });
 }

@@ -21,6 +21,8 @@ class ResumeProfileOut(BaseModel):
     generated_search_keywords: list[str]
     generated_search_query: str | None
     role_confidence: float
+    domain_profile: dict = {}
+    role_profile: dict = {}
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

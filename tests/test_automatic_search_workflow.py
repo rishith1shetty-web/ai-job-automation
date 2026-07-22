@@ -376,7 +376,9 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                         self.assertEqual(batch.jobs_collected, 100)
                         self.assertTrue(all(job.easy_apply for job in jobs))
                         selected_variations, limits = FakeManyLinkedInAutomation.received_collection_plan[0]
-                        self.assertGreaterEqual(selected_variations, 14)
+                        # Phase 4: the plan is one narrow variation per ranked role (up to 12), so a
+                        # supported-domain resume selects its full set of role variations.
+                        self.assertGreaterEqual(selected_variations, 12)
                         self.assertGreaterEqual(min(limits), 8)          # base per-query budget preserved
                         self.assertGreater(limits[0], limits[-1])        # top-five inspect a larger budget
                         self.assertEqual(len({job.job_url for job in jobs}), 100)

@@ -30,6 +30,8 @@ def init_db() -> None:
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS generated_search_keywords JSONB DEFAULT '[]'::jsonb NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS generated_search_query TEXT",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS role_confidence DOUBLE PRECISION DEFAULT 0 NOT NULL",
+        "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS domain_profile JSONB DEFAULT '{}'::jsonb NOT NULL",
+        "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS role_profile JSONB DEFAULT '{}'::jsonb NOT NULL",
         "ALTER TABLE resume_profiles ADD COLUMN IF NOT EXISTS resume_fingerprint VARCHAR(64)",
         "CREATE INDEX IF NOT EXISTS ix_resume_profiles_fingerprint ON resume_profiles (resume_fingerprint)",
         "ALTER TABLE application_records ADD COLUMN IF NOT EXISTS dry_run BOOLEAN DEFAULT TRUE NOT NULL",

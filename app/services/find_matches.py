@@ -46,6 +46,13 @@ class SearchVariation:
     # variation's rows stay contiguous, and a job keeps the index of the variation that first
     # discovered it. 0 means "unassigned" (never happens for a planned run).
     variation_index: int = 0
+    # Phase-4 role provenance carried from the Phase-3 role_profile (display/debug only; the
+    # collection pipeline still keys purely off variation_index and role_priority).
+    role_category: str = ""
+    domain: str = ""
+    job_family: str = ""
+    role_rank: int = 0
+    synonyms: tuple[str, ...] = ()
 
 
 class FindMatchesEngine:
@@ -304,11 +311,131 @@ class FindMatchesEngine:
         locations = [primary] + [item for item in nearby if item.lower() != lowered]
         return [{"location": item, "reason": "Primary" if index == 0 else "Limited expansion"} for index, item in enumerate(locations[:6])]
 
+    # Phase-3 category -> the legacy role_priority the collection pipeline and dashboard already use.
+    CATEGORY_TO_PRIORITY = {
+        "Primary Role": "primary",
+        "Strong Fit": "strong_fit",
+        "Related": "related",
+        "Stretch": "stretch",
+    }
+    # A tiny controlled expansion for abbreviated canonical titles, so each variation searches ONE
+    # real, portal-friendly phrase (never an OR of unrelated roles). Value: (query, [synonyms]).
+    CANONICAL_QUERY = {
+        "FP&A Analyst": ("Financial Planning and Analysis Analyst", ("FP&A Analyst",)),
+        "Finance BI Analyst": ("Finance Business Intelligence Analyst", ("Finance BI Analyst",)),
+        "Finance Analytics": ("Finance Analytics Analyst", ()),
+        "Business Intelligence Analyst": ("Business Intelligence Analyst", ("BI Analyst",)),
+        "BI Developer": ("Business Intelligence Developer", ("BI Developer",)),
+        "SOC Analyst": ("Security Operations Center Analyst", ("SOC Analyst",)),
+        "IAM Analyst": ("Identity and Access Management Analyst", ("IAM Analyst",)),
+        "GRC Analyst": ("Governance Risk and Compliance Analyst", ("GRC Analyst",)),
+        "ML Engineer": ("Machine Learning Engineer", ("ML Engineer",)),
+        "Software Engineer in Test": ("Software Development Engineer in Test", ("SDET",)),
+    }
+
     def build_search_plan(
         self,
         resume: ResumeProfile,
         location: str,
         manual_keywords: str | None,
+    ) -> tuple[list[SearchVariation], dict]:
+        """Phase 4: the Phase-3 role_profile is the single source of the ordered search plan for BOTH
+        portals. A manual keyword override, or an old saved resume with no usable role_profile, still
+        falls back to the legacy plan so nothing breaks for existing users."""
+        if (manual_keywords or "").strip():
+            return self._legacy_build_search_plan(resume, location, manual_keywords, role_source="manual_override")
+        role_profile, role_source = self._resolve_role_profile(resume)
+        if role_profile and role_profile.get("roles"):
+            return self._plan_from_role_profile(resume, location, role_profile, role_source)
+        return self._legacy_build_search_plan(resume, location, manual_keywords, role_source="legacy_fallback")
+
+    def _resolve_role_profile(self, resume: ResumeProfile) -> tuple[dict, str]:
+        """Return (role_profile, source). Prefers the persisted Phase-3 profile; for an old saved
+        resume without one, regenerates it from the stored resume text; else signals legacy fallback."""
+        stored = getattr(resume, "role_profile", None) or {}
+        if stored.get("roles"):
+            return stored, "role_profile"
+        raw_text = (getattr(resume, "raw_text", "") or "").strip()
+        if raw_text:
+            try:
+                from app.services.resume_parser import ResumeParser
+
+                regenerated = ResumeParser(self.settings).parse(raw_text).get("role_profile") or {}
+                if regenerated.get("roles"):
+                    return regenerated, "regenerated"
+            except Exception:
+                pass
+        return {}, "legacy_fallback"
+
+    def _role_query(self, title: str) -> tuple[str, tuple[str, ...]]:
+        query, synonyms = self.CANONICAL_QUERY.get(title, (title, ()))
+        return query, synonyms
+
+    def _plan_from_role_profile(
+        self,
+        resume: ResumeProfile,
+        location: str,
+        role_profile: dict,
+        role_source: str,
+    ) -> tuple[list[SearchVariation], dict]:
+        """One narrow variation per Phase-3 role, in ranked order: variation 1 = Primary, 2-5 =
+        Strong Fit, 6-9 = Related, 10-12 = Stretch (fewer for provisional domains -- never padded)."""
+        roles = role_profile.get("roles") or []
+        locations = self.expand_locations(location)
+        primary_location = locations[0]["location"]
+        primary_role = roles[0].get("title") if roles else (resume.detected_role or "")
+
+        queries: list[SearchVariation] = []
+        for role in roles[:24]:
+            title = str(role.get("title") or "").strip()
+            if not title:
+                continue
+            query, synonyms = self._role_query(title)
+            category = str(role.get("category") or "")
+            priority = self.CATEGORY_TO_PRIORITY.get(category, "related")
+            queries.append(
+                SearchVariation(
+                    query=query,
+                    location=primary_location,
+                    role=title,
+                    expanded_role=title,
+                    pass_name=f"{priority}_role_primary_location",
+                    search_role=title,
+                    role_priority=priority,
+                    role_confidence=float(role.get("confidence") or 0),
+                    role_category=category,
+                    domain=str(role.get("domain") or ""),
+                    job_family=str(role.get("job_family") or ""),
+                    role_rank=int(role.get("rank") or 0),
+                    synonyms=tuple(synonyms),
+                )
+            )
+        # Deterministic, 1-based variation numbering in ranked order -- the permanent group key.
+        queries = [replace(query, variation_index=index + 1) for index, query in enumerate(queries)]
+        plan = {
+            "role_source": role_source,
+            "taxonomy_status": role_profile.get("taxonomy_status", "supported"),
+            "primary_role": primary_role,
+            "roles": roles,
+            "role_groups": [
+                {"role": v.role, "confidence": v.role_confidence, "role_priority": v.role_priority, "role_rank": v.role_rank}
+                for v in queries
+            ],
+            "searchable_role_groups": [],
+            "expanded_roles": roles,
+            "expanded_skills": [],
+            "locations": locations,
+            "queries": [asdict(query) for query in queries],
+            "display_query": primary_role,
+        }
+        return queries, plan
+
+    def _legacy_build_search_plan(
+        self,
+        resume: ResumeProfile,
+        location: str,
+        manual_keywords: str | None,
+        role_source: str = "legacy",
     ) -> tuple[list[SearchVariation], dict]:
         roles = self.detect_roles(resume, manual_keywords)
         expanded_roles = self.expand_roles(roles)
@@ -412,6 +539,7 @@ class FindMatchesEngine:
         # later from a job title.
         queries = [replace(query, variation_index=index + 1) for index, query in enumerate(queries[:24])]
         plan = {
+            "role_source": role_source,
             "roles": roles,
             "role_groups": grouped_roles,
             "searchable_role_groups": searchable_grouped_roles,

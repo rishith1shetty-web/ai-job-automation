@@ -26,7 +26,7 @@ const isActive = (status?: BatchStatus): boolean => status === "queued" || statu
 export function NewSessionButton() {
   const [confirming, setConfirming] = useState(false);
   const reset = useResetSession();
-  const { setSelectedBatchId } = useSession();
+  const { resetSession } = useSession();
 
   const { data: status } = usePortalStatus();
   const { data: resume } = useLatestResume();
@@ -41,7 +41,7 @@ export function NewSessionButton() {
   const startNewSession = () => {
     reset.mutate(undefined, {
       onSuccess: () => {
-        setSelectedBatchId(null); // drop the shell's selected-batch UI pointer too
+        resetSession(); // drop the selected batch and remount the routed page (local state)
         setConfirming(false);
       },
     });

@@ -46,6 +46,11 @@ class ResumeProfile(Base):
     generated_search_keywords: Mapped[list[str]] = mapped_column(JSONB, default=list)
     generated_search_query: Mapped[str | None] = mapped_column(Text, nullable=True)
     role_confidence: Mapped[float] = mapped_column(Float, default=0)
+    # Phase 2/3 analysis, persisted so Find Matches (and the dashboard) reuse the exact same domain
+    # and 12-role ranking after a page refresh or app restart -- without re-uploading the resume.
+    # JSONB defaulting to {} keeps legacy rows readable (they simply carry an empty profile).
+    domain_profile: Mapped[dict] = mapped_column(JSONB, default=dict)
+    role_profile: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     jobs: Mapped[list["JobOpportunity"]] = relationship(back_populates="resume")

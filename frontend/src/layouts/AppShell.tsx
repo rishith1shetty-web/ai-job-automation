@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { useSession } from "@/store/session";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { TopNav } from "@/components/shell/TopNav";
 import { WelcomeCard } from "@/components/shell/WelcomeCard";
@@ -13,10 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 // KPIs, etc.). Suspense shows a skeleton while a lazily-loaded page chunk downloads.
 function RoutedOutlet() {
   const location = useLocation();
+  const { sessionNonce } = useSession();
   return (
     <main className="pb-10">
       <Suspense fallback={<Skeleton className="h-64" />}>
-        <div key={location.pathname} className="animate-fade-in">
+        {/* Keyed on the path AND the session nonce: navigating remounts the page, and so does
+            New Session -- clearing any local component state (dry-run result, apply-run pointer,
+            selected job, form choices) so the dashboard truly cold-starts. */}
+        <div key={`${location.pathname}:${sessionNonce}`} className="animate-fade-in">
           <Outlet />
         </div>
       </Suspense>

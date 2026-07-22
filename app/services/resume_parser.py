@@ -12,6 +12,66 @@ from fastapi import UploadFile
 from openai import OpenAI
 
 from app.config import Settings
+from app.services.domain_detection import (
+    DomainEvidence,
+    ExperienceEvidence,
+    detect_domain_profile,
+)
+from app.services.role_ranking import build_role_profile
+
+
+# Phase-3 category -> the legacy role_category keys the dashboard already groups on.
+_CATEGORY_TO_GROUP = {
+    "Primary Role": "primary_role",
+    "Strong Fit": "strong_fit_roles",
+    "Related": "related_roles",
+    "Stretch": "stretch_roles",
+}
+
+
+def apply_role_profile_compat(profile: dict) -> None:
+    """Phase 4: map the Phase-3 role_profile / Phase-2 domain_profile onto the existing VISIBLE fields
+    (detected_role, role_confidence, role_suggestions, role_groups, domain_expertise,
+    generated_search_*) so the frontend and API expose the new analysis with no schema or UI change,
+    and the old tech-biased list no longer appears after a new analysis. Applied at the persistence
+    boundary (not inside parse) so parse() stays legacy-compatible. Left untouched when the role
+    profile produced no roles (e.g. an unsupported domain with no professional titles), preserving the
+    legacy fields as a safe fallback."""
+    role_profile = profile.get("role_profile") or {}
+    domain_profile = profile.get("domain_profile") or {}
+    roles = role_profile.get("roles") or []
+    if not roles:
+        return
+
+    suggestions: list[dict] = []
+    groups: dict[str, list[str]] = {"primary_role": [], "strong_fit_roles": [], "related_roles": [], "stretch_roles": []}
+    for role in roles:
+        group = _CATEGORY_TO_GROUP.get(role.get("category", ""), "related_roles")
+        suggestions.append(
+            {
+                "role": role.get("title"),
+                "confidence": role.get("confidence", 0),
+                "role_category": group,
+                "role_rank": role.get("rank"),
+                "domain": role.get("domain"),
+                "job_family": role.get("job_family"),
+                "evidence": role.get("evidence", []),
+            }
+        )
+        groups[group].append(role.get("title"))
+
+    titles = [role.get("title") for role in roles if role.get("title")]
+    domains = [domain_profile.get("primary_domain")] + list(domain_profile.get("adjacent_domains") or [])
+    domains = [item for item in dict.fromkeys(domains) if item and item != "Undetermined"]
+
+    profile["detected_role"] = role_profile.get("primary_role") or profile.get("detected_role")
+    profile["role_confidence"] = round(float(role_profile.get("primary_role_confidence") or 0), 1)
+    profile["role_suggestions"] = suggestions
+    profile["role_groups"] = groups
+    if domains:
+        profile["domain_expertise"] = domains[:10]
+    profile["generated_search_keywords"] = titles
+    profile["generated_search_query"] = role_profile.get("primary_role") or profile.get("generated_search_query")
 
 
 COMMON_SKILLS = {
@@ -553,7 +613,48 @@ class ResumeParser:
                 profile = self._parse_locally(raw_text)
         else:
             profile = self._parse_locally(raw_text)
-        return self._add_targeting(profile, raw_text)
+        profile = self._add_targeting(profile, raw_text)
+        # Phases 2 & 3 are purely additive -- they never mutate the Phase-1 fields or the
+        # ROLE_PROFILES targeting above, so downstream search/apply behaviour is unchanged. The
+        # domain evidence is built once and shared: Phase 2 classifies the domain, Phase 3 ranks the
+        # top-12 roles for display only.
+        evidence = self._build_domain_evidence(profile, raw_text)
+        profile["domain_profile"] = detect_domain_profile(evidence)
+        profile["role_profile"] = build_role_profile(evidence, profile["domain_profile"])
+        # NOTE: the legacy ROLE_PROFILES fields (detected_role/role_suggestions/generated_search_*)
+        # are intentionally left as-is on the parse() output for backward compatibility. Phase 4 maps
+        # them to the Phase-3 role_profile at the PERSISTENCE boundary (see apply_role_profile_compat,
+        # called by the analyze endpoint) so the stored/visible/searched data is the new analysis
+        # while parse() itself stays a stable, legacy-compatible transform.
+        return profile
+
+    def _build_domain_evidence(self, profile: dict, raw_text: str) -> DomainEvidence:
+        """Build the shared Phase-2/Phase-3 evidence from the Phase-1 structured resume."""
+        experiences: list[ExperienceEvidence] = []
+        for rank, record in enumerate(self.extract_employment_history(raw_text)):
+            experiences.append(
+                ExperienceEvidence(
+                    title=str(record.get("job_title") or ""),
+                    responsibilities=str(record.get("description") or ""),
+                    duration_months=record.get("duration_months"),
+                    is_current=bool(record.get("currently_work_here")),
+                    recency_rank=rank,
+                )
+            )
+        evidence = DomainEvidence(
+            titles=[str(title) for title in profile.get("job_titles") or []],
+            experiences=experiences,
+            skills=[str(skill) for skill in profile.get("skills") or []],
+            technologies=[str(tech) for tech in profile.get("technologies") or []],
+            education=self._extract_section(
+                raw_text, "education", ["experience", "projects", "skills", "certifications", "achievements"]
+            ),
+            projects=self._extract_section(
+                raw_text, "projects", ["education", "experience", "skills", "certifications", "achievements"]
+            ),
+            raw_text=raw_text,
+        )
+        return evidence
 
     def extract_employment_history(self, raw_text: str, fallback_location: str | None = None) -> list[dict]:
         section_lines = self._employment_section_lines(raw_text)
@@ -812,12 +913,23 @@ class ResumeParser:
             if has_dates:
                 if current:
                     chunks.append(current)
-                clean_pending = [item for item in pending_headers[-2:] if self._looks_like_entry_header(item)]
+                # Keep the entry's header lines that precede the date (e.g. company then title in
+                # the "Company / Job Title / Dates" layout); bullets are never header lines.
+                clean_pending = [item for item in pending_headers[-2:] if not self._is_bullet(item)]
                 current = clean_pending + [line]
                 pending_headers = []
                 continue
             if current:
-                next_header = not self._is_bullet(line) and self._looks_like_entry_header(line)
+                # Once this entry already has its date line, a bare title line (no "|", no date)
+                # is THIS job's title in the "Company | Location | Dates" then "Job Title" layout,
+                # not the start of a new entry. Only a strong new-entry signal (a pipe-header or a
+                # new date line) splits the chunk, so the title stays attached to its own job.
+                has_date = any(self._date_range_match(item) for item in current)
+                strong_new_header = "|" in line and len(line.split()) <= 18
+                next_header = (
+                    not self._is_bullet(line)
+                    and (strong_new_header or (self._looks_like_entry_header(line) and not has_date))
+                )
                 if next_header:
                     chunks.append(current)
                     current = []
@@ -846,6 +958,7 @@ class ResumeParser:
         bullet_lines = [self._clean_bullet(line) for line in chunk if self._is_bullet(line)]
         description = "\n".join(line for line in bullet_lines if line)
         job_title, company_name, location = self._employment_header_parts(header_text, chunk)
+        job_title = self._normalize_job_title(job_title) if job_title else job_title
         city, state, country = self._split_location(location or fallback_location)
         skills = [skill for skill in COMMON_SKILLS if self._contains_term(combined, skill)]
         technologies = self._extract_technologies(combined)
@@ -918,21 +1031,98 @@ class ResumeParser:
         month = month_map.get(month_match.group(0).lower()[:3]) if month_match else None
         return month, int(year_match.group(0))
 
+    def _split_header_parts(self, line: str) -> list[str]:
+        return [part.strip() for part in re.split(r"\s*\|\s*|\s+•\s+|\t+", line) if part.strip()]
+
+    def _header_parts_from_lines(
+        self, header_lines: list[str], standalone: str | None
+    ) -> tuple[str | None, str | None, str | None]:
+        """Resolve (title, company, location) from a MULTI-LINE entry header by inspecting each
+        line on its own. Supports both orderings -- 'Company | Location' then 'Title', and
+        'Title' then 'Company | Location' -- without ever merging two lines into one value."""
+        title: str | None = None
+        company: str | None = None
+        location: str | None = None
+        leftover: list[str] = []
+        for line in header_lines:
+            parts = self._split_header_parts(line)
+            if not parts:
+                continue
+            if title is None and len(parts) == 1 and self._looks_like_job_title(parts[0]):
+                title = parts[0]  # a line that is ONLY the job title
+                continue
+            title_index = next(
+                (i for i, part in enumerate(parts) if self._looks_like_job_title(part)), None
+            )
+            if title is None and len(parts) >= 2 and title_index is not None:
+                # "Company | Title" / "Title | Company" on a single line.
+                title = parts[title_index]
+                rest = [part for i, part in enumerate(parts) if i != title_index]
+                if rest:
+                    company = company or rest[0]
+                    if len(rest) > 1 and location is None:
+                        location = ", ".join(rest[1:])
+                continue
+            leftover.append(line)
+        for line in leftover:
+            parts = self._split_header_parts(line)
+            if not parts:
+                continue
+            if company is None:
+                company = parts[0]
+                if len(parts) > 1 and location is None:
+                    location = ", ".join(parts[1:])
+            elif location is None:
+                location = ", ".join(parts)
+        if title is None:
+            title = standalone
+        if location is None and company and "," in company:
+            company_parts = [part.strip() for part in company.split(",") if part.strip()]
+            company = company_parts[0]
+            location = ", ".join(company_parts[1:]) or None
+        if not any((title, company, location)):
+            return None, None, None
+        return title, company, location
+
     def _employment_header_parts(self, header_text: str, chunk: list[str]) -> tuple[str | None, str | None, str | None]:
-        clean_header = re.sub(r"\s+", " ", header_text).strip(" |,-")
-        parts = [part.strip() for part in re.split(r"\s*\|\s*|\s+•\s+|\t+", clean_header) if part.strip()]
+        # A title on its own line (the "Company | Location | Dates" then "Job Title" layout).
+        standalone = self._standalone_title_line(chunk)
+        # Header LINES are evaluated individually. Collapsing a multi-line header into a single
+        # string (the old behavior) glued "Company | Location" onto the title line beneath it and
+        # produced titles like "Pune, India Network Engineer" -- and could even turn a
+        # "Professional Summary" heading plus its first sentence into a bogus title.
+        header_lines = [
+            re.sub(r"\s+", " ", line).strip(" |,-")
+            for line in (header_text or "").splitlines()
+            if line.strip()
+        ]
+        if len(header_lines) >= 2:
+            resolved = self._header_parts_from_lines(header_lines, standalone)
+            if resolved != (None, None, None):
+                return resolved
+
+        clean_header = header_lines[0] if header_lines else re.sub(r"\s+", " ", header_text).strip(" |,-")
+        parts = self._split_header_parts(clean_header)
         if len(parts) >= 2:
             if self._looks_like_job_title(parts[0]):
                 title = parts[0]
                 company = parts[1]
+                location = ", ".join(parts[2:]) or None
             elif self._looks_like_job_title(parts[1]):
                 company = parts[0]
                 title = parts[1]
+                location = ", ".join(parts[2:]) or None
+            elif standalone:
+                # Neither header part is a role -> the header is "Company | Location", and the
+                # title sits on its own line. Do not mistake the company for the title.
+                title = standalone
+                company = parts[0]
+                location = ", ".join(parts[1:]) or None
             else:
                 title = parts[0]
                 company = parts[1]
-            location = ", ".join(parts[2:]) or None
-            if location is None and "," in company:
+                location = ", ".join(parts[2:]) or None
+            if location is None and company and "," in company:
                 company_parts = [part.strip() for part in company.split(",") if part.strip()]
                 company = company_parts[0]
                 location = ", ".join(company_parts[1:]) or None
@@ -946,19 +1136,120 @@ class ResumeParser:
             first, second = candidates[-2], candidates[-1]
             if self._looks_like_job_title(second):
                 return second, first, None
+            if self._looks_like_job_title(first):
+                return first, second, None
+            if standalone:  # both header lines are company/location; title is on its own line
+                return standalone, first, None
             return first, second, None
         if candidates:
+            if self._looks_like_job_title(candidates[0]):
+                return candidates[0], None, None
+            if standalone:  # the single header line is the company; the title is elsewhere
+                return standalone, candidates[0], None
             return candidates[0], None, None
+        if standalone:
+            return standalone, None, None
         return None, None, None
 
+    # Domain-agnostic role nouns: a professional title almost always ends in (or contains) one
+    # of these across finance, software, data, IT support, cloud, cybersecurity, etc. This is a
+    # recogniser, NOT a whitelist of specific titles -- "Financial Analyst", "Systems
+    # Administrator" and "Help Desk Technician" all qualify without being enumerated.
+    _ROLE_NOUN_RE = re.compile(
+        r"\b(analyst|engineer|developer|scientist|intern|manager|consultant|specialist|"
+        r"associate|lead|architect|administrator|technician|accountant|auditor|controller|"
+        r"coordinator|officer|representative|advisor|adviser|designer|programmer|technologist|"
+        r"supervisor|director|strategist|planner|examiner|bookkeeper|support|recruiter)\b",
+        re.I,
+    )
+
     def _looks_like_job_title(self, text: str) -> bool:
-        return bool(
-            re.search(
-                r"\b(analyst|engineer|developer|scientist|intern|manager|consultant|specialist|associate|lead|architect)\b",
-                text,
-                re.I,
-            )
-        )
+        # Normalize first so abbreviated titles are recognised too ("Sr Software Eng." ->
+        # "Senior Software Engineer" -> matches "engineer").
+        return bool(self._ROLE_NOUN_RE.search(self._normalize_job_title(text))) and not self._is_non_title(text)
+
+    # Seniority/role abbreviation expansions (documented, deterministic; seniority preserved).
+    _TITLE_ABBREVIATIONS = (
+        (re.compile(r"\bJr\b\.?", re.I), "Junior"),
+        (re.compile(r"\bSr\b\.?", re.I), "Senior"),
+        (re.compile(r"\bEng\b\.?", re.I), "Engineer"),
+        (re.compile(r"\bDev\b\.?", re.I), "Developer"),
+        (re.compile(r"\bMgr\b\.?", re.I), "Manager"),
+        (re.compile(r"\bAdmin\b\.?", re.I), "Administrator"),
+    )
+
+    def _normalize_job_title(self, title: str) -> str:
+        """Expand common seniority/role abbreviations while preserving meaningful distinctions
+        (Jr. Financial Analyst -> Junior Financial Analyst; Software Eng. -> Software Engineer).
+        Only known abbreviations are touched; the rest of the title is left exactly as written."""
+        text = re.sub(r"\s+", " ", title or "").strip(" |,-")
+        for pattern, replacement in self._TITLE_ABBREVIATIONS:
+            text = pattern.sub(replacement, text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    # Lines that must NEVER be treated as a professional job title.
+    _NON_TITLE_RE = re.compile(
+        r"\b(bachelor|master|b\.?\s?sc|m\.?\s?sc|b\.?\s?tech|m\.?\s?tech|b\.?\s?e\b|mba|ph\.?d|"
+        r"diploma|degree|university|college|institute of technology|"
+        r"certification|certificate|certified|cfa|cpa|pmp|scrum master|"
+        r"course|workshop|bootcamp)\b",
+        re.I,
+    )
+    # Resume SECTION HEADINGS -- never a job title. Matched against the whole normalized line
+    # (exact, never as a substring), so a structurally valid title that merely CONTAINS one of
+    # these words ("Summary Analyst", "Projects Engineer") is still accepted.
+    _SECTION_WORDS = {
+        "experience", "professional experience", "work experience", "employment", "education",
+        "projects", "project", "certifications", "certification", "skills", "technical skills",
+        "achievements", "awards", "publications", "summary", "objective", "profile",
+        "internships", "internship experience", "relevant experience",
+        # Multi-word headings: the single-word entries above do not match these, so without them
+        # a heading like "Professional Summary" could be accepted as a job title.
+        "professional summary", "career summary", "executive summary", "summary of qualifications",
+        "career objective", "professional profile", "career profile", "personal profile",
+        "academic projects", "personal projects", "key projects", "notable projects",
+        "employment history", "work history", "professional background",
+        "technical expertise", "technical proficiencies", "technical proficiency",
+        "core competencies", "key skills", "areas of expertise", "skills summary",
+        "certifications and licenses", "licenses and certifications",
+        "academic qualifications", "educational qualifications", "qualifications",
+        "languages", "interests", "hobbies", "references", "declaration", "contact",
+        "activities", "extracurricular activities", "volunteer experience",
+    }
+
+    def _is_non_title(self, text: str) -> bool:
+        """Reject project names, certifications, degrees, section headings and bare tools/tech."""
+        cleaned = re.sub(r"[:\s]+$", "", (text or "").strip()).strip(" |,-")
+        lowered = cleaned.lower()
+        if not lowered:
+            return True
+        if lowered in self._SECTION_WORDS:
+            return True
+        if self._NON_TITLE_RE.search(cleaned):
+            return True
+        # A bare tool/technology on its own line is not a title (e.g. "Power BI", "Tableau").
+        if lowered in {term.lower() for term in TECHNOLOGY_NAMES} or lowered in {
+            name.lower() for name in TECHNOLOGY_NAMES.values()
+        }:
+            return True
+        # "Project:" / "Project -" style lines are project names, not roles.
+        if re.match(r"^project\b", lowered):
+            return True
+        return False
+
+    def _standalone_title_line(self, chunk: list[str]) -> str | None:
+        """A job title on its OWN line within the chunk (the 'Company | Location | Dates' then
+        'Job Title' layout). Skips the date/header line, bullets, and non-title lines."""
+        for line in chunk:
+            clean = (line or "").strip()
+            if not clean or self._is_bullet(clean) or "|" in clean:
+                continue
+            if self._date_range_match(clean):
+                continue
+            candidate = clean.strip(" |,-")
+            if 1 <= len(candidate.split()) <= 8 and self._looks_like_job_title(candidate):
+                return candidate
+        return None
 
     def _looks_like_entry_header(self, text: str) -> bool:
         if self._date_range_match(text):
@@ -1390,8 +1681,27 @@ class ResumeParser:
         return re.search(pattern, text.lower()) is not None
 
     def _extract_job_titles(self, text: str) -> list[str]:
+        """Professional job titles, primarily from the parsed WORK-EXPERIENCE STRUCTURE so any
+        domain works (finance, IT support, cloud, cybersecurity, ...), not a closed whitelist.
+        The whitelist regex remains a supplement -- it recovers titles from resumes that state a
+        headline but no dated experience section. Titles are normalized; projects, certifications,
+        degrees, section headings and bare tools are excluded."""
+        titles: list[str] = []
+        # 1. Structural: the actual title of each parsed employment record.
+        for record in self.extract_employment_history(text):
+            candidate = record.get("job_title")
+            if candidate and self._looks_like_job_title(candidate):
+                titles.append(self._normalize_job_title(candidate))
+        # 2. Supplement / fallback: known-title regex (e.g. a headline with no experience block).
+        for candidate in self._whitelist_job_titles(text):
+            normalized = self._normalize_job_title(candidate)
+            if self._looks_like_job_title(normalized):
+                titles.append(normalized)
+        return list(dict.fromkeys(title for title in titles if title))[:20]
+
+    def _whitelist_job_titles(self, text: str) -> list[str]:
         title_patterns = [
-            r"\b(?:senior|sr\.?|lead|principal|staff|junior|jr\.?)?\s*(software engineer|software engineering intern|data analyst|healthcare data analyst|clinical data analyst|healthcare bi analyst|data scientist|data science analyst|machine learning engineer|ml engineer|ai/ml engineer|ai engineer|artificial intelligence engineer|nlp engineer|natural language processing engineer|computer vision engineer|cv engineer|analytics engineer|business intelligence analyst|bi analyst|reporting analyst|sql analyst|power bi analyst|research intern|product manager|project manager|business analyst|devops engineer|frontend developer|backend developer|full stack developer)\b",
+            r"\b(?:senior|sr\.?|lead|principal|staff|junior|jr\.?)?\s*(software engineer|software engineering intern|data analyst|healthcare data analyst|clinical data analyst|healthcare bi analyst|data scientist|data science analyst|machine learning engineer|ml engineer|ai/ml engineer|ai engineer|artificial intelligence engineer|nlp engineer|natural language processing engineer|computer vision engineer|cv engineer|analytics engineer|business intelligence analyst|bi analyst|reporting analyst|sql analyst|power bi analyst|research intern|product manager|project manager|business analyst|devops engineer|frontend developer|backend developer|full stack developer|financial analyst)\b",
             r"\banalyst\s*[-–]\s*digital and data science\b",
         ]
         matches: list[tuple[int, str]] = []

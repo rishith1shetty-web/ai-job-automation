@@ -60,8 +60,11 @@ class FindMatchesEngineTests(unittest.TestCase):
         queries, plan = self.engine.build_search_plan(self.resume, "Mumbai", None)
         self.assertLessEqual(len(queries), 24)
         self.assertEqual(queries[0].pass_name, "primary_role_primary_location")
-        self.assertIn("Data Scientist", plan["display_query"])
-        self.assertTrue(any(query.location == "Remote" for query in queries))
+        # Phase 4: the plan is role_profile-driven -- one narrow query per ranked role, and the
+        # display label is the single primary role (never a broad OR of unrelated roles).
+        self.assertEqual(plan["role_source"], "regenerated")
+        self.assertEqual(plan["display_query"], queries[0].role)
+        self.assertNotIn(" OR ", plan["display_query"])
 
     def test_all_detected_roles_generate_search_variations_in_priority_order(self) -> None:
         self.resume.raw_text = ""
@@ -99,9 +102,11 @@ class FindMatchesEngineTests(unittest.TestCase):
     def test_or_query_is_fallback_not_primary_search(self) -> None:
         queries, plan = self.engine.build_search_plan(self.resume, "United States", None)
 
+        # Phase 4: every variation searches ONE canonical role and the display label is a single
+        # role -- a broad "A OR B OR C" query is never produced for either portal.
         self.assertNotIn(" OR ", queries[0].query)
-        self.assertIn(" OR ", plan["display_query"])
-        self.assertFalse(any(query.pass_name == "resume_generated_query" for query in queries[:5]))
+        self.assertNotIn(" OR ", plan["display_query"])
+        self.assertFalse(any(" OR " in query.query for query in queries))
 
     def test_related_role_jobs_are_included_with_source_metadata(self) -> None:
         variation = next(
