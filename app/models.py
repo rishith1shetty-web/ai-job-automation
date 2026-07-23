@@ -239,6 +239,10 @@ class JobSearchBatch(Base):
     status: Mapped[str] = mapped_column(String(50), default="completed", index=True)
     requested_limit: Mapped[int] = mapped_column(Integer, default=50)
     current_search_variation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Live per-variation progress, published identically by every portal (1-based index).
+    current_variation_index: Mapped[int] = mapped_column(Integer, default=0)
+    total_variations: Mapped[int] = mapped_column(Integer, default=0)
+    jobs_found_this_variation: Mapped[int] = mapped_column(Integer, default=0)
     jobs_collected: Mapped[int] = mapped_column(Integer, default=0)
     easy_apply_count: Mapped[int] = mapped_column(Integer, default=0)
     duplicates_removed: Mapped[int] = mapped_column(Integer, default=0)

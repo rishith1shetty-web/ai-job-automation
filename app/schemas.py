@@ -95,6 +95,9 @@ class SearchBatchOut(BaseModel):
     status: str = "completed"
     requested_limit: int = 50
     current_search_variation: str | None = None
+    current_variation_index: int = 0
+    total_variations: int = 0
+    jobs_found_this_variation: int = 0
     jobs_collected: int = 0
     easy_apply_count: int = 0
     duplicates_removed: int = 0

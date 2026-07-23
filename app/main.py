@@ -1079,6 +1079,9 @@ def _update_search_batch(
     *,
     status: str | None = None,
     current_search_variation: str | None = None,
+    current_variation_index: int | None = None,
+    total_variations: int | None = None,
+    jobs_found_this_variation: int | None = None,
     jobs_collected: int | None = None,
     easy_apply_count: int | None = None,
     duplicates_removed: int | None = None,
@@ -1092,6 +1095,12 @@ def _update_search_batch(
         batch.status = status
     if current_search_variation is not None:
         batch.current_search_variation = current_search_variation
+    if current_variation_index is not None:
+        batch.current_variation_index = current_variation_index
+    if total_variations is not None:
+        batch.total_variations = total_variations
+    if jobs_found_this_variation is not None:
+        batch.jobs_found_this_variation = jobs_found_this_variation
     if jobs_collected is not None:
         batch.jobs_collected = jobs_collected
     if easy_apply_count is not None:
@@ -1387,6 +1396,48 @@ def _search_jobs_sync(
             },
         )
         variation_results: list[tuple[str, object, list[dict]]] = []
+        # ONE progress mechanism for every portal. The callback contract is the one Dice already
+        # used -- (variation, raw_jobs, index, total) with a 1-based index -- so no second,
+        # incompatible progress system exists. `phase` is optional: Dice calls without it (its
+        # published fields and message stay byte-identical), LinkedIn also reports "started" so
+        # the dashboard shows the current variation while it is still searching. `raw_jobs` is
+        # each portal's already-filtered per-variation result, so "jobs collected" means the same
+        # thing for both portals and raw cards are never counted as jobs.
+        def make_progress_callback(portal_label: str):
+            totals = {"jobs": 0, "easy_apply": 0}
+
+            def progress_callback(variation, raw_jobs, index, total, phase: str = "completed"):
+                # Reporting must NEVER stop or fail the actual search.
+                try:
+                    query = getattr(variation, "query", "") or ""
+                    if phase == "started":
+                        message = f"{portal_label} search {index}/{total}: {query} searching."
+                        found_now = 0
+                    else:
+                        totals["jobs"] += len(raw_jobs)
+                        totals["easy_apply"] += sum(1 for item in raw_jobs if item.get("easy_apply"))
+                        found_now = len(raw_jobs)
+                        message = (
+                            f"{portal_label} search {index}/{total}: {query} "
+                            f"returned {found_now} jobs."
+                        )
+                    if batch is not None:
+                        _update_search_batch(
+                            db,
+                            batch,
+                            current_search_variation=query,
+                            jobs_collected=totals["jobs"],
+                            easy_apply_count=totals["easy_apply"],
+                            current_variation_index=index,
+                            total_variations=total,
+                            jobs_found_this_variation=found_now,
+                            latest_status_message=message,
+                        )
+                except Exception as exc:  # pragma: no cover - defensive
+                    logger.warning("%s progress reporting failed: %s", portal_label, exc)
+
+            return progress_callback
+
         for portal in portals:
             adapter = LinkedInAutomation(settings) if portal == "linkedin" else dice_adapter()
             with recorder.stage(
@@ -1396,12 +1447,22 @@ def _search_jobs_sync(
             ):
                 if portal == "linkedin":
                     if hasattr(adapter, "search_jobs_many"):
-                        portal_results = adapter.search_jobs_many(
-                            resume,
-                            selected_variations,
-                            search_limits,
-                            collect_card_diagnostics=False,
-                        )
+                        try:
+                            portal_results = adapter.search_jobs_many(
+                                resume,
+                                selected_variations,
+                                search_limits,
+                                collect_card_diagnostics=False,
+                                progress_callback=make_progress_callback("LinkedIn"),
+                            )
+                        except TypeError:
+                            # An adapter that predates progress reporting still works unchanged.
+                            portal_results = adapter.search_jobs_many(
+                                resume,
+                                selected_variations,
+                                search_limits,
+                                collect_card_diagnostics=False,
+                            )
                     else:
                         portal_results = []
                         for i, variation in enumerate(selected_variations):
@@ -1418,30 +1479,11 @@ def _search_jobs_sync(
                                 raw_jobs = adapter.search_jobs(resume, variation.location, variation.query, per_variation_limit)
                             portal_results.append((variation, raw_jobs))
                 else:
-                    dice_progress_totals = {"jobs": 0, "easy_apply": 0}
-
-                    def dice_progress_callback(variation, raw_jobs, index, total):
-                        dice_progress_totals["jobs"] += len(raw_jobs)
-                        dice_progress_totals["easy_apply"] += sum(1 for item in raw_jobs if item.get("easy_apply"))
-                        if batch is not None:
-                            _update_search_batch(
-                                db,
-                                batch,
-                                current_search_variation=variation.query,
-                                jobs_collected=dice_progress_totals["jobs"],
-                                easy_apply_count=dice_progress_totals["easy_apply"],
-                                latest_status_message=(
-                                    f"Dice search {index}/{total}: {variation.query} "
-                                    f"returned {len(raw_jobs)} jobs."
-                                ),
-                            )
-
-                    portal_results = []
                     portal_results = adapter.search_jobs_many(
                         resume,
                         selected_variations,
                         search_limits,
-                        progress_callback=dice_progress_callback,
+                        progress_callback=make_progress_callback("Dice"),
                         global_target=target_count,
                     )
             for variation, raw_jobs in portal_results:

@@ -345,34 +345,61 @@ class LinkedInAutomation:
         variations,
         limit_per_query: int | list[int],
         collect_card_diagnostics: bool = False,
+        progress_callback=None,
     ) -> list[tuple[object, list[dict]]]:
         # limit_per_query may be a single int (uniform) OR a per-variation list aligned with
         # `variations`, so the caller can give the top variations a larger candidate budget.
+        #
+        # progress_callback uses the SAME contract Dice already uses --
+        # (variation, raw_jobs, index, total) with a 1-based index -- so one shared callback in
+        # main.py publishes live batch progress for both portals. `phase="started"` is emitted
+        # before a variation runs so the dashboard shows "i/N <role>" while it is still
+        # searching; the completion call carries the jobs actually collected. Search behavior,
+        # ordering and the returned results are unaffected by reporting.
         variations = list(variations)
         limits = per_variation_limits(limit_per_query, len(variations))
         debug_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
         results: list[tuple[object, list[dict]]] = []
+        total = len(variations)
         with self._browser_context() as context:
             page = context.new_page()
             # Find Matches begins -- once for the whole multi-variation run.
             focus_browser_window(page, headless=self.settings.linkedin_headless, reason="linkedin_search")
             for index, variation in enumerate(variations):
-                results.append(
-                    (
-                        variation,
-                        self._search_jobs_on_page(
-                            context,
-                            page,
-                            resume,
-                            getattr(variation, "location", ""),
-                            getattr(variation, "query", None),
-                            limits[index],
-                            collect_card_diagnostics,
-                            debug_timestamp,
-                        ),
-                    )
+                self._report_progress(progress_callback, variation, [], index + 1, total, "started")
+                raw_jobs = self._search_jobs_on_page(
+                    context,
+                    page,
+                    resume,
+                    getattr(variation, "location", ""),
+                    getattr(variation, "query", None),
+                    limits[index],
+                    collect_card_diagnostics,
+                    debug_timestamp,
                 )
+                results.append((variation, raw_jobs))
+                self._report_progress(progress_callback, variation, raw_jobs, index + 1, total, "completed")
         return results
+
+    def _report_progress(self, progress_callback, variation, raw_jobs, index, total, phase) -> None:
+        """Publish batch progress. Reporting is strictly best-effort: any failure is logged and
+        swallowed so a progress/DB problem can never stop or fail the actual search."""
+        if not progress_callback:
+            return
+        try:
+            progress_callback(variation, raw_jobs, index, total, phase=phase)
+        except TypeError:
+            # A callback that predates the phase argument (the original 4-argument contract).
+            # Only the COMPLETION event is replayed to it: a legacy callback would read the
+            # "started" event as a finished variation that returned 0 jobs.
+            if phase != "completed":
+                return
+            try:
+                progress_callback(variation, raw_jobs, index, total)
+            except Exception as exc:
+                logger.warning("LinkedIn progress callback failed (%s %s/%s): %s", phase, index, total, exc)
+        except Exception as exc:
+            logger.warning("LinkedIn progress callback failed (%s %s/%s): %s", phase, index, total, exc)
 
     def _search_jobs_on_page(
         self,
