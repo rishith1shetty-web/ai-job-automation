@@ -19,6 +19,9 @@ from app.config import get_settings
 
 # Only databases whose name starts with this may be created or dropped here.
 TEST_DB_PREFIX = "ai_job_migtest_"
+# Same idea for provisioning-test ROLES: nothing without this prefix may be created or
+# dropped, so a test can never touch the real application role or the postgres superuser.
+TEST_ROLE_PREFIX = "ai_job_testrole_"
 # The database Alembic connects to in order to issue CREATE/DROP DATABASE (which cannot run
 # inside a transaction, and cannot run while connected to the target).
 MAINTENANCE_DB = "postgres"
@@ -110,3 +113,55 @@ def temporary_database():
         else:
             os.environ["ALEMBIC_DATABASE_URL"] = previous
         drop_database(name)
+
+
+def _guard_role(name: str) -> str:
+    if not name.startswith(TEST_ROLE_PREFIX):
+        raise UnsafeDatabaseName(
+            f"refusing to touch role {name!r}: provisioning tests may only create or drop "
+            f"roles named {TEST_ROLE_PREFIX}*"
+        )
+    return name
+
+
+def unique_role() -> str:
+    return f"{TEST_ROLE_PREFIX}{uuid.uuid4().hex[:10]}"
+
+
+def drop_role(name: str) -> None:
+    """Drop a disposable test role and anything it owns. Guarded by prefix."""
+    _guard_role(name)
+    engine = _maintenance_engine()
+    try:
+        with engine.connect() as connection:
+            connection.execute(text(
+                f'DROP OWNED BY "{name}" CASCADE'
+            )) if _role_exists(connection, name) else None
+            connection.execute(text(f'DROP ROLE IF EXISTS "{name}"'))
+    except Exception:
+        # A role that still owns objects in another database cannot be dropped from here;
+        # leaving a stray test role behind is harmless and never touches real data.
+        pass
+    finally:
+        engine.dispose()
+
+
+def _role_exists(connection, name: str) -> bool:
+    return connection.execute(
+        text("SELECT 1 FROM pg_roles WHERE rolname = :name"), {"name": name}
+    ).first() is not None
+
+
+def admin_password() -> str | None:
+    """The PostgreSQL administrator password for provisioning tests.
+
+    Taken from the developer's own configured DATABASE_URL (or PGPASSWORD). Never hardcoded,
+    and never written anywhere."""
+    explicit = os.environ.get("PGPASSWORD")
+    if explicit:
+        return explicit
+    return base_url().password
+
+
+def admin_user() -> str:
+    return base_url().username or "postgres"

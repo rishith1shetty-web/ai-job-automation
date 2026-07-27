@@ -604,12 +604,26 @@ class SettingsIntegrationTests(_PathTestCase):
         self.assertEqual(settings.work_dir, root / "work")
 
     def test_database_url_is_untouched_by_path_resolution(self) -> None:
-        default_url = Settings.model_fields["database_url"].default
-        with self.env(**{DATA_DIR_ENV: str(self.temp_root / "db")}):
+        """Redirecting the writable data directories must not rewrite the database URL.
+
+        The field carries no default any more -- a hardcoded URL in source meant a working
+        production password in Git -- so the value is supplied here explicitly and checked
+        for pass-through."""
+        configured = "postgresql+psycopg://someone:somepassword@localhost:5432/somedb"
+        with self.env(**{DATA_DIR_ENV: str(self.temp_root / "db"),
+                         "DATABASE_URL": configured}):
             reset_runtime_paths_cache()
             reset_settings_cache()
             settings = Settings()
-        self.assertEqual(settings.database_url, default_url)
+        self.assertEqual(settings.database_url, configured)
+
+    def test_database_url_has_no_hardcoded_default(self) -> None:
+        """A default value here would be a live credential committed to source control."""
+        from pydantic_core import PydanticUndefined
+
+        field = Settings.model_fields["database_url"]
+        self.assertIs(field.default, PydanticUndefined)
+        self.assertIsNotNone(field.default_factory)
 
     def test_get_settings_returns_a_cached_instance_with_directories_created(self) -> None:
         with self.env(**{DATA_DIR_ENV: str(self.temp_root / "cached-settings")}):

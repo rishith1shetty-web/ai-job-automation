@@ -5,6 +5,7 @@ from typing import ClassVar
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.db_credentials import resolve_database_url
 from app.paths import frontend_dist_dir, install_root, is_packaged, runtime_paths
 
 
@@ -33,7 +34,12 @@ def _debug_dir(name: str):
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+psycopg://postgres:5555@localhost:5432/linkedin_auto_apply"
+    # Resolved by app/db_credentials.py: DATABASE_URL -> secure credential store ->
+    # explicitly enabled development fallback -> actionable error. A lazy factory, so the
+    # secure store is read when Settings is instantiated rather than at import time.
+    # There is deliberately no default value here: a password in source control is exactly
+    # what this phase removes.
+    database_url: str = Field(default_factory=resolve_database_url)
     openai_api_key: str | None = None
     openai_match_model: str = "gpt-4o-mini"
     # Portal session state. Filenames and JSON format are unchanged -- these are written and

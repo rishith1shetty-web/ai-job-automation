@@ -45,7 +45,12 @@ URL_ENV = "ALEMBIC_DATABASE_URL"
 
 
 def database_url() -> str:
-    """Resolve the target URL. Never printed or logged -- it contains a password."""
+    """Resolve the target URL. Never printed or logged -- it contains a password.
+
+    Below the two explicit overrides this defers to exactly the same resolver the
+    application uses (``app.db_credentials.resolve_database_url``, reached through
+    ``get_settings()``), so a migration can never run against a different database than the
+    one the app will open."""
     override = (os.environ.get(URL_ENV) or "").strip()
     if override:
         return override
