@@ -8,19 +8,38 @@ $ErrorActionPreference = "Stop"
 $projectRoot = $PSScriptRoot
 $python = Join-Path $projectRoot ".venv\Scripts\python.exe"
 $frontend = Join-Path $projectRoot "frontend"
+# Playwright browsers are a bundled ASSET, not mutable runtime data, so they stay with the
+# installation rather than moving into AppData.
+$playwrightBrowsers = Join-Path $projectRoot "storage\ms-playwright"
+
+if (-not (Test-Path $python)) {
+    throw "Python virtual environment was not found at $python"
+}
+
+# Writable locations come from the single Python resolver (app/paths.py) so the launcher and
+# the application always agree, in development and once packaged. In a source checkout this
+# resolves to the historical project-relative "outputs" and "work" folders, so nothing about
+# the current developer workflow changes. If the resolver cannot be reached the launcher
+# falls back to those same folders rather than failing to start.
 $outputs = Join-Path $projectRoot "outputs"
 $work = Join-Path $projectRoot "work"
+try {
+    $resolved = & $python -m app.paths --ensure 2>$null | ConvertFrom-Json
+    if ($resolved -and $resolved.logs -and $resolved.work) {
+        $outputs = $resolved.logs
+        $work = $resolved.work
+    }
+}
+catch {
+    Write-Host "[startup] Could not resolve runtime paths; using project-relative folders."
+}
+
 $apiStdout = Join-Path $outputs "api.stdout.log"
 $apiStderr = Join-Path $outputs "api.stderr.log"
 $viteStdout = Join-Path $outputs "vite.stdout.log"
 $viteStderr = Join-Path $outputs "vite.stderr.log"
 $streamlitStdout = Join-Path $outputs "streamlit.stdout.log"
 $streamlitStderr = Join-Path $outputs "streamlit.stderr.log"
-$playwrightBrowsers = Join-Path $projectRoot "storage\ms-playwright"
-
-if (-not (Test-Path $python)) {
-    throw "Python virtual environment was not found at $python"
-}
 
 # Resolve Node now, while the full PATH is still available (it is minimised below so the
 # backend's Playwright uses the bundled browsers). Only the Vite dev server needs Node;
