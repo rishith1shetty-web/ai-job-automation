@@ -1,10 +1,11 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import ClassVar
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.paths import runtime_paths
+from app.paths import frontend_dist_dir, install_root, is_packaged, runtime_paths
 
 
 def _from_paths(attribute: str):
@@ -86,8 +87,42 @@ class Settings(BaseSettings):
     apply_top_debug_dir: Path = Field(default_factory=_debug_dir("apply_top_debug"))
     radio_writer_debug_dir: Path = Field(default_factory=_debug_dir("radio_writer_debug"))
     api_base_url: str = "http://localhost:8000"
+    # --- web interface --------------------------------------------------------------------
+    # Where "npm run build" writes the production React bundle. A BUNDLED ASSET, so it is
+    # anchored to the installation, never to the per-user data directory.
+    frontend_dist_dir: Path = Field(default_factory=frontend_dist_dir)
+    # None = decide automatically: a packaged build serves the built assets itself (no
+    # Node.js, no Vite), a source checkout leaves the UI to the Vite dev server. Set
+    # SERVE_FRONTEND=true/false to force either behaviour in either mode.
+    serve_frontend: bool | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    # Settings anchored to the INSTALLATION rather than the writable data root.
+    INSTALL_RELATIVE_FIELDS: ClassVar[frozenset[str]] = frozenset({"frontend_dist_dir"})
+
+    @model_validator(mode="after")
+    def _resolve_serve_frontend(self) -> "Settings":
+        """Turn the "decide automatically" default into a concrete answer once, at load time.
+
+        Resolved here rather than on each call so the running application cannot change its
+        mind halfway through if the environment is mutated underneath it."""
+        if self.serve_frontend is None:
+            object.__setattr__(self, "serve_frontend", is_packaged())
+        return self
+
+    def should_serve_frontend(self) -> bool:
+        """True when FastAPI itself serves the built React app.
+
+        Explicit configuration always wins; otherwise it follows the runtime mode, so a
+        packaged install is self-contained and a checkout keeps the Vite workflow."""
+        return bool(self.serve_frontend)
+
+    def frontend_index_file(self) -> Path:
+        return self.frontend_dist_dir / "index.html"
+
+    def frontend_build_present(self) -> bool:
+        return self.frontend_index_file().is_file()
 
     @model_validator(mode="after")
     def _absolutize_paths(self) -> "Settings":
@@ -100,11 +135,14 @@ class Settings(BaseSettings):
         anywhere other than the source folder -- and what silently writes into Program Files.
 
         The anchor is the resolved data root, which in a source checkout IS the project root,
-        so an existing relative value keeps resolving to exactly the same folder as before."""
-        anchor = runtime_paths().data_root
+        so an existing relative value keeps resolving to exactly the same folder as before.
+        Read-only bundled assets anchor to the installation instead -- they ship with the
+        program and must not be looked for in the user's data directory."""
+        data_anchor = runtime_paths().data_root
         for name in type(self).model_fields:
             value = getattr(self, name)
             if isinstance(value, Path) and not value.is_absolute():
+                anchor = install_root() if name in self.INSTALL_RELATIVE_FIELDS else data_anchor
                 object.__setattr__(self, name, (anchor / value).resolve())
         return self
 

@@ -70,6 +70,7 @@ from app.services.portals.dice_portal import DicePortalAdapter
 from app.services.reasoning import AIReasoningEngine
 from app.services.resume_intelligence import ResumeIntelligenceEngine
 from app.services.resume_parser import ResumeParser, apply_role_profile_compat
+from app.static_site import mount_frontend
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -2984,3 +2985,15 @@ def generalized_form_engine_latest() -> dict:
         "validation_results": read_json("validation_results.json"),
         "pipeline_integration": read_json("pipeline_integration.json"),
     }
+
+
+# --- Web interface -------------------------------------------------------------------------
+# Registered LAST, after every endpoint above, so the client-side-routing fallback can only
+# ever match a path that no API route claimed. In development this installs the "/api" prefix
+# rewrite only and leaves the UI to the Vite dev server; in a packaged build it also serves
+# frontend/dist, which is what removes the Node.js runtime requirement.
+frontend_mount = mount_frontend(
+    app,
+    dist_dir=settings.frontend_dist_dir,
+    enabled=settings.should_serve_frontend(),
+)

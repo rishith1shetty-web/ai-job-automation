@@ -67,6 +67,31 @@ def project_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+def install_root() -> Path:
+    """The directory holding the application's BUNDLED, READ-ONLY assets.
+
+    This is deliberately NOT a writable location and NOT the current working directory: the
+    app must find its own files no matter where it was launched from. A frozen build unpacks
+    to ``sys._MEIPASS`` (one-file) or sits next to the executable (one-folder); a source
+    checkout uses the project root."""
+    bundle = getattr(sys, "_MEIPASS", None)
+    if bundle:
+        return Path(bundle)
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return project_root()
+
+
+# Where ``npm run build`` writes the production React bundle, relative to the install root.
+FRONTEND_DIST_PARTS = ("frontend", "dist")
+
+
+def frontend_dist_dir() -> Path:
+    """The built React assets. A bundled asset, so it lives with the installation -- never
+    in the per-user data directory and never resolved from the working directory."""
+    return install_root().joinpath(*FRONTEND_DIST_PARTS)
+
+
 @dataclass(frozen=True)
 class RuntimePaths:
     """Every writable runtime location, fully resolved. Immutable and side-effect free."""
