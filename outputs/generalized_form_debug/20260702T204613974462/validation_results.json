@@ -1,8 +1,0 @@
-[
-  {
-    "field": "Mobile phone number",
-    "normalized_field": "Mobile Phone",
-    "success": true,
-    "validation_message": null
-  }
-]
