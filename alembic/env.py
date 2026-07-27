@@ -10,6 +10,7 @@ point Alembic at a disposable database instead of the user's real one.
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from logging.config import fileConfig
@@ -30,10 +31,18 @@ from app import models  # noqa: F401,E402  (registers every table on Base.metada
 
 config = context.config
 
-if config.config_file_name is not None:
-    # disable_existing_loggers=False is essential: the default (True) SILENCES every logger
-    # that already exists, so running a migration in-process would leave the application's
-    # own loggers permanently disabled.
+if config.config_file_name is not None and not logging.getLogger().handlers:
+    # Two guards, both learned the hard way:
+    #
+    # * disable_existing_loggers=False -- the default (True) SILENCES every logger that
+    #   already exists, so an in-process migration would permanently disable the
+    #   application's own loggers.
+    # * only configure at all when the root logger has NO handlers yet. fileConfig REPLACES
+    #   the root handlers, so running a migration from inside the packaged launcher used to
+    #   throw away the launcher's file handler -- the app then pointed the user at a log
+    #   file that contained nothing after the migration step, including the crash that
+    #   caused the dialog. When the host application has already configured logging, its
+    #   configuration wins; the standalone `alembic` CLI still gets alembic.ini's.
     fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Autogenerate compares against the ORM models.

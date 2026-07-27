@@ -17,3 +17,8 @@ __pycache__/
 frontend/dist/
 frontend/node_modules/
 frontend/*.tsbuildinfo
+
+# Windows packaging output (scripts/build_windows.ps1). ~920 MB, fully reproducible from
+# source, and build/ms-playwright holds a downloaded Chromium.
+build/
+dist/

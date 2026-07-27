@@ -338,13 +338,38 @@ def verify_schema(url: str | None = None, engine: Engine | None = None) -> Schem
     return report
 
 
+ALEMBIC_INI_ENV = "AI_JOB_AUTOMATION_ALEMBIC_INI"
+ALEMBIC_DIR_ENV = "AI_JOB_AUTOMATION_ALEMBIC_DIR"
+
+
+def alembic_locations() -> tuple[Path, Path]:
+    """(alembic.ini, alembic/) for this installation.
+
+    A packaged build unpacks both next to the executable rather than beside this module, so
+    the runtime hook records where they landed. Source checkouts fall back to the project
+    root, which is the historical behaviour."""
+    import os
+
+    from app.paths import install_root
+
+    configured_ini = (os.environ.get(ALEMBIC_INI_ENV) or "").strip()
+    configured_dir = (os.environ.get(ALEMBIC_DIR_ENV) or "").strip()
+    if configured_ini and configured_dir:
+        return Path(configured_ini), Path(configured_dir)
+
+    root = Path(__file__).resolve().parent.parent
+    if not (root / "alembic.ini").is_file():
+        root = install_root()
+    return root / "alembic.ini", root / "alembic"
+
+
 def alembic_config(url: str | None = None):
     """An Alembic Config pointing at this project. The URL is passed in memory only."""
     from alembic.config import Config
 
-    root = Path(__file__).resolve().parent.parent
-    config = Config(str(root / "alembic.ini"))
-    config.set_main_option("script_location", str(root / "alembic"))
+    ini_file, script_location = alembic_locations()
+    config = Config(str(ini_file))
+    config.set_main_option("script_location", str(script_location))
     if url:
         # ConfigParser interpolates "%"; a password containing one would otherwise raise.
         config.set_main_option("sqlalchemy.url", url.replace("%", "%%"))

@@ -158,11 +158,12 @@ def _env_path(name: str) -> Path | None:
     return Path(os.path.expandvars(os.path.expanduser(raw)))
 
 
-def _default_local_base() -> Path:
+def local_app_data_base() -> Path:
     """The machine-local application-data base for this OS, before the app name is added.
 
     Windows uses ``%LOCALAPPDATA%`` only. ``%APPDATA%`` is intentionally never consulted --
-    see the module docstring."""
+    see the module docstring. Public because the launcher also needs it to locate (and then
+    prove it is NOT using) the developer's global Playwright browser cache."""
     home = Path.home()
     if os.name == "nt":
         return _env_path("LOCALAPPDATA") or (home / "AppData" / "Local")
@@ -215,7 +216,7 @@ def resolve_runtime_paths() -> RuntimePaths:
         return RuntimePaths(mode=MODE_OVERRIDE, **_local_layout(override_root))
 
     if is_packaged():
-        data_root = _env_path(LOCAL_DIR_ENV) or (_default_local_base() / APP_NAME)
+        data_root = _env_path(LOCAL_DIR_ENV) or (local_app_data_base() / APP_NAME)
         return RuntimePaths(mode=MODE_PACKAGED, **_local_layout(data_root))
 
     root = _env_path(LOCAL_DIR_ENV) or project_root()

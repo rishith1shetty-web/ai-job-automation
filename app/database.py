@@ -1,22 +1,137 @@
+"""Database engine, session factory and the startup compatibility path.
+
+The engine is built LAZILY. It used to be created at import time, which meant that on a
+packaged computer with no stored credential yet, merely importing anything under ``app.``
+raised before the launcher could show a readable message. Now ``app.database`` imports
+cleanly with no credential at all, and the engine appears on first use.
+
+``engine`` and ``SessionLocal`` are still importable names and still behave exactly as
+before -- they are served by a module-level ``__getattr__`` (PEP 562). Assigning to them
+(``app.database.engine = other``) keeps working too, which is how the migration tests point
+the startup path at a disposable database.
+"""
+
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import get_settings
+from app.db_credentials import DatabaseCredentialsUnavailable, redact_url
 
 
 class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(get_settings().database_url, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+class DatabaseError(RuntimeError):
+    """Base class for the typed startup failures the launcher distinguishes."""
+
+
+class DatabaseCredentialsMissing(DatabaseError):
+    """No credential could be resolved at all (see app/db_credentials.py)."""
+
+
+class DatabaseUnavailable(DatabaseError):
+    """The server could not be reached: not installed, stopped, or wrong host/port."""
+
+
+class DatabaseAuthenticationFailed(DatabaseError):
+    """The server answered, but rejected the credential."""
+
+
+_engine = None
+_session_factory = None
+
+
+def _resolved_url() -> str:
+    try:
+        return get_settings().database_url
+    except DatabaseCredentialsUnavailable as error:
+        raise DatabaseCredentialsMissing(str(error)) from error
+
+
+def get_engine():
+    """The process-wide Engine, created on first use.
+
+    A test may override the module attribute directly; that assignment wins, so the existing
+    ``app.database.engine = ...`` pattern keeps working."""
+    override = globals().get("engine")
+    if override is not None:
+        return override
+    global _engine
+    if _engine is None:
+        _engine = create_engine(_resolved_url(), pool_pre_ping=True)
+    return _engine
+
+
+def get_session_factory():
+    override = globals().get("SessionLocal")
+    if override is not None:
+        return override
+    global _session_factory
+    if _session_factory is None:
+        _session_factory = sessionmaker(
+            bind=get_engine(), autoflush=False, autocommit=False
+        )
+    return _session_factory
+
+
+def reset_database_state() -> None:
+    """Drop the cached engine/session factory. For tests and for a credential change."""
+    global _engine, _session_factory
+    if _engine is not None:
+        _engine.dispose()
+    _engine = None
+    _session_factory = None
+    globals().pop("engine", None)
+    globals().pop("SessionLocal", None)
+
+
+def __getattr__(name: str):
+    """Serve ``engine`` and ``SessionLocal`` lazily (PEP 562)."""
+    if name == "engine":
+        return get_engine()
+    if name == "SessionLocal":
+        return get_session_factory()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def check_connection() -> None:
+    """Open one connection and close it, raising a TYPED error the launcher can act on.
+
+    The distinction matters: "PostgreSQL is not running" and "the password is wrong" need
+    completely different instructions, and neither message may contain the password."""
+    try:
+        engine_ = get_engine()
+    except DatabaseCredentialsMissing:
+        raise
+    try:
+        with engine_.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except OperationalError as error:
+        detail = str(error.orig) if error.orig is not None else str(error)
+        safe = redact_url(str(engine_.url))
+        lowered = detail.lower()
+        if "password" in lowered or "authentication" in lowered or "role" in lowered:
+            raise DatabaseAuthenticationFailed(
+                f"PostgreSQL rejected the stored credential for {safe}."
+            ) from None
+        raise DatabaseUnavailable(
+            f"Could not reach the PostgreSQL server for {safe}. "
+            "Check that the PostgreSQL service is running."
+        ) from None
+    except Exception as error:
+        raise DatabaseUnavailable(
+            f"Could not open the database: {type(error).__name__}."
+        ) from None
 
 
 def init_db() -> None:
     from app import models  # noqa: F401
 
+    engine = get_engine()
     Base.metadata.create_all(bind=engine)
     migrations = [
         "ALTER TYPE applicationstatus ADD VALUE IF NOT EXISTS 'NEEDS_REVIEW'",
@@ -308,13 +423,13 @@ def init_db() -> None:
     from app.services.application_outcome import backfill_dry_run_ready_records
     from app.services.resume_identity import backfill_resume_fingerprints
 
-    with SessionLocal() as session:
+    with get_session_factory()() as session:
         backfill_resume_fingerprints(session)
         backfill_dry_run_ready_records(session)
 
 
 def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
+    db = get_session_factory()()
     try:
         yield db
     finally:
