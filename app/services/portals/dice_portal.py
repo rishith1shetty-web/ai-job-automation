@@ -6,6 +6,7 @@ import re
 import time
 import traceback
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus, urljoin
@@ -104,6 +105,17 @@ class DicePortalAdapter:
     FRESH_PASS_TIMEOUT_MS = 45000
     # Dice's confirmed last-24h recency facet value ("Today" radio == last 24 hours).
     DICE_POSTED_WITHIN_24H = "ONE"
+    # The facet's "any date" value, used to explicitly clear a persisted Today selection before
+    # the fallback pass counts results.
+    DICE_POSTED_ANY = "NO_PREFERENCE"
+    # "No results found" is Dice's END-OF-RESULTS page, not an access problem. It must never be
+    # treated like a login wall or captcha: doing so discarded every job already collected on the
+    # earlier pages and skipped the relevance fallback entirely.
+    NO_RESULTS_BLOCKER = "no_results_returned_by_dice"
+    # Bounded same-role query aliases, tried ONLY when both passes returned zero eligible jobs for
+    # the generated title. Sourced from the variation's own registered synonyms -- never invented,
+    # never an unrelated role.
+    MAX_QUERY_ALIASES = 2
     # Age buckets for the per-variation freshness diagnostics (hours, upper-exclusive).
     FRESHNESS_BUCKETS = (
         ("0-1h", 1.0),
@@ -400,6 +412,8 @@ class DicePortalAdapter:
                     "query": variation.query,
                     "location": variation.location,
                     "jobs_found": len(raw_jobs),
+                    # Which pass actually supplied this variation's jobs.
+                    **self._search_pass_breakdown(),
                     "job_urls": [job.get("job_url") for job in raw_jobs],
                 }
                 search_events.append(event)
@@ -491,7 +505,12 @@ class DicePortalAdapter:
             "cards_inspected_fresh_pass": fresh_cards,
             "cards_inspected_fallback_pass": 0,
             "fallback_pass_ran": False,
+            "fresh_cards_collected": len(fresh_jobs),
             "fresh_eligible_before_fallback": 0,
+            "fallback_cards_collected": 0,
+            "fallback_eligible": 0,
+            "fallback_posted_filter_cleared": False,
+            "alias_queries_tried": [],
             "jobs_within_24h": 0,
             "duplicates_removed": 0,
             "easy_apply_retained": 0,
@@ -500,7 +519,11 @@ class DicePortalAdapter:
             "extraction_path": None,
         }
 
-        # A login/challenge blocker on the fresh pass is terminal (same as the old single pass).
+        fresh_eligible = [job for job in fresh_jobs if job.get("easy_apply")]
+        diag["fresh_eligible_before_fallback"] = len(fresh_eligible)
+
+        # A login/challenge blocker is session-fatal, so the fallback cannot help -- but anything
+        # the fresh pass already extracted is real and is kept rather than thrown away.
         if fresh_blocker:
             self._write_search_failure(
                 debug_dir,
@@ -508,21 +531,41 @@ class DicePortalAdapter:
                 fresh_blocker,
                 {"url": self._safe_page_url(page), "query": variation.query, "location": variation.location},
             )
+            kept = self._filter_easy_apply_only(fresh_jobs, debug_dir, search_index)[:return_target]
+            diag["extraction_path"] = "dom_partial_blocked" if kept else "none"
+            diag["easy_apply_retained"] = len(kept)
+            diag["final_jobs_accepted"] = len(kept)
             self._write_dice_search_diagnostics(debug_dir, search_index, diag)
-            return []
+            return kept
 
-        fresh_eligible = [job for job in fresh_jobs if job.get("easy_apply")]
-        diag["fresh_eligible_before_fallback"] = len(fresh_eligible)
-
-        # --- Pass B: relevance fallback (page 1), only when the fresh pass is short. ---
+        # --- Pass B: relevance fallback (page 1), whenever the fresh pass is short. ---
+        # This now also covers a fresh pass that ended on Dice's "No results found" page, which
+        # previously returned zero for the whole variation.
         fallback_jobs: list[dict] = []
         if len(fresh_eligible) < return_target:
             diag["fallback_pass_ran"] = True
-            fallback_jobs, _fallback_blocker, fallback_cards = self._run_relevance_pass(
+            fallback_jobs, _fallback_blocker, fallback_cards, filter_cleared = self._run_relevance_pass(
                 page, variation, limit, scan_limit, debug_dir, search_index
             )
             diag["cards_inspected_fallback_pass"] = fallback_cards
+            diag["fallback_cards_collected"] = len(fallback_jobs)
+            diag["fallback_eligible"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
+            diag["fallback_posted_filter_cleared"] = filter_cleared
             diag["final_browser_url"] = self._safe_page_url(page)
+
+        # --- Bounded same-role alias retry: only when the generated title produced nothing at
+        # all across both passes. Uses the variation's own registered synonyms (never a new or
+        # unrelated role) and stops at the first alias that returns anything. ---
+        if not fresh_eligible and not any(job.get("easy_apply") for job in fallback_jobs):
+            alias_jobs, aliases_tried = self._run_alias_passes(
+                page, variation, limit, scan_limit, debug_dir, search_index
+            )
+            diag["alias_queries_tried"] = aliases_tried
+            if alias_jobs:
+                fallback_jobs = list(fallback_jobs) + alias_jobs
+                diag["fallback_cards_collected"] = len(fallback_jobs)
+                diag["fallback_eligible"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
+                diag["final_browser_url"] = self._safe_page_url(page)
 
         # --- Merge on canonical Dice identity; the fresh copy owns any duplicate. ---
         merged, duplicates_removed = self._merge_by_identity(fresh_jobs, fallback_jobs)
@@ -641,6 +684,13 @@ class DicePortalAdapter:
             if page_blocker == "load_failed":
                 stop_reason = "load_failed"
                 break
+            # "No results found" means this query has no MORE last-24h jobs -- the normal end of
+            # the fresh result set, and on page 1 simply that nothing was posted today. It is not
+            # an access problem, so it must not be reported as a blocker: the jobs already
+            # collected on earlier pages stay, and the relevance fallback still runs.
+            if page_blocker == self.NO_RESULTS_BLOCKER:
+                stop_reason = "no_more_fresh_results"
+                break
             if page_blocker:
                 blocker = page_blocker
                 stop_reason = "blocker"
@@ -662,6 +712,12 @@ class DicePortalAdapter:
                 break
         return fresh, blocker, cards_inspected, stop_reason
 
+    def _posted_filter_active(self, page) -> bool:
+        """True when the page Dice actually rendered still carries a posted-date facet. Dice
+        rewrites the URL after navigation (adding latitude/longitude/countryCode), so the
+        effective URL -- not the one we requested -- is what decides whether Today is still on."""
+        return "filters.posteddate=" in self._safe_page_url(page).lower()
+
     def _run_relevance_pass(
         self,
         page,
@@ -670,16 +726,76 @@ class DicePortalAdapter:
         scan_limit: int,
         debug_dir: Path | None,
         search_index: int,
-    ) -> tuple[list[dict], str | None, int]:
-        """Pass B: the existing relevance search (page 1), with the original early-stop behavior
-        (stop_at_target=True). Returns (jobs, blocker, cards_inspected)."""
-        url = self.search_url(variation)
+        query_override: str | None = None,
+        suffix: str = "loaded",
+    ) -> tuple[list[dict], str | None, int, bool]:
+        """Pass B: the relevance search (page 1, NO posted-date filter), with the original
+        early-stop behavior (stop_at_target=True).
+
+        The fallback must count OLDER jobs, so before extracting it verifies that the page Dice
+        rendered is genuinely unfiltered; if a Today selection survived the navigation it is
+        cleared explicitly with the facet's own "any date" value and the page reloaded once.
+        Returns (jobs, blocker, cards_inspected, posted_filter_cleared)."""
+        target = variation if query_override is None else replace(variation, query=query_override)
+        url = self.search_url(target)
         jobs, blocker, page_diag = self._load_and_extract_page(
-            page, url, variation, limit, scan_limit, stop_at_target=True,
-            debug_dir=debug_dir, search_index=search_index, suffix="loaded",
+            page, url, target, limit, scan_limit, stop_at_target=True,
+            debug_dir=debug_dir, search_index=search_index, suffix=suffix,
         )
+        filter_cleared = False
+        if blocker != "load_failed" and self._posted_filter_active(page):
+            # A persisted Today selection would silently make the fallback a second fresh pass.
+            filter_cleared = True
+            cleared_url = f"{url}&filters.postedDate={self.DICE_POSTED_ANY}"
+            jobs, blocker, page_diag = self._load_and_extract_page(
+                page, cleared_url, target, limit, scan_limit, stop_at_target=True,
+                debug_dir=debug_dir, search_index=search_index, suffix=f"{suffix}_cleared",
+            )
         cards_inspected = int(page_diag.get("cards_scanned_by_extractor", len(jobs)) or 0)
-        return jobs, blocker, cards_inspected
+        return jobs, blocker, cards_inspected, filter_cleared
+
+    def _alias_queries(self, variation: SearchVariation) -> list[str]:
+        """At most MAX_QUERY_ALIASES registered synonyms for the SAME role, from the variation
+        the search plan already built. Never invents a title and never adds another role."""
+        seen = {(variation.query or "").strip().lower()}
+        aliases: list[str] = []
+        for synonym in getattr(variation, "synonyms", ()) or ():
+            candidate = str(synonym or "").strip()
+            key = candidate.lower()
+            if not candidate or key in seen:
+                continue
+            seen.add(key)
+            aliases.append(candidate)
+            if len(aliases) >= self.MAX_QUERY_ALIASES:
+                break
+        return aliases
+
+    def _run_alias_passes(
+        self,
+        page,
+        variation: SearchVariation,
+        limit: int,
+        scan_limit: int,
+        debug_dir: Path | None,
+        search_index: int,
+    ) -> tuple[list[dict], list[str]]:
+        """Last resort for a generated title Dice knows nothing about: retry the unfiltered
+        relevance search with the role's own registered synonyms. Bounded to MAX_QUERY_ALIASES
+        and stops at the first alias that returns anything."""
+        collected: list[dict] = []
+        tried: list[str] = []
+        for alias in self._alias_queries(variation):
+            tried.append(alias)
+            jobs, blocker, _cards, _cleared = self._run_relevance_pass(
+                page, variation, limit, scan_limit, debug_dir, search_index,
+                query_override=alias, suffix=f"alias_{len(tried)}",
+            )
+            if blocker in {"load_failed", self.NO_RESULTS_BLOCKER}:
+                continue
+            if any(job.get("easy_apply") for job in jobs):
+                collected = jobs
+                break
+        return collected, tried
 
     def _identity_key(self, job: dict) -> str:
         """The canonical Dice identity used ONLY to merge the two passes: the corroborated
@@ -3720,9 +3836,24 @@ class DicePortalAdapter:
     ) -> None:
         """Persist the per-search pipeline diagnostics. Counts/URLs/title only -- no cookies,
         credentials or session data."""
+        # Kept for the per-variation progress event so a Dice run reports its fresh and fallback
+        # contributions separately. Set on every return path of search_jobs.
+        self._last_search_diagnostics = dict(diagnostics)
         if debug_dir is None:
             return
         self._write_debug(debug_dir, f"search_{search_index}_diagnostics.json", diagnostics)
+
+    def _search_pass_breakdown(self) -> dict:
+        """Fresh vs fallback contribution for the most recent search, for progress reporting."""
+        diag = getattr(self, "_last_search_diagnostics", None) or {}
+        return {
+            "fresh_eligible": diag.get("fresh_eligible_before_fallback", 0),
+            "fresh_pass_stop_reason": diag.get("fresh_pass_stop_reason"),
+            "fallback_pass_ran": diag.get("fallback_pass_ran", False),
+            "fallback_eligible": diag.get("fallback_eligible", 0),
+            "fallback_posted_filter_cleared": diag.get("fallback_posted_filter_cleared", False),
+            "alias_queries_tried": diag.get("alias_queries_tried", []),
+        }
 
     def _absolute_dice_url(self, value: str) -> str:
         value = (value or "").strip()
@@ -3762,7 +3893,7 @@ class DicePortalAdapter:
         if any(marker in text for marker in ["captcha", "verify you are human", "access denied", "unusual traffic"]):
             return "captcha_or_blocked"
         if any(marker in text for marker in ["no jobs found", "0 jobs", "no results found"]):
-            return "no_results_returned_by_dice"
+            return self.NO_RESULTS_BLOCKER
         return None
 
     def _first_line(self, text: str) -> str | None:
