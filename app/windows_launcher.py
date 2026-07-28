@@ -555,10 +555,21 @@ def main(argv: list[str] | None = None) -> int:
     check_only = "--check" in argv
     selftest_only = "--selftest" in argv
     browser_check_only = "--browser-check" in argv
-    # Verification modes are driven by build scripts, so they must never block on a dialog.
-    set_interactive(not (check_only or selftest_only or browser_check_only))
+    installer_mode = "--installer" in argv
+    # Verification and installer modes are driven by scripts, so they must never block on a
+    # dialog: a modal message box behind an installer wizard would hang the installation.
+    set_interactive(not (check_only or selftest_only or browser_check_only or installer_mode))
 
     log_file = configure_logging()
+
+    # The installer calls into the PACKAGED application rather than a development virtual
+    # environment. Handled first, and before the single-instance lock: these actions run
+    # while no server is running, and one of them may run twice during an installation.
+    if installer_mode:
+        from app.installer_bridge import main as installer_main
+
+        index = argv.index("--installer")
+        return installer_main(argv[index + 1:])
 
     if selftest_only:
         logger.info("Running the packaging self-test.")

@@ -50,6 +50,12 @@ datas.append((str(frontend_dist), "frontend/dist"))
 datas.append((str(PROJECT_ROOT / "alembic.ini"), "."))
 datas.append((str(PROJECT_ROOT / "alembic"), "alembic"))
 
+# The pinned prerequisite metadata (version, filename, checksum). The installer support
+# actions read it at runtime to decide what to install, so it ships WITH the application --
+# an installed computer has no source checkout to read it from. The prerequisite installer
+# ITSELF is not bundled here; the setup program embeds that separately.
+datas.append((str(PROJECT_ROOT / "installer" / "prerequisites.json"), "installer"))
+
 # Playwright's own package data: its driver (node + the driver JS) and browser registry.
 datas += collect_data_files("playwright")
 

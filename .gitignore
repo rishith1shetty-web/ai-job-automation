@@ -22,3 +22,11 @@ frontend/*.tsbuildinfo
 # source, and build/ms-playwright holds a downloaded Chromium.
 build/
 dist/
+
+# Installer output and the downloaded prerequisite. Both are large, both are reproducible:
+# release/ from scripts/build_installer.ps1, the prerequisite from its pinned URL and
+# checksum in installer/prerequisites.json (which IS tracked).
+release/
+installer/prerequisites/
+
+.vscode/
