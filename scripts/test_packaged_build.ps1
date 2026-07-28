@@ -212,11 +212,6 @@ try {
     }
     Test-Claim "listening on loopback only" ($loopbackOnly -and $listeners)
 
-    # -------------------------------------------------------------- single instance
-    $second = Start-Process -FilePath $exe -ArgumentList "--check", "--no-browser" `
-        -WorkingDirectory $workingDirectory -PassThru -Wait -WindowStyle Hidden
-    Test-Claim "second instance is refused" ($second.ExitCode -eq 3) "(exit $($second.ExitCode))"
-
     # -------------------------------------------------------------- bundled Chromium
     # A blank page in a fresh, empty browser context. No portal is opened, no saved session is
     # loaded, and no application is submitted. PLAYWRIGHT_BROWSERS_PATH is cleared for the
@@ -251,17 +246,72 @@ try {
 
     # -------------------------------------------------------------- writable paths
     Test-Claim "logs are written to LocalAppData" (Test-Path (Join-Path $localAppData "logs\launcher.log"))
-    Test-Claim "instance lock is under LocalAppData" (Test-Path (Join-Path $localAppData "work\launcher.lock"))
+
+    # -------------------------------------------------------------- runtime state
+    # Published so a second launch and the installer can find the running instance without
+    # assuming port 8000, and so neither has to guess which process to talk to.
+    $statePath = Join-Path $localAppData "work\runtime.json"
+    Test-Claim "runtime state is published" (Test-Path $statePath)
+    if (Test-Path $statePath) {
+        $state = Get-Content $statePath -Raw | ConvertFrom-Json
+        Test-Claim "runtime state records the selected port" ($state.port -eq $Port) "($($state.port))"
+        Test-Claim "runtime state records readiness" ($state.ready -eq $true)
+        Test-Claim "runtime state records the running process" ($state.pid -gt 0)
+        $raw = (Get-Content $statePath -Raw).ToLower()
+        Test-Claim "runtime state contains no secret" (
+            (-not $raw.Contains("password")) -and (-not $raw.Contains("token")) -and
+            (-not $raw.Contains("postgresql://")) -and (-not $raw.Contains("cookie")))
+    }
+    $tokenPath = Join-Path $localAppData "work\shutdown.token"
+    Test-Claim "shutdown token is stored separately from the state" (Test-Path $tokenPath)
+    if (Test-Path $tokenPath) {
+        $acl = & icacls $tokenPath 2>&1 | Out-String
+        Test-Claim "shutdown token is not readable by other standard users" (
+            (-not ($acl -match "Everyone")) -and (-not ($acl -match "BUILTIN\\Users")))
+    }
+
+    # -------------------------------------------------------------- second instance
+    # A second launch must find the running one and NOT start a competing server.
+    $listenersBefore = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
+        Where-Object { $_.LocalAddress -eq "127.0.0.1" -and $_.LocalPort -ge $Port -and $_.LocalPort -lt ($Port + 40) })
+    $second = Start-Process -FilePath $exe -ArgumentList "--check", "--no-browser" `
+        -WorkingDirectory $workingDirectory -PassThru -Wait -WindowStyle Hidden
+    Test-Claim "second instance is refused" ($second.ExitCode -eq 3) "(exit $($second.ExitCode))"
+    $listenersAfter = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
+        Where-Object { $_.LocalAddress -eq "127.0.0.1" -and $_.LocalPort -ge $Port -and $_.LocalPort -lt ($Port + 40) })
+    Test-Claim "second instance started no additional server" ($listenersAfter.Count -eq $listenersBefore.Count) `
+        "($($listenersBefore.Count) -> $($listenersAfter.Count))"
 }
 finally {
     Write-Host ""
-    Write-Host "[test] Stopping the application."
+    Write-Host "[test] Requesting graceful shutdown (the same path the installer uses)."
+    # "--shutdown" reads the published runtime state, sends a token-authorised request to the
+    # exact recorded process on loopback, and waits for it to exit. Nothing is killed.
+    $gracefulExit = $null
     if (-not $process.HasExited) {
-        $process.CloseMainWindow() | Out-Null
-        Start-Sleep -Seconds 2
-        if (-not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+        $stop = Start-Process -FilePath $exe -ArgumentList "--shutdown" `
+            -WorkingDirectory $workingDirectory -PassThru -Wait -WindowStyle Hidden
+        $gracefulExit = $stop.ExitCode
+        $waited = 0
+        while ((-not $process.HasExited) -and ($waited -lt 30000)) {
+            Start-Sleep -Milliseconds 500
+            $waited += 500
+        }
+    }
+    $graceful = ($gracefulExit -eq 0) -and $process.HasExited
+    Test-Claim "graceful shutdown stops the application" $graceful "(exit $gracefulExit)"
+
+    if (-not $process.HasExited) {
+        # Only if the application refused to stop; recorded as a failed check above.
+        Write-Host "[test] Graceful shutdown did not work; stopping the test process."
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
     }
     Start-Sleep -Seconds 2
+
+    Test-Claim "runtime state is removed on shutdown" `
+        (-not (Test-Path (Join-Path $localAppData "work\runtime.json")))
+    Test-Claim "shutdown token is removed on shutdown" `
+        (-not (Test-Path (Join-Path $localAppData "work\shutdown.token")))
 }
 
 # ------------------------------------------------------------------ post-shutdown

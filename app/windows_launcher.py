@@ -3,18 +3,25 @@
 Replaces start_app.ps1 for an installed computer. ``start_app.ps1`` remains the DEVELOPMENT
 launcher and is unchanged.
 
-What it does, in order:
+Startup, in order -- each step exists because the one before it can fail in a way the user
+needs described differently:
 
-1. take a single-instance lock -- a second double-click focuses the running app instead of
-   starting a competing server on another port;
-2. point Playwright at the BUNDLED Chromium, never the developer's global cache;
-3. resolve the database credential (secure store, or DATABASE_URL in development);
-4. classify what is wrong when that fails -- PostgreSQL missing, stopped, wrong password,
-   no stored credential -- because each needs different instructions;
-5. run ``alembic upgrade head``;
-6. start FastAPI on 127.0.0.1, on 8000 or the next free port;
-7. wait for the web interface to actually answer, then open the browser;
-8. shut the server down cleanly and release the lock.
+1.  start logging, BEFORE any import that can fail (:mod:`app.bootstrap_log`);
+2.  take the single-instance mutex; if another copy is already running, open ITS window
+    instead of starting a second server;
+3.  point Playwright at the bundled Chromium and keep Chromium's own log out of the
+    installation;
+4.  find PostgreSQL, and start its service if it is installed but stopped;
+5.  resolve the credential and open one connection;
+6.  ``alembic upgrade head``, then verify the resulting schema;
+7.  choose a loopback port, publish the runtime state, start FastAPI;
+8.  wait for the API *and* the web interface to answer, then open the browser once;
+9.  on shutdown: stop accepting work, close the browsers this application started, stop the
+    server, and remove the runtime state and token.
+
+**This module imports almost nothing at the top.** It is the first code to run in a windowed
+build with no console, so an ``ImportError`` in SQLAlchemy or SciPy here would be invisible.
+Everything heavy is imported inside the function that needs it, after logging exists.
 
 Everything writable goes to ``%LOCALAPPDATA%\\AIJobAutomation`` (app/paths.py). The packaged
 program folder is only ever read. No message, log line or dialog contains a password.
@@ -32,8 +39,6 @@ import webbrowser
 from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
-
-from app.db_credentials import redact_secrets, redact_url
 
 logger = logging.getLogger(__name__)
 
@@ -62,16 +67,28 @@ BLANK_PAGE = "about:blank"
 # engine does not open a connection.
 SELFTEST_PLACEHOLDER_URL = "postgresql+psycopg://selftest@127.0.0.1:1/selftest"
 
+# What a served React shell always contains. Readiness requires this, not just /health:
+# a backend that answers while the web interface 503s would otherwise open a broken page.
+SHELL_MARKER = '<div id="root">'
+BROWSER_ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
 
 class ExitCode(IntEnum):
+    """Stable process exit codes. Scripts and the installer branch on these."""
+
     SUCCESS = 0
     ALREADY_RUNNING = 3
     POSTGRES_NOT_FOUND = 10
     PORT_OCCUPIED_BY_OTHER = 11
+    MIGRATION_FAILED = 14
+    SCHEMA_VERIFICATION_FAILED = 15
     CREDENTIALS_MISSING = 17
     AUTHENTICATION_FAILED = 18
-    MIGRATION_FAILED = 14
     STARTUP_FAILED = 19
+    SERVICE_START_FAILED = 24
+    FRONTEND_MISSING = 25
+    BROWSER_MISSING = 26
+    SHUTDOWN_FAILED = 27
 
 
 @dataclass
@@ -84,6 +101,15 @@ class StartupProblem:
 
     def as_dialog(self) -> str:
         return f"{self.title}\n\n{self.message}"
+
+
+def app_version() -> str:
+    try:
+        from app.version import VERSION
+
+        return VERSION
+    except Exception:  # pragma: no cover - defensive
+        return ""
 
 
 # --------------------------------------------------------------------------------------
@@ -182,7 +208,7 @@ def browser_check() -> StartupProblem | None:
     directory = configure_playwright_browsers()
     if directory is None:
         return StartupProblem(
-            ExitCode.STARTUP_FAILED,
+            ExitCode.BROWSER_MISSING,
             "No bundled browser",
             "This installation contains no bundled Chromium, so automation cannot run.\n\n"
             f"Expected it in: {install_root() / BUNDLED_BROWSERS_DIRNAME}",
@@ -206,7 +232,7 @@ def browser_check() -> StartupProblem | None:
             print(f"BROWSER global-cache-used={from_cache}")
             if not inside or from_cache:
                 return StartupProblem(
-                    ExitCode.STARTUP_FAILED,
+                    ExitCode.BROWSER_MISSING,
                     "Wrong browser selected",
                     "Playwright resolved a Chromium outside this installation:\n"
                     f"{resolved}\n\nThe packaged build must use its own bundled browser.",
@@ -230,72 +256,13 @@ def browser_check() -> StartupProblem | None:
                 browser.close()
     except Exception as error:
         return StartupProblem(
-            ExitCode.STARTUP_FAILED,
+            ExitCode.BROWSER_MISSING,
             "Browser did not start",
             f"{type(error).__name__}: {error}\n\n{traceback.format_exc()}",
         )
 
     print("BROWSER OK")
     return None
-
-
-# --------------------------------------------------------------------------------------
-# Single instance
-# --------------------------------------------------------------------------------------
-
-class SingleInstanceLock:
-    """An exclusive lock file under the per-user data directory.
-
-    Uses ``O_EXCL`` creation plus a liveness check, so a crashed previous run cannot lock
-    the user out permanently."""
-
-    def __init__(self, path: Path) -> None:
-        self.path = path
-        self.acquired = False
-
-    def _holder_is_alive(self) -> bool:
-        try:
-            recorded = int(self.path.read_text(encoding="utf-8").strip().split()[0])
-        except (OSError, ValueError, IndexError):
-            return False
-        if recorded == os.getpid():
-            return False
-        try:
-            import ctypes
-
-            handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, recorded)
-            if handle:
-                ctypes.windll.kernel32.CloseHandle(handle)
-                return True
-            return False
-        except Exception:
-            # Cannot tell; assume stale rather than blocking the user forever.
-            return False
-
-    def acquire(self) -> bool:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        if self.path.exists() and not self._holder_is_alive():
-            logger.info("Removing a stale instance lock from a previous run.")
-            self.path.unlink(missing_ok=True)
-        try:
-            descriptor = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        except FileExistsError:
-            return False
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            handle.write(f"{os.getpid()}\n")
-        self.acquired = True
-        return True
-
-    def release(self) -> None:
-        if self.acquired:
-            self.path.unlink(missing_ok=True)
-            self.acquired = False
-
-    def __enter__(self) -> "SingleInstanceLock":
-        return self
-
-    def __exit__(self, *_) -> None:
-        self.release()
 
 
 # --------------------------------------------------------------------------------------
@@ -324,35 +291,47 @@ def find_available_port(preferred: int = PREFERRED_PORT, host: str = HOST,
     )
 
 
+def describe_port_conflict(port: int, host: str = HOST) -> str:
+    """Who is holding the preferred port -- another copy of this application, or something
+    else entirely? The two need different advice, so they are distinguished rather than
+    lumped together as "port in use"."""
+    from app.runtime_state import port_owner_is_this_application
+
+    if port_owner_is_this_application(port, host):
+        return "another copy of this application"
+    return "another program"
+
+
 # --------------------------------------------------------------------------------------
 # Logging
 # --------------------------------------------------------------------------------------
 
-def configure_logging() -> Path:
-    """Log to %LOCALAPPDATA%\\AIJobAutomation\\logs. Never into the program folder."""
-    from app.paths import runtime_paths
+def configure_logging(stream: bool = True) -> Path | None:
+    """Start the bootstrap logger. Safe to call before anything risky is imported."""
+    from app import bootstrap_log
 
-    paths = runtime_paths().ensure()
-    log_file = paths.logs / LOG_FILENAME
-    handlers: list[logging.Handler] = [logging.FileHandler(log_file, encoding="utf-8")]
-    if sys.stdout is not None:
-        handlers.append(logging.StreamHandler(sys.stdout))
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
-        handlers=handlers,
-        force=True,
-    )
+    log_file = bootstrap_log.configure(stream=stream)
+    bootstrap_log.install_excepthook()
     return log_file
+
+
+def log_file_reference() -> str:
+    """A log path to show a user -- only when the file genuinely exists.
+
+    A dialog that names a file which was never created sends people looking for something
+    that is not there; that happened once and is worth never repeating."""
+    from app import bootstrap_log
+
+    return bootstrap_log.log_file_status()
 
 
 # --------------------------------------------------------------------------------------
 # Dialogs
 # --------------------------------------------------------------------------------------
 
-# Set for verification runs (--check / --selftest). A modal message box would block an
-# automated build check forever, so those modes report to stderr instead. The normal GUI
-# launch is unaffected and still shows dialogs.
+# Set for verification runs (--check / --selftest / --installer / --shutdown). A modal
+# message box would block an automated check or an installer wizard forever, so those modes
+# report to stderr instead. The normal GUI launch is unaffected and still shows dialogs.
 _interactive = True
 
 
@@ -362,9 +341,18 @@ def set_interactive(value: bool) -> None:
 
 
 def show_error_dialog(problem: StartupProblem, secrets: tuple[str, ...] = ()) -> None:
-    """A Windows message box. Falls back to stderr when no GUI is available, and is
-    deliberately suppressed in non-interactive verification modes."""
-    text = redact_secrets(problem.as_dialog(), *secrets)
+    """A Windows message box, branded and free of secrets.
+
+    Everything shown is redacted twice: once through the bootstrap redactor, which removes
+    credential-shaped text wherever it came from, and once against any specific values the
+    caller knows about."""
+    from app.bootstrap_log import redact
+
+    text = redact(problem.as_dialog())
+    for secret in secrets:
+        if secret and len(secret) >= 4:
+            text = text.replace(secret, "***")
+
     if not _interactive:
         print(text, file=sys.stderr)
         return
@@ -375,7 +363,20 @@ def show_error_dialog(problem: StartupProblem, secrets: tuple[str, ...] = ()) ->
         ctypes.windll.user32.MessageBoxW(None, text, f"{APP_TITLE} - {problem.title}",
                                          0x00 | 0x10 | 0x10000)
     except Exception:
-        print(text, file=sys.stderr)
+        # No GUI available (a service, a locked session). stderr may also be absent in a
+        # windowed build, so the log is the guaranteed record -- it was written above.
+        try:
+            print(text, file=sys.stderr)
+        except Exception:  # pragma: no cover - nothing left to do
+            pass
+
+
+def report(problem: StartupProblem, secrets: tuple[str, ...] = ()) -> int:
+    """Log a failure, show it, and return its exit code. One path for every failure."""
+    logger.error("%s: %s", problem.title, problem.message.splitlines()[0])
+    logger.debug("Full problem detail:\n%s", problem.message)
+    show_error_dialog(problem, secrets)
+    return int(problem.code)
 
 
 def selftest() -> StartupProblem | None:
@@ -422,11 +423,77 @@ def selftest() -> StartupProblem | None:
 
 
 # --------------------------------------------------------------------------------------
-# Startup checks
+# PostgreSQL
 # --------------------------------------------------------------------------------------
 
+def ensure_postgres_running() -> StartupProblem | None:
+    """Make sure PostgreSQL is available, starting its service if that is all it needs.
+
+    Nothing is installed here -- that is the installer's job. The only action this takes is
+    starting a service that PostgreSQL's own installer registered, and only after
+    :mod:`app.service_control` has confirmed the name really is a PostgreSQL service."""
+    from app.postgres_detection import detect
+    from app.service_control import StartOutcome, start_detected_postgres
+
+    detection = detect()
+
+    if detection.probe.occupied_by_other:
+        return StartupProblem(
+            ExitCode.PORT_OCCUPIED_BY_OTHER,
+            "Database port is in use",
+            f"Port {detection.probe.port} is being used by a program that is not "
+            "PostgreSQL.\n\nStop that program, or configure PostgreSQL to use a different "
+            f"port, and start {APP_TITLE} again.",
+        )
+
+    if detection.probe.is_postgres:
+        logger.info("PostgreSQL is already answering on port %s.", detection.probe.port)
+        return None
+
+    if not detection.installed:
+        return StartupProblem(
+            ExitCode.POSTGRES_NOT_FOUND,
+            "Database is not installed",
+            "PostgreSQL could not be found on this computer.\n\n"
+            f"{APP_TITLE} needs PostgreSQL to store your resumes, matches and application "
+            "history. Re-run the installer to add it.",
+        )
+
+    logger.info("PostgreSQL is installed but not answering; attempting to start its service.")
+    result = start_detected_postgres(detection)
+    logger.info("Service start outcome: %s (%s)", result.outcome.value, result.detail or "-")
+
+    if result.ok and result.accepting_connections:
+        return None
+
+    if result.outcome is StartOutcome.PERMISSION_DENIED:
+        return StartupProblem(
+            ExitCode.SERVICE_START_FAILED,
+            "Database service could not be started",
+            "PostgreSQL is installed but not running, and this account is not permitted to "
+            "start Windows services.\n\n"
+            "Ask an administrator to start the PostgreSQL service, or start it yourself "
+            "from Windows Services, and then start " + APP_TITLE + " again.",
+        )
+    if result.outcome is StartOutcome.TIMED_OUT:
+        return StartupProblem(
+            ExitCode.SERVICE_START_FAILED,
+            "Database did not start in time",
+            "The PostgreSQL service was asked to start but did not begin accepting "
+            "connections.\n\nIt may still be starting. Wait a moment and start "
+            f"{APP_TITLE} again, or check the PostgreSQL service in Windows Services.",
+        )
+    return StartupProblem(
+        ExitCode.SERVICE_START_FAILED,
+        "Database is not running",
+        "PostgreSQL is installed but is not running, and it could not be started "
+        "automatically.\n\nStart the PostgreSQL service in Windows Services, then start "
+        f"{APP_TITLE} again.",
+    )
+
+
 def classify_startup_problem() -> StartupProblem | None:
-    """Work out what -- if anything -- prevents the application from starting.
+    """Work out what -- if anything -- prevents the application from reaching its database.
 
     Ordered so the most fundamental cause is reported first: a missing credential is not
     reported as a connection failure, and a stopped server is not reported as a bad
@@ -437,7 +504,6 @@ def classify_startup_problem() -> StartupProblem | None:
         DatabaseUnavailable,
         check_connection,
     )
-    from app.postgres_detection import detect
 
     try:
         check_connection()
@@ -446,107 +512,366 @@ def classify_startup_problem() -> StartupProblem | None:
         return StartupProblem(
             ExitCode.CREDENTIALS_MISSING,
             "Database not set up yet",
-            "No database credential is stored on this computer.\n\n"
-            "Run the setup step to create the database and store its credential:\n"
-            "    scripts\\provision_postgres.ps1",
+            "No database credential is stored for your Windows account.\n\n"
+            "Re-run the installer to finish setting up the database. Your existing data is "
+            "not affected.",
         )
     except DatabaseAuthenticationFailed:
         return StartupProblem(
             ExitCode.AUTHENTICATION_FAILED,
             "Database sign-in failed",
             "PostgreSQL rejected the stored credential.\n\n"
-            "This usually means the database password was changed outside the "
-            "application. Re-run the setup step to store a new one; your data is not "
-            "affected.",
+            "This usually means the database password was changed outside the application. "
+            "Re-run the installer to store a new one; your data is not affected.",
         )
     except DatabaseUnavailable:
-        report = detect()
-        if report.probe.occupied_by_other:
-            return StartupProblem(
-                ExitCode.PORT_OCCUPIED_BY_OTHER,
-                "Database port is in use",
-                f"Port {report.probe.port} is being used by a program that is not "
-                "PostgreSQL. Stop that program, or configure PostgreSQL on another port.",
-            )
-        if report.installed:
-            return StartupProblem(
-                ExitCode.POSTGRES_NOT_FOUND,
-                "Database is not running",
-                "PostgreSQL is installed but not running.\n\n"
-                "Start the PostgreSQL service in Windows Services, then start "
-                f"{APP_TITLE} again.",
-            )
+        # Detection and service start already ran, so reaching here means it went away
+        # between the two checks, or the host/port in the stored credential is wrong.
         return StartupProblem(
             ExitCode.POSTGRES_NOT_FOUND,
-            "Database is not installed",
-            "PostgreSQL could not be found on this computer.\n\n"
-            f"{APP_TITLE} needs PostgreSQL to store your resumes, matches and "
-            "application history.",
+            "Database is not reachable",
+            "The PostgreSQL server could not be reached.\n\n"
+            "Check that the PostgreSQL service is running, then start "
+            f"{APP_TITLE} again.",
         )
 
 
 def run_migrations() -> StartupProblem | None:
-    """``alembic upgrade head`` against the resolved database."""
+    """``alembic upgrade head``, then confirm the schema really is what this build expects."""
     from app.config import get_settings
-    from app.schema_verification import upgrade_to_head
+    from app.schema_verification import upgrade_to_head, verify_schema
 
     url = get_settings().database_url
     try:
         upgrade_to_head(url)
         logger.info("Database is at the latest revision.")
-        return None
     except Exception as error:
-        logger.error("Migration failed: %s", redact_secrets(str(error), _password_of(url)))
+        logger.error("Migration failed: %s", type(error).__name__, exc_info=True)
         return StartupProblem(
             ExitCode.MIGRATION_FAILED,
             "Database update failed",
             "The database could not be brought up to date.\n\n"
             f"Details: {type(error).__name__}\n\n"
-            "Your existing data has not been changed. See the log file for more.",
+            "Your existing data has not been changed.\n"
+            f"See the log file:\n{log_file_reference()}",
         )
 
-
-def _password_of(url: str) -> str:
-    from sqlalchemy.engine import make_url
-
     try:
-        return make_url(url).password or ""
-    except Exception:
-        return ""
+        schema = verify_schema(url)
+    except Exception as error:
+        logger.error("Schema verification could not run: %s", type(error).__name__,
+                     exc_info=True)
+        return StartupProblem(
+            ExitCode.SCHEMA_VERIFICATION_FAILED,
+            "Database check failed",
+            "The database structure could not be checked.\n\n"
+            f"Details: {type(error).__name__}\n\n"
+            "Your existing data has not been changed.\n"
+            f"See the log file:\n{log_file_reference()}",
+        )
+
+    if not schema.matches:
+        logger.error("Schema does not match the baseline: %s", "; ".join(schema.problems[:8]))
+        return StartupProblem(
+            ExitCode.SCHEMA_VERIFICATION_FAILED,
+            "Database structure is unexpected",
+            "The database does not match what this version of the application expects.\n\n"
+            "Your existing data has not been changed. Re-run the installer, or restore a "
+            "backup.\n"
+            f"See the log file:\n{log_file_reference()}",
+        )
+
+    logger.info("Schema verified at revision %s.", schema.alembic_revision)
+    return None
 
 
 # --------------------------------------------------------------------------------------
 # Server
 # --------------------------------------------------------------------------------------
 
-def wait_until_ready(port: int, timeout: float = READINESS_TIMEOUT_SECONDS) -> bool:
-    """Poll /health until the API answers. The browser opens only after this succeeds."""
+def _http_ok(url: str, headers: dict | None = None, timeout: float = 2.0) -> str | None:
+    """Fetch a URL, returning its body on success and None on any failure."""
     import urllib.error
     import urllib.request
 
+    request = urllib.request.Request(url, headers=headers or {})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as reply:
+            if 200 <= reply.status < 400:
+                return reply.read(65536).decode("utf-8", errors="replace")
+            return None
+    except (urllib.error.URLError, OSError, ValueError):
+        return None
+
+
+def frontend_is_served() -> bool:
+    """Does this run serve the React application itself?
+
+    False in development, where Vite owns the UI -- readiness must not then wait for a shell
+    that this process was never going to serve."""
+    try:
+        from app.config import get_settings
+
+        return bool(get_settings().should_serve_frontend())
+    except Exception:  # pragma: no cover - defensive
+        return False
+
+
+def wait_until_ready(port: int, timeout: float = READINESS_TIMEOUT_SECONDS,
+                     require_shell: bool | None = None) -> bool:
+    """Wait until the API answers AND the web interface is really being served.
+
+    Checking ``/health`` alone is not enough: FastAPI answers it as soon as the process is
+    up, while the React shell can still be missing or unreadable. Opening a browser at that
+    moment shows the user an error page and makes a working installation look broken."""
+    base = f"http://{HOST}:{port}"
+    if require_shell is None:
+        require_shell = frontend_is_served()
+
     deadline = time.monotonic() + timeout
-    url = f"http://{HOST}:{port}/health"
     while time.monotonic() < deadline:
-        try:
-            with urllib.request.urlopen(url, timeout=2) as response:
-                if 200 <= response.status < 500:
-                    return True
-        except (urllib.error.URLError, OSError):
-            time.sleep(0.4)
+        if _http_ok(f"{base}/health") is not None:
+            if not require_shell:
+                return True
+            # Same request a browser makes, so this exercises the real navigation path.
+            shell = _http_ok(base, headers={"Accept": BROWSER_ACCEPT})
+            if shell is not None and SHELL_MARKER in shell:
+                return True
+        time.sleep(0.4)
     return False
 
 
-def serve(port: int):
+def serve(port: int, coordinator=None):
     """Start uvicorn in this process, on loopback only."""
     import uvicorn
 
     from app.main import app
 
+    if coordinator is not None:
+        from app.shutdown import install
+
+        install(app, coordinator)
+
     config = uvicorn.Config(app, host=HOST, port=port, log_level="info", access_log=False)
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, name="uvicorn", daemon=True)
     thread.start()
+
+    if coordinator is not None:
+        def stop() -> None:
+            server.should_exit = True
+
+        coordinator.bind(stop)
     return server, thread
+
+
+# --------------------------------------------------------------------------------------
+# Already-running instance
+# --------------------------------------------------------------------------------------
+
+def open_existing_instance(show_window: bool = True) -> int | None:
+    """A second launch: show the window that is already open, and exit quietly.
+
+    Returns an exit code when an existing healthy instance was found, or None when the
+    recorded state turned out to be stale -- in which case it is removed and this process
+    continues starting normally.
+
+    Deliberately NOT an error dialog: double-clicking the icon while the application is
+    already running is completely reasonable, and the right response is to show it.
+
+    ``show_window=False`` for the diagnostic modes: ``--check`` reporting that the
+    application is already running must not fling a browser window at whoever ran it."""
+    from app import runtime_state
+
+    state = runtime_state.read_state()
+    if state is None:
+        return None
+
+    if not runtime_state.state_is_live(state):
+        logger.info("Found runtime state from a previous run that is no longer valid; "
+                    "removing it and starting normally.")
+        runtime_state.cleanup()
+        return None
+
+    logger.info("%s is already running (pid %s) at %s.", APP_TITLE, state.pid, state.url)
+    if show_window:
+        try:
+            webbrowser.open(state.url)
+        except Exception as error:  # pragma: no cover - not fatal here
+            logger.warning("Could not open the existing window: %s", type(error).__name__)
+    return int(ExitCode.ALREADY_RUNNING)
+
+
+def request_running_instance_shutdown(timeout: float = 30.0) -> int:
+    """Ask a running instance to stop. This is what the installer calls.
+
+    Exit codes: SUCCESS when it stopped (or was not running at all), SHUTDOWN_FAILED when a
+    live instance would not stop. Nothing is ever killed here."""
+    from app import runtime_state
+    from app.shutdown import request_shutdown
+    from app.single_instance import process_is_running
+
+    state = runtime_state.read_state()
+    if state is None or not runtime_state.state_is_live(state):
+        logger.info("No running instance was found; nothing to stop.")
+        runtime_state.cleanup()
+        print("SHUTDOWN: not running")
+        return int(ExitCode.SUCCESS)
+
+    token = runtime_state.read_token()
+    if not token:
+        logger.warning("A running instance was found but its shutdown token is unavailable.")
+        print("SHUTDOWN: token unavailable")
+        return int(ExitCode.SHUTDOWN_FAILED)
+
+    if not request_shutdown(state.host, state.port, token):
+        print("SHUTDOWN: request refused")
+        return int(ExitCode.SHUTDOWN_FAILED)
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if not process_is_running(state.pid):
+            logger.info("The running instance stopped cleanly.")
+            print("SHUTDOWN: stopped")
+            return int(ExitCode.SUCCESS)
+        time.sleep(0.5)
+
+    logger.warning("The running instance did not exit within %.0f seconds.", timeout)
+    print("SHUTDOWN: timed out")
+    return int(ExitCode.SHUTDOWN_FAILED)
+
+
+# --------------------------------------------------------------------------------------
+# Entry point
+# --------------------------------------------------------------------------------------
+
+def _run_application(no_browser: bool, check_only: bool) -> int:
+    """Everything after the single-instance decision. Assumes logging is running."""
+    from app import runtime_state
+    from app.shutdown import ShutdownCoordinator
+
+    configure_playwright_browsers()
+
+    problem = ensure_postgres_running()
+    if problem is not None:
+        return report(problem)
+
+    problem = classify_startup_problem()
+    if problem is not None:
+        return report(problem)
+
+    problem = run_migrations()
+    if problem is not None:
+        return report(problem)
+
+    if check_only:
+        logger.info("Startup checks passed.")
+        return int(ExitCode.SUCCESS)
+
+    if not port_is_free(PREFERRED_PORT):
+        logger.info("Port %s is held by %s.", PREFERRED_PORT,
+                    describe_port_conflict(PREFERRED_PORT))
+    try:
+        port = find_available_port()
+    except RuntimeError as error:
+        return report(StartupProblem(
+            ExitCode.PORT_OCCUPIED_BY_OTHER, "No free port",
+            f"{APP_TITLE} could not find a free network port on this computer.\n\n"
+            f"{error}",
+        ))
+    if port != PREFERRED_PORT:
+        logger.info("Using port %s instead of %s.", port, PREFERRED_PORT)
+
+    # The token authorises the local shutdown endpoint for THIS run only.
+    token = runtime_state.generate_token()
+    runtime_state.write_token(token)
+    coordinator = ShutdownCoordinator(token)
+
+    state = runtime_state.publish(port, HOST, app_version())
+    server, thread = serve(port, coordinator)
+
+    try:
+        if not wait_until_ready(port):
+            server.should_exit = True
+            return report(StartupProblem(
+                ExitCode.STARTUP_FAILED,
+                "Could not start",
+                f"{APP_TITLE} started but its web interface did not become available.\n\n"
+                f"See the log file:\n{log_file_reference()}",
+            ))
+
+        runtime_state.mark_ready(state)
+        url = f"http://{HOST}:{port}"
+        logger.info("Ready at %s", url)
+        # Opened exactly once, only after the interface is genuinely serving pages.
+        if not no_browser:
+            webbrowser.open(url)
+
+        try:
+            while thread.is_alive() and not coordinator.requested:
+                thread.join(timeout=1.0)
+        except KeyboardInterrupt:
+            logger.info("Shutdown requested from the console.")
+        return int(ExitCode.SUCCESS)
+    finally:
+        _shut_down(server, thread)
+
+
+def surviving_threads() -> list[str]:
+    """Non-daemon threads still alive. These are what would keep the process running."""
+    current = threading.current_thread()
+    return sorted(
+        t.name for t in threading.enumerate()
+        if t is not current and t.is_alive() and not t.daemon
+    )
+
+
+def _shut_down(server, thread) -> None:
+    """Stop cleanly: server first, then the browsers we own, then our published state."""
+    from app import runtime_state
+
+    logger.info("Stopping.")
+    try:
+        server.should_exit = True
+        thread.join(timeout=20)
+    except Exception:  # pragma: no cover - defensive
+        logger.debug("The server thread did not join cleanly.", exc_info=True)
+
+    try:
+        from app.browser_lifecycle import close_owned_browsers
+
+        closed = close_owned_browsers()
+        if closed:
+            logger.info("Closed %d browser process(es) started by this application.",
+                        len(closed))
+    except Exception:  # pragma: no cover - cleanup must never mask the exit
+        logger.debug("Browser cleanup did not complete.", exc_info=True)
+
+    runtime_state.cleanup()
+
+    # Recorded rather than assumed: the web stack leaves worker threads behind (anyio's
+    # thread pool among them), and knowing which ones is what makes a future hang
+    # diagnosable instead of mysterious.
+    remaining = surviving_threads()
+    if remaining:
+        logger.info("Threads still alive after cleanup: %s", ", ".join(remaining))
+    logger.info("Stopped.")
+
+
+def _exit_now(code: int) -> None:
+    """End the process, immediately and for certain.
+
+    Returning from main() is not enough. The interpreter then waits for every non-daemon
+    thread, and the web stack leaves some behind -- so the process lingered for minutes after
+    it had finished shutting down. In a WINDOWED build that is a genuine problem rather than
+    an untidiness: the process has no window, so the user cannot see or close it, and while
+    it lives it holds the single-instance mutex and the application will not restart.
+
+    Everything that needs to happen has already happened by this point -- the server is
+    stopped, owned browsers are closed, runtime state and token are removed -- so the only
+    thing left to protect is the log, which is flushed and closed first."""
+    logging.shutdown()
+    os._exit(code)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -556,20 +881,32 @@ def main(argv: list[str] | None = None) -> int:
     selftest_only = "--selftest" in argv
     browser_check_only = "--browser-check" in argv
     installer_mode = "--installer" in argv
-    # Verification and installer modes are driven by scripts, so they must never block on a
-    # dialog: a modal message box behind an installer wizard would hang the installation.
-    set_interactive(not (check_only or selftest_only or browser_check_only or installer_mode))
+    shutdown_mode = "--shutdown" in argv
+    diagnostic_console = "--diagnostic-console" in argv
 
-    log_file = configure_logging()
+    non_interactive = (check_only or selftest_only or browser_check_only
+                       or installer_mode or shutdown_mode)
+    set_interactive(not non_interactive)
+
+    # FIRST, before anything that can fail. A windowed build has no console, so a failure
+    # from here on is only ever visible because this line already ran.
+    configure_logging(stream=diagnostic_console or not is_windowed())
+
+    from app import bootstrap_log
+
+    bootstrap_log.record_environment(app_version(), stage=f"{APP_TITLE} starting")
 
     # The installer calls into the PACKAGED application rather than a development virtual
-    # environment. Handled first, and before the single-instance lock: these actions run
+    # environment. Handled first, and outside the single-instance guard: these actions run
     # while no server is running, and one of them may run twice during an installation.
     if installer_mode:
         from app.installer_bridge import main as installer_main
 
         index = argv.index("--installer")
         return installer_main(argv[index + 1:])
+
+    if shutdown_mode:
+        return request_running_instance_shutdown()
 
     if selftest_only:
         logger.info("Running the packaging self-test.")
@@ -582,8 +919,8 @@ def main(argv: list[str] | None = None) -> int:
         print("SELFTEST OK")
         return int(ExitCode.SUCCESS)
 
-    # Before the single-instance lock on purpose: this is a diagnostic that needs neither the
-    # database nor the web server, and it must be runnable while the application is running.
+    # Before the single-instance guard on purpose: this is a diagnostic that needs neither
+    # the database nor the web server, and it must be runnable while the application runs.
     if browser_check_only:
         logger.info("Launching the bundled Chromium (blank page only).")
         problem = browser_check()
@@ -593,86 +930,48 @@ def main(argv: list[str] | None = None) -> int:
             return int(problem.code)
         logger.info("Bundled browser check passed.")
         return int(ExitCode.SUCCESS)
-    logger.info("%s starting (packaged=%s)", APP_TITLE, getattr(sys, "frozen", False))
-    logger.info("Log file: %s", log_file)
 
     from app.paths import runtime_paths
+    from app.single_instance import create_guard
 
-    lock = SingleInstanceLock(runtime_paths().work / LOCK_FILENAME)
-    if not lock.acquire():
-        show_error_dialog(StartupProblem(
+    guard = create_guard(runtime_paths().ensure().work / LOCK_FILENAME)
+    if not guard.acquire():
+        existing = open_existing_instance(show_window=not (non_interactive or no_browser))
+        if existing is not None:
+            return existing
+        # The mutex is held but no usable state was published -- an instance that is still
+        # starting, or one that is wedged. Say so rather than starting a competing server.
+        return report(StartupProblem(
             ExitCode.ALREADY_RUNNING,
             "Already running",
             f"{APP_TITLE} is already running on this computer.\n\n"
             "Look for it in your web browser, or close it and try again.",
         ))
-        return int(ExitCode.ALREADY_RUNNING)
+
+    if guard.recovered_abandoned:
+        logger.info("Recovered from a previous unclean shutdown.")
 
     try:
-        configure_playwright_browsers()
-
-        problem = classify_startup_problem()
-        if problem is not None:
-            logger.error("%s: %s", problem.title, problem.message.splitlines()[0])
-            show_error_dialog(problem)
-            return int(problem.code)
-
-        problem = run_migrations()
-        if problem is not None:
-            show_error_dialog(problem)
-            return int(problem.code)
-
-        if check_only:
-            logger.info("Startup checks passed.")
-            return int(ExitCode.SUCCESS)
-
-        try:
-            port = find_available_port()
-        except RuntimeError as error:
-            show_error_dialog(StartupProblem(
-                ExitCode.PORT_OCCUPIED_BY_OTHER, "No free port", str(error)
-            ))
-            return int(ExitCode.PORT_OCCUPIED_BY_OTHER)
-        if port != PREFERRED_PORT:
-            logger.info("Port %s was busy; using %s instead.", PREFERRED_PORT, port)
-
-        server, thread = serve(port)
-        if not wait_until_ready(port):
-            server.should_exit = True
-            show_error_dialog(StartupProblem(
-                ExitCode.STARTUP_FAILED,
-                "Could not start",
-                f"{APP_TITLE} did not finish starting.\n\n"
-                f"See the log file for details:\n{log_file}",
-            ))
-            return int(ExitCode.STARTUP_FAILED)
-
-        url = f"http://{HOST}:{port}"
-        logger.info("Ready at %s", url)
-        if not no_browser:
-            webbrowser.open(url)
-
-        try:
-            while thread.is_alive():
-                thread.join(timeout=1.0)
-        except KeyboardInterrupt:
-            logger.info("Shutdown requested.")
-        finally:
-            server.should_exit = True
-            thread.join(timeout=15)
-            logger.info("Stopped.")
-        return int(ExitCode.SUCCESS)
+        return _run_application(no_browser, check_only)
     except Exception as error:  # pragma: no cover - last-resort guard
         logger.exception("Unexpected startup failure")
-        show_error_dialog(StartupProblem(
+        return report(StartupProblem(
             ExitCode.STARTUP_FAILED,
             "Unexpected error",
-            f"{type(error).__name__}\n\nSee the log file:\n{log_file}",
+            f"{APP_TITLE} could not start because of an unexpected problem.\n\n"
+            f"Details: {type(error).__name__}\n\n"
+            f"See the log file:\n{log_file_reference()}",
         ))
-        return int(ExitCode.STARTUP_FAILED)
     finally:
-        lock.release()
+        guard.release()
+
+
+def is_windowed() -> bool:
+    """True in a GUI build, where there is no console to write to."""
+    return bool(getattr(sys, "frozen", False)) and getattr(sys, "stdout", None) is None
 
 
 if __name__ == "__main__":  # pragma: no cover - packaged entry point
-    sys.exit(main())
+    # _exit_now rather than sys.exit: see its docstring. A windowed build that lingers is
+    # invisible to the user and blocks the next launch.
+    _exit_now(main())

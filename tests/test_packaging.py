@@ -53,7 +53,7 @@ from app.paths import (
     resolve_runtime_paths,
     runtime_paths,
 )
-from app.windows_launcher import ExitCode, SingleInstanceLock, StartupProblem
+from app.windows_launcher import ExitCode, StartupProblem
 from scripts.package_modules import collect_package_modules
 from scripts.scan_build_secrets import scan
 
@@ -369,7 +369,10 @@ class MissingSecureCredentialTests(_IsolatedTestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(f"CODE {int(ExitCode.CREDENTIALS_MISSING)}", result.stdout)
         self.assertIn("Database not set up yet", result.stdout)
-        self.assertIn("provision_postgres.ps1", result.stdout)
+        # The message points at the installer, not at a PowerShell script: an installed
+        # computer has the installer and no source checkout to run scripts from.
+        self.assertIn("installer", result.stdout.lower())
+        self.assertNotIn(".ps1", result.stdout)
 
     def test_the_message_names_no_credential_and_no_traceback(self) -> None:
         result = self._classify()
@@ -477,45 +480,11 @@ class LoopbackOnlyTests(unittest.TestCase):
 # ======================================================================================
 
 class SingleInstanceTests(_IsolatedTestCase):
-    def lock(self, name: str = "launcher.lock") -> SingleInstanceLock:
-        return SingleInstanceLock(self.temp_root / "work" / name)
+    """Only the packaging-relevant part.
 
-    def test_a_lock_is_taken_and_released(self) -> None:
-        lock = self.lock()
-        self.assertTrue(lock.acquire())
-        self.assertTrue(lock.path.is_file())
-        lock.release()
-        self.assertFalse(lock.path.exists())
-
-    def test_a_second_live_instance_is_refused(self) -> None:
-        first = self.lock()
-        self.assertTrue(first.acquire())
-        self.addCleanup(first.release)
-
-        second = SingleInstanceLock(first.path)
-        with patch.object(SingleInstanceLock, "_holder_is_alive", return_value=True):
-            self.assertFalse(second.acquire())
-        self.assertFalse(second.acquired)
-
-    def test_a_stale_lock_from_a_crashed_run_does_not_lock_the_user_out(self) -> None:
-        lock = self.lock()
-        lock.path.parent.mkdir(parents=True, exist_ok=True)
-        lock.path.write_text("999999999\n", encoding="utf-8")  # a pid that cannot be running
-        self.assertTrue(lock.acquire())
-        self.addCleanup(lock.release)
-        self.assertEqual(lock.path.read_text(encoding="utf-8").strip(), str(os.getpid()))
-
-    def test_an_unreadable_lock_file_is_treated_as_stale(self) -> None:
-        lock = self.lock()
-        lock.path.parent.mkdir(parents=True, exist_ok=True)
-        lock.path.write_text("not a pid", encoding="utf-8")
-        self.assertTrue(lock.acquire())
-        self.addCleanup(lock.release)
-
-    def test_releasing_a_lock_that_was_never_taken_is_harmless(self) -> None:
-        lock = self.lock()
-        lock.release()
-        self.assertFalse(lock.path.exists())
+    The lock mechanism itself -- the named Windows mutex, its abandonment recovery, and the
+    cross-platform lock-file fallback -- belongs to app/single_instance.py and is covered in
+    tests/test_runtime_hardening.py. Repeating it here would be duplication."""
 
     def test_the_lock_lives_in_the_per_user_data_directory(self) -> None:
         with self.data_dir_env():
@@ -525,106 +494,46 @@ class SingleInstanceTests(_IsolatedTestCase):
         self.assertTrue(str(lock_path).startswith(str(self.temp_root)))
         self.assertFalse(str(lock_path).startswith(str(install_root())))
 
+    def test_the_guard_is_created_from_that_location(self) -> None:
+        source = read(ROOT / "app" / "windows_launcher.py")
+        self.assertIn("create_guard(runtime_paths().ensure().work / LOCK_FILENAME)", source)
+
 
 # ======================================================================================
 # 5. Startup sequence: readiness before the browser, and a clean shutdown
 # ======================================================================================
 
-class _FakeThread:
-    """A uvicorn thread that stops after the first liveness check."""
+class StartupDispatchTests(_LoggingPreservingTestCase):
+    """How main() routes a launch.
 
-    def __init__(self) -> None:
-        self.alive = True
-        self.joins = 0
-
-    def is_alive(self) -> bool:
-        was = self.alive
-        self.alive = False
-        return was
-
-    def join(self, timeout: float | None = None) -> None:
-        self.joins += 1
-
-
-class _FakeServer:
-    def __init__(self) -> None:
-        self.should_exit = False
-
-
-class StartupSequenceTests(_LoggingPreservingTestCase):
-    """The order matters: opening a browser before the interface answers shows the user an
-    error page and makes a slow start look like a broken install."""
-
-    def run_main(self, ready: bool, argv: list[str] | None = None):
-        events: list[str] = []
-        server, thread = _FakeServer(), _FakeThread()
-
-        def fake_serve(port: int):
-            events.append(f"serve:{port}")
-            return server, thread
-
-        def fake_ready(port: int, timeout: float = 0) -> bool:
-            events.append("wait_until_ready")
-            return ready
-
-        def fake_open(url: str) -> bool:
-            events.append(f"browser:{url}")
-            return True
-
-        with self.data_dir_env(), \
-                patch.object(launcher, "classify_startup_problem", return_value=None), \
-                patch.object(launcher, "run_migrations", return_value=None), \
-                patch.object(launcher, "configure_playwright_browsers", return_value=None), \
-                patch.object(launcher, "find_available_port", return_value=8321), \
-                patch.object(launcher, "serve", side_effect=fake_serve), \
-                patch.object(launcher, "wait_until_ready", side_effect=fake_ready), \
-                patch.object(launcher.webbrowser, "open", side_effect=fake_open), \
-                patch.object(launcher, "show_error_dialog"):
-            reset_runtime_paths_cache()
-            code = launcher.main(argv or [])
-        return code, events, server, thread
-
-    def test_the_browser_opens_only_after_the_interface_answers(self) -> None:
-        code, events, _, _ = self.run_main(ready=True)
-        self.assertEqual(code, int(ExitCode.SUCCESS))
-        self.assertIn("browser:http://127.0.0.1:8321", events)
-        self.assertLess(events.index("wait_until_ready"),
-                        events.index("browser:http://127.0.0.1:8321"))
-
-    def test_no_browser_is_opened_when_the_application_never_becomes_ready(self) -> None:
-        code, events, server, _ = self.run_main(ready=False)
-        self.assertEqual(code, int(ExitCode.STARTUP_FAILED))
-        self.assertFalse([e for e in events if e.startswith("browser:")])
-        self.assertTrue(server.should_exit, "the half-started server must be stopped")
-
-    def test_no_browser_flag_starts_the_server_without_opening_one(self) -> None:
-        code, events, _, _ = self.run_main(ready=True, argv=["--no-browser"])
-        self.assertEqual(code, int(ExitCode.SUCCESS))
-        self.assertIn("serve:8321", events)
-        self.assertFalse([e for e in events if e.startswith("browser:")])
-
-    def test_shutdown_stops_the_server_and_releases_the_lock(self) -> None:
-        code, _, server, thread = self.run_main(ready=True, argv=["--no-browser"])
-        self.assertEqual(code, int(ExitCode.SUCCESS))
-        self.assertTrue(server.should_exit)
-        self.assertGreaterEqual(thread.joins, 1)
-        with self.data_dir_env():
-            reset_runtime_paths_cache()
-            lock_path = runtime_paths().work / launcher.LOCK_FILENAME
-        self.assertFalse(lock_path.exists(), "the instance lock outlived the process")
+    The startup SEQUENCE itself -- readiness before the browser, migration failure blocking
+    the browser, clean shutdown, runtime state -- is exercised against the real code path in
+    tests/test_runtime_hardening.py. What is packaging-specific, and therefore tested here,
+    is that every non-interactive mode is dispatched before anything heavy happens."""
 
     def test_a_failing_startup_check_stops_before_the_server_starts(self) -> None:
         problem = StartupProblem(ExitCode.POSTGRES_NOT_FOUND, "Database is not running", "x")
-        with self.data_dir_env(), \
-                patch.object(launcher, "classify_startup_problem", return_value=problem), \
-                patch.object(launcher, "configure_playwright_browsers", return_value=None), \
-                patch.object(launcher, "serve") as serve, \
-                patch.object(launcher, "show_error_dialog") as dialog:
+        with self.data_dir_env(),                 patch.object(launcher, "configure_playwright_browsers"),                 patch.object(launcher, "ensure_postgres_running", return_value=problem),                 patch.object(launcher, "serve") as serve,                 patch.object(launcher, "show_error_dialog") as dialog:
             reset_runtime_paths_cache()
-            code = launcher.main([])
+            code = launcher._run_application(no_browser=True, check_only=False)
         self.assertEqual(code, int(ExitCode.POSTGRES_NOT_FOUND))
         serve.assert_not_called()
         dialog.assert_called_once()
+
+    def test_check_mode_verifies_and_exits_without_serving(self) -> None:
+        with self.data_dir_env(),                 patch.object(launcher, "configure_playwright_browsers"),                 patch.object(launcher, "ensure_postgres_running", return_value=None),                 patch.object(launcher, "classify_startup_problem", return_value=None),                 patch.object(launcher, "run_migrations", return_value=None),                 patch.object(launcher, "serve") as serve:
+            reset_runtime_paths_cache()
+            code = launcher._run_application(no_browser=True, check_only=True)
+        self.assertEqual(code, int(ExitCode.SUCCESS))
+        serve.assert_not_called()
+
+    def test_the_installer_mode_is_dispatched_before_the_instance_guard(self) -> None:
+        """The installer may run these actions while the application is running."""
+        source = read(ROOT / "app" / "windows_launcher.py")
+        body = source[source.index("def main("):]
+        self.assertLess(body.index("if installer_mode:"), body.index("create_guard("))
+        self.assertLess(body.index("if shutdown_mode:"), body.index("create_guard("))
+        self.assertLess(body.index("if browser_check_only:"), body.index("create_guard("))
 
 
 class LocalAppDataLoggingTests(_LoggingPreservingTestCase):
@@ -1295,19 +1204,27 @@ class SecretRedactionTests(_LoggingPreservingTestCase):
         def explode(url=None):
             raise RuntimeError(f"could not connect using {self.URL}")
 
+        # Deliberately NOT wrapped in assertLogs: that swaps the root handlers for its own,
+        # so nothing would reach the real log file -- and the file is exactly what this test
+        # is about. The failure is logged with its traceback, and that traceback contains the
+        # connection URL; the redacting formatter on the file handler is what removes it.
         with self.data_dir_env():
             reset_runtime_paths_cache()
-            launcher.configure_logging()
+            log_file = launcher.configure_logging()
             with patch.object(config_module, "get_settings", return_value=FakeSettings()), \
-                    patch.object(schema_module, "upgrade_to_head", side_effect=explode), \
-                    self.assertLogs("app.windows_launcher", level="ERROR") as captured:
+                    patch.object(schema_module, "upgrade_to_head", side_effect=explode):
                 problem = launcher.run_migrations()
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+            written = read(log_file)
 
         self.assertIsNotNone(problem)
         self.assertEqual(problem.code, ExitCode.MIGRATION_FAILED)
         self.assertNotIn(self.PASSWORD, problem.as_dialog())
         self.assertIn("RuntimeError", problem.message)
-        self.assertNotIn(self.PASSWORD, "\n".join(captured.output))
+        self.assertIn("Migration failed", written)
+        self.assertIn("RuntimeError", written, "the traceback was not recorded at all")
+        self.assertNotIn(self.PASSWORD, written)
 
     def test_no_startup_message_embeds_a_connection_url(self) -> None:
         """Every message the launcher can show is a fixed instruction, not driver output."""
@@ -1320,7 +1237,9 @@ class SecretRedactionTests(_LoggingPreservingTestCase):
     def test_the_launcher_never_prints_the_resolved_url(self) -> None:
         source = read(ROOT / "app" / "windows_launcher.py")
         self.assertNotIn("logger.info(\"Database URL", source)
-        self.assertIn("redact_secrets", source)
+        # Redaction now happens centrally in app/bootstrap_log.py, so it covers every log
+        # line and every dialog rather than only the places that remembered to ask for it.
+        self.assertIn("from app.bootstrap_log import redact", source)
 
 
 if __name__ == "__main__":

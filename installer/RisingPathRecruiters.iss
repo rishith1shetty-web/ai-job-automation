@@ -82,6 +82,12 @@
   #define OutputDir "..\release"
 #endif
 
+; Built from the project's own logo by scripts/make_icon.py. The same file is used for the
+; setup program, and the executable carries it as a resource for the shortcuts.
+#ifndef IconFile
+  #define IconFile "RisingPathRecruiters.ico"
+#endif
+
 ; Set /DIncludePostgres=0 to build a smaller, online-only installer.
 #ifndef IncludePostgres
   #define IncludePostgres "1"
@@ -108,7 +114,11 @@ DefaultGroupName={#StartMenuGroup}
 DisableDirPage=no
 DisableProgramGroupPage=yes
 UninstallDisplayName={#AppName} {#AppVersion}
+; The executable carries the icon as a resource, so Add/Remove Programs and the shortcuts
+; all show the same artwork without a second copy of it being installed.
 UninstallDisplayIcon={app}\{#ExeName}.exe
+; The setup program's own icon, and the icon shown in the wizard.
+SetupIconFile={#IconFile}
 
 ; Per-machine install into Program Files. Administrator rights are needed for that and for
 ; installing PostgreSQL as a service -- and for nothing else; every step that does not
@@ -305,6 +315,40 @@ begin
                  '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
 end;
 
+function InstalledExePath: String;
+{ The already-installed executable, which is the one that can be asked to stop. During an
+  upgrade or uninstall it is still on disk from the previous installation. }
+begin
+  Result := ExpandConstant('{app}\{#ExeName}.exe');
+end;
+
+function RequestGracefulShutdown: Boolean;
+{ Ask the running application to stop ITSELF.
+
+  The application exposes a loopback-only, token-authenticated shutdown action; the token is
+  a per-run random value stored in the user's own data directory. "--shutdown" reads the
+  published runtime state, sends the request to the exact recorded process, and waits for it
+  to exit. It returns 0 when the application stopped or was not running.
+
+  This is why the installer never needs taskkill. A killed process would abandon its lock,
+  leave its runtime state behind, and could be interrupted mid-way through a portal session
+  -- leaving a half-written LinkedIn or Dice session file and an orphaned browser. }
+var
+  ResultCode: Integer;
+  Exe: String;
+begin
+  Result := False;
+  Exe := InstalledExePath;
+  if not FileExists(Exe) then
+    Exit;
+
+  { As the original user: the runtime state and the shutdown token live in THAT account's
+    LocalAppData, and an elevated installer would look in the wrong profile. }
+  if ExecAsOriginalUser(Exe, '--shutdown', ExpandConstant('{app}'), SW_HIDE,
+                        ewWaitUntilTerminated, ResultCode) then
+    Result := (ResultCode = 0);
+end;
+
 function AskUserToCloseApp: Boolean;
 var
   Waited: Integer;
@@ -313,8 +357,23 @@ begin
   if not AppIsRunning then
     Exit;
 
-  { Ask first. Killing the process would abandon the single-instance lock and could
-    interrupt an application run that is mid-way through a portal session. }
+  { 1. Ask the application to close itself, cleanly. Nothing is forced. }
+  if RequestGracefulShutdown then
+  begin
+    Waited := 0;
+    while AppIsRunning and (Waited < ShutdownWaitMs) do
+    begin
+      Sleep(500);
+      Waited := Waited + 500;
+    end;
+    if not AppIsRunning then
+      Exit;
+  end;
+
+  { 2. It did not stop -- perhaps it is mid-task, or the graceful path is unavailable
+       because this is an upgrade from a version that predates it. Ask the person. Still
+       nothing is forced: no taskkill, and no process belonging to Python, Chromium or
+       PostgreSQL is touched at any point. }
   if MsgBox('{#AppName} is currently running.' + #13#10#13#10 +
             'Please close it, then click OK to continue.',
             mbConfirmation, MB_OKCANCEL) <> IDOK then

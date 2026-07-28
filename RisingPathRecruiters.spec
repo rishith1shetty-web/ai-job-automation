@@ -31,6 +31,70 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.package_modules import collect_package_modules  # noqa: E402
 
 # --------------------------------------------------------------------------------------
+# Identity, icon and Windows version resource
+#
+# Every value comes from app/version.py. Nothing about the product's identity is written
+# down twice: the executable's properties, the installer, Add/Remove Programs and the
+# installer filename all resolve to the same source.
+# --------------------------------------------------------------------------------------
+
+import os  # noqa: E402
+
+from app.version import (  # noqa: E402
+    APP_NAME as PRODUCT_NAME,
+    COPYRIGHT,
+    DESCRIPTION,
+    FILE_VERSION,
+    PUBLISHER,
+    VERSION,
+    VERSION_TUPLE,
+)
+
+# A console build is opt-in and for support only; the shipped executable is windowed.
+CONSOLE_BUILD = os.environ.get("RPR_CONSOLE_BUILD", "").strip() in {"1", "true", "yes"}
+
+# Built from the project's own logo by scripts/make_icon.py. Absent is tolerated so the
+# build still works before the icon has been generated.
+_icon = PROJECT_ROOT / "installer" / f"{APP_NAME}.ico"
+ICON_FILE = str(_icon) if _icon.is_file() else None
+if ICON_FILE is None:
+    print("[spec] WARNING: no application icon; run 'python -m scripts.make_icon'.")
+
+# The Windows version resource, generated here so the four-part version can never drift
+# from app/version.py. Written into the PyInstaller work directory, not the source tree.
+_version_resource = f"""
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers={VERSION_TUPLE},
+    prodvers={VERSION_TUPLE},
+    mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [StringStruct('CompanyName', {PUBLISHER!r}),
+         StringStruct('FileDescription', {DESCRIPTION!r}),
+         StringStruct('FileVersion', {FILE_VERSION!r}),
+         StringStruct('InternalName', {APP_NAME!r}),
+         StringStruct('LegalCopyright', {COPYRIGHT!r}),
+         StringStruct('OriginalFilename', {APP_NAME + '.exe'!r}),
+         StringStruct('ProductName', {PRODUCT_NAME!r}),
+         StringStruct('ProductVersion', {VERSION!r})])
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
+""".strip()
+
+_version_file = PROJECT_ROOT / "build" / "version_info.txt"
+_version_file.parent.mkdir(parents=True, exist_ok=True)
+_version_file.write_text(_version_resource, encoding="utf-8")
+VERSION_RESOURCE = str(_version_file)
+
+print(f"[spec] {PRODUCT_NAME} {VERSION} | console={CONSOLE_BUILD} | icon={bool(ICON_FILE)}")
+
+# --------------------------------------------------------------------------------------
 # Data files
 # --------------------------------------------------------------------------------------
 
@@ -179,15 +243,24 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    # console=True for this phase: the packaged runtime test reads stdout, and a visible
-    # console makes an early failure diagnosable. The installer phase flips this to False
-    # once the error dialogs have been exercised on a clean machine.
-    console=True,
+    # A desktop application, so no console window. Set RPR_CONSOLE_BUILD=1 to produce a
+    # diagnostic build that keeps one -- useful for support, never shipped.
+    #
+    # Losing the console means losing stdout and stderr, so nothing may depend on them:
+    # app/bootstrap_log.py opens the log file BEFORE any import that can fail, installs an
+    # excepthook so an escaping exception still reaches that file, and only adds a stream
+    # handler when sys.stdout actually exists.
+    console=CONSOLE_BUILD,
+    # False so an unhandled exception in a windowed build produces PyInstaller's own dialog
+    # rather than vanishing. The launcher catches its own failures first and shows a branded
+    # message; this is the backstop for anything that escapes even that.
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=ICON_FILE,
+    version=VERSION_RESOURCE,
 )
 
 coll = COLLECT(
