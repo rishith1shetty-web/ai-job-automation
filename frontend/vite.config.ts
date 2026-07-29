@@ -18,6 +18,10 @@ export default defineConfig(({ mode }) => {
   const apiTarget = env.VITE_API_TARGET || "http://localhost:8000";
 
   return {
+    // Absolute asset base. This must NOT be relative ("./"): the production build is served
+    // by FastAPI and React Router uses real URLs, so a deep route such as /matched-jobs would
+    // resolve "./assets/..." against /matched-jobs/ and 404 on every chunk after a refresh.
+    base: "/",
     plugins: [react()],
     resolve: {
       alias: { "@": path.resolve(__dirname, "./src") },
@@ -43,6 +47,9 @@ export default defineConfig(({ mode }) => {
       port: 4173,
     },
     build: {
+      // Written to frontend/dist, which FastAPI serves in packaged mode (app/static_site.py).
+      outDir: "dist",
+      emptyOutDir: true,
       // Split rarely-changing vendor libraries into their own long-cache chunks so a
       // change to app code doesn't bust the whole bundle. Page chunks are produced
       // automatically by the React.lazy() route split in App.tsx.

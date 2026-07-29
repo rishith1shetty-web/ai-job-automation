@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "PostgreSQL REQUIREMENT metadata. This file describes what the user must install; it is",
+    "NOT a download manifest and nothing acts on it automatically.",
+    "",
+    "Rising Path Recruiters never downloads, bundles, verifies or installs PostgreSQL.",
+    "scripts/build_installer.ps1 reads exactly one value from this file --",
+    "'required_postgres_major' -- and passes it to Inno Setup so the setup program can refuse",
+    "to install anything until a server of that major version is running on port 5432.",
+    "The setup payload contains no PostgreSQL installer, and the build fails if one appears.",
+    "",
+    "The 'postgresql' block below is REFERENCE INFORMATION used for guidance: the official",
+    "build this deployment model was developed and tested against, and the URL the",
+    "documentation points people at. 'sha256', 'size_bytes' and 'authenticode_subject' are",
+    "the historical record of a pinning step that no longer runs -- keep them or drop them,",
+    "but do not read them as a promise that anything is verified at build time.",
+    "",
+    "To require a newer PostgreSQL: change 'required_postgres_major'. To change what the",
+    "documentation recommends: change the 'postgresql' block."
+  ],
+  "postgresql": {
+    "version": "16.9-1",
+    "major": 16,
+    "filename": "postgresql-16.9-1-windows-x64.exe",
+    "url": "https://get.enterprisedb.com/postgresql/postgresql-16.9-1-windows-x64.exe",
+    "sha256": "d7b61349d44da476b0f3ed7f2f8923ab96b871e2c64558a5b96a7ddf7e7e3307",
+    "size_bytes": 350062048,
+    "authenticode_subject": "CN=EnterpriseDB Corporation, O=EnterpriseDB Corporation, S=Massachusetts, C=US",
+    "publisher": "EDB (the official PostgreSQL Windows installer linked from postgresql.org)",
+    "notes": [
+      "PostgreSQL 16 is a supported major version (community support to November 2028) and",
+      "matches the major version this project has been developed and tested against.",
+      "The user installs it themselves, interactively, keeping the default port 5432 and",
+      "choosing the postgres superuser credential that Rising Path Recruiters asks for once.",
+      "Nothing in this project runs that installer or passes it any options."
+    ]
+  },
+  "minimum_supported_postgres_major": 13,
+  "_required_comment": [
+    "'minimum_supported_postgres_major' governs a server the application is ALREADY running",
+    "against, and is deliberately permissive: this deployment change must not break a",
+    "computer that works today.",
+    "",
+    "'required_postgres_major' is what setup enforces before it installs anything, and is",
+    "stricter: a NEW installation is only accepted on the version this model is tested on.",
+    "Newer majors pass, so nobody is sent to uninstall a working database server."
+  ],
+  "required_postgres_major": 16,
+  "required_postgres_download": "https://www.postgresql.org/download/windows/"
+}

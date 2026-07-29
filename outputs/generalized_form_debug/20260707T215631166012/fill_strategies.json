@@ -1,7 +1,0 @@
-[
-  {
-    "field": "Mobile Phone",
-    "strategy": "type_value",
-    "note": "Strategy only; value must come from unified decision pipeline."
-  }
-]

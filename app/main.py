@@ -12,7 +12,11 @@ from sqlalchemy import Integer, asc, cast, desc, func, select
 from sqlalchemy.orm import Session, contains_eager
 
 from app.config import get_settings
-from app.database import SessionLocal, get_db, init_db
+# The MODULE, not the name: "from app.database import SessionLocal" resolves the lazy
+# attribute at IMPORT time, which builds the engine and so demands a database credential
+# before the launcher can report that none is stored yet. Through the module it stays lazy.
+from app import database
+from app.database import get_db, init_db
 from app.logging_config import configure_logging
 from app.models import (
     ApplicationRecord,
@@ -70,6 +74,7 @@ from app.services.portals.dice_portal import DicePortalAdapter
 from app.services.reasoning import AIReasoningEngine
 from app.services.resume_intelligence import ResumeIntelligenceEngine
 from app.services.resume_parser import ResumeParser, apply_role_profile_compat
+from app.static_site import mount_frontend
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -537,7 +542,7 @@ def connect_linkedin() -> dict:
             ),
         ) from exc
     dice_adapter().disconnect()
-    with SessionLocal() as db:
+    with database.SessionLocal() as db:
         set_active_portal(db, "linkedin")
     # Explicit user Connect -> this session may now show LinkedIn as connected.
     get_runtime_session().mark_connected("linkedin")
@@ -563,7 +568,7 @@ def connect_dice() -> dict:
     if result.get("status") != "connected":
         raise HTTPException(status_code=409, detail=result.get("reason") or "Dice login was not verified.")
     LinkedInAutomation(settings).disconnect_account()
-    with SessionLocal() as db:
+    with database.SessionLocal() as db:
         set_active_portal(db, "dice")
     # Explicit user Connect -> this session may now show Dice as connected.
     get_runtime_session().mark_connected("dice")
@@ -1135,7 +1140,7 @@ def search_jobs(
 
 def _run_find_matches_batch(batch_id: str) -> None:
     debug_dir = _create_find_matches_debug_dir(batch_id)
-    with SessionLocal() as db:
+    with database.SessionLocal() as db:
         batch = db.get(JobSearchBatch, batch_id)
         if not batch:
             return
@@ -2091,7 +2096,7 @@ def _create_apply_top_batch(request: ApplyRequest, db: Session) -> ApplyTopBatch
 
 
 def _run_apply_top_batch(batch_id: str) -> None:
-    with SessionLocal() as db:
+    with database.SessionLocal() as db:
         batch = db.get(ApplyTopBatch, batch_id)
         if not batch:
             logger.error("Apply Top batch %s was not found.", batch_id)
@@ -2984,3 +2989,15 @@ def generalized_form_engine_latest() -> dict:
         "validation_results": read_json("validation_results.json"),
         "pipeline_integration": read_json("pipeline_integration.json"),
     }
+
+
+# --- Web interface -------------------------------------------------------------------------
+# Registered LAST, after every endpoint above, so the client-side-routing fallback can only
+# ever match a path that no API route claimed. In development this installs the "/api" prefix
+# rewrite only and leaves the UI to the Vite dev server; in a packaged build it also serves
+# frontend/dist, which is what removes the Node.js runtime requirement.
+frontend_mount = mount_frontend(
+    app,
+    dist_dir=settings.frontend_dist_dir,
+    enabled=settings.should_serve_frontend(),
+)

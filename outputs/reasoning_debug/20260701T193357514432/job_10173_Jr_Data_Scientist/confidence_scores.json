@@ -1,8 +1,0 @@
-[
-  {
-    "question": "Are you a Citizen/Permanent Resident of the United States?",
-    "answer": "Yes",
-    "confidence": "Medium",
-    "reasoning_type": "Semantic Inference"
-  }
-]

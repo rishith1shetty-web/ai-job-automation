@@ -1,5 +1,21 @@
 $projectRoot = $PSScriptRoot
+$python = Join-Path $projectRoot ".venv\Scripts\python.exe"
+
+# PID files live wherever the resolver puts them (app/paths.py). In a source checkout this is
+# the historical project-relative "work" folder, so existing behaviour is unchanged; once
+# packaged it is the per-machine AppData location. Falls back to "work" if unavailable.
 $work = Join-Path $projectRoot "work"
+if (Test-Path $python) {
+    try {
+        $resolved = & $python -m app.paths 2>$null | ConvertFrom-Json
+        if ($resolved -and $resolved.work) {
+            $work = $resolved.work
+        }
+    }
+    catch {
+        # Keep the project-relative default.
+    }
+}
 
 function Stop-AppProcess {
     param([int]$ProcessId)

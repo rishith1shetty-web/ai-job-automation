@@ -1,8 +1,0 @@
-[
-  {
-    "title": "Backend Developer",
-    "company": "Example Company",
-    "match_score": 73.28,
-    "match_reason": "TF-IDF similarity against resume text plus Easy Apply prioritization."
-  }
-]

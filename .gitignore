@@ -17,3 +17,36 @@ __pycache__/
 frontend/dist/
 frontend/node_modules/
 frontend/*.tsbuildinfo
+
+# Windows packaging output (scripts/build_windows.ps1). ~920 MB, fully reproducible from
+# source, and build/ms-playwright holds a downloaded Chromium.
+build/
+dist/
+
+# Installer output and the downloaded prerequisite. Both are large, both are reproducible:
+# release/ from scripts/build_installer.ps1, the prerequisite from its pinned URL and
+# checksum in installer/prerequisites.json (which IS tracked).
+release/
+installer/prerequisites/
+
+# Clean-machine verifier output. verify_clean_machine.ps1 writes these NEXT TO ITSELF, so
+# they land in scripts/ and would otherwise be offered for commit. They record one specific
+# computer: its file inventory, its data fingerprint and its stage logs.
+scripts/programfiles-manifest.txt
+scripts/data-fingerprint.json
+phase6-*.log
+
+# Credential and backup material. None of this is ever produced by the build -- these
+# patterns exist so that a database dump taken during support, or a signing certificate
+# dropped into the tree, cannot be committed by accident.
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.pfx
+*.p12
+*.key
+*.pem
+.pgpass
+
+.vscode/

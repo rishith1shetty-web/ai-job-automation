@@ -1,9 +1,0 @@
-{
-  "requested_limit": 10,
-  "target_count": 10,
-  "unique_jobs_found": 1,
-  "ranked_jobs_returned": 1,
-  "easy_apply_jobs_found": 1,
-  "duplicate_jobs_skipped": 3,
-  "reason_if_below_target": "LinkedIn returned fewer valid unique Easy Apply jobs than requested after duplicate suppression."
-}

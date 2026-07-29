@@ -1,6 +1,9 @@
 param(
     [switch]$NoBrowser,
-    [switch]$WithStreamlit
+    [switch]$WithStreamlit,
+    # Packaged mode: FastAPI serves the built React app itself. No Node.js, no Vite dev
+    # server, and the browser opens the FastAPI URL. This is how deployed computers run.
+    [switch]$Packaged
 )
 
 $ErrorActionPreference = "Stop"
@@ -8,27 +11,65 @@ $ErrorActionPreference = "Stop"
 $projectRoot = $PSScriptRoot
 $python = Join-Path $projectRoot ".venv\Scripts\python.exe"
 $frontend = Join-Path $projectRoot "frontend"
-$outputs = Join-Path $projectRoot "outputs"
-$work = Join-Path $projectRoot "work"
-$apiStdout = Join-Path $outputs "api.stdout.log"
-$apiStderr = Join-Path $outputs "api.stderr.log"
-$viteStdout = Join-Path $outputs "vite.stdout.log"
-$viteStderr = Join-Path $outputs "vite.stderr.log"
-$streamlitStdout = Join-Path $outputs "streamlit.stdout.log"
-$streamlitStderr = Join-Path $outputs "streamlit.stderr.log"
+$frontendDist = Join-Path $frontend "dist"
+# The single source of truth for which URL to open and which processes to start.
+$apiUrl = "http://127.0.0.1:8000"
+$viteUrl = "http://127.0.0.1:5173"
+$appUrl = if ($Packaged) { $apiUrl } else { $viteUrl }
+# What a browser sends when NAVIGATING to a page. FastAPI serves the React shell only for a
+# navigation (app/static_site.py), so the readiness probe must send this too.
+$browserAccept = @{ Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" }
+# Playwright browsers are a bundled ASSET, not mutable runtime data, so they stay with the
+# installation rather than moving into AppData.
 $playwrightBrowsers = Join-Path $projectRoot "storage\ms-playwright"
 
 if (-not (Test-Path $python)) {
     throw "Python virtual environment was not found at $python"
 }
 
-# Resolve Node now, while the full PATH is still available (it is minimised below so the
-# backend's Playwright uses the bundled browsers). Only the Vite dev server needs Node;
-# FastAPI and Streamlit do not.
-$nodeExe = (Get-Command node.exe -ErrorAction SilentlyContinue).Source
-if (-not $nodeExe) { $nodeExe = "C:\Program Files\nodejs\node.exe" }
-if (-not (Test-Path $nodeExe)) {
-    throw "Node.js was not found (looked for node.exe on PATH and at $nodeExe). Install Node.js to run the React dashboard."
+# Writable locations come from the single Python resolver (app/paths.py) so the launcher and
+# the application always agree, in development and once packaged. In a source checkout this
+# resolves to the historical project-relative "outputs" and "work" folders, so nothing about
+# the current developer workflow changes. If the resolver cannot be reached the launcher
+# falls back to those same folders rather than failing to start.
+$outputs = Join-Path $projectRoot "outputs"
+$work = Join-Path $projectRoot "work"
+try {
+    $resolved = & $python -m app.paths --ensure 2>$null | ConvertFrom-Json
+    if ($resolved -and $resolved.logs -and $resolved.work) {
+        $outputs = $resolved.logs
+        $work = $resolved.work
+    }
+}
+catch {
+    Write-Host "[startup] Could not resolve runtime paths; using project-relative folders."
+}
+
+$apiStdout = Join-Path $outputs "api.stdout.log"
+$apiStderr = Join-Path $outputs "api.stderr.log"
+$viteStdout = Join-Path $outputs "vite.stdout.log"
+$viteStderr = Join-Path $outputs "vite.stderr.log"
+$streamlitStdout = Join-Path $outputs "streamlit.stdout.log"
+$streamlitStderr = Join-Path $outputs "streamlit.stderr.log"
+
+# Node.js is required ONLY by the Vite dev server, so it is resolved only in development
+# mode. Packaged mode never looks for it -- that is the point of serving frontend/dist from
+# FastAPI. Resolved now, while the full PATH is still available (it is minimised below so the
+# backend's Playwright uses the bundled browsers).
+$nodeExe = $null
+if (-not $Packaged) {
+    $nodeExe = (Get-Command node.exe -ErrorAction SilentlyContinue).Source
+    if (-not $nodeExe) { $nodeExe = "C:\Program Files\nodejs\node.exe" }
+    if (-not (Test-Path $nodeExe)) {
+        throw "Node.js was not found (looked for node.exe on PATH and at $nodeExe). Install Node.js to run the React dev server, or start in packaged mode: .\start_app.ps1 -Packaged"
+    }
+}
+else {
+    # Fail fast with an actionable message rather than starting a server that can only
+    # answer 503 for every page.
+    if (-not (Test-Path (Join-Path $frontendDist "index.html"))) {
+        throw "Packaged mode needs the built web interface, but $frontendDist\index.html was not found. Build it once with: cd frontend; npm install; npm run build"
+    }
 }
 
 New-Item -ItemType Directory -Force -Path $outputs, $work | Out-Null
@@ -145,11 +186,16 @@ function Wait-HttpOk {
         [string]$Url,
         [string]$Name,
         [string]$StdoutPath,
-        [string]$StderrPath
+        [string]$StderrPath,
+        # Optional request headers. The packaged web-interface probe needs
+        # "Accept: text/html" because FastAPI serves the React shell only to a browser
+        # NAVIGATION — a bare Invoke-WebRequest sends "*/*", which correctly falls through
+        # to the API and 404s. See app/static_site.py.
+        [hashtable]$Headers = @{}
     )
     for ($attempt = 0; $attempt -lt 40; $attempt++) {
         try {
-            $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec 2
+            $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec 2 -Headers $Headers
             if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) {
                 Write-Step "$Name is reachable at $Url."
                 return
@@ -167,6 +213,9 @@ function Wait-HttpOk {
 [Environment]::SetEnvironmentVariable("PATH", $null, "Process")
 [Environment]::SetEnvironmentVariable("Path", "C:\Windows\System32;C:\Windows", "Process")
 [Environment]::SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", $playwrightBrowsers, "Process")
+# Tell FastAPI (inherited by the child process) whether to serve frontend/dist itself. Set
+# explicitly in both modes so the running app never has to guess from its surroundings.
+[Environment]::SetEnvironmentVariable("SERVE_FRONTEND", $(if ($Packaged) { "true" } else { "false" }), "Process")
 
 Write-Step "Checking ports 8000, 5173 and 8501."
 Stop-PidFileProcess "api"
@@ -228,48 +277,61 @@ else {
     Write-Step "Skipping Streamlit fallback (pass -WithStreamlit to start it on :8501)."
 }
 
-# React/Vite dev server — the PRIMARY local dashboard. Launch Vite through Node directly
-# so the recorded PID is the actual server (no npm.cmd wrapper to orphan). The Vite proxy
-# forwards /api to FastAPI, so no CORS/backend change is needed.
-$viteEntry = Join-Path $frontend "node_modules\vite\bin\vite.js"
-if (-not (Test-Path $viteEntry)) {
-    throw "Vite was not found at $viteEntry. Run 'npm install' in the frontend folder first."
+# React/Vite dev server — the PRIMARY local dashboard IN DEVELOPMENT ONLY. Launch Vite
+# through Node directly so the recorded PID is the actual server (no npm.cmd wrapper to
+# orphan). The Vite proxy forwards /api to FastAPI, so no CORS/backend change is needed.
+# In packaged mode this whole block is skipped: FastAPI already serves the built assets.
+$vite = $null
+if (-not $Packaged) {
+    $viteEntry = Join-Path $frontend "node_modules\vite\bin\vite.js"
+    if (-not (Test-Path $viteEntry)) {
+        throw "Vite was not found at $viteEntry. Run 'npm install' in the frontend folder first."
+    }
+    Write-Step "Starting React (Vite) on $viteUrl."
+    $vite = Start-Process `
+        -FilePath $nodeExe `
+        -ArgumentList $viteEntry `
+        -WorkingDirectory $frontend `
+        -RedirectStandardOutput $viteStdout `
+        -RedirectStandardError $viteStderr `
+        -WindowStyle Hidden `
+        -PassThru
+    Set-Content (Join-Path $work "vite.pid") $vite.Id
+    Start-Sleep -Seconds 1
+    if ($vite.HasExited) {
+        Show-LogTail $viteStdout
+        Show-LogTail $viteStderr
+        throw "React (Vite) exited during startup with code $($vite.ExitCode)."
+    }
+    Wait-HttpOk $viteUrl "React" $viteStdout $viteStderr
 }
-Write-Step "Starting React (Vite) on http://127.0.0.1:5173."
-$vite = Start-Process `
-    -FilePath $nodeExe `
-    -ArgumentList $viteEntry `
-    -WorkingDirectory $frontend `
-    -RedirectStandardOutput $viteStdout `
-    -RedirectStandardError $viteStderr `
-    -WindowStyle Hidden `
-    -PassThru
-Set-Content (Join-Path $work "vite.pid") $vite.Id
-Start-Sleep -Seconds 1
-if ($vite.HasExited) {
-    Show-LogTail $viteStdout
-    Show-LogTail $viteStderr
-    throw "React (Vite) exited during startup with code $($vite.ExitCode)."
+else {
+    Write-Step "Packaged mode: FastAPI is serving the built web interface (no Node.js, no Vite)."
+    # Prove the shell really is being served before the browser is pointed at it. The probe
+    # must identify itself as a browser navigation, exactly as the real browser will.
+    Wait-HttpOk $apiUrl "Web interface" $apiStdout $apiStderr -Headers $browserAccept
 }
-Wait-HttpOk "http://127.0.0.1:5173" "React" $viteStdout $viteStderr
 
-# Open the React dashboard (the primary UI) — not Streamlit.
+# Open the React dashboard (the primary UI) — not Streamlit. Development opens the Vite dev
+# server; packaged opens the FastAPI-served build.
 if (-not $NoBrowser) {
-    Start-Process "http://127.0.0.1:5173"
+    Start-Process $appUrl
 }
 
 $streamlitStatus = if ($WithStreamlit) { "running at http://127.0.0.1:8501" } else { "not started  (run: .\start_app.ps1 -WithStreamlit)" }
+$modeLabel = if ($Packaged) { "packaged (FastAPI serves frontend\dist; Node.js not required)" } else { "development (Vite dev server)" }
 
 Write-Host ""
 Write-Host "Rising Path Recruiters is running:"
-Write-Host "  React dashboard (PRIMARY): http://127.0.0.1:5173"
-Write-Host "  FastAPI backend:           http://127.0.0.1:8000"
-Write-Host "  FastAPI health:            http://127.0.0.1:8000/health"
+Write-Host "  Mode:                      $modeLabel"
+Write-Host "  Open this:                 $appUrl"
+Write-Host "  FastAPI backend:           $apiUrl"
+Write-Host "  FastAPI health:            $apiUrl/health"
 Write-Host "  Streamlit fallback:        $streamlitStatus"
 Write-Host ""
 Write-Host "  Process status:"
 Write-Host "    FastAPI  (work\api.pid):   $($api.Id)"
-Write-Host "    React    (work\vite.pid):  $($vite.Id)"
+if ($vite) { Write-Host "    React    (work\vite.pid):  $($vite.Id)" }
 if ($WithStreamlit) { Write-Host "    Streamlit (work\streamlit.pid): $($dashboard.Id)" }
 Write-Host ""
 Write-Host "  Logs: $outputs"
