@@ -7,19 +7,19 @@ is simply gone.
 
 Grouped by guarantee:
 
-* **bootstrap logging** — the log is open before any import that can fail, it rotates, and
+* **bootstrap logging** â€” the log is open before any import that can fail, it rotates, and
   nothing credential-shaped can reach it;
-* **single instance** — a named kernel mutex, one per interactive user, that a crash cannot
+* **single instance** â€” a named kernel mutex, one per interactive user, that a crash cannot
   leave permanently held;
-* **runtime state** — a non-secret published description of the running instance, written
+* **runtime state** â€” a non-secret published description of the running instance, written
   atomically, validated before it is trusted, and removed on shutdown;
-* **shutdown** — loopback-only and authorised by a per-run token, so the installer can ask
+* **shutdown** â€” loopback-only and authorised by a per-run token, so the installer can ask
   the application to stop instead of killing it;
-* **PostgreSQL service** — started only when it is genuinely a PostgreSQL service, and only
+* **PostgreSQL service** â€” started only when it is genuinely a PostgreSQL service, and only
   ever started, never stopped or reconfigured;
-* **readiness** — the browser opens once, and only after the API *and* the web interface
+* **readiness** â€” the browser opens once, and only after the API *and* the web interface
   answer;
-* **ownership** — nothing is ever terminated unless it is provably this application's.
+* **ownership** â€” nothing is ever terminated unless it is provably this application's.
 
 No test here installs PostgreSQL, starts or stops a real service, touches the real database,
 overwrites the real credential, or performs any LinkedIn or Dice action. Destructive paths
@@ -1430,6 +1430,116 @@ class GuiBuildTests(unittest.TestCase):
         self.assertIn('PROJECT_ROOT / "build" / "version_info.txt"', self.spec)
 
 
+class HeadlessStreamTests(_LoggingPreservingTestCase):
+    """The PC9 failure: a windowed build has no sys.stdout or sys.stderr.
+
+    Installation and provisioning succeeded; the application then died on startup with
+    ``AttributeError: 'NoneType' object has no attribute 'isatty'``, raised out of
+    ``logging.config.dictConfig`` while uvicorn built its own default formatter. Nothing in
+    the suite could see it, because a test runner and a console build both have real
+    streams -- so these tests take the streams away first."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        # uvicorn.Config's constructor mutates the levels and handlers of the uvicorn
+        # loggers. Put them back, so this file cannot change how the rest of the suite logs.
+        touched = ("uvicorn", "uvicorn.error", "uvicorn.access", "uvicorn.asgi")
+        saved = {name: (logging.getLogger(name).level,
+                        list(logging.getLogger(name).handlers),
+                        logging.getLogger(name).propagate) for name in touched}
+
+        def restore() -> None:
+            for name, (level, handlers, propagate) in saved.items():
+                logger = logging.getLogger(name)
+                logger.setLevel(level)
+                logger.handlers = handlers
+                logger.propagate = propagate
+
+        self.addCleanup(restore)
+
+    def test_uvicorn_default_logging_really_does_fail_without_streams(self) -> None:
+        """Proof that the test below is not vacuous.
+
+        If a future uvicorn stops calling isatty() on a missing stream this fails, and the
+        workaround can be reconsidered on evidence rather than removed on a hunch."""
+        import uvicorn
+
+        with patch.object(sys, "stdout", None), patch.object(sys, "stderr", None):
+            with self.assertRaises(ValueError) as caught:
+                uvicorn.Config(_null_asgi_app, host="127.0.0.1", port=8123,
+                               log_level="info", access_log=False)
+
+        # PC9 reported exactly this pair: dictConfig wraps the real fault in a ValueError
+        # naming the formatter, and the cause is the isatty() call on a missing stream.
+        self.assertIn("Unable to configure formatter 'default'", str(caught.exception))
+        cause = caught.exception.__cause__
+        self.assertIsInstance(cause, AttributeError)
+        self.assertIn("isatty", str(cause))
+
+    def test_the_launchers_configuration_survives_missing_streams(self) -> None:
+        from app import windows_launcher as launcher
+
+        with patch.object(sys, "stdout", None), patch.object(sys, "stderr", None):
+            config = launcher.uvicorn_config(_null_asgi_app, 8123)
+
+        self.assertIsNone(config.log_config, "uvicorn would reconfigure logging again")
+        self.assertFalse(config.access_log)
+        self.assertEqual(config.host, launcher.HOST)
+        self.assertEqual(config.port, 8123)
+
+    def test_serve_builds_its_configuration_through_that_helper(self) -> None:
+        """A second construction site would reintroduce the crash without failing a test."""
+        source = read(ROOT / "app" / "windows_launcher.py")
+        self.assertEqual(source.count("uvicorn.Config("), 1)
+        self.assertIn("config = uvicorn_config(app, port)", source)
+
+    def test_uvicorn_logs_reach_the_applications_own_file_log(self) -> None:
+        """Requirement: launcher.log still receives startup and error lines.
+
+        With no handlers of its own, uvicorn's logger propagates to the root -- which the
+        packaged launcher has already pointed at launcher.log."""
+        from app import windows_launcher as launcher
+
+        with patch.object(sys, "stdout", None), patch.object(sys, "stderr", None):
+            launcher.uvicorn_config(_null_asgi_app, 8123)
+
+        error_logger = logging.getLogger("uvicorn.error")
+        self.assertTrue(error_logger.propagate)
+        self.assertEqual(error_logger.handlers, [])
+
+        root = logging.getLogger()
+        captured = []
+
+        class Capture(logging.Handler):
+            def emit(self, record):
+                captured.append(record.getMessage())
+
+        handler = Capture()
+        root.addHandler(handler)
+        self.addCleanup(root.removeHandler, handler)
+        error_logger.info("Uvicorn running on http://127.0.0.1:8123")
+        self.assertIn("Uvicorn running on http://127.0.0.1:8123", captured)
+
+    def test_the_application_log_configuration_installs_no_stream_it_cannot_write_to(self) -> None:
+        from app.logging_config import _console_handler, configure_logging
+
+        with patch.object(sys, "stderr", None):
+            self.assertEqual(_console_handler()["class"], "logging.NullHandler")
+            configure_logging(force=True)
+            # Emitting must not raise -- this is what failed for every record before.
+            logging.getLogger("linkedin_auto_apply").error("startup failure")
+
+    def test_a_console_build_still_logs_to_the_console(self) -> None:
+        """The windowed guard must not change behaviour where a stream does exist."""
+        from app.logging_config import _console_handler
+
+        self.assertEqual(_console_handler()["class"], "logging.StreamHandler")
+
+
+async def _null_asgi_app(scope, receive, send):  # pragma: no cover - never invoked
+    """Enough of an ASGI application for uvicorn.Config to accept. Never served."""
+
+
 class ApplicationIconTests(unittest.TestCase):
     def test_the_icon_was_built_from_the_projects_own_logo(self) -> None:
         from scripts.make_icon import source_path
@@ -1573,7 +1683,7 @@ class InstallerIntegrationTests(unittest.TestCase):
 
     def test_the_user_is_asked_when_graceful_shutdown_does_not_work(self) -> None:
         block = self.iss[self.iss.index("function AskUserToCloseApp"):
-                         self.iss.index("procedure InstallPostgres")]
+                         self.iss.index("function InitializeSetup")]
         self.assertIn("RequestGracefulShutdown", block)
         self.assertIn("MsgBox", block)
 

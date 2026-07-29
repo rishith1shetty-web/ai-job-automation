@@ -4,8 +4,14 @@ How to produce `dist\RisingPathRecruiters\` — a portable folder that runs the 
 application on a Windows computer with **no Python, pip, virtualenv, Node.js, npm, Vite or
 source checkout**.
 
-This document covers the *build*. It does not create an installer: packaging the folder with
-Inno Setup is a separate, later phase (see [Limitations](#limitations-before-inno-setup)).
+This document covers the *build* — the PyInstaller step only. Wrapping the result in a setup
+program is the next step and is documented separately in
+[WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md); run `scripts\build_installer.ps1` after this.
+
+**PostgreSQL is not part of either step.** The build never connects to a database, the
+packaged application never installs one, and the installer neither bundles, downloads,
+verifies nor installs one. PostgreSQL 16 is installed by hand by the person setting the
+computer up, before setup runs.
 
 ---
 
@@ -183,7 +189,10 @@ redaction used everywhere, and `tests/test_packaging.py` asserts it.
 
 Provisioning (creating the database, the least-privilege role and the stored credential) is
 covered by [POSTGRES_PROVISIONING.md](POSTGRES_PROVISIONING.md); migrations by
-[DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md).
+[DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md); installing, upgrading and removing the
+product, and the manual PostgreSQL 16 prerequisite, by
+[WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md). What shipped in each version is in
+[RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 ## Troubleshooting
 
@@ -207,7 +216,8 @@ Run through this on a computer that has never had the project on it.
 **Before copying anything**
 
 - [ ] No Python, no `.venv`, no Node.js/npm needed — confirm none is installed or on `PATH`
-- [ ] PostgreSQL is installed and running (the app does not install it)
+- [ ] **PostgreSQL 16 is already installed by hand and running on port 5432** — nothing in
+      this product installs it, so a machine without it is not "clean", it is incomplete
 - [ ] The user account is the one that will run the app (DPAPI is per-account)
 
 **Copy and start**
@@ -239,31 +249,58 @@ Run through this on a computer that has never had the project on it.
 The scripted equivalent of the last three sections is:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\test_packaged_build.ps1
+powershell -ExecutionPolicy Bypass -File scripts\test_packaged_build.ps1 -DatabaseUrl "<url>"
 ```
 
 It runs the executable in a clean-room child process — the project and Node directories
 stripped from its `PATH`, working directory outside the checkout — and checks all of the
-above. It performs **no** LinkedIn or Dice action and submits **no** application.
+above (30 checks). It performs **no** LinkedIn or Dice action and submits **no** application,
+and it issues no `POST`, `PUT` or `DELETE`: every check is read-only.
 
-## Limitations before Inno Setup
+`-DatabaseUrl` is passed to the child process for that run only and is never stored. Without
+it the child has no credential of its own and the database checks fail with exit 17 — which
+is the script working correctly, not a defect in the build.
 
-Known and deliberate at this stage:
+## Limitations of the raw build folder
 
-* **No installer.** The folder must be copied by hand. There is no Start-menu entry, no
-  desktop shortcut, no uninstaller and no upgrade path.
-* **No code signing.** SmartScreen will warn on first run on a machine that has not seen the
-  executable before.
-* **`console=True`.** A console window appears alongside the app. It stays until the error
-  dialogs have been exercised on a clean machine, because an early failure is far easier to
-  diagnose with visible stdout. The installer phase flips it off.
-* **PostgreSQL is a prerequisite.** Neither the build nor the launcher installs it.
-* **Provisioning is still a separate step**, run manually before the first start.
+These apply to `dist\RisingPathRecruiters\` **copied by hand**. Most of them are answered by
+the setup program built on top of it — see [WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md).
+
+* **No shortcuts, no uninstaller, no upgrade path.** A hand-copied folder has none of them.
+  The installer provides all three.
+* **Provisioning is a separate step** for a hand-copied folder: run
+  `scripts\provision_postgres.ps1` before the first start. The installer does this for you,
+  asking for the PostgreSQL administrator password on a masked page.
 * **Per-account credential.** The DPAPI blob belongs to one Windows account on one computer.
   Another account on the same machine must provision its own.
 * **Large folder (~920 MB)**, dominated by Chromium. See the size notes below.
 * **x64 Windows only**, built from a Windows machine; there is no cross-compilation.
-* **No auto-update.** A new version is a new copy of the folder.
+
+And these apply to the shipped product as well:
+
+* **PostgreSQL 16 is a manual prerequisite.** Neither the build, nor the launcher, nor the
+  installer installs, downloads or bundles a database server. The installer verifies that a
+  suitable one is already running on `localhost:5432` and refuses to install anything until
+  it is.
+* **No code signing.** SmartScreen warns on first run on a machine that has not seen the
+  executable before.
+* **No auto-update.** Updates are manual: a newer installer is run **over** the existing
+  installation, without uninstalling first.
+
+### The shipped executable is windowed
+
+`RisingPathRecruiters.spec` sets `console=CONSOLE_BUILD`, and `CONSOLE_BUILD` is false unless
+`RPR_CONSOLE_BUILD=1` is exported. The release build therefore has **no console window**
+(PE subsystem 2), and neither `scripts\build_windows.ps1` nor `scripts\build_installer.ps1`
+sets that variable — a console build is opt-in, for support only.
+
+Losing the console means `sys.stdout` and `sys.stderr` are `None` at run time, so **nothing
+in the startup path may assume a stream exists**. This is not theoretical: uvicorn's default
+logging configuration calls `sys.stdout.isatty()` while building its formatter, which raised
+`AttributeError` on a real windowed installation and stopped the application from starting.
+The launcher passes `log_config=None` for exactly that reason, and `app/logging_config.py`
+falls back to a `NullHandler` when there is no stream. `tests/test_runtime_hardening.py`
+covers both with `sys.stdout` and `sys.stderr` set to `None`.
 
 ### Size
 

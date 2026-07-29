@@ -1,19 +1,22 @@
 {
   "_comment": [
-    "Pinned prerequisite downloads. Read by scripts/prepare_installer_prerequisites.ps1,",
-    "scripts/build_installer.ps1 and tests/test_installer.py -- there is no second copy.",
+    "PostgreSQL REQUIREMENT metadata. This file describes what the user must install; it is",
+    "NOT a download manifest and nothing acts on it automatically.",
     "",
-    "'sha256' and 'authenticode_subject' are TRUST ANCHORS. They are established once,",
-    "deliberately, by running the prepare script with -Pin against the official URL, and are",
-    "never edited to make a failing verification pass. A mismatch means the file is not the",
-    "one that was reviewed; the correct response is to investigate, not to update the value.",
+    "Rising Path Recruiters never downloads, bundles, verifies or installs PostgreSQL.",
+    "scripts/build_installer.ps1 reads exactly one value from this file --",
+    "'required_postgres_major' -- and passes it to Inno Setup so the setup program can refuse",
+    "to install anything until a server of that major version is running on port 5432.",
+    "The setup payload contains no PostgreSQL installer, and the build fails if one appears.",
     "",
-    "The Authenticode signature is the stronger of the two: the checksum only proves the file",
-    "is byte-identical to the one that was pinned, whereas the signature proves EDB published",
-    "it, independently of how it was obtained. Both are checked.",
+    "The 'postgresql' block below is REFERENCE INFORMATION used for guidance: the official",
+    "build this deployment model was developed and tested against, and the URL the",
+    "documentation points people at. 'sha256', 'size_bytes' and 'authenticode_subject' are",
+    "the historical record of a pinning step that no longer runs -- keep them or drop them,",
+    "but do not read them as a promise that anything is verified at build time.",
     "",
-    "To move to a new PostgreSQL version: change 'version', 'major', 'filename' and 'url',",
-    "set 'sha256' to null, re-run the prepare script with -Pin, and record the new value."
+    "To require a newer PostgreSQL: change 'required_postgres_major'. To change what the",
+    "documentation recommends: change the 'postgresql' block."
   ],
   "postgresql": {
     "version": "16.9-1",
@@ -27,9 +30,21 @@
     "notes": [
       "PostgreSQL 16 is a supported major version (community support to November 2028) and",
       "matches the major version this project has been developed and tested against.",
-      "The installer is BitRock/InstallBuilder based; its unattended options are documented",
-      "and assembled in app/postgres_install.py, which builds the command line."
+      "The user installs it themselves, interactively, keeping the default port 5432 and",
+      "choosing the postgres superuser credential that Rising Path Recruiters asks for once.",
+      "Nothing in this project runs that installer or passes it any options."
     ]
   },
-  "minimum_supported_postgres_major": 13
+  "minimum_supported_postgres_major": 13,
+  "_required_comment": [
+    "'minimum_supported_postgres_major' governs a server the application is ALREADY running",
+    "against, and is deliberately permissive: this deployment change must not break a",
+    "computer that works today.",
+    "",
+    "'required_postgres_major' is what setup enforces before it installs anything, and is",
+    "stricter: a NEW installation is only accepted on the version this model is tested on.",
+    "Newer majors pass, so nobody is sent to uninstall a working database server."
+  ],
+  "required_postgres_major": 16,
+  "required_postgres_download": "https://www.postgresql.org/download/windows/"
 }

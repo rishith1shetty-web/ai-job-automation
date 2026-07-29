@@ -641,6 +641,34 @@ def wait_until_ready(port: int, timeout: float = READINESS_TIMEOUT_SECONDS,
     return False
 
 
+def uvicorn_config(app, port: int):
+    """Build uvicorn's configuration WITHOUT letting it reconfigure logging.
+
+    ``log_config=None`` is the whole fix, and it is not a style preference.
+
+    A windowed (GUI subsystem) executable has no console, so ``sys.stdout`` and
+    ``sys.stderr`` are ``None``. Constructing ``uvicorn.Config`` runs ``configure_logging()``
+    immediately, which calls ``dictConfig`` on uvicorn's default LOGGING_CONFIG; that builds
+    a ``ColourizedFormatter``, whose ``__init__`` decides on colour with
+    ``sys.stdout.isatty()``. On a real windowed build that is ``None.isatty()`` --
+    ``AttributeError``, raised before the server ever starts. It cannot reproduce in a
+    console build or under the test runner, which is why it survived to PC9.
+
+    Passing ``None`` skips that block entirely. Uvicorn then installs no handlers of its own,
+    so ``uvicorn.error`` and ``uvicorn.access`` propagate to the root logger -- which the
+    packaged launcher has already pointed at ``launcher.log`` in ``app/bootstrap_log.py``.
+    Startup lines, and any traceback uvicorn logs, land in the support log rather than being
+    written to a stream that does not exist.
+
+    ``log_level`` and ``access_log`` still work: uvicorn applies both by setting levels and
+    clearing handlers on its own loggers, neither of which touches a stream."""
+    import uvicorn
+
+    return uvicorn.Config(
+        app, host=HOST, port=port, log_level="info", access_log=False, log_config=None,
+    )
+
+
 def serve(port: int, coordinator=None):
     """Start uvicorn in this process, on loopback only."""
     import uvicorn
@@ -652,7 +680,7 @@ def serve(port: int, coordinator=None):
 
         install(app, coordinator)
 
-    config = uvicorn.Config(app, host=HOST, port=port, log_level="info", access_log=False)
+    config = uvicorn_config(app, port)
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, name="uvicorn", daemon=True)
     thread.start()

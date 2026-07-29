@@ -3,9 +3,22 @@
 How the application gets a database on a new Windows computer without the person using it
 ever opening pgAdmin, creating a role, editing `.env` or typing a command.
 
-**Phase 2B scope:** this layer is built and tested, but it does **not** install PostgreSQL.
-When PostgreSQL is missing it reports `POSTGRES_NOT_FOUND` (exit code 10) so a future
-installer step can act on it.
+**This layer does not install PostgreSQL, and nothing in the product does.** PostgreSQL 16 is
+installed by hand, before the Rising Path Recruiters installer runs — that is the final,
+supported deployment model, not a gap waiting to be filled. An earlier design embedded the
+official PostgreSQL installer and ran it unattended; it was removed. When PostgreSQL is
+missing this layer reports `POSTGRES_NOT_FOUND` (exit code 10), and setup refuses to install
+anything until the user has fixed it.
+
+There are two ways this provisioning runs:
+
+| | Used by | Administrator password comes from |
+|---|---|---|
+| **The installer** | Everybody installing the product | A masked wizard page, handed over as DPAPI ciphertext — see [WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md) |
+| **`scripts\provision_postgres.ps1`** | Developers and support | An interactive `SecureString` prompt, piped through stdin |
+
+Both end at the same place: the role, the database, the migrations and the DPAPI-protected
+credential described below.
 
 ---
 
@@ -84,6 +97,9 @@ return.
 
 ## New computer
 
+On a computer where the product was **installed**, none of this is run by hand: the installer
+does it. This is the developer and support path.
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\provision_postgres.ps1
 ```
@@ -113,21 +129,34 @@ Read-only modes need no password at all:
 
 ## Provisioning states and exit codes
 
-| Code | Status | Meaning | Installer action |
+`app.provisioning.Status`. The values ARE the process exit codes, so there is one numbering
+scheme rather than two that can drift apart.
+
+| Code | Status | Meaning | What acts on it |
 |---|---|---|---|
 | 0 | `SUCCESS` | ready | continue |
 | 2 | `INVALID_USAGE` | no administrator password supplied | re-prompt |
-| 10 | `POSTGRES_NOT_FOUND` | nothing reachable on the port | install PostgreSQL (future phase), or start the service |
-| 11 | `PORT_OCCUPIED_BY_OTHER` | something else holds the port | tell the user; offer another port |
-| 12 | `ADMIN_AUTH_FAILED` | administrator password rejected | re-prompt |
+| 10 | `POSTGRES_NOT_FOUND` | nothing reachable on the port | setup stops **before installing anything** and tells the user to install PostgreSQL 16 |
+| 11 | `PORT_OCCUPIED_BY_OTHER` | something else holds the port | tell the user; free the port |
+| 12 | `ADMIN_AUTH_FAILED` | administrator password rejected | re-prompt on the password page |
 | 13 | `PROVISION_FAILED` | role/database/ownership step failed | show the message |
 | 14 | `MIGRATION_FAILED` | `alembic upgrade head` failed | show the message; database is intact |
 | 15 | `VERIFICATION_FAILED` | resulting schema did not match the baseline | do not continue |
 | 16 | `CREDENTIAL_STORE_FAILED` | credential could not be protected | show the message |
-| 20 | `PYTHON_NOT_FOUND` | the app's Python environment is missing | broken installation |
 
 `POSTGRES_NOT_FOUND` is distinguished from `ADMIN_AUTH_FAILED` and from `MIGRATION_FAILED`,
 so the installer can tell "not installed" from "wrong password" from "schema problem".
+
+**Two other code spaces exist above 16, and they are not the same list.** Each belongs to one
+program; they never appear together.
+
+| Owner | Codes |
+|---|---|
+| `app/installer_bridge.py` (what the installer calls) | 20 `POSTGRES_STOPPED`, 21 `NO_ADMIN_PASSWORD`, 22 `UNEXPECTED`, 23 `POSTGRES_WRONG_VERSION`, 24 `HANDOFF_FAILED` |
+| `scripts\provision_postgres.ps1` | 20 `PYTHON_NOT_FOUND` — the developer's Python environment is missing |
+
+They start at 20 deliberately, above the `Status` range, so that adding a new `Status` value
+can never collide with one of them.
 
 Detection is protocol-level: `probe_port` sends a PostgreSQL `SSLRequest` packet and requires
 the one-byte `S`/`N` reply. A web server or any other program on 5432 is therefore reported
@@ -217,7 +246,7 @@ superuser credential still works, since provisioning never revokes it.
 |---|---|---|
 | "No database credential is configured" | no `DATABASE_URL`, no stored credential | run provisioning |
 | "Windows could not read the stored credential" | different Windows account, restored profile, or another computer | re-run provisioning (rotates the password; data untouched) |
-| Exit 10 | PostgreSQL not installed or its service is stopped | start `postgresql-x64-NN`, or install |
+| Exit 10 | PostgreSQL not installed or its service is stopped | `Start-Service postgresql-x64-16`, or install PostgreSQL 16 by hand |
 | Exit 11 | another program on 5432 | stop it, or use `-Port` |
 | Exit 12 | wrong administrator password | re-run and retype |
 | Exit 14/15 | migration or schema problem | see `docs/DATABASE_MIGRATIONS.md`; the database is not modified destructively |
@@ -229,17 +258,29 @@ the module and inspects every executable SQL string. Re-running it can never des
 
 ## Upgrades and uninstall
 
-**Application upgrades** keep everything: the credential lives in
-`%LOCALAPPDATA%\AIJobAutomation\config\`, and the database lives in PostgreSQL's own data
-directory. Neither is inside the install folder. An upgrade re-runs provisioning, which finds
-the role and database already correct, retains the working password, and applies any new
-migrations.
+**Application upgrades** keep everything. The credential lives in
+`%LOCALAPPDATA%\AIJobAutomation\config\` and the database lives in PostgreSQL's own data
+directory; neither is inside the install folder, so replacing the program files cannot
+disturb them.
 
-**Uninstall** should leave the database and the credential in place by default — removing
-them destroys the user's entire application history. A future installer that offers "also
-remove my data" must delete, in this order: the `linkedin_auto_apply` database, the
-`ai_job_automation_app` role, then `%LOCALAPPDATA%\AIJobAutomation\`. PostgreSQL itself must
-not be uninstalled: other software may be using it.
+The supported upgrade is to run the **newer installer over the existing installation** —
+users must **not** uninstall first. Setup asks the application whether it is already
+provisioned (`--installer status`); when it is, provisioning is skipped entirely, the wizard
+reports *"The existing database was kept"*, and the administrator password typed on the page
+is never used. New schema changes arrive as new Alembic migrations. Preserved across an
+upgrade: the database and all application history, uploaded resumes, LinkedIn and Dice
+sessions, the DPAPI credential, and everything under `%LOCALAPPDATA%\AIJobAutomation`.
+
+**Uninstall leaves the database and the credential in place**, because removing them would
+destroy the user's entire application history. The uninstaller removes the program directory
+and the shortcuts and nothing else — it does not touch `%LOCALAPPDATA%`, the database, the
+role, or PostgreSQL itself, which other software may be using. Reinstalling later adopts the
+existing database unchanged.
+
+Deleting the data is a separate, explicit, manual act, in this order: the
+`linkedin_auto_apply` database, the `ai_job_automation_app` role, then
+`%LOCALAPPDATA%\AIJobAutomation\`. The exact commands are in
+[WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md#9-optional-complete-cleanup).
 
 ---
 
@@ -268,3 +309,13 @@ Every database created by these tests is named `ai_job_migtest_*` and every role
 anything else, so the real database and the real role can never be created, altered or
 dropped by a test. Credential tests redirect the store to a temporary directory, so the
 developer's own stored credential is never read or overwritten.
+
+---
+
+## See also
+
+- [WINDOWS_INSTALLER.md](WINDOWS_INSTALLER.md) — installing, upgrading and removing the
+  product; the manual PostgreSQL 16 prerequisite; the masked password page.
+- [WINDOWS_BUILD.md](WINDOWS_BUILD.md) — the packaged application this provisioning ships in.
+- [DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md) — the migrations `upgrade head` applies.
+- [RELEASE_NOTES.md](RELEASE_NOTES.md) — what shipped in each version.

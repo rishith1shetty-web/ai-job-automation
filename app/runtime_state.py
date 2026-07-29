@@ -260,23 +260,19 @@ def clear_token(path: Path | None = None) -> None:
 
 
 def restrict_to_current_user(path: Path) -> None:
-    """Remove inherited access; grant only this user, SYSTEM and Administrators."""
-    if os.name != "nt":
-        path.chmod(0o600)
-        return
-    account = os.environ.get("USERNAME") or ""
-    grants = ["*S-1-5-18:(F)", "*S-1-5-32-544:(F)"]  # SYSTEM, Administrators
-    if account:
-        grants.insert(0, f"{account}:(F)")
-    arguments = ["icacls", str(path), "/inheritance:r"]
-    for grant in grants:
-        arguments += ["/grant:r", grant]
+    """Remove inherited access; grant only this account, SYSTEM and Administrators.
+
+    The shared implementation identifies the account by its token SID rather than by
+    ``%USERNAME%``; ``app/windows_acl.py`` explains why the difference matters. A failure is
+    logged rather than raised: the token is short-lived and confined to the user's own
+    profile, so losing the tightening is not a reason to refuse to start."""
+    from app.windows_acl import AccessRestrictionError
+    from app.windows_acl import restrict_to_current_user as restrict
+
     try:
-        completed = subprocess.run(arguments, capture_output=True, text=True, timeout=30)
-        if completed.returncode != 0:
-            logger.warning("Could not restrict access to %s.", path.name)
-    except (OSError, subprocess.SubprocessError) as error:
-        logger.warning("Could not restrict access to %s: %s", path.name, type(error).__name__)
+        restrict(path)
+    except AccessRestrictionError as error:
+        logger.warning("Could not restrict access to %s: %s", path.name, error)
 
 
 # --------------------------------------------------------------------------------------

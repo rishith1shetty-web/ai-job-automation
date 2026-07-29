@@ -5,8 +5,11 @@ migrates it to the Alembic head, verifies the resulting schema, and stores the c
 securely -- so the person using the installer never opens pgAdmin, never types a command and
 never edits a file.
 
-**This phase does not install PostgreSQL.** When PostgreSQL is missing it returns
-:data:`Status.POSTGRES_NOT_FOUND` for a future installer step to act on.
+**Nothing in this product installs PostgreSQL.** PostgreSQL 16 is installed by hand,
+before the setup program runs; that is the supported deployment model, not a gap. When
+PostgreSQL is missing this module returns :data:`Status.POSTGRES_NOT_FOUND`, and setup stops
+*before installing anything* and instructs the user to install PostgreSQL 16 for Windows
+x86-64 on port 5432 and run it again.
 
 Safety properties, all tested:
 
@@ -202,6 +205,32 @@ def can_authenticate(credential: DatabaseCredential) -> bool:
     except Exception as error:
         logger.debug("Credential check failed: %s", type(error).__name__)
         return False
+    finally:
+        engine.dispose()
+
+
+def admin_can_authenticate(password: str, *, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
+                           admin_user: str = ADMIN_USER) -> tuple[bool, str]:
+    """Does this administrator password work, right now, against this server?
+
+    The installer asks this *before* it changes anything, so a mistyped password is a
+    correctable mistake on a wizard page rather than a half-provisioned computer.
+
+    Returns ``(accepted, reason)``. The reason is deliberately coarse -- an exception type, or
+    a fixed sentence -- because it is displayed: psycopg's own message can contain the
+    connection URL, and the URL contains the password."""
+    engine = _admin_engine(host, port, admin_user, password)
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return True, ""
+    except Exception as error:
+        name = type(error).__name__
+        logger.info("Administrator authentication was refused (%s)", name)
+        text_of_error = str(error).lower()
+        if "password" in text_of_error or "authentication" in text_of_error:
+            return False, "The password was not accepted by PostgreSQL."
+        return False, f"PostgreSQL could not be contacted ({name})."
     finally:
         engine.dispose()
 

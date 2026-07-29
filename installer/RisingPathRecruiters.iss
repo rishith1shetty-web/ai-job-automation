@@ -1,8 +1,13 @@
-; Rising Path Recruiters -- Windows installer
+﻿; Rising Path Recruiters -- Windows installer
 ;
 ; Builds one setup executable from the PyInstaller --onedir output. The person installing it
-; needs nothing else: no Python, no Node.js, no Playwright, no Chromium download, and no
-; manual PostgreSQL, pgAdmin, role, database, .env or Alembic step.
+; needs no Python, no Node.js, no Playwright and no Chromium download, and does no pgAdmin,
+; role, database, .env or Alembic step by hand.
+;
+; ONE prerequisite is theirs: PostgreSQL 16 for Windows x86-64, installed before this setup
+; runs, on port 5432, with an administrator password they chose and remember. This setup does
+; not download, bundle or install PostgreSQL. It verifies it, asks for that password on its
+; own page, and does everything else.
 ;
 ; Build it with scripts\build_installer.ps1, which passes the version and identity from
 ; app\version.py as /D definitions. The defaults below exist only so this file can be opened
@@ -12,16 +17,24 @@
 ; Two things in here are worth understanding before changing anything.
 ;
 ; 1. THE ELEVATION BOUNDARY.
-;    This installer runs elevated, because writing to Program Files and installing a Windows
-;    service both require it. But the database credential is protected with DPAPI in
-;    CURRENT-USER scope, and "current user" for an elevated installer is whichever account
-;    approved the UAC prompt -- frequently not the person who will use the application. A
-;    credential stored there would be undecryptable by the real user.
+;    This installer runs elevated, because writing to Program Files requires it. But the
+;    database credential is protected with DPAPI in CURRENT-USER scope, and "current user"
+;    for an elevated installer is whichever account approved the UAC prompt -- frequently not
+;    the person who will use the application. A credential stored there would be
+;    undecryptable by the real user.
 ;
 ;    So every step that touches the credential runs through ExecAsOriginalUser. That is safe
 ;    because provisioning needs no Windows privilege at all: creating a role and a database
-;    needs the POSTGRESQL administrator password, which has nothing to do with UAC. Only the
-;    PostgreSQL installation itself is elevated.
+;    needs the POSTGRESQL administrator password, which has nothing to do with UAC.
+;
+;    The administrator password itself has to cross that boundary, because it is typed into
+;    this elevated wizard and used by an unelevated child process. It crosses it as DPAPI
+;    CIPHERTEXT: CryptProtectData here, CryptUnprotectData there, with only the blob ever
+;    reaching the filesystem -- and that file additionally carries an ACL naming the original
+;    user's SID. A user-scope DPAPI key belongs to the ACCOUNT, not to the token's elevation
+;    level, which is exactly why the same person elevating themselves can read it back and a
+;    different administrator approving the prompt cannot. The second case fails loudly with
+;    an instruction rather than quietly storing an unusable credential.
 ;
 ; 2. NOTHING PRIVATE IS INSTALLED, AND NOTHING PRIVATE IS REMOVED.
 ;    [Files] copies the packaged application and nothing else. Uninstall removes the program
@@ -65,32 +78,28 @@
   #define AppCopyright "Copyright (C) Rising Path Recruiters"
 #endif
 
-; Where the packaged application and the pinned prerequisite live, relative to this file.
+; Where the packaged application lives, relative to this file.
 #ifndef PayloadDir
   #define PayloadDir "..\dist\RisingPathRecruiters"
 #endif
-#ifndef PrerequisiteDir
-  #define PrerequisiteDir "prerequisites"
-#endif
-#ifndef PostgresInstaller
-  #define PostgresInstaller "postgresql-16.9-1-windows-x64.exe"
-#endif
-#ifndef PostgresVersion
-  #define PostgresVersion "16.9-1"
-#endif
 #ifndef OutputDir
   #define OutputDir "..\release"
+#endif
+
+; PostgreSQL is NOT installed by this setup. It is installed by hand beforehand; setup
+; refuses to install anything until it finds a server of at least this major version
+; answering on the port below. Keep in step with installer\prerequisites.json.
+#ifndef RequiredPostgresMajor
+  #define RequiredPostgresMajor "16"
+#endif
+#ifndef PostgresPort
+  #define PostgresPort "5432"
 #endif
 
 ; Built from the project's own logo by scripts/make_icon.py. The same file is used for the
 ; setup program, and the executable carries it as a resource for the shortcuts.
 #ifndef IconFile
   #define IconFile "RisingPathRecruiters.ico"
-#endif
-
-; Set /DIncludePostgres=0 to build a smaller, online-only installer.
-#ifndef IncludePostgres
-  #define IncludePostgres "1"
 #endif
 
 [Setup]
@@ -121,8 +130,8 @@ UninstallDisplayIcon={app}\{#ExeName}.exe
 SetupIconFile={#IconFile}
 
 ; Per-machine install into Program Files. Administrator rights are needed for that and for
-; installing PostgreSQL as a service -- and for nothing else; every step that does not
-; require them runs as the original user.
+; nothing else -- in particular, no part of the database setup needs them, so every one of
+; those steps runs as the original user.
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
@@ -165,17 +174,10 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 Source: "{#PayloadDir}\{#ExeName}.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-#if IncludePostgres == "1"
-; The pinned official PostgreSQL installer, embedded but NOT copied anywhere by default.
-;
-; "dontcopy" rather than "DestDir + Check:" deliberately. A Check function is evaluated while
-; Inno is processing file entries -- which happens BEFORE {app}\RisingPathRecruiters.exe is on
-; disk, so a Check that asks the application whether PostgreSQL is present cannot work: it
-; would fail on exactly the machines that need the prerequisite most. Instead the file is
-; carried inside the setup and pulled out by ExtractTemporaryFile in InstallPostgres, which
-; runs after installation, when detection has a working executable to ask.
-Source: "{#PrerequisiteDir}\{#PostgresInstaller}"; Flags: dontcopy noencryption
-#endif
+; NOTHING ELSE. There is deliberately no PostgreSQL installer in this payload: the database
+; server is installed by the person doing the installation, before setup runs, and setup
+; verifies it rather than providing it. Removing the embedded 334 MB prerequisite is what
+; makes this setup a fraction of its former size.
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"; Comment: "{#AppDescription}"
@@ -200,26 +202,84 @@ SetupWindowTitle={#AppName} {#AppVersion} Setup
 [Code]
 const
   { Exit codes from the packaged application's --installer actions (app/installer_bridge.py). }
-  EXIT_OK                 = 0;
-  EXIT_INVALID_USAGE      = 2;
-  EXIT_POSTGRES_MISSING   = 10;
-  EXIT_PORT_OCCUPIED      = 11;
-  EXIT_ADMIN_AUTH_FAILED  = 12;
-  EXIT_PROVISION_FAILED   = 13;
-  EXIT_MIGRATION_FAILED   = 14;
-  EXIT_VERIFICATION_FAIL  = 15;
-  EXIT_CREDENTIAL_FAILED  = 16;
-  EXIT_POSTGRES_STOPPED   = 20;
-  EXIT_NO_ADMIN_PASSWORD  = 21;
-  EXIT_UNEXPECTED         = 22;
+  EXIT_OK                    = 0;
+  EXIT_INVALID_USAGE         = 2;
+  EXIT_POSTGRES_MISSING      = 10;
+  EXIT_PORT_OCCUPIED         = 11;
+  EXIT_ADMIN_AUTH_FAILED     = 12;
+  EXIT_PROVISION_FAILED      = 13;
+  EXIT_MIGRATION_FAILED      = 14;
+  EXIT_VERIFICATION_FAIL     = 15;
+  EXIT_CREDENTIAL_FAILED     = 16;
+  EXIT_POSTGRES_STOPPED      = 20;
+  EXIT_NO_ADMIN_PASSWORD     = 21;
+  EXIT_UNEXPECTED            = 22;
+  EXIT_POSTGRES_WRONG_VER    = 23;
+  EXIT_HANDOFF_FAILED        = 24;
 
   { How long to wait for a running copy to shut down before asking the user. }
   ShutdownWaitMs = 20000;
 
+  { DPAPI. UI_FORBIDDEN because a wizard must never be blocked by a system prompt. }
+  CRYPTPROTECT_UI_FORBIDDEN = $1;
+  HandoffDescription = 'Rising Path Recruiters setup';
+
+  CP_UTF8 = 65001;
+  GMEM_FIXED = $0000;
+
+  { How many times the person may correct a mistyped password before setup gives up. }
+  MaxPasswordAttempts = 5;
+
+type
+  TDataBlob = record
+    cbData: Cardinal;
+    pbData: Cardinal;
+  end;
+
+{ ------------------------------------------------------------------- Win32 }
+
+function CryptProtectData(var pDataIn: TDataBlob; szDataDescr: String;
+  pOptionalEntropy, pvReserved, pPromptStruct: Cardinal; dwFlags: Cardinal;
+  var pDataOut: TDataBlob): Cardinal;
+  external 'CryptProtectData@crypt32.dll stdcall';
+
+function CryptUnprotectData(var pDataIn: TDataBlob; ppszDataDescr: Cardinal;
+  pOptionalEntropy, pvReserved, pPromptStruct: Cardinal; dwFlags: Cardinal;
+  var pDataOut: TDataBlob): Cardinal;
+  external 'CryptUnprotectData@crypt32.dll stdcall';
+
+function GlobalAlloc(uFlags, dwBytes: Cardinal): Cardinal;
+  external 'GlobalAlloc@kernel32.dll stdcall';
+function GlobalFree(hMem: Cardinal): Cardinal;
+  external 'GlobalFree@kernel32.dll stdcall';
+function LocalFree(hMem: Cardinal): Cardinal;
+  external 'LocalFree@kernel32.dll stdcall';
+
+function WideCharToMultiByte(CodePage, dwFlags: Cardinal; lpWideCharStr: String;
+  cchWideChar: Integer; lpMultiByteStr: Cardinal; cbMultiByte: Integer;
+  lpDefaultChar, lpUsedDefaultChar: Cardinal): Integer;
+  external 'WideCharToMultiByte@kernel32.dll stdcall';
+
+{ Two views of RtlMoveMemory. Pascal Script needs one declaration per direction, because the
+  buffer is a managed array on one side and a raw address on the other. }
+procedure CopyFromAddress(var Dest: Byte; Source: Cardinal; Len: Cardinal);
+  external 'RtlMoveMemory@kernel32.dll stdcall';
+procedure CopyToAddress(Dest: Cardinal; var Source: Byte; Len: Cardinal);
+  external 'RtlMoveMemory@kernel32.dll stdcall';
+
 var
-  PostgresState: Integer;      { one of the EXIT_* values from the detect action }
-  PostgresChecked: Boolean;
+  PasswordPage: TWizardPage;
+  PasswordEdit: TPasswordEdit;
+  { CIPHERTEXT ONLY. The typed password is read straight out of the edit control into the
+    DPAPI call and is never assigned to a script variable, because a Pascal Script string is
+    reference-counted and reallocated and cannot be reliably overwritten afterwards. }
+  HandoffHex: String;
+  HandoffFile: String;
   ProvisioningSummary: String;
+  PostgresBinDir: String;
+  PostgresMajor: Integer;
+  PostgresServiceName: String;
+  RolledBack: Boolean;
 
 { ------------------------------------------------------------------ helpers }
 
@@ -236,70 +296,468 @@ begin
                                SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-function DetectPostgres: Integer;
+function PostgresInstructions: String;
+begin
+  Result := 'Install PostgreSQL {#RequiredPostgresMajor} for Windows x86-64 first.' + #13#10#13#10 +
+            'Download it from https://www.postgresql.org/download/windows/' + #13#10 +
+            'Keep the default port {#PostgresPort}.' + #13#10 +
+            'Choose a password for the "postgres" administrator account and remember it -- ' +
+            'this setup will ask you for it.' + #13#10#13#10 +
+            'Then run this setup again.';
+end;
+
+{ ------------------------------------------- finding the PostgreSQL server }
+
+function ReadInstallationValue(const SubKey, ValueName: String; var Value: String): Boolean;
+begin
+  Result := RegQueryStringValue(HKLM64, 'SOFTWARE\PostgreSQL\Installations\' + SubKey,
+                                ValueName, Value);
+end;
+
+function MajorFromVersion(const Version: String): Integer;
+var
+  Digits: String;
+  Index: Integer;
+begin
+  { "16.9-1" and "16" both mean 16. Anything unparseable means "not known", never zero-as-ok. }
+  Digits := '';
+  Index := 1;
+  while (Index <= Length(Version)) and (Version[Index] >= '0') and (Version[Index] <= '9') do
+  begin
+    Digits := Digits + Version[Index];
+    Index := Index + 1;
+  end;
+  if Digits = '' then
+    Result := 0
+  else
+    Result := StrToIntDef(Digits, 0);
+end;
+
+procedure FindPostgres;
+{ Reads the registry only. Records the newest supported installation found, its bin directory
+  and its service name -- everything the checks below need, gathered once. }
+var
+  Keys: TArrayOfString;
+  Index, Major: Integer;
+  Version, Base, Service: String;
+begin
+  PostgresMajor := 0;
+  PostgresBinDir := '';
+  PostgresServiceName := '';
+
+  if not RegGetSubkeyNames(HKLM64, 'SOFTWARE\PostgreSQL\Installations', Keys) then
+    Exit;
+
+  for Index := 0 to GetArrayLength(Keys) - 1 do
+  begin
+    if not ReadInstallationValue(Keys[Index], 'Version', Version) then
+      Continue;
+    Major := MajorFromVersion(Version);
+    if Major <= PostgresMajor then
+      Continue;
+    if not ReadInstallationValue(Keys[Index], 'Base Directory', Base) then
+      Continue;
+
+    PostgresMajor := Major;
+    PostgresBinDir := AddBackslash(Base) + 'bin';
+    if ReadInstallationValue(Keys[Index], 'Service ID', Service) then
+      PostgresServiceName := Service
+    else
+      PostgresServiceName := 'postgresql-x64-' + IntToStr(Major);
+  end;
+  Log('PostgreSQL: registry reports major ' + IntToStr(PostgresMajor) +
+      ', service "' + PostgresServiceName + '", bin "' + PostgresBinDir + '"');
+end;
+
+function ServiceIsRunning(const Name: String): Boolean;
 var
   ResultCode: Integer;
 begin
-  if PostgresChecked then
-  begin
-    Result := PostgresState;
-    Exit;
-  end;
-  { Detection is read-only and needs no privilege, so it runs as the original user too. }
-  if not RunAppAsUser('--installer detect', ResultCode) then
-    ResultCode := EXIT_UNEXPECTED;
-  PostgresState := ResultCode;
-  PostgresChecked := True;
-  Result := ResultCode;
+  { "sc query" prints the state; find returns 1 when RUNNING is absent. No output is captured
+    and nothing is changed -- this only reads. }
+  Result := Exec(ExpandConstant('{cmd}'),
+                 '/C sc query "' + Name + '" | find /I "RUNNING" > nul',
+                 '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
 end;
 
-function NeedsPostgresInstall: Boolean;
-{ The single decision point: the embedded prerequisite is only ever unpacked and run when
-  this computer genuinely has no usable PostgreSQL. An existing compatible server -- whatever
-  its port -- is never reinstalled, never upgraded and never even extracted over. }
+function ServerIsAccepting: Boolean;
+var
+  ResultCode: Integer;
+  Tool: String;
 begin
-  Result := (DetectPostgres = EXIT_POSTGRES_MISSING);
+  { pg_isready ships with every PostgreSQL installation and does exactly this one job: open a
+    connection to the port and report whether the server answers. It needs no credentials,
+    so it can run before the password page. }
+  Result := False;
+  if PostgresBinDir = '' then
+    Exit;
+  Tool := AddBackslash(PostgresBinDir) + 'pg_isready.exe';
+  if not FileExists(Tool) then
+  begin
+    Log('PostgreSQL: pg_isready.exe is not at ' + Tool);
+    Exit;
+  end;
+  Result := Exec(Tool, '-h localhost -p {#PostgresPort} -q', '', SW_HIDE,
+                 ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
+  Log('PostgreSQL: pg_isready exit code ' + IntToStr(ResultCode));
+end;
+
+function RequirePostgres: Boolean;
+{ The gate. Runs before the wizard appears, so a computer without a usable PostgreSQL is told
+  what to do and NOTHING is installed on it. Each failure names one problem and its fix. }
+begin
+  Result := False;
+  FindPostgres;
+
+  if PostgresMajor = 0 then
+  begin
+    Log('PostgreSQL: no installation found in the registry.');
+    MsgBox('PostgreSQL is not installed on this computer.' + #13#10#13#10 +
+           PostgresInstructions, mbError, MB_OK);
+    Exit;
+  end;
+
+  if PostgresMajor < {#RequiredPostgresMajor} then
+  begin
+    Log('PostgreSQL: found major ' + IntToStr(PostgresMajor) + ', which is too old.');
+    MsgBox('This computer has PostgreSQL ' + IntToStr(PostgresMajor) + ', but ' +
+           '{#AppName} requires PostgreSQL {#RequiredPostgresMajor} or newer.' + #13#10#13#10 +
+           PostgresInstructions, mbError, MB_OK);
+    Exit;
+  end;
+
+  if not ServiceIsRunning(PostgresServiceName) then
+  begin
+    Log('PostgreSQL: service "' + PostgresServiceName + '" is not running.');
+    MsgBox('PostgreSQL ' + IntToStr(PostgresMajor) + ' is installed on this computer, but ' +
+           'its Windows service is not running.' + #13#10#13#10 +
+           'Open Services, start "' + PostgresServiceName + '", then run this setup again.',
+           mbError, MB_OK);
+    Exit;
+  end;
+
+  if not ServerIsAccepting then
+  begin
+    Log('PostgreSQL: nothing is answering on port {#PostgresPort}.');
+    MsgBox('PostgreSQL is running, but nothing is answering on localhost:{#PostgresPort}.' + #13#10#13#10 +
+           'This setup needs PostgreSQL on port {#PostgresPort}. Change the server back to ' +
+           'that port, or free it, then run this setup again.', mbError, MB_OK);
+    Exit;
+  end;
+
+  Log('PostgreSQL: major ' + IntToStr(PostgresMajor) + ' is running and accepting ' +
+      'connections on port {#PostgresPort}.');
+  Result := True;
+end;
+
+{ ------------------------------------------------------ the secure handoff }
+
+function ProtectToHex(const Secret: String; var Hex: String): Boolean;
+{ DPAPI-protect a string for the CURRENT WINDOWS ACCOUNT and return the ciphertext as hex.
+
+  The plain text exists as UTF-8 bytes in one GlobalAlloc'd buffer, which is overwritten and
+  freed before this returns. Nothing readable is ever written to disk, a log or a variable. }
+var
+  Zeros, Blob: array of Byte;
+  Needed, Index: Integer;
+  Buffer: Cardinal;
+  Source, Target: TDataBlob;
+  Digits: String;
+begin
+  Result := False;
+  Hex := '';
+
+  Needed := WideCharToMultiByte(CP_UTF8, 0, Secret, Length(Secret), 0, 0, 0, 0);
+  if Needed <= 0 then
+    Exit;
+
+  Buffer := GlobalAlloc(GMEM_FIXED, Needed);
+  if Buffer = 0 then
+    Exit;
+  try
+    if WideCharToMultiByte(CP_UTF8, 0, Secret, Length(Secret), Buffer, Needed, 0, 0) <> Needed then
+      Exit;
+
+    Source.cbData := Needed;
+    Source.pbData := Buffer;
+    Target.cbData := 0;
+    Target.pbData := 0;
+
+    if CryptProtectData(Source, HandoffDescription, 0, 0, 0,
+                        CRYPTPROTECT_UI_FORBIDDEN, Target) = 0 then
+    begin
+      Log('Handoff: CryptProtectData failed.');
+      Exit;
+    end;
+
+    try
+      SetArrayLength(Blob, Target.cbData);
+      CopyFromAddress(Blob[0], Target.pbData, Target.cbData);
+    finally
+      LocalFree(Target.pbData);
+    end;
+
+    Digits := '0123456789abcdef';
+    for Index := 0 to GetArrayLength(Blob) - 1 do
+      Hex := Hex + Digits[(Blob[Index] shr 4) + 1] + Digits[(Blob[Index] and $0F) + 1];
+    Result := True;
+  finally
+    { Overwrite the plain-text bytes before the memory goes back to the process heap. }
+    SetArrayLength(Zeros, Needed);
+    CopyToAddress(Buffer, Zeros[0], Needed);
+    GlobalFree(Buffer);
+  end;
+end;
+
+function HandoffRoundTrips(const Hex: String): Boolean;
+{ Can this account read back what it just protected?
+
+  Asked before setup relies on the channel, so that a computer where DPAPI is unavailable
+  fails on the password page rather than half-way through provisioning. Only the LENGTH of
+  the recovered value is looked at -- the value itself is discarded immediately. }
+var
+  Blob: array of Byte;
+  Index, Count: Integer;
+  Buffer: Cardinal;
+  Source, Target: TDataBlob;
+begin
+  Result := False;
+  Count := Length(Hex) div 2;
+  if Count = 0 then
+    Exit;
+
+  SetArrayLength(Blob, Count);
+  for Index := 0 to Count - 1 do
+    Blob[Index] := StrToIntDef('$' + Copy(Hex, Index * 2 + 1, 2), 0);
+
+  Buffer := GlobalAlloc(GMEM_FIXED, Count);
+  if Buffer = 0 then
+    Exit;
+  try
+    CopyToAddress(Buffer, Blob[0], Count);
+    Source.cbData := Count;
+    Source.pbData := Buffer;
+    Target.cbData := 0;
+    Target.pbData := 0;
+    if CryptUnprotectData(Source, 0, 0, 0, 0, CRYPTPROTECT_UI_FORBIDDEN, Target) = 0 then
+    begin
+      Log('Handoff: this account cannot read back its own protected value.');
+      Exit;
+    end;
+    Result := Target.cbData > 0;
+    LocalFree(Target.pbData);
+  finally
+    GlobalFree(Buffer);
+  end;
+end;
+
+function CaptureTypedPassword(Edit: TPasswordEdit): Boolean;
+{ Take what was typed, protect it, and keep only the ciphertext. The edit control is cleared
+  immediately afterwards so the plain text does not sit in a window handle for the rest of
+  the wizard. }
+begin
+  Result := ProtectToHex(Edit.Text, HandoffHex);
+  Edit.Text := '';
+  if Result then
+    Result := HandoffRoundTrips(HandoffHex);
+  if not Result then
+    HandoffHex := '';
+end;
+
+function WriteHandoffFile: Boolean;
+{ Put the ciphertext into the file the original user's process already created and locked
+  down. Only hexadecimal ASCII is written -- SaveStringToFile's encoding cannot corrupt it. }
+begin
+  Result := False;
+  if (HandoffFile = '') or (HandoffHex = '') then
+    Exit;
+  if not SaveStringToFile(HandoffFile, HandoffHex, False) then
+  begin
+    Log('Handoff: could not write the protected value.');
+    Exit;
+  end;
+  Result := True;
+end;
+
+procedure DestroyHandoff;
+var
+  ResultCode: Integer;
+begin
+  HandoffHex := '';
+  if FileExists(AppExe) then
+  begin
+    if not RunAppAsUser('--installer cleanup', ResultCode) then
+      ResultCode := EXIT_UNEXPECTED;
+    Log('Handoff: cleanup exit code ' + IntToStr(ResultCode));
+  end;
+  { A cleanup that did not run leaves ciphertext, not a password. Deleting it here as well
+    costs nothing and makes "nothing remains" true on both paths. }
+  if (HandoffFile <> '') and FileExists(HandoffFile) then
+    DeleteFile(HandoffFile);
+end;
+
+{ --------------------------------------------------------- the wizard page }
+
+procedure CreatePasswordPage;
+var
+  Intro, Prompt, Fixed: TNewStaticText;
+begin
+  PasswordPage := CreateCustomPage(wpSelectDir, 'PostgreSQL administrator password',
+    'Setup needs to create this application''s own database inside your PostgreSQL server.');
+
+  Intro := TNewStaticText.Create(PasswordPage);
+  Intro.Parent := PasswordPage.Surface;
+  Intro.Left := 0;
+  Intro.Top := 0;
+  Intro.Width := PasswordPage.SurfaceWidth;
+  Intro.WordWrap := True;
+  Intro.AutoSize := True;
+  Intro.Caption :=
+    'This password is used once, to create a separate low-privilege account for the ' +
+    'application. It is never stored and never written to a log.';
+
+  Prompt := TNewStaticText.Create(PasswordPage);
+  Prompt.Parent := PasswordPage.Surface;
+  Prompt.Left := 0;
+  Prompt.Top := Intro.Top + Intro.Height + ScaleY(16);
+  Prompt.Width := PasswordPage.SurfaceWidth;
+  Prompt.WordWrap := True;
+  Prompt.AutoSize := True;
+  Prompt.Caption :=
+    'Enter the PostgreSQL administrator password created during PostgreSQL installation';
+
+  PasswordEdit := TPasswordEdit.Create(PasswordPage);
+  PasswordEdit.Parent := PasswordPage.Surface;
+  PasswordEdit.Left := 0;
+  PasswordEdit.Top := Prompt.Top + Prompt.Height + ScaleY(6);
+  PasswordEdit.Width := PasswordPage.SurfaceWidth;
+
+  Fixed := TNewStaticText.Create(PasswordPage);
+  Fixed.Parent := PasswordPage.Surface;
+  Fixed.Left := 0;
+  Fixed.Top := PasswordEdit.Top + PasswordEdit.Height + ScaleY(16);
+  Fixed.Width := PasswordPage.SurfaceWidth;
+  Fixed.WordWrap := True;
+  Fixed.AutoSize := True;
+  Fixed.Caption := 'User name: postgres' + #13#10 +
+                   'Server: localhost' + #13#10 +
+                   'Port: {#PostgresPort}' + #13#10 +
+                   'Database: postgres';
+end;
+
+function AskAgain(const Problem: String): Boolean;
+{ The retry path. A modal dialog rather than a wizard page, because by the time PostgreSQL
+  can be asked whether the password is right the wizard has moved past its pages -- see the
+  note in CurStepChanged. It offers exactly what the page offered: one masked field. }
+var
+  Form: TSetupForm;
+  Message, Prompt: TNewStaticText;
+  Edit: TPasswordEdit;
+  OkButton, CancelButton: TNewButton;
+begin
+  Result := False;
+  { Fixed height: nothing on this form grows vertically. }
+  Form := CreateCustomForm(ScaleX(440), ScaleY(210), False, True);
+  try
+    Form.Caption := '{#AppName} Setup';
+
+    Message := TNewStaticText.Create(Form);
+    Message.Parent := Form;
+    Message.Left := ScaleX(16);
+    Message.Top := ScaleY(16);
+    Message.Width := ScaleX(408);
+    Message.WordWrap := True;
+    Message.AutoSize := True;
+    Message.Caption := Problem;
+
+    Prompt := TNewStaticText.Create(Form);
+    Prompt.Parent := Form;
+    Prompt.Left := ScaleX(16);
+    Prompt.Top := Message.Top + Message.Height + ScaleY(16);
+    Prompt.Width := ScaleX(408);
+    Prompt.WordWrap := True;
+    Prompt.AutoSize := True;
+    Prompt.Caption :=
+      'Enter the PostgreSQL administrator password created during PostgreSQL installation';
+
+    Edit := TPasswordEdit.Create(Form);
+    Edit.Parent := Form;
+    Edit.Left := ScaleX(16);
+    Edit.Top := Prompt.Top + Prompt.Height + ScaleY(6);
+    Edit.Width := ScaleX(408);
+
+    OkButton := TNewButton.Create(Form);
+    OkButton.Parent := Form;
+    OkButton.Width := ScaleX(90);
+    OkButton.Height := ScaleY(26);
+    OkButton.Left := Form.ClientWidth - ScaleX(212);
+    OkButton.Top := Form.ClientHeight - ScaleY(42);
+    OkButton.Caption := 'OK';
+    OkButton.Default := True;
+    OkButton.ModalResult := mrOk;
+
+    CancelButton := TNewButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Width := ScaleX(90);
+    CancelButton.Height := ScaleY(26);
+    CancelButton.Left := Form.ClientWidth - ScaleX(112);
+    CancelButton.Top := OkButton.Top;
+    CancelButton.Caption := 'Cancel';
+    CancelButton.Cancel := True;
+    CancelButton.ModalResult := mrCancel;
+
+    Form.ActiveControl := Edit;
+    { Without this it still centres, but on the screen rather than on the wizard. }
+    Form.FlipAndCenterIfNeeded(True, WizardForm, False);
+    if Form.ShowModal() <> mrOk then
+      Exit;
+    if Edit.Text = '' then
+      Exit;
+    Result := CaptureTypedPassword(Edit);
+  finally
+    Form.Free();
+  end;
 end;
 
 function ProblemText(Code: Integer): String;
-{ One place that turns an exit code into something a person can act on. No code path here
-  can include a password or a connection URL -- the values are all fixed strings. }
+{ One place that turns an exit code into something a person can act on. No path here can
+  include a password or a connection URL -- every value is a fixed string. }
 begin
   case Code of
     EXIT_PORT_OCCUPIED:
-      Result := 'Port 5432 is being used by a program that is not PostgreSQL.' + #13#10#13#10 +
-                'Stop that program, or install PostgreSQL on a different port, and run this ' +
-                'setup again.';
+      Result := 'Port {#PostgresPort} is being used by a program that is not PostgreSQL.';
     EXIT_POSTGRES_STOPPED:
-      Result := 'PostgreSQL is installed on this computer but is not running.' + #13#10#13#10 +
-                'Start the PostgreSQL service in Windows Services, then run this setup again.';
+      Result := 'PostgreSQL is installed on this computer but is not answering.';
+    EXIT_POSTGRES_MISSING:
+      Result := 'No PostgreSQL server is reachable on localhost:{#PostgresPort}.';
+    EXIT_POSTGRES_WRONG_VER:
+      Result := 'The PostgreSQL on this computer is not the version this application requires.';
     EXIT_ADMIN_AUTH_FAILED:
-      Result := 'The PostgreSQL administrator password was not accepted.' + #13#10#13#10 +
-                'The application has been installed. Start it and complete the database ' +
-                'setup, or run setup again with the correct password.';
+      Result := 'PostgreSQL did not accept the administrator password.';
     EXIT_NO_ADMIN_PASSWORD:
-      Result := 'The database could not be set up because no PostgreSQL administrator ' +
-                'password was available.' + #13#10#13#10 +
-                'The application has been installed. Start it to finish the database setup.';
+      Result := 'No PostgreSQL administrator password reached the database step.';
+    EXIT_HANDOFF_FAILED:
+      Result := 'The password could not be passed securely to the database step. This ' +
+                'happens when setup is approved with a different administrator account: ' +
+                'sign in as the account that will use the application and run setup again.';
     EXIT_MIGRATION_FAILED:
-      Result := 'The database could not be brought up to date.' + #13#10#13#10 +
-                'No existing data has been changed. See the log file in ' +
-                '%LOCALAPPDATA%\{#DataDirName}\logs.';
+      Result := 'The database could not be brought up to date. No existing data was changed.';
     EXIT_VERIFICATION_FAIL:
-      Result := 'The database schema did not match what this version expects.' + #13#10#13#10 +
-                'No existing data has been changed. See the log file in ' +
-                '%LOCALAPPDATA%\{#DataDirName}\logs.';
+      Result := 'The database schema did not match what this version expects. No existing ' +
+                'data was changed.';
     EXIT_CREDENTIAL_FAILED:
-      Result := 'The database credential could not be stored securely for your Windows ' +
-                'account.' + #13#10#13#10 +
-                'The application has been installed. Start it to finish the setup.';
+      Result := 'The database credential could not be stored securely for your Windows account.';
     EXIT_PROVISION_FAILED:
-      Result := 'The application database could not be prepared.' + #13#10#13#10 +
-                'See the log file in %LOCALAPPDATA%\{#DataDirName}\logs.';
+      Result := 'The application database could not be prepared.';
   else
-    Result := 'The database setup step did not complete.' + #13#10#13#10 +
-              'The application has been installed. Start it to finish the setup.';
+    Result := 'The database setup step did not complete.';
   end;
+end;
+
+function SupportLogPath: String;
+begin
+  Result := 'Support log: %LOCALAPPDATA%\{#DataDirName}\logs' + #13#10 +
+            'Setup log: ' + ExpandConstant('{log}');
 end;
 
 { ------------------------------------------------ running-process handling }
@@ -400,8 +858,13 @@ end;
 { ------------------------------------------------------------ wizard hooks }
 
 function InitializeSetup: Boolean;
+{ The PostgreSQL gate runs HERE, before the wizard is shown and long before any file is
+  copied, so a computer that cannot host this application is never partially changed by it. }
 begin
   Result := AskUserToCloseApp;
+  if not Result then
+    Exit;
+  Result := RequirePostgres;
 end;
 
 function InitializeUninstall: Boolean;
@@ -409,44 +872,110 @@ begin
   Result := AskUserToCloseApp;
 end;
 
-procedure InstallPostgres;
+procedure InitializeWizard;
+begin
+  CreatePasswordPage;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if CurPageID <> PasswordPage.ID then
+    Exit;
+
+  if PasswordEdit.Text = '' then
+  begin
+    MsgBox('Enter the PostgreSQL administrator password to continue.', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  { Protect it now, while the wizard can still refuse to go on. Whether PostgreSQL ACCEPTS
+    the password is asked after installation, because the only thing on this computer that
+    can ask is the application itself. }
+  if not CaptureTypedPassword(PasswordEdit) then
+  begin
+    MsgBox('Windows could not protect the password on this computer, so setup cannot pass ' +
+           'it on securely.' + #13#10#13#10 +
+           'Sign in as the account that will use the application and run setup again.',
+           mbError, MB_OK);
+    Result := False;
+  end;
+end;
+
+procedure RollBackInstallation;
+{ Nothing half-installed is left behind: the uninstaller Inno has just registered removes
+  exactly what was written, and nothing else. LocalAppData and PostgreSQL are untouched by
+  it, as they are by every other path through this script. }
 var
   ResultCode: Integer;
-  OptionFile: String;
-  Installer: String;
+  Uninstaller: String;
 begin
-  { 1. As the ORIGINAL user: generate a temporary administrator password and write it into a
-       protected option file inside that user's own data directory. The password is never
-       returned to this script, never printed, and never placed on a command line. }
-  if not RunAppAsUser('--installer prepare-postgres', ResultCode) or (ResultCode <> EXIT_OK) then
+  Uninstaller := ExpandConstant('{uninstallexe}');
+  if not FileExists(Uninstaller) then
   begin
-    MsgBox('The PostgreSQL installation could not be prepared.', mbError, MB_OK);
+    Log('Rollback: no uninstaller at ' + Uninstaller);
     Exit;
   end;
-
-  OptionFile := ExpandConstant('{localappdata}\{#DataDirName}\work\postgres-setup.options');
-
-  { 2. Unpack the embedded prerequisite, now that it is known to be needed. Setup removes its
-       temporary directory when it finishes, so nothing is left behind. }
-#if IncludePostgres == "1"
-  ExtractTemporaryFile('{#PostgresInstaller}');
-#endif
-  Installer := ExpandConstant('{tmp}\{#PostgresInstaller}');
-  if not FileExists(Installer) then
+  Log('Rollback: removing the application again.');
+  if Exec(Uninstaller, '/VERYSILENT /NORESTART /SUPPRESSMSGBOXES', '', SW_HIDE,
+          ewWaitUntilTerminated, ResultCode) then
   begin
-    MsgBox('This setup does not include the PostgreSQL installer.' + #13#10#13#10 +
-           'Install PostgreSQL yourself, then start the application to finish the database ' +
-           'setup.', mbError, MB_OK);
+    RolledBack := (ResultCode = 0);
+    Log('Rollback: uninstaller exit code ' + IntToStr(ResultCode));
+  end
+  else
+    Log('Rollback: the uninstaller could not be started.');
+end;
+
+procedure FailSetup(const Stage, Detail: String);
+begin
+  ProvisioningSummary := Stage + ' did not complete.';
+  DestroyHandoff;
+  RollBackInstallation;
+  MsgBox('{#AppName} was NOT installed.' + #13#10#13#10 +
+         'Stage: ' + Stage + #13#10#13#10 + Detail + #13#10#13#10 + SupportLogPath,
+         mbError, MB_OK);
+end;
+
+function Authenticate(var Code: Integer): Boolean;
+begin
+  if not WriteHandoffFile then
+  begin
+    Code := EXIT_HANDOFF_FAILED;
+    Result := False;
     Exit;
   end;
+  if not RunAppAsUser('--installer authenticate', Code) then
+    Code := EXIT_UNEXPECTED;
+  Log('Database: authenticate exit code ' + IntToStr(Code));
+  Result := (Code = EXIT_OK);
+end;
 
-  { 3. ELEVATED: the only step that genuinely needs administrator rights. The command line
-       carries the path to the option file and no secret whatsoever. }
-  if not Exec(Installer, '--optionfile "' + OptionFile + '"', '',
-              SW_SHOW, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0) then
-    MsgBox('PostgreSQL {#PostgresVersion} could not be installed.' + #13#10#13#10 +
-           'The application has been installed. Install PostgreSQL yourself and then start ' +
-           'the application to finish the database setup.', mbError, MB_OK);
+function AuthenticateWithRetries: Boolean;
+var
+  Code, Attempt: Integer;
+begin
+  Attempt := 1;
+  Result := Authenticate(Code);
+  while (not Result) and (Code = EXIT_ADMIN_AUTH_FAILED) and (Attempt < MaxPasswordAttempts) do
+  begin
+    Attempt := Attempt + 1;
+    if not AskAgain('PostgreSQL did not accept that password. Try again.') then
+      Break;
+    Result := Authenticate(Code);
+  end;
+
+  if not Result then
+  begin
+    if Code = EXIT_ADMIN_AUTH_FAILED then
+      FailSetup('PostgreSQL administrator sign-in',
+                'The password for the "postgres" account was not accepted.' + #13#10#13#10 +
+                'Run this setup again with the password you chose when you installed ' +
+                'PostgreSQL.')
+    else
+      FailSetup('PostgreSQL administrator sign-in', ProblemText(Code));
+  end;
 end;
 
 procedure ProvisionDatabase;
@@ -458,39 +987,79 @@ begin
   if RunAppAsUser('--installer status', ResultCode) and (ResultCode = EXIT_OK) then
   begin
     ProvisioningSummary := 'The existing database was kept.';
+    DestroyHandoff;
     Exit;
   end;
 
+  if not AuthenticateWithRetries then
+    Exit;
+
   { As the ORIGINAL user, so the DPAPI credential belongs to the account that will run the
-    application. This step reads the administrator password from the protected option file
-    and destroys that file whether it succeeds or fails. }
+    application. This step reads the protected handoff and destroys it whatever happens. }
   if not RunAppAsUser('--installer provision', ResultCode) then
     ResultCode := EXIT_UNEXPECTED;
+  Log('Database: provision exit code ' + IntToStr(ResultCode));
 
   if ResultCode = EXIT_OK then
-    ProvisioningSummary := 'The application database is ready.'
-  else
   begin
-    ProvisioningSummary := 'The database setup did not finish.';
-    MsgBox(ProblemText(ResultCode), mbError, MB_OK);
-  end;
+    ProvisioningSummary := 'The application database is ready.';
+    DestroyHandoff;
+  end
+  else
+    FailSetup('Database setup', ProblemText(ResultCode));
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
+{ Why the database work happens here, after the files are copied.
+
+  Everything that decides whether this computer is SUITABLE ran in InitializeSetup, in pure
+  Pascal, before anything was written -- that is the check that must not come late. What is
+  left needs a PostgreSQL client, and the only one this setup has is inside the packaged
+  application: setup itself is a 32-bit process and cannot load the 64-bit libpq next to the
+  server. So the password is collected and protected on a wizard page, and verified the
+  moment the application exists to verify it with. A password that turns out to be wrong is
+  retried in a dialog, and giving up rolls the installation back rather than leaving a
+  half-configured program behind. }
+var
+  ResultCode: Integer;
 begin
   if CurStep <> ssPostInstall then
     Exit;
 
-  { Order matters: PostgreSQL must exist before the application database can be prepared.
-    Detection runs here, after installation, because it asks the application itself -- which
-    is only on disk from this point onwards. }
-  if NeedsPostgresInstall then
-    InstallPostgres
-  else if DetectPostgres <> EXIT_OK then
+  if not RunAppAsUser('--installer begin-handoff', ResultCode) then
+    ResultCode := EXIT_UNEXPECTED;
+  Log('Handoff: begin-handoff exit code ' + IntToStr(ResultCode));
+  if ResultCode <> EXIT_OK then
   begin
-    MsgBox(ProblemText(DetectPostgres), mbError, MB_OK);
+    FailSetup('Preparing the secure password handoff', ProblemText(EXIT_HANDOFF_FAILED));
     Exit;
   end;
+  HandoffFile := ExpandConstant('{localappdata}\{#DataDirName}\work\setup-handoff.bin');
 
   ProvisionDatabase;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID = wpFinished then
+  begin
+    if RolledBack then
+      WizardForm.FinishedLabel.Caption :=
+        'Setup did not finish. ' + ProvisioningSummary + ' Nothing was left installed.'
+    else if ProvisioningSummary <> '' then
+      WizardForm.FinishedLabel.Caption :=
+        WizardForm.FinishedLabel.Caption + #13#10#13#10 + ProvisioningSummary;
+  end;
+end;
+
+procedure DeinitializeSetup;
+{ Last line of defence: whatever happened -- success, failure or Cancel -- no protected
+  material is left in the user's work directory. }
+begin
+  if (HandoffFile <> '') and FileExists(HandoffFile) then
+  begin
+    Log('Handoff: removing leftover material at exit.');
+    DeleteFile(HandoffFile);
+  end;
+  HandoffHex := '';
 end;

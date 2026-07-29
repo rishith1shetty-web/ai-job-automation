@@ -1,5 +1,20 @@
 import logging
+import sys
 from logging.config import dictConfig
+
+
+def _console_handler() -> dict:
+    """A stream handler when there is a stream, and a sink when there is not.
+
+    A windowed (GUI subsystem) build has no console, so ``sys.stderr`` is ``None``. A
+    ``logging.StreamHandler`` created there resolves its stream lazily and then fails on
+    every single record it tries to emit. The guard in :func:`configure_logging` normally
+    stops this function running at all in the packaged launcher -- but that guard depends on
+    import order, and the same missing-stream assumption is what broke uvicorn's own
+    formatter on PC9. One condition removes the assumption instead of relying on it."""
+    if sys.stderr is None:
+        return {"class": "logging.NullHandler"}
+    return {"class": "logging.StreamHandler", "formatter": "default"}
 
 
 def configure_logging(force: bool = False) -> None:
@@ -29,12 +44,7 @@ def configure_logging(force: bool = False) -> None:
                     "format": "%(asctime)s %(levelname)s [%(name)s] %(message)s",
                 }
             },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "default",
-                }
-            },
+            "handlers": {"console": _console_handler()},
             "root": {"handlers": ["console"], "level": "INFO"},
         }
     )

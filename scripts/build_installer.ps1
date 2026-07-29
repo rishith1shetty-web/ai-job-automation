@@ -9,16 +9,14 @@
       2. verify the PyInstaller onedir payload exists and is complete;
       3. re-run the secrets scan over that payload -- the installer publishes whatever the
          payload contains, so a stale build that was never scanned must not be shipped;
-      4. verify the pinned PostgreSQL prerequisite's checksum and signature;
-      5. read the version and identity from app\version.py -- the single source;
-      6. run ISCC;
-      7. verify the produced installer and report its size.
+      4. read the version and identity from app\version.py -- the single source;
+      5. run ISCC;
+      6. verify the produced installer and report its size.
 
-    This script never installs Inno Setup and never installs PostgreSQL.
-
-.PARAMETER SkipPostgres
-    Build without embedding the PostgreSQL prerequisite. Much smaller, but the resulting
-    setup cannot install a database server on a machine that has none.
+    This script never installs Inno Setup and never installs PostgreSQL. Neither does the
+    installer it builds: PostgreSQL 16 is installed by hand before setup is run, and setup
+    refuses to install anything until it finds it. Nothing about a database server is
+    embedded in the payload -- which is why this installer is a fraction of its former size.
 
 .PARAMETER IsccPath
     Use a specific ISCC.exe instead of searching.
@@ -26,16 +24,14 @@
 .NOTES
     Exit codes:
       0  the installer was built and verified
-      2  a prerequisite is missing (payload, version source, prerequisite file)
+      2  a prerequisite is missing (payload, version source)
       3  INNO SETUP IS NOT INSTALLED -- nothing was built
       4  the payload failed the secrets scan, or contains private data
-      5  the pinned PostgreSQL prerequisite failed verification
       6  ISCC failed
       7  the produced installer failed verification
 #>
 [CmdletBinding()]
 param(
-    [switch]$SkipPostgres,
     [string]$IsccPath
 )
 
@@ -95,8 +91,8 @@ if (-not $iscc) {
     Write-Host "  Install it from the official site:  https://jrsoftware.org/isdl.php"
     Write-Host "  Then run this script again."
     Write-Host ""
-    Write-Host "Everything else in this build is unaffected: the .iss source, the packaged"
-    Write-Host "payload and the verified prerequisite are all in place and were checked."
+    Write-Host "Everything else in this build is unaffected: the .iss source and the"
+    Write-Host "packaged payload are both in place and were checked."
     exit 3
 }
 Write-Step "Inno Setup: $iscc"
@@ -129,25 +125,7 @@ if ($code -ne 0) {
     exit 4
 }
 
-# ---------------------------------------------------------------- 4. prerequisite
-$includePostgres = "1"
-if ($SkipPostgres) {
-    $includePostgres = "0"
-    Write-Step "Building WITHOUT the PostgreSQL prerequisite (-SkipPostgres)."
-}
-else {
-    Write-Step "Verifying the pinned PostgreSQL prerequisite."
-    $code = Invoke-Native -FilePath "powershell.exe" -Arguments @(
-        "-ExecutionPolicy", "Bypass", "-NoProfile", "-File",
-        (Join-Path $PSScriptRoot "prepare_installer_prerequisites.ps1"), "-Offline"
-    )
-    if ($code -ne 0) {
-        Write-Error "The PostgreSQL prerequisite failed verification (exit $code). The installer was NOT built."
-        exit 5
-    }
-}
-
-# ---------------------------------------------------------------- 5. version
+# ---------------------------------------------------------------- 4. version
 Write-Step "Reading the application version."
 $previous = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
@@ -159,7 +137,7 @@ Write-Step "Version $($version.version), AppId $($version.app_id)"
 
 $manifest = Get-Content (Join-Path $installerDir "prerequisites.json") -Raw | ConvertFrom-Json
 
-# ---------------------------------------------------------------- 6. compile
+# ---------------------------------------------------------------- 5. compile
 New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
 Write-Step "Compiling the installer (this takes a while for a ~1 GB payload)."
 
@@ -175,9 +153,7 @@ $definitions = @(
     "/DDataDirName=$($version.data_dir_name)",
     "/DAppDescription=$($version.description)",
     "/DAppCopyright=$($version.copyright)",
-    "/DPostgresInstaller=$($manifest.postgresql.filename)",
-    "/DPostgresVersion=$($manifest.postgresql.version)",
-    "/DIncludePostgres=$includePostgres",
+    "/DRequiredPostgresMajor=$($manifest.required_postgres_major)",
     "/DOutputDir=$releaseDir"
 )
 # ISCC's own output names every file it embeds. Captured, because it is the only
@@ -206,9 +182,9 @@ $code = $LASTEXITCODE
 $ErrorActionPreference = $previous
 if ($code -ne 0) { Write-Error "ISCC failed (exit $code)."; exit 6 }
 
-# ---------------------------------------------------------------- 6b. embedded file list
+# ---------------------------------------------------------------- 5b. embedded file list
 # ISCC appends the file version after the path for files it read version info from, e.g.
-#   "   Compressing: C:\...\postgresql-16.9-1-windows-x64.exe   (1.0.0.0)"
+#   "   Compressing: C:\...\RisingPathRecruiters.exe   (1.0.0.0)"
 # so the trailing "(n.n.n.n)" has to come off before the value is treated as a path.
 $embedded = Select-String -Path $buildLog -Pattern '^\s+Compressing:\s+(.+?)(?:\s{2,}\([\d.]+\))?$' |
     ForEach-Object { $_.Matches[0].Groups[1].Value.Trim() }
@@ -218,21 +194,17 @@ $manifestList = Join-Path $releaseDir "$($version.executable_name)-Setup-$($vers
 [System.IO.File]::WriteAllLines($manifestList, [string[]]$embedded)
 Write-Step "Embedded $($embedded.Count) files (listed in $(Split-Path -Leaf $manifestList))."
 
-# Containment: every embedded file must come from the packaged payload or be the pinned
-# prerequisite. This is deliberately stronger than matching forbidden directory names --
-# it excludes the source checkout, .venv, node_modules, the project's tests, .git and the
-# user's runtime data in one rule, and it cannot be fooled by a name that happens to appear
-# inside a third-party package (pyarrow ships its own "tests" data directory, for instance).
+# Containment: EVERY embedded file must come from the packaged payload. There is no longer
+# any exception for a prerequisite, which makes this rule absolute -- it excludes the source
+# checkout, .venv, node_modules, the project's tests, .git and the user's runtime data in one
+# rule, and it cannot be fooled by a name that happens to appear inside a third-party package
+# (pyarrow ships its own "tests" data directory, for instance).
 $payloadRoot = [System.IO.Path]::GetFullPath($payload)
-$prerequisitePath = [System.IO.Path]::GetFullPath(
-    (Join-Path $projectRoot "installer\prerequisites\$($manifest.postgresql.filename)"))
 
 # @(...) because Where-Object yields $null when nothing matches, and Set-StrictMode turns
 # $null.Count into a terminating error rather than 0.
 $outside = @($embedded | Where-Object {
-    $full = [System.IO.Path]::GetFullPath($_)
-    (-not $full.StartsWith($payloadRoot, [StringComparison]::OrdinalIgnoreCase)) -and
-    ($full -ne $prerequisitePath)
+    -not ([System.IO.Path]::GetFullPath($_)).StartsWith($payloadRoot, [StringComparison]::OrdinalIgnoreCase)
 })
 if ($outside.Count -gt 0) {
     Write-Error "The installer embeds files from outside the packaged payload:`n  $($outside -join "`n  ")"
@@ -253,9 +225,17 @@ if ($leaks.Count -gt 0) {
     Write-Error "The installer embeds secret or user data:`n  $($leaks -join "`n  ")"
     exit 4
 }
-Write-Step "Every embedded file comes from the packaged payload or the pinned prerequisite."
+Write-Step "Every embedded file comes from the packaged payload."
 
-# ---------------------------------------------------------------- 7. verify
+# A PostgreSQL installer inside this setup would mean the removed prerequisite flow had come
+# back. Checked by name on what actually shipped, not on what this script intended to embed.
+$postgresBinaries = @($embedded | Where-Object { $_ -match 'postgresql.*\.exe$' })
+if ($postgresBinaries.Count -gt 0) {
+    Write-Error "The installer embeds a PostgreSQL installer, which this deployment model does not use:`n  $($postgresBinaries -join "`n  ")"
+    exit 4
+}
+
+# ---------------------------------------------------------------- 6. verify
 $expected = Join-Path $releaseDir $version.installer_filename
 if (-not (Test-Path $expected)) {
     Write-Error "ISCC reported success but $expected does not exist."
@@ -274,7 +254,7 @@ Write-Host "  File            : $expected"
 Write-Host "  Size            : $([math]::Round($size / 1MB, 1)) MB"
 Write-Host "  Product version : $($info.ProductVersion)"
 Write-Host "  Company         : $($info.CompanyName)"
-Write-Host "  PostgreSQL      : $(if ($SkipPostgres) { 'not embedded' } else { $manifest.postgresql.version })"
+Write-Host "  PostgreSQL      : not embedded; setup requires major $($manifest.required_postgres_major) already installed"
 Write-Host ""
 Write-Step "Not code-signed. SmartScreen will warn on first run until signing is added."
 exit 0
