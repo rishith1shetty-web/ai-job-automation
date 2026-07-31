@@ -36,7 +36,7 @@ class RecordingAdapter:
         pass
 
     def apply_to_job(self, job, resume, candidate_profile, *, dry_run, capture_evidence,
-                     screening_context=None) -> AutomationResult:
+                     screening_context=None, cancellation=None) -> AutomationResult:
         RecordingAdapter.seen.append(dry_run)
         # live mode reports a real submission; dry mode reports submit-ready
         if dry_run:
@@ -112,14 +112,16 @@ class DryRunPropagationTests(unittest.TestCase):
             )
         self.assertEqual(RecordingAdapter.seen, [True])
 
-    def test_apply_selected_omitting_dry_run_falls_back_to_the_safe_default(self) -> None:
+    def test_apply_selected_omitting_dry_run_falls_back_to_the_configured_default(self) -> None:
         with patch("app.main.dice_adapter", RecordingAdapter):
             apply_selected_job(
                 ApplySelectedRequest(resume_id=self.resume.id, job_id=self.job_id),
                 self.db,
             )
         self.assertEqual(RecordingAdapter.seen, [Settings().auto_apply_dry_run])
-        self.assertTrue(Settings().auto_apply_dry_run, "the safe default must stay True")
+        # Dry run now starts OFF, so an unspecified request performs a normal live application.
+        # Pinned in tests/test_dry_run_default.py; asserted here as the value actually forwarded.
+        self.assertFalse(Settings().auto_apply_dry_run, "dry run must default to OFF")
 
     # -- 4: the legacy synchronous apply-top ------------------------------------------------
     def test_4_apply_top_preserves_false(self) -> None:

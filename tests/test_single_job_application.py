@@ -82,6 +82,7 @@ class FakeApplicationAutomation:
         dry_run,
         capture_evidence=False,
         screening_context=None,
+        cancellation=None,
     ) -> AutomationResult:
         self.__class__.processed_job_ids.append(job.id)
         self.__class__.processed_resume_ids.append(_resume.id)
@@ -104,6 +105,7 @@ class FailingSecondJobAutomation(FakeApplicationAutomation):
         dry_run,
         capture_evidence=False,
         screening_context=None,
+        cancellation=None,
     ) -> AutomationResult:
         self.__class__.processed_job_ids.append(job.id)
         if len(self.__class__.processed_job_ids) == 2:
@@ -128,6 +130,7 @@ class RadioFailureSecondJobAutomation(FakeApplicationAutomation):
         dry_run,
         capture_evidence=False,
         screening_context=None,
+        cancellation=None,
     ) -> AutomationResult:
         self.__class__.processed_job_ids.append(job.id)
         if len(self.__class__.processed_job_ids) == 2:

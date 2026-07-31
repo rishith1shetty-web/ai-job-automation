@@ -10,7 +10,7 @@ export function WelcomeCard() {
       />
       <div className="relative flex-1">
         <span className="mb-2 inline-block rounded-full border border-[#F3D9A4] bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.09em] text-gold-text">
-          AI Recruitment Automation Platform
+          Job Application Platform
         </span>
         <h1 className="mb-1.5 text-2xl font-extrabold tracking-tight text-ink">
           Welcome to Rising Path Recruiters

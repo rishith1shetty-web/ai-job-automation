@@ -28,7 +28,7 @@ export function TopNav() {
       <div className="leading-tight">
         <div className="text-[1.05rem] font-extrabold tracking-tight text-ink">Rising Path Recruiters</div>
         <div className="text-[.72rem] font-semibold uppercase tracking-[.08em] text-gold-text">
-          AI Recruitment Automation
+          Job Application Platform
         </div>
       </div>
       <div className="flex-1" />

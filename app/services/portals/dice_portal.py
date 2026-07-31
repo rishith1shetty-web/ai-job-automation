@@ -16,6 +16,7 @@ from playwright.sync_api import sync_playwright
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.automation_control import CancellationToken, check_cancelled
 from app.services.find_matches import SearchVariation, per_variation_limits
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.browser_focus import focus_browser_window
@@ -1355,6 +1356,19 @@ class DicePortalAdapter:
             },
         }
 
+    # Stop Automation ------------------------------------------------------------------
+    #: The active batch's cancellation token, set for the duration of one apply_to_job call.
+    #: None means "nothing can cancel this run" -- the safe default for every other caller.
+    _cancellation: CancellationToken | None = None
+
+    def _checkpoint(self, name: str) -> None:
+        """A safe stopping point between browser actions.
+
+        Raises AutomationCancelled when the user has asked the active batch to stop. Never
+        called mid-action: Playwright calls are allowed to return first, so the page and the
+        evidence trail are always left in a known state."""
+        check_cancelled(self._cancellation, f"dice:{name}")
+
     def apply_to_job(
         self,
         job: JobOpportunity,
@@ -1364,6 +1378,7 @@ class DicePortalAdapter:
         dry_run: bool,
         capture_evidence: bool,
         screening_context: dict | None = None,
+        cancellation: CancellationToken | None = None,
     ) -> AutomationResult:
         """Dice dry-run application (safe): fills the apply form using the shared
         ScreeningAnswerEngine + GeneralizedFormEngine but NEVER clicks final submit.
@@ -1373,6 +1388,13 @@ class DicePortalAdapter:
           - unsupported_form  : external ATS / no native form / unhandled controls
           - needs_review      : a required answer is uncertain or profile data missing
         """
+        # Stop Automation: the active batch's token, checked at named checkpoints between
+        # browser actions. Same mechanism and same checkpoint names as LinkedIn. None (a
+        # single-job apply, or a caller predating this) never cancels. AutomationCancelled is
+        # allowed to propagate -- a stopped job is not a failed job. Taken FIRST, before any
+        # work at all, so a job that was already stopped never even resolves its URL.
+        self._cancellation = cancellation
+        self._checkpoint("before_job")
         debug_dir = self._debug_dir() / f"job_{job.id}"
         debug_dir.mkdir(parents=True, exist_ok=True)
         screening_context = screening_context or {}
@@ -1438,6 +1460,7 @@ class DicePortalAdapter:
                     # Navigating to the next application form (also covers Apply All, which drives
                     # this method once per job) -- one focus per job, never per field.
                     focus_browser_window(page, headless=self.settings.linkedin_headless, reason="dice_apply")
+                    self._checkpoint("job_opened")
                     log.append({"step": "job_opened", "url": self._safe_page_url(page)})
                     self._trace("job_opened", url=self._safe_page_url(page))
                     # Consent banner can cover the Apply/Next controls: clear it and
@@ -2201,6 +2224,7 @@ class DicePortalAdapter:
     def _click_next(self, page, log: list[dict] | None = None):
         """Poll for a Next/Continue control to appear AND become enabled, then click
         it. Returns (clicked, reason_code_or_None)."""
+        self._checkpoint("before_continue")
         found_disabled = False
         for _ in range(self._next_button_max_polls):
             for selector in self.NEXT_SELECTORS:
@@ -2268,6 +2292,7 @@ class DicePortalAdapter:
                                    reason_code="next_click_failed", element=blocker, selector=selector)
                 return False, "next_click_failed"
 
+            self._checkpoint("before_continue_click")
             try:
                 button.click(timeout=4000)
             except Exception as exc:
@@ -2397,6 +2422,7 @@ class DicePortalAdapter:
         """Plan and perform the current step's field interactions. Returns a stop
         reason ('needs_review' / 'unsupported') if a required field cannot be
         filled, else None. NEVER clicks Submit."""
+        self._checkpoint("before_fill")
         resume = getattr(self, "_active_resume", None)
         job = getattr(self, "_active_job", None)
         candidate = getattr(self, "_active_candidate", None)
@@ -3100,6 +3126,10 @@ class DicePortalAdapter:
             )
 
         self._capture_named(page, "before_submit")
+        # THE decisive checkpoint. Past this line the application is submitted for real, so a
+        # stop requested at any earlier moment must be honoured here -- this is what guarantees
+        # "once cancellation is requested, no further job may be submitted".
+        self._checkpoint("before_submit")
         try:
             submit.click()
         except Exception as exc:

@@ -124,10 +124,9 @@ class ValidationResumeTests(unittest.TestCase):
         self.assertIn(rp["primary_role"], {"Machine Learning Engineer", "Data Scientist", "Applied Data Scientist"})
         leaders = strong_and_primary(rp)
         self.assertTrue(any("Machine Learning" in t or "Data Scien" in t for t in leaders))
-        # Business Intelligence Analyst may still appear, but only later (Related/Stretch).
-        bi = next((r for r in rp["roles"] if r["title"] == "Business Intelligence Analyst"), None)
-        if bi is not None:
-            self.assertIn(bi["category"], {"Related", "Stretch"})
+        # Business Intelligence Analyst comes from the broad parent domain, not the demonstrated
+        # specialization, so it must never displace a supported Data Science / Applied ML role.
+        self.assertNotIn("Business Intelligence Analyst", titles(rp)[:4])
 
 
 class CrossDomainSpecializationTests(unittest.TestCase):
@@ -176,7 +175,7 @@ class GeneralAndSuppressionTests(unittest.TestCase):
         rp = profile(GENERAL_DATA)
         self.assertIsNone(rp["specialization"])
         self.assertEqual(rp["primary_role"], "Data Analyst")
-        self.assertEqual(len(rp["roles"]), 12)
+        self.assertEqual(len(rp["roles"]), 5)
 
     def test_unrelated_vertical_roles_are_suppressed_with_reasons(self) -> None:
         rp = profile(HEALTHCARE)
@@ -184,22 +183,22 @@ class GeneralAndSuppressionTests(unittest.TestCase):
         self.assertTrue(MARKETING_VERTICAL <= suppressed)  # Marketing Analyst + CRM Analyst suppressed
         self.assertTrue(any("vertical role without direct evidence" in s["reason"] for s in rp["suppressed_roles"]))
 
-    def test_specialization_with_broad_domain_fill_returns_twelve_unique_roles(self) -> None:
+    def test_specialization_with_broad_domain_fill_returns_five_unique_roles(self) -> None:
         # Specializations anchored to a broad domain (Data Analytics / Software / Cybersecurity) can
-        # field a full, credible top 12 from the specialization pool + broad-domain roles.
+        # field a full, credible top five from the specialization pool + broad-domain roles.
         for text in (HEALTHCARE, ML_DDS, PRODUCT_ANALYTICS, EMBEDDED, CLOUD_SECURITY):
             rp = profile(text)
             names = titles(rp)
-            self.assertEqual(len(names), 12, rp["specialization"])
+            self.assertEqual(len(names), 5, rp["specialization"])
             self.assertEqual(len(names), len(set(names)))
 
     def test_narrow_specialist_returns_fewer_honest_roles_not_padded(self) -> None:
         # A narrow AI/ML specialist (NLP) has few credibly-supported roles; the layer returns those
-        # unique roles rather than padding to 12 with unevidenced roles.
+        # unique roles rather than padding to five with unevidenced roles.
         rp = profile(NLP)
         names = titles(rp)
-        self.assertGreaterEqual(len(names), 5)
-        self.assertLessEqual(len(names), 12)
+        self.assertGreaterEqual(len(names), 1)
+        self.assertLessEqual(len(names), 5)
         self.assertEqual(len(names), len(set(names)))
         self.assertTrue(all("NLP" in n or "Language" in n or "Machine Learning" in n or "Applied" in n or "Deep Learning" in n or "Conversational" in n or "Data Sci" in n for n in strong_and_primary(rp)))
 

@@ -4,6 +4,9 @@
  * Bug under investigation: Dice keeps behaving like a dry run with the toggle OFF. The Dice
  * adapter's debug artifacts show dry_run=true arriving, so `false` is lost somewhere between the
  * toggle and the request body. These tests pin the frontend end of that chain.
+ *
+ * The toggle now starts OFF (normal/live behaviour), so the OFF cases need no click and the ON
+ * cases turn it on explicitly. Its name and meaning are unchanged.
  */
 import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
@@ -73,8 +76,7 @@ describe("dry_run flag on the wire", () => {
     const bodies = captureBodies();
     await render1Job();
 
-    await user.click(toggle());                                   // ON -> OFF
-    expect(toggle()).toHaveAttribute("aria-checked", "false");
+    expect(toggle()).toHaveAttribute("aria-checked", "false");    // default OFF
 
     await user.click(screen.getByRole("radio", { name: jobLabel(1) }));
     await user.click(screen.getByRole("button", { name: "Apply Selected Job" }));
@@ -83,12 +85,13 @@ describe("dry_run flag on the wire", () => {
     expect(bodies["apply-selected"].dry_run).toBe(false);         // not undefined, not true
   });
 
-  it("2. sends dry_run=true from Apply Selected Job when the toggle is ON", async () => {
+  it("2. sends dry_run=true from Apply Selected Job once the user turns the toggle ON", async () => {
     const user = userEvent.setup();
     const bodies = captureBodies();
     await render1Job();
 
-    expect(toggle()).toHaveAttribute("aria-checked", "true");     // default ON
+    await user.click(toggle());                                   // OFF -> ON
+    expect(toggle()).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("radio", { name: jobLabel(1) }));
     await user.click(screen.getByRole("button", { name: "Apply Selected Job" }));
 
@@ -102,7 +105,7 @@ describe("dry_run flag on the wire", () => {
       const bodies = captureBodies();
       const view = await render1Job();
 
-      await user.click(toggle());
+      expect(toggle()).toHaveAttribute("aria-checked", "false");  // default OFF, no click needed
       const button = screen.queryByRole("button", { name: label });
       if (!button) { view.unmount(); continue; }                  // entry point not rendered
       await user.click(button);
@@ -111,5 +114,18 @@ describe("dry_run flag on the wire", () => {
       expect(bodies["apply-top"].dry_run, `${label} sent the wrong dry_run`).toBe(false);
       view.unmount();
     }
+  });
+
+  it("4. sends dry_run=true from Apply Top once the user turns the toggle ON", async () => {
+    const user = userEvent.setup();
+    const bodies = captureBodies();
+    await render1Job();
+
+    await user.click(toggle());                                   // OFF -> ON
+    expect(toggle()).toHaveAttribute("aria-checked", "true");
+    await user.click(screen.getByRole("button", { name: /^Apply Top 10$/ }));
+
+    await vi.waitFor(() => expect(bodies["apply-top"]).toBeDefined());
+    expect(bodies["apply-top"].dry_run).toBe(true);
   });
 });

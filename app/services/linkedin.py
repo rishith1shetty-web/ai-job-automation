@@ -16,6 +16,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.automation_control import CancellationToken, check_cancelled
 from app.services.browser_focus import focus_browser_window
 from app.services.find_matches import per_variation_limits
 from app.services.posting_time import extract_posted_phrase
@@ -590,6 +591,19 @@ class LinkedInAutomation:
                 logger.warning("Skipping LinkedIn job %s: %s", job_url, exc)
         return jobs
 
+    # Stop Automation ------------------------------------------------------------------
+    #: The active batch's cancellation token, set for the duration of one apply_to_job call.
+    #: None means "nothing can cancel this run" -- the safe default for every other caller.
+    _cancellation: CancellationToken | None = None
+
+    def _checkpoint(self, name: str) -> None:
+        """A safe stopping point between browser actions.
+
+        Raises AutomationCancelled when the user has asked the active batch to stop. Never
+        called mid-action: Playwright calls are allowed to return first, so the page and the
+        evidence trail are always left in a known state."""
+        check_cancelled(self._cancellation, f"linkedin:{name}")
+
     @retry(
         retry=retry_if_exception_type((PlaywrightTimeoutError, RuntimeError)),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -604,7 +618,16 @@ class LinkedInAutomation:
         dry_run: bool,
         capture_evidence: bool = False,
         screening_context: dict | None = None,
+        cancellation: CancellationToken | None = None,
     ) -> AutomationResult:
+        # Stop Automation. `cancellation` is the active batch's token; None (a single-job apply,
+        # or any caller that predates this) simply never cancels. It is checked at named
+        # checkpoints BETWEEN browser actions -- never inside one -- so an action already in
+        # flight always returns before the run stops. AutomationCancelled propagates out of this
+        # method deliberately: the batch runner records the job as stopped, and a stopped job
+        # must never be written to Application History as a failure.
+        self._cancellation = cancellation
+        self._checkpoint("before_job")
         run_log: list[dict] = []
         contact_events: list[dict] = []
         screening_events: list[dict] = []
@@ -655,6 +678,7 @@ class LinkedInAutomation:
                 # this method once per job) -- one focus per job, never per field.
                 focus_browser_window(page, headless=self.settings.linkedin_headless, reason="linkedin_apply")
                 readiness = self._wait_for_job_page(page)
+                self._checkpoint("job_opened")
                 navigation = self._navigation_state(page, "application_job_navigation")
                 self._log(run_log, current_step, json.dumps(navigation))
                 self._capture_screenshot(page, evidence_dir, "01_job_page")
@@ -818,6 +842,7 @@ class LinkedInAutomation:
                     )
 
                 for form_page in range(1, 9):
+                    self._checkpoint("before_form_page")
                     modal = self._current_easy_apply_modal(page)
                     if modal is None:
                         current_step = "easy_apply_modal_closed"
@@ -1214,6 +1239,11 @@ class LinkedInAutomation:
                                 screening_events,
                             )
 
+                        # THE decisive checkpoint. Past this line the application is
+                        # submitted for real, so a stop requested at any earlier moment must be
+                        # honoured here -- this is what guarantees "once cancellation is
+                        # requested, no further job may be submitted".
+                        self._checkpoint("before_submit")
                         submit.first.click()
                         current_step = "submit_clicked"
                         self._log(run_log, current_step, job.job_url)
@@ -1279,10 +1309,12 @@ class LinkedInAutomation:
                             "attempting_click",
                             None,
                         )
+                        self._checkpoint("before_continue")
                         try:
                             navigation["locator"].click(timeout=8000)
                         except PlaywrightTimeoutError:
                             navigation["locator"].click(timeout=3000, force=True)
+                        self._checkpoint("after_continue")
                         self._wait_for_form_transition(page, modal)
                         after_modal = self._current_easy_apply_modal(page)
                         after_state = self._workflow_state(page, after_modal)

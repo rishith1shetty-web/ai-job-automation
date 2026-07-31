@@ -61,7 +61,19 @@ export function DetectedProfilePanel() {
       ? resume.role_suggestions
       : [{ role: resume.detected_role ?? "Software Engineer", confidence: resume.role_confidence }];
   const primary = suggestions[0];
-  const groups = ["primary_role", "strong_fit_roles", "related_roles", "stretch_roles"] as const;
+  // A role profile now contains a Primary Role plus up to four Strong Fit roles; the Related and
+  // Stretch tiers are no longer produced. Render only the groups that actually have roles, so an
+  // empty tier disappears instead of showing "None" forever. The order is fixed, not derived from
+  // the data, so a group never moves column when a different resume is analysed.
+  const populatedGroups = (["primary_role", "strong_fit_roles", "related_roles", "stretch_roles"] as const)
+    .map((group) => {
+      const values = suggestions.filter((sug) => sug.role_category === group).map((sug) => sug.role);
+      // The Primary Role group is never hidden. An older record (or the legacy fallback above)
+      // can carry suggestions with no role_category at all; the detected primary role is still
+      // known, so show it rather than dropping the group.
+      return { group, values: group === "primary_role" && values.length === 0 ? [primary.role] : values };
+    })
+    .filter(({ values }) => values.length > 0);
 
   return (
     <section className="space-y-3">
@@ -95,17 +107,14 @@ export function DetectedProfilePanel() {
       </Table>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {groups.map((g) => {
-          const values = suggestions.filter((sug) => sug.role_category === g).map((sug) => sug.role);
-          return (
-            <div key={g}>
-              <div className="text-xs font-semibold uppercase tracking-wide text-[#8A8580]">
-                {CATEGORY_LABELS[g]}
-              </div>
-              <div className="mt-1 text-sm text-[#57534E]">{values.length ? values.join(", ") : "None"}</div>
+        {populatedGroups.map(({ group, values }) => (
+          <div key={group}>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[#8A8580]">
+              {CATEGORY_LABELS[group]}
             </div>
-          );
-        })}
+            <div className="mt-1 text-sm text-[#57534E]">{values.join(", ")}</div>
+          </div>
+        ))}
       </div>
 
       <div>

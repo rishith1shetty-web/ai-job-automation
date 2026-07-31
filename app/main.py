@@ -37,6 +37,7 @@ from app.schemas import (
     ApplicationHistoryOut,
     ApplicationRecordOut,
     ApplyTopBatchOut,
+    AutomationStateOut,
     ApplyRequest,
     ApplySelectedRequest,
     CandidateProfileIn,
@@ -54,6 +55,7 @@ from app.schemas import (
 )
 from app.services.linkedin import AutomationResult, LinkedInAutomation
 from app.services.find_matches import FindMatchesEngine
+from app.services.role_selection import MAX_SEARCH_ROLES
 from app.services.application_outcome import (
     DRY_RUN_COMPLETE_STEPS,
     SUCCESS_APPLICATION_STATUSES,
@@ -64,6 +66,16 @@ from app.services.resume_identity import (
     compute_resume_fingerprint,
     resume_family_ids_for,
     successful_jobs_for_fingerprint,
+)
+from app.services.automation_control import (
+    AUTOMATION_IDLE,
+    BATCH_STATUS_STOPPED,
+    BATCH_STATUS_STOPPING,
+    JOB_RESULT_STOPPED,
+    AutomationCancelled,
+    BatchAlreadyActive,
+    get_automation_controller,
+    reset_automation_controller,
 )
 from app.services.runtime_session import get_runtime_session, reset_runtime_session
 from app.services.form_learning import FormLearningEngine
@@ -361,6 +373,9 @@ def startup() -> None:
     # the user reaches them again by explicitly connecting a portal and re-analysing a
     # resume (which reattaches to its existing fingerprint family).
     reset_runtime_session()
+    # A fresh process cannot have inherited a running apply batch. Without this a claim left
+    # behind by a crash would block every future Apply Jobs run.
+    reset_automation_controller()
 
 
 @app.get("/health")
@@ -1395,8 +1410,10 @@ def _search_jobs_sync(
             {
                 "requested_limit": request.limit,
                 "target_count": target_count,
+                "max_search_roles": MAX_SEARCH_ROLES,
                 "available_variations": len(search_variations),
                 "selected_variations": len(selected_variations),
+                "selected_roles": [variation.role for variation in selected_variations],
                 "limit_per_query": limit_per_query,
             },
         )
@@ -1956,9 +1973,56 @@ def start_apply_top_batch(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> ApplyTopBatch:
+    # Refuse a second batch BEFORE creating a row, so a rejected request leaves no orphan
+    # batch behind and the active one is never disturbed.
+    controller = get_automation_controller()
+    if controller.is_active():
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Apply batch {controller.active_batch_id} is already {controller.state}. "
+                "Wait for it to finish, or stop it first."
+            ),
+        )
     batch = _create_apply_top_batch(request, db)
+    _claim_automation_slot(batch.id)
     background_tasks.add_task(_run_apply_top_batch, batch.id)
     return batch
+
+
+@app.post("/applications/apply-top/{batch_id}/stop", response_model=ApplyTopBatchOut)
+def stop_apply_top_batch(batch_id: str, db: Session = Depends(get_db)) -> ApplyTopBatch:
+    """Ask the active apply batch to stop gracefully.
+
+    Returns immediately: this only RAISES the flag. The worker notices it at its next
+    checkpoint, finishes whatever browser action is in flight, records the remaining jobs as
+    stopped and then ends the batch. No process is ended and no page is closed from here."""
+    batch = db.get(ApplyTopBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Apply batch not found.")
+    if batch.status in {"completed", "failed", BATCH_STATUS_STOPPED}:
+        raise HTTPException(status_code=409, detail=f"Apply batch is already {batch.status}.")
+    if not get_automation_controller().request_stop(batch_id):
+        # Either it is not the active batch, or a stop is already in flight. Both are fine to
+        # report as the current state rather than as an error the user must act on.
+        if get_automation_controller().active_batch_id != batch_id:
+            raise HTTPException(status_code=409, detail="Apply batch is not the active automation run.")
+    batch.status = BATCH_STATUS_STOPPING
+    batch.latest_status_message = "Stopping after the current step; no further job will be submitted."
+    db.add(batch)
+    db.commit()
+    db.refresh(batch)
+    _write_apply_top_debug(batch)
+    return batch
+
+
+@app.get("/applications/automation/state", response_model=AutomationStateOut)
+def get_automation_state() -> dict:
+    """Whether an apply batch is running or stopping, straight from the backend.
+
+    The Stop button is driven by this, not by frontend state, so a page reload during a run
+    still shows the right control."""
+    return get_automation_controller().snapshot()
 
 
 @app.get("/applications/apply-top/batches/{batch_id}", response_model=ApplyTopBatchOut)
@@ -2095,11 +2159,35 @@ def _create_apply_top_batch(request: ApplyRequest, db: Session) -> ApplyTopBatch
     return apply_batch
 
 
+def _claim_automation_slot(batch_id: str) -> None:
+    """Reserve the single automation slot, or refuse the request.
+
+    Claimed synchronously in the HTTP handler, BEFORE the background worker is queued, so two
+    quick Apply Jobs clicks cannot both reach the browser. The slot stays claimed while a batch
+    is stopping, so a stop can never race a fresh batch into the same portal session."""
+    try:
+        get_automation_controller().start(batch_id)
+    except BatchAlreadyActive as active:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Apply batch {active.batch_id} is already {active.state}. "
+                "Wait for it to finish, or stop it first."
+            ),
+        ) from None
+
+
 def _run_apply_top_batch(batch_id: str) -> None:
+    controller = get_automation_controller()
+    # The slot was claimed synchronously in _create_apply_top_batch, so a second Apply Jobs
+    # request is refused before it can ever reach this worker. Re-read the token here rather
+    # than passing it in: the HTTP thread that services Stop mutates the same object.
+    token = controller.token_for(batch_id)
     with database.SessionLocal() as db:
         batch = db.get(ApplyTopBatch, batch_id)
         if not batch:
             logger.error("Apply Top batch %s was not found.", batch_id)
+            controller.finish(batch_id)
             return
         try:
             batch.status = "running"
@@ -2134,7 +2222,14 @@ def _run_apply_top_batch(batch_id: str) -> None:
                     ensure_employment_history_for_resume(db, candidate_profile, resume)
                 ),
             }
+            stopped = False
             for index, job in enumerate(jobs, start=1):
+                # Checkpoint 1: before starting the next job. Everything already applied for is
+                # keeping its result; this job and every job after it are recorded as stopped.
+                if token is not None and token.cancelled:
+                    stopped = True
+                    _record_stopped_jobs(db, batch.id, jobs[index - 1:], index)
+                    break
                 started = datetime.utcnow()
                 batch.current_index = index
                 batch.current_job_id = job.id
@@ -2154,8 +2249,17 @@ def _run_apply_top_batch(batch_id: str) -> None:
                         batch.dry_run,
                         capture_evidence=batch.dry_run,
                         screening_context=screening_context,
+                        cancellation=token,
                     )
                     result = _apply_top_job_result(index, job, record, started)
+                except AutomationCancelled as cancelled:
+                    # A checkpoint fired inside the portal adapter. This job was interrupted,
+                    # not failed: no application was submitted and no history row was written.
+                    logger.info("Apply Top batch %s stopped at %s", batch.id, cancelled.checkpoint)
+                    stopped = True
+                    _record_stopped_jobs(db, batch.id, jobs[index - 1:], index,
+                                         checkpoint=cancelled.checkpoint)
+                    break
                 except Exception as exc:
                     logger.exception("Apply Top batch %s failed on job %s", batch.id, job.id)
                     result = _apply_top_failure_result(index, job, started, exc)
@@ -2163,12 +2267,15 @@ def _run_apply_top_batch(batch_id: str) -> None:
 
             batch = db.get(ApplyTopBatch, batch.id)
             if batch:
-                batch.status = "completed"
+                # A stopped batch is a finished batch with its summary intact -- completed,
+                # stopped, skipped and failed counts all survive, and so does every application
+                # that was already submitted.
+                batch.status = BATCH_STATUS_STOPPED if stopped else "completed"
                 batch.finished_at = datetime.utcnow()
                 batch.current_job_id = None
                 batch.current_title = None
                 batch.current_company = None
-                batch.latest_status_message = _apply_top_summary_message(batch)
+                batch.latest_status_message = _apply_top_summary_message(batch, stopped=stopped)
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
@@ -2183,6 +2290,9 @@ def _run_apply_top_batch(batch_id: str) -> None:
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
+        finally:
+            # Always release the automation slot, or every later Apply Jobs run is blocked.
+            controller.finish(batch_id)
 
 
 def _apply_top_jobs_statement(resume_id: int, search_batch_id: str | None, portal: str | None = None):
@@ -2298,6 +2408,8 @@ def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
     batch.completed_count = len(results)
     batch.skipped_count = sum(1 for item in results if item.get("status") in {"skipped", "reached_review"})
     batch.failed_count = sum(1 for item in results if item.get("status") == "failed")
+    # `stopped` is deliberately absent from failed/needs-review/timed-out: stopping is a user
+    # action, not an outcome of the application. It is reported on its own (stopped_count).
     batch.needs_review_count = sum(1 for item in results if item.get("status") == "needs_review")
     batch.timed_out_count = sum(1 for item in results if item.get("status") == "timed_out")
     batch.latest_status_message = f"Completed {batch.completed_count}/{batch.total_count}: {result['title']} - {result['status']}"
@@ -2306,12 +2418,50 @@ def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
     _write_apply_top_debug(batch)
 
 
-def _apply_top_summary_message(batch: ApplyTopBatch) -> str:
-    return (
-        f"Batch complete: {batch.completed_count}/{batch.total_count} processed, "
+def _record_stopped_jobs(
+    db: Session,
+    batch_id: str,
+    jobs: list[JobOpportunity],
+    start_index: int,
+    checkpoint: str = "before_next_job",
+) -> None:
+    """Record the interrupted job and every job after it as STOPPED.
+
+    Requirement: a job the user stopped is not a failure. It gets a batch result so the summary
+    stays honest about what did and did not run, but no ApplicationRecord and no change to the
+    job's own status -- so it is still MATCHED and still eligible for a later batch, and
+    Application History is untouched."""
+    for offset, job in enumerate(jobs):
+        _append_apply_top_result(
+            db,
+            batch_id,
+            {
+                "job_index": start_index + offset,
+                "job_id": job.id,
+                "portal": job.portal,
+                "title": job.title,
+                "company": job.company,
+                "status": JOB_RESULT_STOPPED,
+                "application_record_id": None,
+                "current_step": "stopped_by_user",
+                "duration": 0.0,
+                "error": None,
+                "evidence_path": None,
+                "stop_checkpoint": checkpoint if offset == 0 else "not_started",
+            },
+        )
+
+
+def _apply_top_summary_message(batch: ApplyTopBatch, stopped: bool = False) -> str:
+    lead = "Batch stopped by user" if stopped else "Batch complete"
+    message = (
+        f"{lead}: {batch.completed_count}/{batch.total_count} processed, "
         f"{batch.needs_review_count} needs review, {batch.failed_count} failed, "
         f"{batch.timed_out_count} timed out."
     )
+    if batch.stopped_count:
+        message += f" {batch.stopped_count} stopped."
+    return message
 
 
 def _write_apply_top_debug(batch: ApplyTopBatch) -> None:
@@ -2340,6 +2490,7 @@ def _write_apply_top_debug(batch: ApplyTopBatch) -> None:
         "failed_count": batch.failed_count,
         "needs_review_count": batch.needs_review_count,
         "timed_out_count": batch.timed_out_count,
+        "stopped_count": batch.stopped_count,
         "latest_status_message": batch.latest_status_message,
         "error_message": batch.error_message,
         "jobs": batch.job_results or [],
@@ -2357,6 +2508,7 @@ def _process_application(
     dry_run: bool,
     capture_evidence: bool,
     screening_context: dict | None = None,
+    cancellation=None,
 ) -> ApplicationRecord:
     try:
         if job.portal == "dice":
@@ -2367,6 +2519,7 @@ def _process_application(
                 dry_run=dry_run,
                 capture_evidence=capture_evidence,
                 screening_context=screening_context,
+                cancellation=cancellation,
             )
         else:
             result = automation.apply_to_job(
@@ -2376,6 +2529,7 @@ def _process_application(
                 dry_run=dry_run,
                 capture_evidence=capture_evidence,
                 screening_context=screening_context,
+                cancellation=cancellation,
             )
         job.status = ApplicationStatus.MATCHED if dry_run else result.status
         if candidate_profile is not None:
@@ -2398,6 +2552,11 @@ def _process_application(
             error_message=result.message,
             run_log=result.log,
         )
+    except AutomationCancelled:
+        # Control flow, not a failure: the user stopped the run. Nothing is written to
+        # Application History and the job keeps its current status, so it stays eligible for a
+        # later batch. The caller records it as stopped.
+        raise
     except Exception as exc:
         logger.exception("Application failed for job %s", job.id)
         job.status = ApplicationStatus.FAILED

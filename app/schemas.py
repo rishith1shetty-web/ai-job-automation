@@ -233,6 +233,9 @@ class ApplyTopBatchOut(BaseModel):
     failed_count: int
     needs_review_count: int
     timed_out_count: int
+    # Jobs the user's Stop Automation ended. A model property derived from job_results, so no
+    # column and no migration; a batch from before Stop Automation reports 0.
+    stopped_count: int = 0
     latest_status_message: str | None
     error_message: str | None
     debug_path: str | None
@@ -243,6 +246,18 @@ class ApplyTopBatchOut(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AutomationStateOut(BaseModel):
+    """Whether an apply batch is running or stopping, and whether a stop was already asked for.
+
+    The backend is the authority: the Stop button and the "a batch is already active" guard
+    both read this, so a page reload mid-run still shows the correct control."""
+
+    state: str = "idle"          # idle | running | stopping
+    active_batch_id: str | None = None
+    cancellation_requested: bool = False
+    requested_at: datetime | None = None
 
 
 class SearchRequest(BaseModel):
