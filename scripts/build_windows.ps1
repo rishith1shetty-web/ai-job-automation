@@ -11,7 +11,8 @@
       4. stage Chromium into build/ms-playwright (never the developer's global cache)
       5. run PyInstaller against RisingPathRecruiters.spec
       6. verify every expected file landed in dist/
-      7. scan dist/ for secrets and user data, and FAIL the build if any is found
+      7. READ BACK every entry in the packaged archive, and FAIL the build if any is corrupt
+      8. scan dist/ for secrets and user data, and FAIL the build if any is found
 
     After step 3 the packaged application needs no Node.js. This script does not create an
     installer and does not install PostgreSQL.
@@ -31,6 +32,7 @@
       5  PyInstaller failed
       6  expected output files missing
       7  SECRETS OR USER DATA FOUND IN dist/  (build rejected)
+      8  THE PACKAGED ARCHIVE IS CORRUPT      (build rejected)
 #>
 [CmdletBinding()]
 param(
@@ -217,7 +219,20 @@ if (-not $SkipBrowsers) {
 }
 Write-Step "All expected files are present."
 
-# ---------------------------------------------------------------- 7. secrets scan
+# ---------------------------------------------------------------- 7. archive integrity
+# Existence is not integrity. PyInstaller can exit 0 having written an entry that cannot be
+# decompressed again; the failure then appears on a user's computer as a zlib error during an
+# unrelated import, days later. This reads every CArchive entry and every module inside the
+# PYZ back out and rejects the build if any one of them is unreadable. It only reads --
+# nothing under dist/ is modified.
+Write-Step "Reading back every entry in the packaged archive."
+$code = Invoke-Native -FilePath $python -Arguments @("-m", "scripts.verify_archive", "--path", $appDist)
+if ($code -ne 0) {
+    Write-Error "The packaged archive is corrupt and has been rejected. Rebuild; if it recurs, suspect a real-time scanner or failing disk."
+    exit 8
+}
+
+# ---------------------------------------------------------------- 8. secrets scan
 Write-Step "Scanning the build for secrets and user data."
 $code = Invoke-Native -FilePath $python -Arguments @("-m", "scripts.scan_build_secrets", "--path", $appDist)
 if ($code -ne 0) {

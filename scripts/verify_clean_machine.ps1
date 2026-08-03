@@ -20,7 +20,7 @@
       postuninstall   AFTER uninstalling. Proves what was removed and what was preserved.
 
 .EXAMPLE
-    powershell -ExecutionPolicy Bypass -File .\verify_clean_machine.ps1 -Stage preflight -Installer .\RisingPathRecruiters-Setup-1.0.0.exe
+    powershell -ExecutionPolicy Bypass -File .\verify_clean_machine.ps1 -Stage preflight -Installer .\RisingPathRecruiters-Setup-1.1.0.exe
 #>
 
 [CmdletBinding()]
