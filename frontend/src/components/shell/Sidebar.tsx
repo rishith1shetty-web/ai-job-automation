@@ -84,7 +84,7 @@ export function Sidebar() {
             Recruiters
           </div>
           <div className="mt-0.5 text-[.64rem] font-extrabold uppercase tracking-[.1em] text-gold-text">
-            AI Recruitment Platform
+            Job Application Platform
           </div>
         </div>
       </div>

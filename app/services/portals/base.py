@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
+from app.services.automation_control import CancellationToken
 from app.services.find_matches import SearchVariation
 
 
@@ -71,5 +72,9 @@ class PortalAdapter(Protocol):
         dry_run: bool,
         capture_evidence: bool,
         screening_context: dict | None = None,
+        # Stop Automation: the active batch's cancellation token. Every adapter must accept it
+        # -- an adapter that silently rejected it would have its TypeError recorded as a FAILED
+        # application. None means nothing can cancel this run.
+        cancellation: "CancellationToken | None" = None,
     ):
         ...

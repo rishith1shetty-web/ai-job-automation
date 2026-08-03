@@ -391,6 +391,18 @@ class ApplyTopBatch(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    @property
+    def stopped_count(self) -> int:
+        """How many jobs the user's Stop Automation ended -- the interrupted one plus every
+        job that never started.
+
+        Derived from ``job_results`` rather than stored in its own column: that JSONB list is
+        already the authoritative per-job record, so counting it needs no schema change and no
+        migration, and a batch written before Stop Automation existed simply reports 0."""
+        from app.services.automation_control import JOB_RESULT_STOPPED
+
+        return sum(1 for item in (self.job_results or []) if item.get("status") == JOB_RESULT_STOPPED)
+
 
 class PortalRuntimeState(Base):
     __tablename__ = "portal_runtime_state"

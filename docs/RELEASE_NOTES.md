@@ -1,5 +1,66 @@
 # Rising Path Recruiters — release notes
 
+## 1.1.0
+
+A feature and usability release. **Install it over 1.0.0 — do not uninstall first.** The
+database schema is unchanged from 1.0.0, so there is no migration to run and nothing to
+convert; every existing resume, matched job, application record, profile, employment-history
+entry, screening answer, portal session and stored credential is carried over untouched.
+
+**Installer SHA256**
+
+```
+5E5A6A8CE9191A1E59F610CB994B2F69EB30AAC1042918DB48FC5F2D4D7DD889
+```
+
+### What is new
+
+- **At most five search roles, chosen by evidence.** Resume analysis now produces one
+  detected primary role plus up to four genuinely close strong-fit roles, instead of a
+  twelve-role list. Roles are filtered first — by professional family, by seniority, and by
+  whether anything in the resume actually supports them — and only then limited to five, so
+  the list never contains unrelated filler. The primary role is always rank 1.
+- **Find 20, Find 50 and Find 100 all search the same five roles.** The preset now controls
+  only how many jobs come back, not which roles are searched, so a wider search cannot drift
+  into a different profession.
+- **Dry run now starts OFF.** The toggle is unchanged in name and meaning — switching it on
+  still fills every field and stops before the final Submit. Only its starting value changed,
+  so an apply run performs a real application unless you deliberately ask for a dry run.
+- **Stop Automation.** A running batch can be stopped from the dashboard. The run ends at its
+  next safe checkpoint — never in the middle of a browser action — and no further job is
+  submitted. Each portal is checked immediately before its Submit button is clicked, so a
+  stop that arrives late still prevents that submission. Jobs that were never reached stay
+  matched and can be applied to later; completed applications and history are untouched.
+- **Job Application Platform branding**, replacing the previous product wording in the
+  sidebar, header, welcome banner and browser tab title.
+- **Two-tab navigation** — Matched jobs and Application history. The other sections keep
+  their pages and URLs but no longer appear in the navigation bar.
+- **Empty role groups are hidden.** Related and Stretch groups are no longer rendered as
+  empty headings when the five-role list leaves them unused.
+
+### Unchanged from 1.0.0
+
+- LinkedIn and Dice automation, including search, pagination, screening, resume handling and
+  status mapping. The only additions are the cancellation checkpoints.
+- The local PostgreSQL deployment model: database `linkedin_auto_apply`, role
+  `ai_job_automation_app`, port 5432, PostgreSQL 16 installed by hand beforehand.
+- Installation directory, Start-menu group, `AppId`, executable name and the
+  `%LOCALAPPDATA%\AIJobAutomation` data layout.
+- The status vocabulary. No new `ApplicationStatus` value was introduced.
+
+### Upgrading from 1.0.0
+
+Close the application, run `RisingPathRecruiters-Setup-1.1.0.exe` as administrator, and
+accept the same installation directory. Setup detects the existing database and keeps it —
+it does not recreate the role, rotate the credential or drop anything. Nothing under
+`%LOCALAPPDATA%\AIJobAutomation` is read or written by the installer, and the uninstaller
+still removes only the program directory.
+
+### Known limitations
+
+Unchanged from 1.0.0: PostgreSQL 16 installed by hand, manual updates, no code signing,
+`localhost:5432` only, Windows x64 only.
+
 ## 1.0.0
 
 First general release. A single Windows setup file installs the complete application: no

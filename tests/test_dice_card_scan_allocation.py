@@ -115,8 +115,11 @@ class DiceScanLimitAllocationTests(unittest.TestCase):
     def test_find100_allocates_enough_queries_to_reach_target(self) -> None:
         plan20 = self.engine.collection_plan(20, 24)
         plan100 = self.engine.collection_plan(100, 24)
-        self.assertGreater(plan100["selected_variation_count"], plan20["selected_variation_count"])
-        # Total per-query capacity across the selected queries must be able to reach 100.
+        # Both presets search the SAME top-five roles; the larger request goes deeper per query
+        # instead of adding roles (it used to add them, which changed what was searched).
+        self.assertEqual(plan100["selected_variation_count"], plan20["selected_variation_count"])
+        self.assertGreater(plan100["limit_per_query"], plan20["limit_per_query"])
+        # Total per-query capacity across the selected queries must still be able to reach 100.
         capacity = plan100["selected_variation_count"] * plan100["limit_per_query"]
         self.assertGreaterEqual(capacity, 100)
 
@@ -181,7 +184,7 @@ class DiceScanLimitAllocationTests(unittest.TestCase):
     # 7. LinkedIn remains unchanged.
     def test_scan_allocation_is_dice_only(self) -> None:
         # The shared collection_plan (which LinkedIn also consumes) keeps its exact values.
-        self.assertEqual(self.engine.collection_plan(20, 24), {"selected_variation_count": 4, "limit_per_query": 7})
+        self.assertEqual(self.engine.collection_plan(20, 24), {"selected_variation_count": 5, "limit_per_query": 6})
         # The new scan machinery lives only in the Dice portal.
         self.assertIn("_dice_scan_limit", DICE_SOURCE)
         for source in (LINKEDIN_SOURCE, LINKEDIN_PORTAL_SOURCE):

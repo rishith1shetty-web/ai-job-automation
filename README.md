@@ -94,8 +94,11 @@ LinkedIn changes its interface frequently, so selectors may need maintenance. Th
 - does not invent answers to required screening questions;
 - skips forms it cannot safely complete;
 - retries transient Playwright failures up to three times;
-- defaults to `AUTO_APPLY_DRY_RUN=true`;
-- caps each run using `MAX_APPLICATIONS_PER_RUN`.
+- defaults to `AUTO_APPLY_DRY_RUN=false`, so an apply run submits for real unless the Dry run
+  toggle is switched on (ON still fills everything and stops before the final Submit);
+- caps each run using `MAX_APPLICATIONS_PER_RUN`;
+- can be stopped mid-batch with **Stop Automation**: the run ends at its next safe checkpoint,
+  never mid-action, and no further job is submitted.
 
 Use automation at a measured rate and review LinkedIn's current terms and account restrictions before enabling live submission.
 

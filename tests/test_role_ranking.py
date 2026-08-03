@@ -1,10 +1,14 @@
-"""Phase 3: deterministic top-12 role ranking + evidence-based confidence.
+"""Phase 3: deterministic top-five role ranking + evidence-based confidence.
 
 Roles are built from the Phase-1 structured resume and the Phase-2 domain profile via the
-self-contained ``app.services.role_ranking`` layer. The dominant properties under test: exactly 12
-unique roles in 1/4/4/3 categories drawn mainly from the primary domain; specialised roles gated on
-real professional/project evidence; unsupported cross-domain roles excluded; rare professions handled
-by a provisional fallback instead of being forced into a supported domain; deterministic output.
+self-contained ``app.services.role_ranking`` layer. The dominant properties under test: AT MOST
+five unique roles in 1 Primary / up to 4 Strong Fit categories, all drawn from the primary domain;
+specialised roles gated on real professional/project evidence; unsupported cross-domain roles
+excluded; rare professions handled by a provisional fallback instead of being forced into a
+supported domain; deterministic output.
+
+The selection rules that turn the ranked candidates into those five roles are covered in
+tests/test_top_five_roles.py; this file pins the ranking they consume.
 """
 
 import unittest
@@ -33,7 +37,7 @@ SUPPORTED_KEYS = {
     "taxonomy_status", "specialization", "primary_role", "primary_role_confidence", "roles",
     "suppressed_roles", "unmatched_terms", "suggested_taxonomy_additions",
 }
-CATEGORY_COUNTS = {"Primary Role": 1, "Strong Fit": 4, "Related": 4, "Stretch": 3}
+CATEGORY_COUNTS = {"Primary Role": 1, "Strong Fit": 4}
 
 FINANCE_EXCLUDED = {
     "Data Scientist", "Machine Learning Engineer", "ML Engineer", "Data Engineer",
@@ -108,24 +112,24 @@ class TaxonomySelfSufficiencyTests(unittest.TestCase):
             self.assertEqual(len(titles), len(set(titles)), f"{domain} has duplicate role titles")
 
 
-class Structure12Tests(unittest.TestCase):
+class Structure5Tests(unittest.TestCase):
     """Behaviors 1, 2, 12, 14 and the output contract."""
 
     def setUp(self) -> None:
         self.profile = _profile(FINANCE_RESUME)
 
-    def test_exactly_twelve_unique_roles(self) -> None:
+    def test_at_most_five_unique_roles(self) -> None:
         titles = _titles(self.profile)
-        self.assertEqual(len(titles), 12)
+        self.assertEqual(len(titles), 5)
         self.assertEqual(len(titles), len(set(titles)))  # no duplicates
 
-    def test_category_counts_are_one_four_four_three(self) -> None:
+    def test_category_counts_are_one_primary_and_four_strong_fit(self) -> None:
         counts: dict[str, int] = {}
         for role in self.profile["roles"]:
             counts[role["category"]] = counts.get(role["category"], 0) + 1
         self.assertEqual(counts, CATEGORY_COUNTS)
 
-    def test_primary_and_strong_fit_come_from_the_primary_domain(self) -> None:
+    def test_every_returned_role_comes_from_the_primary_domain(self) -> None:
         primary_domain = "Finance / Financial Analysis"
         top_five = [r for r in self.profile["roles"] if r["category"] in {"Primary Role", "Strong Fit"}]
         self.assertEqual(len(top_five), 5)
@@ -165,9 +169,12 @@ class FinanceRankingTests(unittest.TestCase):
     def test_unsupported_technical_roles_are_excluded(self) -> None:
         self.assertFalse(FINANCE_EXCLUDED & set(_titles(self.profile)))
 
-    def test_confidence_is_monotonic_non_increasing(self) -> None:
+    def test_the_primary_role_is_the_most_confident_role(self) -> None:
+        # Related roles are ordered by the documented selection score (confidence + relatedness to
+        # the primary role), so raw confidence is no longer monotonic across ranks 2-5 -- see
+        # tests/test_top_five_roles.py. The primary role still leads on confidence outright.
         confidences = [role["confidence"] for role in self.profile["roles"]]
-        self.assertEqual(confidences, sorted(confidences, reverse=True))
+        self.assertEqual(confidences[0], max(confidences))
 
 
 class MultiDomainTests(unittest.TestCase):
@@ -175,7 +182,8 @@ class MultiDomainTests(unittest.TestCase):
 
     def _assert_primary(self, text: str, expected_domain: str, expected_role_hint: tuple[str, ...]) -> dict:
         profile = _profile(text)
-        self.assertEqual(len(profile["roles"]), 12)
+        self.assertLessEqual(len(profile["roles"]), 5)
+        self.assertGreaterEqual(len(profile["roles"]), 1)
         self.assertEqual(profile["roles"][0]["domain"], expected_domain)
         self.assertTrue(any(hint in profile["primary_role"] for hint in expected_role_hint))
         return profile
@@ -202,7 +210,9 @@ class MultiDomainTests(unittest.TestCase):
 
     def test_fresher_gets_realistic_entry_level_roles(self) -> None:
         profile = _profile(FRESHER_RESUME)
-        self.assertEqual(len(profile["roles"]), 12)
+        # Project-only evidence supports very few roles honestly; nothing is padded to reach five.
+        self.assertGreaterEqual(len(profile["roles"]), 1)
+        self.assertLessEqual(len(profile["roles"]), 5)
         self.assertEqual(profile["roles"][0]["domain"], "Software Engineering")
         # Project-only evidence -> honest, lower primary confidence and entry-level fit.
         self.assertLessEqual(profile["primary_role_confidence"], 75.0)
@@ -244,8 +254,8 @@ class ProvisionalFallbackTests(unittest.TestCase):
         # No returned role may claim a supported domain.
         for role in profile["roles"]:
             self.assertNotIn(role["domain"], SUPPORTED_DOMAINS)
-        # Fewer than 12 is allowed; weak invented roles are not.
-        self.assertLessEqual(len(profile["roles"]), 12)
+        # Fewer than five is allowed; weak invented roles are not.
+        self.assertLessEqual(len(profile["roles"]), 5)
         self.assertTrue(profile["unmatched_terms"])
         return profile
 

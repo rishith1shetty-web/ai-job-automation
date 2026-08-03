@@ -61,6 +61,7 @@ class LinkedInPortalAdapter:
         dry_run: bool,
         capture_evidence: bool,
         screening_context: dict | None = None,
+        cancellation=None,
     ):
         return self.automation.apply_to_job(
             job,
@@ -69,4 +70,5 @@ class LinkedInPortalAdapter:
             dry_run=dry_run,
             capture_evidence=capture_evidence,
             screening_context=screening_context,
+            cancellation=cancellation,
         )

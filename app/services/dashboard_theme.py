@@ -591,7 +591,7 @@ def top_nav(portal: str, linkedin_connected: bool, dice_connected: bool) -> str:
   {logo_svg(44)}
   <div>
     <div class="rp-name">Rising Path Recruiters</div>
-    <div class="rp-sub">AI Recruitment Automation</div>
+    <div class="rp-sub">Job Application Platform</div>
   </div>
   <div class="rp-spacer"></div>
   {_chip(f"Active portal: {portal_label}", False, "gold")}
@@ -606,7 +606,7 @@ def welcome_card() -> str:
 <div class="rp-hero">
   <div class="rp-logo-wrap">{logo_svg(96)}</div>
   <div>
-    <span class="rp-tag">AI Recruitment Automation Platform</span>
+    <span class="rp-tag">Job Application Platform</span>
     <h1>Welcome to Rising Path Recruiters</h1>
     <p>Automate resume analysis, job matching, LinkedIn Easy Apply, Dice Easy Apply
     and application tracking from one intelligent dashboard.</p>
@@ -641,7 +641,7 @@ def sidebar_brand() -> str:
   {logo_svg(48)}
   <div>
     <div class="rp-name">Rising Path<br>Recruiters</div>
-    <div class="rp-sub">AI Recruitment Platform</div>
+    <div class="rp-sub">Job Application Platform</div>
   </div>
 </div>
 """

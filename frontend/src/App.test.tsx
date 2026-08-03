@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BASE, server } from "@/test/server";
 import App from "./App";
 
-// Hiding the technical sections from the primary navigation must not affect routing:
-// every route still resolves to its own page, reachable by direct URL.
+// Removing sections from the navigation must not affect routing: every route still
+// resolves to its own page, reachable by direct URL.
 const evidence = { available: false };
 
 function seedShellAndEvidence() {
@@ -42,7 +42,7 @@ describe("App routes — direct URL access is preserved", () => {
     ["/ai-reasoning", "AI reasoning"],
     ["/form-learning", "AI Form Learning"],
     ["/generalized-form", "Generalized Form Engine"],
-  ])("loads %s directly even though it is hidden from the primary navigation", async (path, heading) => {
+  ])("loads %s directly even though it is no longer in the navigation", async (path, heading) => {
     renderAppAt(path);
     expect(await screen.findByRole("heading", { name: heading })).toBeInTheDocument();
     expect(window.location.pathname).toBe(path);

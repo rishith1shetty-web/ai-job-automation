@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { MainNav } from "./MainNav";
 
@@ -13,100 +12,67 @@ function renderNav(route = "/matched-jobs") {
   );
 }
 
-const PRIMARY = [
-  "Matched jobs",
-  "Application history",
+const NAV = () => screen.getByRole("navigation", { name: "Dashboard sections" });
+
+// Every section removed from the navigation, by its former label.
+const REMOVED = [
   "Profile",
   "Employment History",
   "Screening Knowledge",
   "Performance",
+  "AI Reasoning",
+  "AI Form Learning",
+  "Generalized Form Engine",
 ];
-const ADVANCED = ["AI Reasoning", "AI Form Learning", "Generalized Form Engine"];
 
-const advancedToggle = () => screen.getByRole("button", { name: /advanced/i });
-
-describe("MainNav — recruiter-facing primary navigation", () => {
-  it("shows the six recruiter sections in the required order", () => {
+describe("MainNav — two-tab navigation", () => {
+  it("3 + 4. shows exactly Matched jobs and Application history, in that order", () => {
     renderNav();
-    const nav = screen.getByRole("navigation", { name: "Dashboard sections" });
-    const labels = within(nav)
+    const labels = within(NAV())
       .getAllByRole("link")
       .map((link) => link.textContent);
-    expect(labels).toEqual(PRIMARY);
+    expect(labels).toEqual(["Matched jobs", "Application history"]);
   });
 
-  it("does not show the technical sections as primary navigation items", () => {
-    renderNav();
-    for (const label of ADVANCED) {
-      expect(screen.queryByRole("link", { name: label })).toBeNull();
-    }
-  });
-
-  it("keeps the existing routes on every primary item", () => {
+  it("keeps the existing routes on both tabs", () => {
     renderNav();
     const href = (name: string) => screen.getByRole("link", { name }).getAttribute("href");
     expect(href("Matched jobs")).toBe("/matched-jobs");
     expect(href("Application history")).toBe("/applications");
-    expect(href("Profile")).toBe("/profile");
-    expect(href("Employment History")).toBe("/employment-history");
-    expect(href("Screening Knowledge")).toBe("/screening");
-    expect(href("Performance")).toBe("/performance");
+  });
+
+  it("5-11. no removed section appears in the navigation, as a link or as any other text", () => {
+    renderNav();
+    for (const label of REMOVED) {
+      expect(screen.queryByRole("link", { name: label })).toBeNull();
+      // Not merely un-linked: the label must not be rendered as a placeholder either.
+      expect(within(NAV()).queryByText(label)).toBeNull();
+    }
+  });
+
+  it("12. has no Advanced button or disclosure group", () => {
+    renderNav();
+    expect(screen.queryByRole("button", { name: /advanced/i })).toBeNull();
+    // The whole nav is now non-interactive apart from its two links.
+    expect(within(NAV()).queryAllByRole("button")).toHaveLength(0);
+    expect(document.querySelector("#advanced-nav-group")).toBeNull();
   });
 
   it("marks the current section active (aria-current) as before", () => {
-    renderNav("/screening");
-    expect(screen.getByRole("link", { name: "Screening Knowledge" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("link", { name: "Profile" })).not.toHaveAttribute("aria-current");
+    renderNav("/applications");
+    expect(screen.getByRole("link", { name: "Application history" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Matched jobs" })).not.toHaveAttribute("aria-current");
   });
-});
 
-describe("MainNav — Advanced group", () => {
-  it("is collapsed by default", () => {
+  it("is keyboard reachable — both tabs are in the tab order and nothing else is", () => {
     renderNav();
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("link", { name: "AI Reasoning" })).toBeNull();
+    const focusable = within(NAV()).getAllByRole("link");
+    expect(focusable).toHaveLength(2);
+    focusable.forEach((link) => expect(link).not.toHaveAttribute("tabindex", "-1"));
   });
 
-  it("expands to reveal the three technical sections with their exact names and routes", async () => {
-    const user = userEvent.setup();
+  it("shrink-wraps its two pills instead of stretching the old full-width bar", () => {
     renderNav();
-    await user.click(advancedToggle());
-
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("link", { name: "AI Reasoning" })).toHaveAttribute("href", "/ai-reasoning");
-    expect(screen.getByRole("link", { name: "AI Form Learning" })).toHaveAttribute("href", "/form-learning");
-    expect(screen.getByRole("link", { name: "Generalized Form Engine" })).toHaveAttribute("href", "/generalized-form");
-  });
-
-  it("collapses again on a second activation", async () => {
-    const user = userEvent.setup();
-    renderNav();
-    await user.click(advancedToggle());
-    await user.click(advancedToggle());
-
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("link", { name: "AI Reasoning" })).toBeNull();
-  });
-
-  it("is keyboard accessible — focusable by Tab and toggled by Enter and Space", async () => {
-    const user = userEvent.setup();
-    renderNav();
-
-    // Six primary links come first in tab order, then the toggle.
-    for (let i = 0; i < PRIMARY.length + 1; i += 1) await user.tab();
-    expect(advancedToggle()).toHaveFocus();
-
-    await user.keyboard("{Enter}");
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("link", { name: "AI Form Learning" })).toBeInTheDocument();
-
-    await user.keyboard(" ");
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("starts expanded when the current route is a technical section, so a direct URL never hides the active item", () => {
-    renderNav("/generalized-form");
-    expect(advancedToggle()).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("link", { name: "Generalized Form Engine" })).toHaveAttribute("aria-current", "page");
+    expect(NAV().className).toContain("w-fit");
   });
 });

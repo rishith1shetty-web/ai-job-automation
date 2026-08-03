@@ -5,6 +5,7 @@ from pathlib import Path
 from app.config import Settings
 from app.models import JobOpportunity, ResumeProfile
 from app.services.find_matches import FindMatchesEngine
+from app.services.role_selection import MAX_SEARCH_ROLES
 
 
 class FindMatchesEngineTests(unittest.TestCase):
@@ -108,12 +109,11 @@ class FindMatchesEngineTests(unittest.TestCase):
         self.assertNotIn(" OR ", plan["display_query"])
         self.assertFalse(any(" OR " in query.query for query in queries))
 
-    def test_related_role_jobs_are_included_with_source_metadata(self) -> None:
-        variation = next(
-            query
-            for query in self.engine.build_search_plan(self.resume, "United States", None)[0]
-            if query.role_priority in {"related", "stretch"}
-        )
+    def test_lower_ranked_role_jobs_are_included_with_source_metadata(self) -> None:
+        # The lowest-ranked searched role (no longer a "related"/"stretch" tier -- the plan is the
+        # primary role plus strong fits) still carries full provenance onto every job it finds.
+        variation = self.engine.build_search_plan(self.resume, "United States", None)[0][-1]
+        self.assertNotEqual(variation.role_priority, "primary")
 
         enriched = self.engine.enrich_raw_job(
             {
@@ -345,8 +345,11 @@ class FindMatchesEngineTests(unittest.TestCase):
     def test_collection_plan_scales_for_100_results(self) -> None:
         plan = self.engine.collection_plan(100, 18)
 
-        self.assertGreaterEqual(plan["selected_variation_count"], 14)
+        # Find 100 no longer scales by adding roles -- every preset searches the same top five --
+        # so it scales by inspecting each of them more deeply.
+        self.assertEqual(plan["selected_variation_count"], MAX_SEARCH_ROLES)
         self.assertGreaterEqual(plan["limit_per_query"], 8)
+        self.assertGreaterEqual(plan["selected_variation_count"] * plan["limit_per_query"], 100)
 
     def test_friction_affects_ranking_but_does_not_remove_jobs(self) -> None:
         simple = JobOpportunity(

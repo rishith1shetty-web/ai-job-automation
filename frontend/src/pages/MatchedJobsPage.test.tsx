@@ -43,9 +43,21 @@ async function renderWithJobs(jobs: unknown[]) {
 }
 
 describe("MatchedJobsPage apply request fidelity", () => {
-  it("defaults the Dry run toggle to ON", async () => {
+  it("defaults the Dry run toggle to OFF", async () => {
     await renderWithJobs([makeJob(1)]);
+    expect(screen.getByRole("switch", { name: "Dry run" })).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("keeps the Dry run toggle OFF after a remount (app start / New Session)", async () => {
+    // The toggle is plain component state with no browser storage behind it, and New Session
+    // remounts this page, so a previously chosen ON can never come back on its own.
+    const first = await renderWithJobs([makeJob(1)]);
+    await userEvent.click(screen.getByRole("switch", { name: "Dry run" }));
     expect(screen.getByRole("switch", { name: "Dry run" })).toHaveAttribute("aria-checked", "true");
+    first.unmount();
+
+    await renderWithJobs([makeJob(1)]);
+    expect(screen.getByRole("switch", { name: "Dry run" })).toHaveAttribute("aria-checked", "false");
   });
 
   it("renders rows in the backend's order and shows each job's posted age", async () => {
@@ -158,7 +170,7 @@ describe("MatchedJobsPage apply request fidelity", () => {
 
     await waitFor(() => expect(body).not.toBeNull());
     expect(body!).not.toHaveProperty("portal");
-    expect(body!).toEqual({ resume_id: 6493, job_id: 1, dry_run: true, screening_mode: "safe" });
+    expect(body!).toEqual({ resume_id: 6493, job_id: 1, dry_run: false, screening_mode: "safe" });
   });
 
   it("Apply Top 10 POSTs the portal + limit 10 to /apply-top/start", async () => {
@@ -176,7 +188,7 @@ describe("MatchedJobsPage apply request fidelity", () => {
     await waitFor(() => expect(body).not.toBeNull());
     expect(body!.portal).toBe("linkedin");
     expect(body!.limit).toBe(10);
-    expect(body!.dry_run).toBe(true);
+    expect(body!.dry_run).toBe(false);
     expect(body!.screening_mode).toBe("safe");
     expect(body!.search_batch_id).toBeNull();
   });

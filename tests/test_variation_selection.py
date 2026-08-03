@@ -1,13 +1,18 @@
-"""Find Matches variation selection: always a PREFIX of the ranked role list.
+"""Find Matches variation selection: the SAME ordered top-five role list for every preset.
 
-Required mapping (both portals, identical ordered prefix):
-    Find 20  -> ranked variations 1-4
-    Find 50  -> ranked variations 1-8
-    Find 100 -> ranked variations 1-12, or ALL roles when fewer than 12 exist
+Required mapping (both portals, one identical ordered list):
+    Find 20  -> ranked variations 1-5, at most 20 jobs
+    Find 50  -> ranked variations 1-5, at most 50 jobs
+    Find 100 -> ranked variations 1-5, at most 100 jobs
 
-Previously the count was derived as (target + 6) // 7, which produced 15 for Find 100 -- so the
-selected set depended on how many variations happened to exist rather than on a fixed ranked
-prefix. Ranking, portal search behavior, freshness, Apply and canonical identity are untouched.
+The preset used to choose the ROLE COUNT (4 / 8 / 12 of a twelve-role plan), so a Find 100 searched
+roles a Find 20 never saw and the same resume produced a different search depending on how many
+jobs the user asked for. The preset now moves only two things: the job cap, and how deeply each of
+the same five roles is inspected. Ranking, portal search behavior, freshness, Apply and canonical
+identity are untouched.
+
+The role-SELECTION rules behind that list (filter before limit, primary always first, dedup,
+seniority, no filler) live in tests/test_top_five_roles.py.
 """
 
 import unittest
@@ -15,6 +20,7 @@ from pathlib import Path
 
 from app.config import Settings
 from app.services.find_matches import FindMatchesEngine, SearchVariation
+from app.services.role_selection import MAX_SEARCH_ROLES
 
 MAIN_SOURCE = Path("app/main.py").read_text(encoding="utf-8", errors="replace")
 
@@ -37,7 +43,7 @@ def _ranked_variations(count: int) -> list[SearchVariation]:
     ]
 
 
-class VariationSelectionMappingTests(unittest.TestCase):
+class PresetMappingTests(unittest.TestCase):
     def setUp(self) -> None:
         self.engine = FindMatchesEngine(Settings(openai_api_key=None))
 
@@ -47,21 +53,38 @@ class VariationSelectionMappingTests(unittest.TestCase):
         # main.py takes a prefix: search_variations[:selected_variation_count]
         return [variation.role_rank for variation in variations[:count]]
 
-    def test_find20_selects_exactly_ranks_1_to_4(self) -> None:
-        self.assertEqual(self._selected(20, 12), [1, 2, 3, 4])
+    def test_find20_selects_ranks_1_to_5(self) -> None:
+        self.assertEqual(self._selected(20, 5), [1, 2, 3, 4, 5])
 
-    def test_find50_selects_exactly_ranks_1_to_8(self) -> None:
-        self.assertEqual(self._selected(50, 12), [1, 2, 3, 4, 5, 6, 7, 8])
+    def test_find50_selects_the_same_ranks_as_find20(self) -> None:
+        self.assertEqual(self._selected(50, 5), self._selected(20, 5))
 
-    def test_find100_selects_exactly_ranks_1_to_12(self) -> None:
-        self.assertEqual(self._selected(100, 12), list(range(1, 13)))
+    def test_find100_selects_the_same_ranks_as_find20_and_find50(self) -> None:
+        self.assertEqual(self._selected(100, 5), self._selected(20, 5))
+        self.assertEqual(self._selected(100, 5), self._selected(50, 5))
 
-    def test_every_real_plan_path_offers_at_most_twelve_variations(self) -> None:
-        # Find 100 selects min(available, 15); the mapping holds because NO plan path can produce
-        # more than 12 ranked roles (role_profile == TOTAL_ROLES == 12, legacy == 12, manual < 12).
-        # This test pins that precondition -- if a path ever grew past 12, the mapping would break.
-        from app.services.resume_parser import ResumeParser
+    def test_the_preset_changes_only_the_job_cap_and_the_search_depth(self) -> None:
+        plans = {target: self.engine.collection_plan(target, 5) for target in (20, 50, 100)}
+        counts = {plan["selected_variation_count"] for plan in plans.values()}
+        self.assertEqual(counts, {MAX_SEARCH_ROLES}, "the preset still changes the role count")
+        # Depth rises with the request, because five roles must supply the whole target.
+        self.assertLess(plans[20]["limit_per_query"], plans[50]["limit_per_query"])
+        self.assertLess(plans[50]["limit_per_query"], plans[100]["limit_per_query"])
+        # And each preset can actually reach its target across the five roles.
+        for target, plan in plans.items():
+            self.assertGreaterEqual(
+                plan["selected_variation_count"] * plan["limit_per_query"], target, f"target={target}"
+            )
+
+    def test_a_longer_ranked_list_is_still_capped_at_five(self) -> None:
+        # A record saved before this feature still holds twelve ranked roles; only five are searched.
+        for target in (20, 50, 100):
+            with self.subTest(target=target):
+                self.assertEqual(self._selected(target, 12), [1, 2, 3, 4, 5])
+
+    def test_every_real_plan_path_offers_at_most_five_variations(self) -> None:
         from app.models import ResumeProfile
+        from app.services.resume_parser import ResumeParser
 
         settings = Settings(openai_api_key=None)
         text = (
@@ -87,13 +110,13 @@ class VariationSelectionMappingTests(unittest.TestCase):
         ):
             with self.subTest(path=label):
                 variations, _meta = self.engine.build_search_plan(resume, "Remote", manual)
-                self.assertLessEqual(len(variations), 12, f"{label} plan exceeded 12 variations")
-
-    def test_find100_with_only_six_credible_roles_selects_1_to_6(self) -> None:
-        self.assertEqual(self._selected(100, 6), [1, 2, 3, 4, 5, 6])
+                self.assertGreaterEqual(len(variations), 1)
+                self.assertLessEqual(
+                    len(variations), MAX_SEARCH_ROLES, f"{label} plan exceeded {MAX_SEARCH_ROLES} variations"
+                )
 
     def test_fewer_roles_are_used_as_is_and_never_padded(self) -> None:
-        for available in (1, 2, 3, 5, 7, 11):
+        for available in (1, 2, 3, 4):
             with self.subTest(available=available):
                 selected = self._selected(100, available)
                 self.assertEqual(selected, list(range(1, available + 1)))
@@ -110,7 +133,7 @@ class PrefixInvariantTests(unittest.TestCase):
 
     def test_selection_is_always_a_contiguous_prefix_from_rank_one(self) -> None:
         for target in (1, 5, 20, 21, 35, 50, 51, 75, 100):
-            for available in (1, 4, 6, 8, 12, 20):
+            for available in (1, 3, 5, 12):
                 with self.subTest(target=target, available=available):
                     variations = _ranked_variations(available)
                     count = self.engine.collection_plan(target, available)["selected_variation_count"]
@@ -118,6 +141,7 @@ class PrefixInvariantTests(unittest.TestCase):
                     ranks = [v.role_rank for v in selected]
                     self.assertEqual(ranks, list(range(1, len(ranks) + 1)))
                     self.assertGreaterEqual(len(ranks), 1)
+                    self.assertLessEqual(len(ranks), MAX_SEARCH_ROLES)
 
     def test_no_lower_ranked_role_appears_when_a_higher_ranked_one_is_omitted(self) -> None:
         variations = _ranked_variations(12)
@@ -131,8 +155,8 @@ class PrefixInvariantTests(unittest.TestCase):
                     self.assertLess(max(selected), min(omitted))
 
     def test_role_order_from_role_profile_is_preserved(self) -> None:
-        variations = _ranked_variations(12)
-        count = self.engine.collection_plan(100, 12)["selected_variation_count"]
+        variations = _ranked_variations(5)
+        count = self.engine.collection_plan(100, 5)["selected_variation_count"]
         selected = variations[:count]
         self.assertEqual([v.role_rank for v in selected], [v.variation_index for v in selected])
         self.assertEqual([v.query for v in selected], [f"Role {i}" for i in range(1, count + 1)])
@@ -150,8 +174,8 @@ class SharedAcrossPortalsTests(unittest.TestCase):
         self.engine = FindMatchesEngine(Settings(openai_api_key=None))
 
     def test_linkedin_and_dice_receive_the_same_ordered_prefix(self) -> None:
-        variations = _ranked_variations(12)
-        count = self.engine.collection_plan(100, 12)["selected_variation_count"]
+        variations = _ranked_variations(5)
+        count = self.engine.collection_plan(100, 5)["selected_variation_count"]
         selected = variations[:count]
         # main.py computes the prefix ONCE and hands the same list to every portal.
         linkedin_input = selected
@@ -176,25 +200,25 @@ class PreservedBehaviorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.engine = FindMatchesEngine(Settings(openai_api_key=None))
 
-    def test_weighted_allocation_within_the_prefix_is_unchanged(self) -> None:
-        self.assertEqual(self.engine.TOP_VARIATION_COUNT, 5)
+    def test_weighted_allocation_within_the_plan_is_preserved(self) -> None:
+        # The band is now the primary role -- a band of five would weight a five-role plan
+        # uniformly, which is no weighting at all.
+        self.assertEqual(self.engine.TOP_VARIATION_COUNT, 1)
         self.assertEqual(self.engine.TOP_VARIATION_WEIGHT, 2)
-        available = [10] * 12
-        take = self.engine.weighted_take(available, 100)
+        take = self.engine.weighted_take([50] * MAX_SEARCH_ROLES, 100)
         self.assertEqual(sum(take), 100)
-        # The top five still receive at least as much as any later variation.
-        self.assertGreaterEqual(min(take[:5]), max(take[5:]))
+        self.assertGreater(take[0], max(take[1:]))
 
     def test_per_query_capacity_still_reaches_the_target(self) -> None:
         for target in (20, 50, 100):
             with self.subTest(target=target):
-                plan = self.engine.collection_plan(target, 12)
+                plan = self.engine.collection_plan(target, MAX_SEARCH_ROLES)
                 capacity = plan["selected_variation_count"] * plan["limit_per_query"]
                 self.assertGreaterEqual(capacity, target)
 
-    def test_existing_find20_plan_values_are_unchanged(self) -> None:
+    def test_existing_find20_plan_values(self) -> None:
         self.assertEqual(
-            self.engine.collection_plan(20, 24), {"selected_variation_count": 4, "limit_per_query": 7}
+            self.engine.collection_plan(20, 24), {"selected_variation_count": 5, "limit_per_query": 6}
         )
 
 

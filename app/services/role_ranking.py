@@ -1,10 +1,17 @@
-"""Phase 3: deterministic top-12 role ranking and evidence-based confidence scoring.
+"""Phase 3: deterministic top-five role ranking and evidence-based confidence scoring.
 
 This layer sits on top of the Phase-1 structured resume (titles, responsibilities, durations,
 projects, skills, education) and the Phase-2 domain profile (primary domain, supported adjacent
-domains, strongest job families, seniority). It produces exactly twelve unique, realistic roles in
-four positional categories -- 1 Primary, 4 Strong Fit, 4 Related, 3 Stretch -- each with an
-evidence-based confidence score and a full evidence / missing-evidence / penalty breakdown.
+domains, strongest job families, seniority). It produces AT MOST five unique, realistic roles in
+two positional categories -- 1 Primary Role and up to 4 Strong Fit -- each with an evidence-based
+confidence score and a full evidence / missing-evidence / penalty breakdown.
+
+It used to produce twelve (1 Primary / 4 Strong Fit / 4 Related / 3 Stretch), and Find Matches
+searched 4, 8 or 12 of them depending on the preset. The Related and Stretch tiers existed to fill
+a twelve-slot layout, and searching them widened results without improving them. The layout is now
+the five roles worth searching, and the preset only caps how many JOBS come back. Every candidate
+is still ranked and filtered first -- the list is never a truncation of an unfiltered twelve. See
+:mod:`app.services.role_selection` for the filtering and limiting rules.
 
 It is intentionally SEPARATE from, and never mutates, the legacy ``ROLE_PROFILES`` scorer that still
 drives ``detected_role`` / ``role_suggestions`` / ``generated_search_*`` (those feed the search plan,
@@ -13,10 +20,10 @@ which is Phase 4 and must stay unchanged here). The output is attached to the pa
 
 Design guarantees:
     * every one of the 19 Phase-2 domains is self-sufficient (>= 12 realistic canonical roles), so a
-      supported primary domain fills the whole top 12 by itself;
-    * Primary Role and all 4 Strong Fit roles always come from the primary domain -- adjacency is a
-      bounded fallback that can only reach Related/Stretch, only when Phase 2 returned that adjacent
-      domain, and only when fewer than 12 primary-domain roles survive;
+      supported primary domain fills the whole selection by itself;
+    * every selected role comes from the primary domain (or its detected specialization) -- a role
+      from an adjacent domain is a different professional family and is never searched;
+    * fewer than five roles is a normal outcome for a narrow resume; nothing is padded;
     * professional titles and responsibilities outweigh tools and education (evidence hierarchy);
     * specialised roles (ML/Data/DevOps/Cloud/Security engineers) need real professional or
       substantial project evidence -- tools or certifications alone fail the gate;
@@ -35,18 +42,22 @@ from app.services.domain_detection import (
     DomainEvidence,
     _contains,
 )
+from app.services.role_selection import (
+    MAX_SEARCH_ROLES,
+    RoleCandidate,
+    normalize_title,
+    select_roles,
+)
 
 _DOMAIN_BY_LABEL = {domain.label: domain for domain in TAXONOMY}
 
 CATEGORY_LAYOUT = (
     ("Primary Role", 1),
-    ("Strong Fit", 4),
-    ("Related", 4),
-    ("Stretch", 3),
+    ("Strong Fit", MAX_SEARCH_ROLES - 1),
 )
-TOTAL_ROLES = sum(count for _, count in CATEGORY_LAYOUT)  # 12
-# Positions that must be filled from the PRIMARY domain only (Primary + the 4 Strong Fit).
-PRIMARY_ONLY_SLOTS = CATEGORY_LAYOUT[0][1] + CATEGORY_LAYOUT[1][1]  # 5
+TOTAL_ROLES = sum(count for _, count in CATEGORY_LAYOUT)  # == MAX_SEARCH_ROLES
+# Every returned position must come from the PRIMARY domain; there are no adjacent-domain slots.
+PRIMARY_ONLY_SLOTS = TOTAL_ROLES
 
 _SENIORITY_ORDER = ["Intern", "Entry-level", "Junior", "Mid-level", "Senior", "Lead", "Manager"]
 _LEVEL_TO_SENIORITY = {"lead": "Lead", "manager": "Manager"}
@@ -345,26 +356,10 @@ ROLE_TAXONOMY: dict[str, tuple[RoleDef, ...]] = {
 }
 
 
-def _reverse_adjacency(primary_label: str, adjacent_presentations: list[str]) -> list[str]:
-    """Map the Phase-2 adjacent PRESENTATION labels back to the underlying domain labels."""
-    domain = _DOMAIN_BY_LABEL.get(primary_label)
-    if not domain:
-        return []
-    presentation_to_raw = {presentation: raw for raw, presentation in domain.adjacent.items()}
-    raw_labels: list[str] = []
-    for presentation in adjacent_presentations:
-        raw = presentation_to_raw.get(presentation)
-        if raw and raw in ROLE_TAXONOMY and raw not in raw_labels:
-            raw_labels.append(raw)
-    return raw_labels
-
-
-def _norm_title(title: str) -> str:
-    collapsed = re.sub(r"[^a-z0-9 ]", " ", title.lower())
-    collapsed = re.sub(r"\s+", " ", collapsed).strip()
-    # Fold a few well-known synonyms so near-identical titles deduplicate.
-    collapsed = collapsed.replace("business intelligence", "bi")
-    return collapsed
+# One normalizer for the whole role pipeline: ranking deduplicates with it, and selection compares
+# and deduplicates search titles with it, so a title can never be "distinct" in one place and a
+# duplicate in the other.
+_norm_title = normalize_title
 
 
 @dataclass
@@ -380,6 +375,16 @@ class _Scored:
     seniority_fit: str
     order_index: int  # taxonomy position, for deterministic tie-breaks
     has_professional_evidence: bool = False  # exact title, a responsibility hit, or a project hit
+    # Weaker bar than the above: ANY hit at all -- title, responsibility, project, tool or
+    # education. False means the resume says nothing whatsoever about this role, which is what
+    # makes it filler rather than merely a weaker fit.
+    has_supporting_evidence: bool = False
+    # How far the role reaches ABOVE the candidate's demonstrated seniority (0.0 = reachable).
+    # Kept as a number, not just a penalty sentence, so selection can reject on it.
+    seniority_penalty: float = 0.0
+    # 0 = the professional family the resume demonstrates, 1 = the broader parent domain behind a
+    # detected specialization. Selection orders within a band, never across one.
+    family_rank: int = 0
 
 
 def _seniority_fit(candidate_seniority: str, role: RoleDef) -> tuple[str, float]:
@@ -490,6 +495,8 @@ def _score_role(
         seniority_fit=fit_label,
         order_index=order_index,
         has_professional_evidence=bool(exact_any or prof_hits or project_hits),
+        has_supporting_evidence=bool(exact_any or prof_hits or project_hits or tool_hits or edu_hits),
+        seniority_penalty=seniority_penalty,
     )
 
 
@@ -622,13 +629,28 @@ def _unmatched_domain_terms(evidence: DomainEvidence) -> list[str]:
 _PROVISIONAL_CONFIDENCE = (74.0, 70.0, 66.0, 62.0, 58.0, 54.0, 50.0, 47.0, 45.0, 43.0, 42.0, 41.0)
 
 
+def _dedupe_near_identical(titles: list[str]) -> list[str]:
+    """Keep the first of each group of titles that normalize to the same search key."""
+    seen: set[str] = set()
+    kept: list[str] = []
+    for title in titles:
+        key = _norm_title(title)
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(title)
+    return kept
+
+
 def _provisional_role_profile(evidence: DomainEvidence, domain_profile: dict, status: str) -> dict:
     """Infer roles from the candidate's own professional titles when no supported domain fits.
 
-    Never forces a supported domain; returns FEWER than 12 roles rather than inventing weak ones,
-    and records the unmatched terms a future taxonomy expansion would need."""
+    Never forces a supported domain; returns FEWER than five roles rather than inventing weak ones,
+    and records the unmatched terms a future taxonomy expansion would need. There is nothing to
+    filter here -- every title came off the candidate's own resume -- but near-identical titles are
+    still folded, so "Actuary" and "Senior Actuary" never become two identical portal searches."""
     seniority = domain_profile.get("seniority", "Mid-level")
-    titles = _provisional_titles(evidence)
+    titles = _dedupe_near_identical(_provisional_titles(evidence))
     unmatched = _unmatched_domain_terms(evidence)
 
     if not titles:
@@ -1062,11 +1084,17 @@ def _score_specialized_pool(
 
     chosen = [primary] + strong
     rest = _rank([item for item in combined if item not in chosen])
+    # Everything beyond `chosen` sits in the broader parent domain rather than the demonstrated
+    # specialization. Marking the band keeps that decision intact through selection: a broad
+    # "Data Analyst" can never outrank a supported "Clinical Data Analyst" for a healthcare
+    # analytics resume, however high its own confidence happens to be.
+    for item in rest:
+        item.family_rank = 1
     return chosen + rest, suppressed, order_index
 
 
 def build_role_profile(evidence: DomainEvidence, domain_profile: dict) -> dict:
-    """Produce the deterministic top-12 role profile from Phase-1 evidence + the Phase-2 domain."""
+    """Produce the deterministic top-five role profile from Phase-1 evidence + the Phase-2 domain."""
     primary_domain = domain_profile.get("primary_domain", "")
     seniority = domain_profile.get("seniority", "Mid-level")
     strong_families = set(domain_profile.get("strongest_job_families") or [])
@@ -1119,14 +1147,10 @@ def build_role_profile(evidence: DomainEvidence, domain_profile: dict) -> dict:
         # Primary domain supplies Primary + all Strong Fit (and normally the whole list).
         ordered = score_domain(primary_domain, True)
 
-    # Adjacency is a bounded fallback: only supported adjacent domains, only when the primary domain
-    # (or specialization) cannot field 12 surviving roles, and only ever for Related/Stretch slots.
-    # A narrow specialist may still end up with fewer than 12 -- that is honest, never padded.
-    if len({_norm_title(item.role.title) for item in ordered}) < TOTAL_ROLES:
-        adjacent_scored: list[_Scored] = []
-        for adj in _reverse_adjacency(primary_domain, domain_profile.get("adjacent_domains") or []):
-            adjacent_scored.extend(score_domain(adj, False))
-        ordered = ordered + _rank(adjacent_scored)  # primary/specialization always precedes adjacency
+    # NOTE: there is deliberately no adjacent-domain fallback here. A role from an adjacent domain
+    # belongs to a different professional family, and a search plan of at most five roles has no
+    # room to spend on one. A narrow resume ends up with fewer than five roles instead -- that is
+    # honest, and it is what the selection below reports.
 
     # Deduplicate near-identical titles, keeping the highest-confidence occurrence.
     unique: list[_Scored] = []
@@ -1139,9 +1163,29 @@ def build_role_profile(evidence: DomainEvidence, domain_profile: dict) -> dict:
         seen.add(key)
         unique.append(item)
 
-    top = unique[:TOTAL_ROLES]
-    for item in unique[TOTAL_ROLES:]:
-        suppressed.append({"title": item.role.title, "domain": item.domain, "reason": "ranked below the top 12"})
+    # Filter, then limit -- never the other way round. Everything the scorer learned about a role
+    # (which domain it came from, whether real professional evidence backs it, how far above the
+    # candidate's level it sits) decides whether it may be searched at all; only the survivors
+    # compete for the four related slots.
+    selection = select_roles(
+        [
+            RoleCandidate(
+                title=item.role.title,
+                domain=item.domain,
+                job_family=item.role.family,
+                confidence=item.confidence,
+                order_index=index,
+                family_rank=item.family_rank,
+                in_primary_family=item.is_primary_domain,
+                has_supporting_evidence=item.has_supporting_evidence,
+                seniority_compatible=item.seniority_penalty <= 0,
+                payload=item,
+            )
+            for index, item in enumerate(unique)
+        ]
+    )
+    top = [candidate.payload for candidate in selection.selected]
+    suppressed = selection.rejected + suppressed
 
     roles: list[dict] = []
     rank = 0
@@ -1170,7 +1214,10 @@ def build_role_profile(evidence: DomainEvidence, domain_profile: dict) -> dict:
         "primary_role": roles[0]["title"] if roles else None,
         "primary_role_confidence": roles[0]["confidence"] if roles else 0.0,
         "roles": roles,
-        "suppressed_roles": suppressed[:12],
+        # Selection rejections lead the record and it holds more entries than the old top-12
+        # layout needed: with only five searched roles, WHY a credible role was not searched is
+        # the interesting part of the analysis.
+        "suppressed_roles": suppressed[:24],
         "unmatched_terms": [],
         "suggested_taxonomy_additions": [],
     }

@@ -1,9 +1,9 @@
 """Phase 4: the Phase-3 role_profile drives the shared LinkedIn/Dice Find Matches search plan.
 
-These tests prove the ordered role -> variation mapping (1 Primary, 2-5 Strong Fit, 6-9 Related,
-10-12 Stretch), one narrow query per role (never a broad OR), the same ordered plan for both portals,
-the preserved weighted top-five allocation, persistence of domain_profile/role_profile across a
-DB round-trip, and the old-analysis regeneration/legacy fallback.
+These tests prove the ordered role -> variation mapping (variation 1 = the detected primary role,
+2-5 = the strongest related roles), one narrow query per role (never a broad OR), the same ordered
+plan for both portals, the preserved weighted allocation, persistence of domain_profile /
+role_profile across a DB round-trip, and the old-analysis regeneration/legacy fallback.
 """
 
 import unittest
@@ -15,6 +15,7 @@ from app.database import SessionLocal, init_db
 from app.main import latest_resume
 from app.models import ResumeProfile
 from app.services.find_matches import FindMatchesEngine
+from app.services.role_selection import MAX_SEARCH_ROLES
 from app.services.resume_parser import ResumeParser, apply_role_profile_compat
 from app.services.runtime_session import get_runtime_session, reset_runtime_session
 from tests.test_domain_detection import (
@@ -53,7 +54,7 @@ def _engine() -> FindMatchesEngine:
 
 
 def _search_limits(engine: FindMatchesEngine, count: int) -> list[int]:
-    """Reproduce the weighted candidate budget the batch runner computes (top-5 get double)."""
+    """Reproduce the weighted candidate budget the batch runner computes (the top band doubles)."""
     base = 6
     return [base * engine.TOP_VARIATION_WEIGHT if i < engine.TOP_VARIATION_COUNT else base for i in range(count)]
 
@@ -66,7 +67,7 @@ class SearchPlanMappingTests(unittest.TestCase):
 
     def test_role_profile_drives_the_plan(self) -> None:
         self.assertEqual(self.plan["role_source"], "role_profile")
-        self.assertEqual(len(self.variations), 12)
+        self.assertEqual(len(self.variations), MAX_SEARCH_ROLES)
 
     def test_variation_one_is_primary_role(self) -> None:
         self.assertEqual(self.variations[0].variation_index, 1)
@@ -78,16 +79,14 @@ class SearchPlanMappingTests(unittest.TestCase):
             self.assertEqual(v.role_priority, "strong_fit")
             self.assertEqual(v.role_category, "Strong Fit")
 
-    def test_variations_six_to_nine_are_related(self) -> None:
-        for v in self.variations[5:9]:
-            self.assertEqual(v.role_priority, "related")
-
-    def test_variations_ten_to_twelve_are_stretch(self) -> None:
-        for v in self.variations[9:12]:
-            self.assertEqual(v.role_priority, "stretch")
+    def test_no_related_or_stretch_tier_is_searched(self) -> None:
+        # Those tiers existed only to fill a twelve-slot layout; they are not searched at all now.
+        self.assertFalse({v.role_priority for v in self.variations} & {"related", "stretch"})
 
     def test_variation_indices_are_deterministic_and_one_based(self) -> None:
-        self.assertEqual([v.variation_index for v in self.variations], list(range(1, 13)))
+        self.assertEqual(
+            [v.variation_index for v in self.variations], list(range(1, MAX_SEARCH_ROLES + 1))
+        )
         again, _ = self.engine.build_search_plan(_analyzed_resume(FINANCE_RESUME), "Remote", None)
         self.assertEqual([v.role for v in self.variations], [v.role for v in again])
 
@@ -122,12 +121,12 @@ class SharedPlanAndAllocationTests(unittest.TestCase):
             [(v.variation_index, v.role, v.role_priority) for v in second],
         )
 
-    def test_top_five_variations_keep_greater_search_allocation(self) -> None:
+    def test_the_primary_role_keeps_a_greater_search_allocation(self) -> None:
         engine = _engine()
         variations, _ = engine.build_search_plan(_analyzed_resume(FINANCE_RESUME), "Remote", None)
         limits = _search_limits(engine, len(variations))
-        self.assertTrue(all(limits[i] > limits[5] for i in range(5)))  # 1-5 doubled vs a later one
-        self.assertEqual(len(limits), 12)
+        self.assertEqual(len(limits), MAX_SEARCH_ROLES)
+        self.assertTrue(all(limits[0] > later for later in limits[1:]))
 
 
 class DomainScopedRolesTests(unittest.TestCase):
@@ -154,7 +153,7 @@ class DomainScopedRolesTests(unittest.TestCase):
 
     def test_rare_domain_uses_only_credible_provisional_roles(self) -> None:
         variations, plan = _engine().build_search_plan(_analyzed_resume(ACTUARY_RESUME), "Remote", None)
-        self.assertLessEqual(len(variations), 12)  # not padded to 12
+        self.assertLessEqual(len(variations), MAX_SEARCH_ROLES)  # not padded to five
         self.assertGreaterEqual(len(variations), 1)
         self.assertEqual(variations[0].role, "Actuary")
         for v in variations:  # never forced into a supported domain
@@ -202,11 +201,11 @@ class CompatMappingTests(unittest.TestCase):
         self.assertEqual(self.profile["detected_role"], "Financial Analyst")
         self.assertGreaterEqual(self.profile["role_confidence"], 90.0)
 
-    def test_role_suggestions_have_twelve_entries_in_four_groups(self) -> None:
+    def test_role_suggestions_have_five_entries_in_two_groups(self) -> None:
         suggestions = self.profile["role_suggestions"]
-        self.assertEqual(len(suggestions), 12)
+        self.assertEqual(len(suggestions), MAX_SEARCH_ROLES)
         groups = {s["role_category"] for s in suggestions}
-        self.assertEqual(groups, {"primary_role", "strong_fit_roles", "related_roles", "stretch_roles"})
+        self.assertEqual(groups, {"primary_role", "strong_fit_roles"})
 
     def test_domain_expertise_is_primary_plus_adjacent(self) -> None:
         self.assertEqual(self.profile["domain_expertise"][0], "Finance / Financial Analysis")
@@ -241,10 +240,10 @@ class PersistenceTests(unittest.TestCase):
 
         reloaded = self.db.get(ResumeProfile, self.resume_id)
         self.assertEqual(reloaded.role_profile["primary_role"], "Financial Analyst")
-        self.assertEqual(len(reloaded.role_profile["roles"]), 12)
+        self.assertEqual(len(reloaded.role_profile["roles"]), MAX_SEARCH_ROLES)
         self.assertEqual(reloaded.domain_profile["primary_domain"], "Finance / Financial Analysis")
 
-        # Find Matches after the reload uses the same 12 roles, no re-upload needed.
+        # Find Matches after the reload uses the same five roles, no re-upload needed.
         variations, plan = _engine().build_search_plan(reloaded, "Remote", None)
         self.assertEqual(plan["role_source"], "role_profile")
         self.assertEqual([v.role for v in variations][0], "Financial Analyst")
@@ -268,8 +267,9 @@ class PersistenceTests(unittest.TestCase):
 
 class ReanalyzeReplacesLegacyOutputTests(unittest.TestCase):
     """Re-analyzing an already-uploaded resume must STORE the new profiles and the refreshed
-    dashboard (GET /resumes/latest) must show 12 roles in 1/4/4/3 categories -- never the old
-    eight-role tech-biased output."""
+    dashboard (GET /resumes/latest) must show AT MOST five roles in 1 Primary / 4 Strong Fit
+    categories -- never the old twelve-role layout and never the old eight-role tech-biased
+    output."""
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -286,7 +286,7 @@ class ReanalyzeReplacesLegacyOutputTests(unittest.TestCase):
         self.db.close()
         reset_runtime_session()
 
-    def test_reanalysis_stores_new_profiles_and_latest_shows_twelve_roles(self) -> None:
+    def test_reanalysis_stores_new_profiles_and_latest_shows_five_roles(self) -> None:
         # 1. A stale pre-Phase-4 row for this resume: empty profiles + the old eight-role output.
         legacy = ResumeProfile(
             portal="linkedin", filename="finance.txt", stored_path="finance.txt", raw_text=FINANCE_RESUME,
@@ -314,9 +314,9 @@ class ReanalyzeReplacesLegacyOutputTests(unittest.TestCase):
         self.assertEqual(latest.role_profile["primary_role"], "Financial Analyst")
         self.assertEqual(latest.domain_profile["primary_domain"], "Finance / Financial Analysis")
 
-        # 12 roles, not the old 8, and grouped exactly 1/4/4/3.
+        # Five roles, not the old 8 (nor the interim 12), grouped exactly 1 primary / 4 strong fit.
         suggestions = latest.role_suggestions
-        self.assertEqual(len(suggestions), 12)
+        self.assertEqual(len(suggestions), MAX_SEARCH_ROLES)
         categories = [s["role_category"] for s in suggestions]
         self.assertEqual(
             (
@@ -325,7 +325,7 @@ class ReanalyzeReplacesLegacyOutputTests(unittest.TestCase):
                 categories.count("related_roles"),
                 categories.count("stretch_roles"),
             ),
-            (1, 4, 4, 3),
+            (1, 4, 0, 0),
         )
         # The old tech-biased list is gone.
         self.assertNotIn("Legacy Role 0", [s["role"] for s in suggestions])

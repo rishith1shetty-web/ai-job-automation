@@ -63,7 +63,11 @@ class Settings(BaseSettings):
     max_applications_per_run: int = 100
     find_matches_default_limit: int = 100
     find_matches_max_results: int = 100
-    auto_apply_dry_run: bool = True
+    # Dry run starts OFF: an apply run that does not say what it wants performs a NORMAL live
+    # application, the behaviour the user asked for by default. Only the DEFAULT changed -- the
+    # toggle keeps its name and meaning (ON = dry run, final submission blocked), and an explicit
+    # dry_run on the request always wins over this value.
+    auto_apply_dry_run: bool = False
     # General-purpose writable locations (disposable, machine-local).
     logs_dir: Path = Field(default_factory=_from_paths("logs"))
     work_dir: Path = Field(default_factory=_from_paths("work"))

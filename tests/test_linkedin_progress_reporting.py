@@ -232,10 +232,11 @@ class LiveBatchProgressTests(unittest.TestCase):
                             _run_find_matches_batch(batch.id)
 
                         snaps = ProgressCallbackFakeLinkedIn.snapshots
-                        # Find 20 -> exactly 4 variations, reported 1/4 .. 4/4.
-                        self.assertEqual(len(snaps), 4)
-                        self.assertEqual([s["current_variation_index"] for s in snaps], [1, 2, 3, 4])
-                        self.assertTrue(all(s["total_variations"] == 4 for s in snaps))
+                        # Every preset searches the same top-five roles, so Find 20 reports
+                        # 1/5 .. 5/5 -- the same sequence Find 50 and Find 100 report.
+                        self.assertEqual(len(snaps), 5)
+                        self.assertEqual([s["current_variation_index"] for s in snaps], [1, 2, 3, 4, 5])
+                        self.assertTrue(all(s["total_variations"] == 5 for s in snaps))
 
                         # Progress was visible WHILE running (status still "running" mid-batch).
                         self.assertEqual(snaps[0]["status"], "running")
@@ -245,13 +246,13 @@ class LiveBatchProgressTests(unittest.TestCase):
                         cumulative = [s["jobs_collected"] for s in snaps]
                         self.assertEqual(cumulative, sorted(cumulative))
                         self.assertLess(cumulative[0], cumulative[-1])
-                        self.assertEqual(cumulative, [3, 6, 9, 12])
+                        self.assertEqual(cumulative, [3, 6, 9, 12, 15])
 
                         # Per-variation count and role/query are published each step.
                         self.assertTrue(all(s["jobs_found_this_variation"] == 3 for s in snaps))
                         self.assertTrue(all(s["current_search_variation"] for s in snaps))
                         for i, snap in enumerate(snaps, start=1):
-                            self.assertIn(f"LinkedIn search {i}/4", snap["latest_status_message"])
+                            self.assertIn(f"LinkedIn search {i}/5", snap["latest_status_message"])
 
                         # Final results are still persisted and grouped by variation_index.
                         with SessionLocal() as verify:
@@ -264,7 +265,7 @@ class LiveBatchProgressTests(unittest.TestCase):
                         indexes = sorted(
                             job.job_description_metadata.get("variation_index") for job in jobs
                         )
-                        self.assertTrue(all(1 <= i <= 4 for i in indexes))
+                        self.assertTrue(all(1 <= i <= 5 for i in indexes))
                     finally:
                         with SessionLocal() as cleanup:
                             cleanup.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))

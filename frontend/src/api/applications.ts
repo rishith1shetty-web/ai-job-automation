@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import { pollWhileActive } from "@/lib/polling";
-import type { ApplicationHistory, ApplyTopBatch, Portal } from "@/types";
+import type { AutomationState, ApplicationHistory, ApplyTopBatch, Portal } from "@/types";
 
 // GET /applications — scoped by resume_id / search_batch_id / portal exactly as
 // dashboard.py does (resume_id omitted when there is no resume).
@@ -86,6 +86,31 @@ export function useApplyTopBatch(batchId: string | null) {
     queryFn: () => apiRequest<ApplyTopBatch>("GET", `/applications/apply-top/batches/${batchId}`),
     enabled: batchId != null,
     refetchInterval: (query) => pollWhileActive(query.state.data?.status),
+  });
+}
+
+/** Ask the backend to stop the active apply batch.
+ *
+ *  Returns as soon as the flag is raised -- the worker stops at its next safe checkpoint. The
+ *  button is driven by the batch/automation state that follows, never by optimistic local state. */
+export function useStopApplyTop() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (batchId: string) =>
+      apiRequest<ApplyTopBatch>("POST", `/applications/apply-top/${batchId}/stop`),
+    onSuccess: (batch) => {
+      queryClient.setQueryData(["apply-top-batch", batch.id], batch);
+      queryClient.invalidateQueries({ queryKey: ["automation-state"] });
+    },
+  });
+}
+
+/** Backend automation state, polled while something is active. */
+export function useAutomationState() {
+  return useQuery({
+    queryKey: ["automation-state"],
+    queryFn: () => apiRequest<AutomationState>("GET", "/applications/automation/state"),
+    refetchInterval: (query) => (query.state.data?.state === "idle" ? false : 2000),
   });
 }
 

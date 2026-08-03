@@ -24,6 +24,7 @@ import {
   useStartApplyTop,
   useApplyTopBatch,
   useLatestApplyTopBatch,
+  useStopApplyTop,
 } from "@/api/applications";
 import { useSession } from "@/store/session";
 import type { ApplyResultView, ApplyTopBatch, Job } from "@/types";
@@ -66,13 +67,23 @@ function ApplyTopStatusCard({
   batch,
   onRefresh,
   onHide,
+  onStop,
+  stopPending,
 }: {
   batch: ApplyTopBatch;
   onRefresh: () => void;
   onHide: () => void;
+  onStop: () => void;
+  stopPending: boolean;
 }) {
   const statusTitle = titleize(batch.status ?? "unknown");
-  const canHide = batch.status === "completed" || batch.status === "failed";
+  // Stop Automation is offered ONLY while a batch is actually active, and disables itself the
+  // moment a stop is in flight so it cannot be clicked twice. Both facts come from the batch
+  // status the backend publishes, not from local state.
+  const isActive = batch.status === "queued" || batch.status === "running";
+  const isStopping = batch.status === "stopping" || stopPending;
+  const canHide =
+    batch.status === "completed" || batch.status === "failed" || batch.status === "stopped";
   const pct = batch.total_count ? Math.min(100, (batch.current_index / batch.total_count) * 100) : 0;
   const results = batch.job_results ?? [];
 
@@ -93,6 +104,13 @@ function ApplyTopStatusCard({
           <Metric label="Needs review" value={batch.needs_review_count} />
           <Metric label="Failed/Timed out" value={batch.failed_count + batch.timed_out_count} />
         </div>
+        {(batch.stopped_count ?? 0) > 0 && (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <Metric label="Stopped" value={batch.stopped_count} />
+            <Metric label="Skipped" value={batch.skipped_count} />
+            <Metric label="Failed" value={batch.failed_count} />
+          </div>
+        )}
         {(batch.current_title || batch.current_company) && (
           <p className="text-sm text-[#8A8580]">
             Now processing: {batch.current_title ?? "Unknown"} at {batch.current_company ?? "Unknown"}
@@ -124,6 +142,17 @@ function ApplyTopStatusCard({
         )}
         <div className="flex gap-2">
           <Button onClick={onRefresh}>Refresh Batch Status</Button>
+          {(isActive || isStopping) && (
+            <Button variant="destructive" onClick={onStop} disabled={isStopping}>
+              {isStopping ? (
+                <>
+                  <Loader2 className="mr-1 inline size-4 animate-spin" /> Stopping…
+                </>
+              ) : (
+                "Stop Automation"
+              )}
+            </Button>
+          )}
           {canHide && (
             <Button variant="ghost" onClick={onHide}>
               Hide Batch Status
@@ -242,7 +271,11 @@ export function MatchedJobsPage() {
   const [customLocation, setCustomLocation] = useState("");
   const [customLimit, setCustomLimit] = useState(100);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
-  const [dryRun, setDryRun] = useState(true); // default ON — feeds the real dry_run flag
+  // Default OFF — normal/live application behaviour. The toggle keeps its name and meaning
+  // (ON = dry run, no final submission); only where it starts changed. Plain component state
+  // with no browser storage behind it, so it is OFF again on every app start and on New Session
+  // (which remounts this page via sessionNonce).
+  const [dryRun, setDryRun] = useState(false);
 
   // Apply state
   const applySelected = useApplySelected();
@@ -251,6 +284,7 @@ export function MatchedJobsPage() {
   const [hideBatch, setHideBatch] = useState(false);
   const [selectedResult, setSelectedResult] = useState<ApplyResultView | null>(null);
 
+  const stopApplyTop = useStopApplyTop();
   const latestBatch = useLatestApplyTopBatch(resume?.id, portal);
   const effectiveBatchId = applyTopBatchId ?? (hideBatch ? null : latestBatch.data?.id ?? null);
   const batchQuery = useApplyTopBatch(effectiveBatchId);
@@ -261,7 +295,10 @@ export function MatchedJobsPage() {
   useEffect(() => {
     const was = prevBatchStatus.current;
     const now = liveBatch?.status ?? null;
-    if ((was === "running" || was === "queued") && (now === "completed" || now === "failed")) {
+    if (
+      (was === "running" || was === "queued" || was === "stopping") &&
+      (now === "completed" || now === "failed" || now === "stopped")
+    ) {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["summary"] });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
@@ -271,7 +308,11 @@ export function MatchedJobsPage() {
 
   const selectedJob = jobs.find((j) => jobRadioLabel(j) === selectedLabel) ?? null;
   const searchDisabled = resume == null || startSearch.isPending;
-  const applyBulkDisabled = resume == null || startApplyTop.isPending;
+  // A second Apply Jobs batch cannot start while one is running or stopping. The backend
+  // refuses it with 409 regardless; disabling the buttons just stops the user from trying.
+  const automationBusy =
+    liveBatch?.status === "queued" || liveBatch?.status === "running" || liveBatch?.status === "stopping";
+  const applyBulkDisabled = resume == null || startApplyTop.isPending || automationBusy;
 
   const resolveKeywords = (): string | null => {
     // Mirror dashboard.py exactly: "All suggested roles" -> None; "Manual override" ->
@@ -484,7 +525,7 @@ export function MatchedJobsPage() {
           <div className="flex flex-wrap items-center gap-3 rounded-lg border border-parchment-border bg-card p-3 shadow-card">
             <Toggle id="dry-run" checked={dryRun} onCheckedChange={setDryRun} label="Dry run" />
             <div className="flex flex-1 flex-wrap justify-end gap-2">
-              <Button variant="primary" disabled={selectedJob === null || applySelected.isPending} onClick={applySelectedJob}>
+              <Button variant="primary" disabled={selectedJob === null || applySelected.isPending || automationBusy} onClick={applySelectedJob}>
                 Apply Selected Job
               </Button>
               <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(10)}>Apply Top 10</Button>
@@ -501,6 +542,7 @@ export function MatchedJobsPage() {
             </Alert>
           )}
           {startApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Start Apply batch", startApplyTop.error)}</Alert>}
+          {stopApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Stop Automation", stopApplyTop.error)}</Alert>}
 
           {/* Apply Top batch status card — LIVE with 2s polling */}
           {liveBatch && (
@@ -512,6 +554,8 @@ export function MatchedJobsPage() {
                 queryClient.invalidateQueries({ queryKey: ["summary"] });
               }}
               onHide={() => { setApplyTopBatchId(null); setHideBatch(true); }}
+              onStop={() => stopApplyTop.mutate(liveBatch.id)}
+              stopPending={stopApplyTop.isPending}
             />
           )}
 

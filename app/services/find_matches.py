@@ -14,6 +14,7 @@ from app.services.posting_time import (
     parse_posted_text,
     relative_posted_label,
 )
+from app.services.role_selection import MAX_SEARCH_ROLES, select_role_dicts
 
 
 def per_variation_limits(limit_per_query: "int | list[int]", count: int) -> list[int]:
@@ -111,12 +112,21 @@ class FindMatchesEngine:
         return max(1, min(max_limit, requested))
 
     def collection_plan(self, target_count: int, variation_count: int) -> dict:
-        selected_variation_count = min(
-            variation_count,
-            max(4, min(24, (target_count + 6) // 7)),
-        )
-        selected_variation_count = max(1, selected_variation_count)
-        limit_per_query = max(5, min(12, (target_count + selected_variation_count - 1) // selected_variation_count + 2))
+        """How many roles to search, and how deep to search each one.
+
+        The preset (Find 20/50/100) NO LONGER chooses the role count: every preset searches the
+        same ordered top-five role list, so the same jobs are considered and only the final job
+        cap differs. It used to select 4, 8 or 12 of a twelve-role plan, which meant a Find 100
+        searched roles a Find 20 never saw.
+
+        The preset now moves `limit_per_query` instead: five roles have to supply the whole target,
+        so each one is inspected more deeply for a larger request. The budget always leaves the
+        selected roles able to reach the target between them (>= target_count in total), and never
+        asks a single query for more than the target itself.
+        """
+        selected_variation_count = max(1, min(variation_count, MAX_SEARCH_ROLES))
+        per_query = (target_count + selected_variation_count - 1) // selected_variation_count + 2
+        limit_per_query = max(5, min(max(target_count, 5), per_query))
         return {
             "selected_variation_count": selected_variation_count,
             "limit_per_query": limit_per_query,
@@ -124,7 +134,10 @@ class FindMatchesEngine:
 
     # Weight given to the strongest resume-derived variations (1..TOP_VARIATION_COUNT) when
     # sharing the overall Find Matches limit. A soft preference, never a relevance change.
-    TOP_VARIATION_COUNT = 5
+    # The band is the DETECTED PRIMARY ROLE: it collects twice the share of each related role.
+    # It used to be five, which was meaningful against a twelve-role plan; against a plan that is
+    # itself at most five roles a band of five would weight everything equally -- i.e. nothing.
+    TOP_VARIATION_COUNT = 1
     TOP_VARIATION_WEIGHT = 2
 
     def soft_allocation(
@@ -378,15 +391,20 @@ class FindMatchesEngine:
         role_profile: dict,
         role_source: str,
     ) -> tuple[list[SearchVariation], dict]:
-        """One narrow variation per Phase-3 role, in ranked order: variation 1 = Primary, 2-5 =
-        Strong Fit, 6-9 = Related, 10-12 = Stretch (fewer for provisional domains -- never padded)."""
-        roles = role_profile.get("roles") or []
+        """One narrow variation per selected Phase-3 role, in ranked order: variation 1 = the
+        detected primary role, 2-5 = the strongest related roles (fewer when the resume does not
+        support five -- never padded).
+
+        `select_role_dicts` is applied here, not only when the resume was analysed, so a record
+        saved before this feature -- which still holds twelve ranked roles -- stays readable and
+        is searched under exactly the same top-five rules as a resume analysed today."""
+        roles = select_role_dicts(role_profile.get("roles") or [])
         locations = self.expand_locations(location)
         primary_location = locations[0]["location"]
         primary_role = roles[0].get("title") if roles else (resume.detected_role or "")
 
         queries: list[SearchVariation] = []
-        for role in roles[:24]:
+        for role in roles:
             title = str(role.get("title") or "").strip()
             if not title:
                 continue
@@ -536,8 +554,10 @@ class FindMatchesEngine:
             )
         # Freeze the priority order: the 1-based index of each variation in this list is its
         # permanent group key on the completed dashboard. Assigned here (once), never inferred
-        # later from a job title.
-        queries = [replace(query, variation_index=index + 1) for index, query in enumerate(queries[:24])]
+        # later from a job title. Capped at MAX_SEARCH_ROLES so this fallback -- used for a manual
+        # keyword override and for an old row with no role_profile at all -- searches the same
+        # number of roles as the main path, and the preset still changes only the job cap.
+        queries = [replace(query, variation_index=index + 1) for index, query in enumerate(queries[:MAX_SEARCH_ROLES])]
         plan = {
             "role_source": role_source,
             "roles": roles,

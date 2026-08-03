@@ -11,6 +11,7 @@ from app.main import _create_search_batch, _run_find_matches_batch, search_jobs,
 from app.models import JobOpportunity, JobSearchBatch, ResumeProfile
 from app.schemas import SearchRequest
 from app.services.find_matches import per_variation_limits
+from app.services.role_selection import MAX_SEARCH_ROLES
 
 
 class FakeLinkedInAutomation:
@@ -376,11 +377,13 @@ class AutomaticSearchWorkflowTests(unittest.TestCase):
                         self.assertEqual(batch.jobs_collected, 100)
                         self.assertTrue(all(job.easy_apply for job in jobs))
                         selected_variations, limits = FakeManyLinkedInAutomation.received_collection_plan[0]
-                        # Phase 4: the plan is one narrow variation per ranked role (up to 12), so a
-                        # supported-domain resume selects its full set of role variations.
-                        self.assertGreaterEqual(selected_variations, 12)
+                        # One narrow variation per SELECTED role, capped at five. This resume has
+                        # only skills to go on, so it credibly supports fewer than five and is not
+                        # padded -- but Find 100 still returns 100 jobs, from deeper queries.
+                        self.assertGreaterEqual(selected_variations, 1)
+                        self.assertLessEqual(selected_variations, MAX_SEARCH_ROLES)
                         self.assertGreaterEqual(min(limits), 8)          # base per-query budget preserved
-                        self.assertGreater(limits[0], limits[-1])        # top-five inspect a larger budget
+                        self.assertGreater(limits[0], limits[-1])        # the top band inspects a larger budget
                         self.assertEqual(len({job.job_url for job in jobs}), 100)
                     finally:
                         db.execute(delete(JobOpportunity).where(JobOpportunity.resume_id == resume.id))

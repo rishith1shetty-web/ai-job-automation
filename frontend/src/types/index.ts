@@ -14,7 +14,10 @@ export type ApplicationStatus =
   | "dry_run_ready"
   | "unsupported_form";
 
-export type BatchStatus = "queued" | "running" | "completed" | "failed";
+// "stopping" and "stopped" come from Stop Automation: the batch is finishing its current
+// step, then ends with its summary intact. Both are terminal-ish for the UI -- "stopping"
+// still polls, "stopped" does not.
+export type BatchStatus = "queued" | "running" | "stopping" | "stopped" | "completed" | "failed";
 export type ScreeningMode = "safe" | "aggressive";
 
 export interface PortalStatus {
@@ -209,10 +212,21 @@ export interface ApplyTopBatch {
   failed_count: number;
   needs_review_count: number;
   timed_out_count: number;
+  /** Jobs ended by Stop Automation: the interrupted one plus every job that never started. */
+  stopped_count: number;
   latest_status_message: string | null;
   error_message: string | null;
   debug_path: string | null;
   job_results: Record<string, unknown>[];
+}
+
+/** Backend-owned automation state. The Stop button and the "already running" guard read this
+ *  rather than local component state, so a page reload mid-run still shows the right control. */
+export interface AutomationState {
+  state: "idle" | "running" | "stopping";
+  active_batch_id: string | null;
+  cancellation_requested: boolean;
+  requested_at: string | null;
 }
 
 export interface ScreeningSetting {
