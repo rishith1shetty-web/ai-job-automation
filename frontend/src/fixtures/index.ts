@@ -240,6 +240,7 @@ export const applyTopBatch: ApplyTopBatch = {
   dry_run: true, screening_mode: "safe", limit: 10, total_count: 10, current_index: 10,
   current_title: "Reporting Analyst", current_company: "UPMC",
   completed_count: 6, skipped_count: 1, failed_count: 0, needs_review_count: 2, timed_out_count: 1, stopped_count: 0,
+  resumable: false, remaining_count: 0, resume_blocked_reason: null,
   latest_status_message: "Completed 10 of 10 jobs (dry run).",
   error_message: null, debug_path: "outputs/apply_top_debug/20260708T163443",
   job_results: [

@@ -236,6 +236,12 @@ class ApplyTopBatchOut(BaseModel):
     # Jobs the user's Stop Automation ended. A model property derived from job_results, so no
     # column and no migration; a batch from before Stop Automation reports 0.
     stopped_count: int = 0
+    # Continue Automation. Derived per request from job_results, the batch's search session and
+    # the jobs still eligible -- never stored, so they cannot go stale. A batch that was never
+    # interrupted simply reports resumable=false.
+    resumable: bool = False
+    remaining_count: int = 0
+    resume_blocked_reason: str | None = None
     latest_status_message: str | None
     error_message: str | None
     debug_path: str | None

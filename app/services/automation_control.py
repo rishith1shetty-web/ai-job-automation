@@ -32,6 +32,17 @@ from datetime import datetime
 # schema change and no enum migration.
 BATCH_STATUS_STOPPING = "stopping"
 BATCH_STATUS_STOPPED = "stopped"
+# A batch whose worker never reached an ending: the application, the browser or the machine
+# went away mid-run, so nothing wrote a terminal status. Detected at startup, because a fresh
+# process cannot have inherited a live worker. It is not a failure -- the jobs it never
+# reached are still eligible -- so it is resumable in exactly the way a stopped batch is.
+BATCH_STATUS_INTERRUPTED = "interrupted"
+
+# The two states Continue Automation offers to resume. Deliberately excludes "failed": that is
+# a batch that could not be set up at all (no resume, no candidate profile), where continuing
+# would just fail again. Per-job failures never reach here -- they are recorded against the job
+# and the batch carries on.
+RESUMABLE_BATCH_STATUSES = frozenset({BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED})
 
 # Per-job outcome recorded in ApplyTopBatch.job_results (JSONB, free-form -- it already carries
 # non-ApplicationStatus values such as "reached_review"). A job that was interrupted or never
