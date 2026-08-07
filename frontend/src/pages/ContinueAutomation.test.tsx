@@ -170,6 +170,40 @@ describe("Continue Automation button", () => {
       expect(screen.getByText(/newer job search has replaced/)).toBeInTheDocument());
   });
 
+  it("appears after the batch ended with an error, alongside the error itself", async () => {
+    // The user must be able to recover their progress while the defect is investigated -- the
+    // error is still shown, but it is not a dead end.
+    seed(batch({
+      status: "failed",
+      error_message: "TypeError: a defect in the automation",
+      latest_status_message:
+        "Batch stopped by an error: TypeError: a defect in the automation. " +
+        "Continue Automation resumes it from the next unprocessed job.",
+    }));
+    renderWithProviders(<MatchedJobsPage />);
+    await screen.findByText("Apply Top 10 batch status");
+
+    expect(continueButton()).toBeInTheDocument();
+    expect(applyTop10()).toBeNull();
+    // Twice on purpose: the batch status line and the error alert. The failure is reported in
+    // full; it just is not a dead end any more.
+    expect(screen.getAllByText(/TypeError: a defect in the automation/)).toHaveLength(2);
+    expect(screen.getByText(/Continue Automation resumes it from the next unprocessed job/))
+      .toBeInTheDocument();
+  });
+
+  it("does not appear for a failed batch with nothing left to process", async () => {
+    seed(batch({
+      status: "failed", error_message: "Resume not found.",
+      resumable: false, remaining_count: 0,
+      resume_blocked_reason: "No eligible jobs remain in this batch.",
+    }));
+    renderWithProviders(<MatchedJobsPage />);
+    await screen.findByText("Apply Top 10 batch status");
+    expect(continueButton()).toBeNull();
+    expect(applyTop10()).toBeInTheDocument();
+  });
+
   it("keeps Stop Automation available once the resumed run is going", async () => {
     seed(batch({ status: "running", resumable: false, current_index: 4, current_title: "Job 4" }));
     renderWithProviders(<MatchedJobsPage />);

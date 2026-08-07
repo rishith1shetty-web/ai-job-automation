@@ -38,11 +38,25 @@ BATCH_STATUS_STOPPED = "stopped"
 # reached are still eligible -- so it is resumable in exactly the way a stopped batch is.
 BATCH_STATUS_INTERRUPTED = "interrupted"
 
-# The two states Continue Automation offers to resume. Deliberately excludes "failed": that is
-# a batch that could not be set up at all (no resume, no candidate profile), where continuing
-# would just fail again. Per-job failures never reach here -- they are recorded against the job
-# and the batch carries on.
-RESUMABLE_BATCH_STATUSES = frozenset({BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED})
+BATCH_STATUS_FAILED = "failed"
+
+# Every state Continue Automation offers to resume. The rule is deliberately about the JOBS,
+# not about the cause: if a batch ended early and eligible jobs remain, the user gets their
+# progress back -- whether automation was stopped by hand, cut off by a portal, killed with the
+# application, or ended by a bug in this software.
+#
+# "failed" is included on purpose. It is tempting to exclude it on the grounds that a retry
+# would just fail again, but that is already answered elsewhere: _resume_blocker checks that the
+# resume still exists, that the search session is still current and that jobs remain, which are
+# exactly the conditions that make a retry pointless. Excluding "failed" protected nothing and
+# stranded a user's progress behind the very bug they were waiting to have fixed.
+RESUMABLE_BATCH_STATUSES = frozenset(
+    {BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED, BATCH_STATUS_FAILED}
+)
+
+# States that mean "a worker owns this batch". A batch sitting in one of these with no worker
+# behind it has been orphaned -- see _reconcile_batch_state.
+ACTIVE_BATCH_STATUSES = frozenset({"queued", "running", BATCH_STATUS_STOPPING})
 
 # Per-job outcome recorded in ApplyTopBatch.job_results (JSONB, free-form -- it already carries
 # non-ApplicationStatus values such as "reached_review"). A job that was interrupted or never

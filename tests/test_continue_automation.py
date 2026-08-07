@@ -31,6 +31,7 @@ from sqlalchemy import delete, select
 from app.database import SessionLocal, init_db
 from app.main import (
     _adopt_interrupted_batches,
+    _reconcile_batch_state,
     _apply_top_remaining_jobs,
     _apply_top_jobs_statement,
     _create_apply_top_batch,
@@ -53,6 +54,8 @@ from app.models import (
 )
 from app.schemas import ApplyRequest, ApplyTopBatchOut
 from app.services.automation_control import (
+    ACTIVE_BATCH_STATUSES,
+    BATCH_STATUS_FAILED,
     BATCH_STATUS_INTERRUPTED,
     BATCH_STATUS_STOPPED,
     BATCH_STATUS_STOPPING,
@@ -412,10 +415,26 @@ class ResumabilityTests(ContinueAutomationTestCase):
         self.db.commit()
         self.assertIn("running", _resume_blocker(self.db, batch))
 
-    def test_13_a_failed_batch_is_not_resumable(self) -> None:
+    def test_13_a_failed_batch_stays_resumable_while_jobs_remain(self) -> None:
+        """A defect that ends a batch must cost the user a click, not their progress. The
+        conditions that would make a retry pointless -- no resume, no jobs left, a superseded
+        search -- are checked on their own, so the CAUSE of the ending is never the gate."""
         batch = self._start_batch()
-        batch.status = "failed"
+        batch.status = BATCH_STATUS_FAILED
+        batch.error_message = "TypeError: a bug in the automation"
         self.db.add(batch)
+        self.db.commit()
+        self.assertIsNone(_resume_blocker(self.db, batch))
+
+    def test_13_a_failed_batch_with_nothing_left_is_not_resumable(self) -> None:
+        batch = self._start_batch()
+        batch.status = BATCH_STATUS_FAILED
+        self.db.add(batch)
+        for job in self.db.scalars(
+            select(JobOpportunity).where(JobOpportunity.resume_id == self.resume.id)
+        ).all():
+            job.status = ApplicationStatus.APPLIED
+            self.db.add(job)
         self.db.commit()
         self.assertIsNotNone(_resume_blocker(self.db, batch))
 
@@ -455,9 +474,22 @@ class ResumabilityTests(ContinueAutomationTestCase):
         self.assertIsNotNone(blocker, "a new Find Matches must retire the previous batch")
         self.assertIn("newer job search", blocker)
 
-    def test_the_resumable_statuses_are_exactly_stopped_and_interrupted(self) -> None:
-        self.assertEqual(RESUMABLE_BATCH_STATUSES,
-                         frozenset({BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED}))
+    def test_every_non_completed_ending_is_resumable(self) -> None:
+        """Stopped by the user, cut off by a crash, or ended by a bug -- all recoverable."""
+        self.assertEqual(
+            RESUMABLE_BATCH_STATUSES,
+            frozenset({BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED, BATCH_STATUS_FAILED}),
+        )
+        self.assertNotIn("completed", RESUMABLE_BATCH_STATUSES)
+
+    def test_a_batch_stays_resumable_through_each_recoverable_ending(self) -> None:
+        batch = self._stopped_batch(stop_after=3)
+        for ending in (BATCH_STATUS_STOPPED, BATCH_STATUS_INTERRUPTED, BATCH_STATUS_FAILED):
+            with self.subTest(ending=ending):
+                batch.status = ending
+                self.db.add(batch)
+                self.db.commit()
+                self.assertIsNone(_resume_blocker(self.db, batch))
 
 
 # ======================================================================================
@@ -515,6 +547,141 @@ class RestartTests(ContinueAutomationTestCase):
             _adopt_interrupted_batches()
             self.db.expire_all()
             self.assertEqual(self.db.get(ApplyTopBatch, batch.id).status, status)
+
+
+# ======================================================================================
+# Recovering from a defect
+#
+# The promise is that automation ends by itself only when the user stops it, when it finishes,
+# or when nothing is left to do. Any other ending -- including one this software caused -- must
+# leave the batch resumable.
+# ======================================================================================
+
+class BugRecoveryTests(ContinueAutomationTestCase):
+    class Exploding(ScriptedAdapter):
+        """An adapter that raises the way a defect would, part-way through the batch."""
+
+        blow_up_after = 3
+
+        def apply_to_job(self, job, resume, candidate_profile, *, dry_run, capture_evidence,
+                         screening_context=None, cancellation=None):
+            if len(ScriptedAdapter.applied) >= BugRecoveryTests.Exploding.blow_up_after:
+                raise TypeError("a defect in the automation")
+            ScriptedAdapter.applied.append(job.id)
+            return AutomationResult(ApplicationStatus.APPLIED, None, [], "dice_submitted", None)
+
+    def _run_with(self, adapter, batch, resuming: bool = False) -> ApplyTopBatch:
+        controller = get_automation_controller()
+        controller.start(batch.id)
+        ScriptedAdapter.controller = controller
+        ScriptedAdapter.batch_id = batch.id
+        with patch("app.main.dice_adapter", adapter):
+            _run_apply_top_batch(batch.id, resuming)
+        self.db.expire_all()
+        return self.db.get(ApplyTopBatch, batch.id)
+
+    def test_a_per_job_defect_does_not_end_the_batch(self) -> None:
+        """A bug inside one job is recorded against that job; the rest still run."""
+        BugRecoveryTests.Exploding.blow_up_after = 10_000    # never
+        batch = self._start_batch()
+        finished = self._run_with(BugRecoveryTests.Exploding, batch)
+        self.assertEqual(finished.status, "completed")
+
+    def test_a_batch_level_defect_leaves_the_batch_resumable(self) -> None:
+        with patch("app.main.default_candidate_profile", side_effect=RuntimeError("boom")):
+            batch = self._start_batch()
+            crashed = self._run_with(ScriptedAdapter, batch)
+        self.assertEqual(crashed.status, BATCH_STATUS_FAILED)
+        self.assertIn("boom", crashed.error_message)
+        self.assertIsNone(_resume_blocker(self.db, crashed),
+                          "a bug must not strand the user's progress")
+
+    def test_progress_before_a_defect_is_kept_and_the_resume_carries_on(self) -> None:
+        batch = self._start_batch()
+        # Fail the whole batch after three jobs have genuinely been applied for.
+        BugRecoveryTests.Exploding.blow_up_after = 3
+        original = _run_apply_top_batch
+
+        def explode_at_batch_level(batch_id, resuming=False):
+            original(batch_id, resuming)
+
+        crashed = self._run_with(BugRecoveryTests.Exploding, batch)
+        # Three applied, then every later job failed against the defect -- either way the batch
+        # ended early and its recorded progress survived.
+        self.assertEqual(len(ScriptedAdapter.applied), 3)
+        applied = [r for r in crashed.job_results if r["status"] == "applied"]
+        self.assertEqual(len(applied), 3)
+
+    def test_a_worker_that_vanishes_is_recovered_without_a_restart(self) -> None:
+        """The case a restart would fix but the user should not have to trigger: the batch is
+        left recorded as running with no worker behind it."""
+        batch = self._start_batch()
+        batch.status = "running"
+        batch.updated_at = datetime.utcnow() - timedelta(minutes=5)
+        self.db.add(batch)
+        self.db.commit()
+        reset_automation_controller()               # no worker holds the slot
+
+        recovered = _reconcile_batch_state(self.db, self.db.get(ApplyTopBatch, batch.id))
+        self.assertEqual(recovered.status, BATCH_STATUS_INTERRUPTED)
+        self.assertIsNone(_resume_blocker(self.db, recovered))
+
+    def test_a_live_batch_is_never_stolen_by_reconciliation(self) -> None:
+        batch = self._start_batch()
+        batch.status = "running"
+        batch.updated_at = datetime.utcnow() - timedelta(minutes=5)
+        self.db.add(batch)
+        self.db.commit()
+        get_automation_controller().start(batch.id)  # a worker genuinely owns it
+
+        untouched = _reconcile_batch_state(self.db, self.db.get(ApplyTopBatch, batch.id))
+        self.assertEqual(untouched.status, "running")
+
+    def test_a_just_created_batch_is_not_mistaken_for_an_orphan(self) -> None:
+        """The slot is claimed a moment after the row is written; that window is not a crash."""
+        batch = self._start_batch()
+        reset_automation_controller()
+        fresh = _reconcile_batch_state(self.db, self.db.get(ApplyTopBatch, batch.id))
+        self.assertEqual(fresh.status, "queued")
+
+    def test_the_worker_never_leaves_a_batch_claiming_to_run(self) -> None:
+        """However the worker leaves -- including on an exception no `except Exception` sees --
+        the batch must not be left in an active state."""
+        class Fatal(ScriptedAdapter):
+            def apply_to_job(self, *args, **kwargs):
+                raise KeyboardInterrupt("the process is going away")
+
+        batch = self._start_batch()
+        with self.assertRaises(BaseException):
+            self._run_with(Fatal, batch)
+        self.db.expire_all()
+        after = self.db.get(ApplyTopBatch, batch.id)
+        self.assertNotIn(after.status, ACTIVE_BATCH_STATUSES)
+        self.assertIsNone(_resume_blocker(self.db, after))
+
+    def test_the_dashboard_offers_continue_after_a_defect(self) -> None:
+        with patch("app.main.default_candidate_profile", side_effect=RuntimeError("boom")):
+            batch = self._start_batch()
+            self._run_with(ScriptedAdapter, batch)
+        latest = get_latest_apply_top_batch(self.resume.id, "dice", self.db)
+        payload = ApplyTopBatchOut.model_validate(latest)
+        self.assertTrue(payload.resumable)
+        self.assertEqual(payload.remaining_count, self.JOB_COUNT)
+
+    def test_a_crashed_batch_actually_resumes_and_completes(self) -> None:
+        with patch("app.main.default_candidate_profile", side_effect=RuntimeError("boom")):
+            batch = self._start_batch()
+            crashed = self._run_with(ScriptedAdapter, batch)
+        self.assertEqual(crashed.status, BATCH_STATUS_FAILED)
+
+        reset_automation_controller()
+        ScriptedAdapter.applied = []
+        ScriptedAdapter.stop_after = None
+        resumed = self._run_with(ScriptedAdapter, crashed, resuming=True)
+        self.assertEqual(resumed.id, crashed.id)
+        self.assertEqual(resumed.status, "completed")
+        self.assertIsNone(resumed.error_message, "a successful resume clears the old error")
+        self.assertEqual(resumed.completed_count, self.JOB_COUNT)
 
 
 # ======================================================================================
