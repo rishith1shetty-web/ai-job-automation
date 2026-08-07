@@ -24,6 +24,7 @@ import {
   useStartApplyTop,
   useApplyTopBatch,
   useLatestApplyTopBatch,
+  useResumeApplyTop,
   useStopApplyTop,
 } from "@/api/applications";
 import { useSession } from "@/store/session";
@@ -83,7 +84,8 @@ function ApplyTopStatusCard({
   const isActive = batch.status === "queued" || batch.status === "running";
   const isStopping = batch.status === "stopping" || stopPending;
   const canHide =
-    batch.status === "completed" || batch.status === "failed" || batch.status === "stopped";
+    batch.status === "completed" || batch.status === "failed" ||
+    batch.status === "stopped" || batch.status === "interrupted";
   const pct = batch.total_count ? Math.min(100, (batch.current_index / batch.total_count) * 100) : 0;
   const results = batch.job_results ?? [];
 
@@ -285,6 +287,7 @@ export function MatchedJobsPage() {
   const [selectedResult, setSelectedResult] = useState<ApplyResultView | null>(null);
 
   const stopApplyTop = useStopApplyTop();
+  const resumeApplyTop = useResumeApplyTop();
   const latestBatch = useLatestApplyTopBatch(resume?.id, portal);
   const effectiveBatchId = applyTopBatchId ?? (hideBatch ? null : latestBatch.data?.id ?? null);
   const batchQuery = useApplyTopBatch(effectiveBatchId);
@@ -313,6 +316,16 @@ export function MatchedJobsPage() {
   const automationBusy =
     liveBatch?.status === "queued" || liveBatch?.status === "running" || liveBatch?.status === "stopping";
   const applyBulkDisabled = resume == null || startApplyTop.isPending || automationBusy;
+  // Continue Automation replaces Apply Jobs whenever the backend says the latest batch can be
+  // resumed. The verdict is the backend's alone -- it also checks the search session, the
+  // resume and the remaining jobs -- so the two controls can never both be offered.
+  const resumableBatch = liveBatch?.resumable ? liveBatch : null;
+  const continueAutomation = () => {
+    if (!resumableBatch) return;
+    resumeApplyTop.mutate(resumableBatch.id, {
+      onSuccess: (batch) => { setApplyTopBatchId(batch.id); setHideBatch(false); },
+    });
+  };
 
   const resolveKeywords = (): string | null => {
     // Mirror dashboard.py exactly: "All suggested roles" -> None; "Manual override" ->
@@ -528,9 +541,24 @@ export function MatchedJobsPage() {
               <Button variant="primary" disabled={selectedJob === null || applySelected.isPending || automationBusy} onClick={applySelectedJob}>
                 Apply Selected Job
               </Button>
-              <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(10)}>Apply Top 10</Button>
-              <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(20)}>Apply Top 20</Button>
-              <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(Math.min(jobs.length, 100))}>Apply All</Button>
+              {resumableBatch ? (
+                /* One control, never both: the interrupted batch is continued from where it
+                   stopped, so starting a fresh batch is not offered until it is finished. */
+                <Button
+                  variant="primary"
+                  disabled={resumeApplyTop.isPending || automationBusy}
+                  onClick={continueAutomation}
+                >
+                  {resumeApplyTop.isPending && <Loader2 className="size-4 animate-spin" />}
+                  Continue Automation
+                </Button>
+              ) : (
+                <>
+                  <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(10)}>Apply Top 10</Button>
+                  <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(20)}>Apply Top 20</Button>
+                  <Button disabled={applyBulkDisabled} onClick={() => runApplyTop(Math.min(jobs.length, 100))}>Apply All</Button>
+                </>
+              )}
             </div>
           </div>
           {jobs.length > 100 && (
@@ -541,7 +569,15 @@ export function MatchedJobsPage() {
               <Loader2 className="mr-1 inline size-4 animate-spin" /> Starting Apply batch…
             </Alert>
           )}
+          {resumableBatch && (
+            <Alert variant="info">
+              Automation stopped before finishing. Continue Automation resumes this batch at job{" "}
+              {resumableBatch.completed_count + 1} of {resumableBatch.total_count} —{" "}
+              {resumableBatch.remaining_count} still to process. Jobs already applied to are not repeated.
+            </Alert>
+          )}
           {startApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Start Apply batch", startApplyTop.error)}</Alert>}
+          {resumeApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Continue Automation", resumeApplyTop.error)}</Alert>}
           {stopApplyTop.isError && <Alert variant="danger">{apiErrorMessage("Stop Automation", stopApplyTop.error)}</Alert>}
 
           {/* Apply Top batch status card — LIVE with 2s polling */}

@@ -68,10 +68,14 @@ from app.services.resume_identity import (
     successful_jobs_for_fingerprint,
 )
 from app.services.automation_control import (
+    ACTIVE_BATCH_STATUSES,
     AUTOMATION_IDLE,
+    BATCH_STATUS_FAILED,
+    BATCH_STATUS_INTERRUPTED,
     BATCH_STATUS_STOPPED,
     BATCH_STATUS_STOPPING,
     JOB_RESULT_STOPPED,
+    RESUMABLE_BATCH_STATUSES,
     AutomationCancelled,
     BatchAlreadyActive,
     get_automation_controller,
@@ -376,6 +380,9 @@ def startup() -> None:
     # A fresh process cannot have inherited a running apply batch. Without this a claim left
     # behind by a crash would block every future Apply Jobs run.
     reset_automation_controller()
+    # ...and any batch still recorded as running belonged to a process that is gone. Adopt it
+    # as interrupted so Continue Automation can offer it instead of it looking active forever.
+    _adopt_interrupted_batches()
 
 
 @app.get("/health")
@@ -2016,6 +2023,40 @@ def stop_apply_top_batch(batch_id: str, db: Session = Depends(get_db)) -> ApplyT
     return batch
 
 
+@app.post("/applications/apply-top/{batch_id}/resume", response_model=ApplyTopBatchOut)
+def resume_apply_top_batch(
+    batch_id: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> ApplyTopBatch:
+    """Continue an interrupted apply batch from its first unprocessed job.
+
+    This re-enters the EXISTING batch: no row is created, no search is re-run, no job list is
+    regenerated and nothing already processed is revisited. Every validation lives in
+    _resume_blocker, so a batch the dashboard offers is a batch this accepts."""
+    controller = get_automation_controller()
+    if controller.is_active():
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Apply batch {controller.active_batch_id} is already {controller.state}. "
+                "Wait for it to finish, or stop it first."
+            ),
+        )
+    batch = db.get(ApplyTopBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Apply batch not found.")
+    batch = _reconcile_batch_state(db, batch)
+    blocker = _resume_blocker(db, batch)
+    if blocker:
+        # 409, not 404: the batch exists, it just cannot be continued. The dashboard drops the
+        # Continue button and offers Apply Jobs again on this reply.
+        raise HTTPException(status_code=409, detail=blocker)
+    _claim_automation_slot(batch.id)
+    background_tasks.add_task(_run_apply_top_batch, batch.id, True)
+    return _decorate_resumability(db, batch)
+
+
 @app.get("/applications/automation/state", response_model=AutomationStateOut)
 def get_automation_state() -> dict:
     """Whether an apply batch is running or stopping, straight from the backend.
@@ -2030,7 +2071,7 @@ def get_apply_top_batch(batch_id: str, db: Session = Depends(get_db)) -> ApplyTo
     batch = db.get(ApplyTopBatch, batch_id)
     if not batch:
         raise HTTPException(status_code=404, detail="Apply Top 10 batch not found.")
-    return batch
+    return _decorate_resumability(db, batch)
 
 
 @app.get("/applications/apply-top/latest", response_model=ApplyTopBatchOut | None)
@@ -2045,7 +2086,10 @@ def get_latest_apply_top_batch(
         .where(ApplyTopBatch.resume_id == resume_id)
         .where(ApplyTopBatch.portal == active)
     )
-    return db.scalar(statement.order_by(desc(ApplyTopBatch.created_at)).limit(1))
+    batch = db.scalar(statement.order_by(desc(ApplyTopBatch.created_at)).limit(1))
+    # The dashboard decides between Apply Jobs and Continue Automation from this reply, so the
+    # verdict travels with the batch rather than being re-derived in the browser.
+    return _decorate_resumability(db, batch)
 
 
 @app.post("/applications/apply-selected", response_model=ApplicationRecordOut)
@@ -2177,7 +2221,7 @@ def _claim_automation_slot(batch_id: str) -> None:
         ) from None
 
 
-def _run_apply_top_batch(batch_id: str) -> None:
+def _run_apply_top_batch(batch_id: str, resuming: bool = False) -> None:
     controller = get_automation_controller()
     # The slot was claimed synchronously in _create_apply_top_batch, so a second Apply Jobs
     # request is refused before it can ever reach this worker. Re-read the token here rather
@@ -2191,8 +2235,14 @@ def _run_apply_top_batch(batch_id: str) -> None:
             return
         try:
             batch.status = "running"
-            batch.started_at = datetime.utcnow()
-            batch.latest_status_message = "Loading resume and job queue."
+            # started_at records when the batch first began, so a resume does not erase it.
+            if not resuming or batch.started_at is None:
+                batch.started_at = datetime.utcnow()
+            batch.finished_at = None
+            batch.error_message = None
+            batch.latest_status_message = (
+                "Continuing the interrupted batch." if resuming else "Loading resume and job queue."
+            )
             db.add(batch)
             db.commit()
             _write_apply_top_debug(batch)
@@ -2200,14 +2250,23 @@ def _run_apply_top_batch(batch_id: str) -> None:
             resume = db.get(ResumeProfile, batch.resume_id)
             if not resume:
                 raise RuntimeError("Resume not found.")
-            jobs = list(
-                db.scalars(
-                    _apply_top_jobs_statement(resume.id, batch.search_batch_id, portal=batch.portal)
-                    .limit(batch.limit)
-                )
-                .all()
-            )
-            batch.total_count = len(jobs)
+
+            # Jobs already processed keep their results and are never revisited; the `stopped`
+            # placeholders written by the previous stop are dropped, because those jobs never
+            # ran and are about to be attempted for real.
+            done = 0
+            if resuming:
+                kept = _processed_results(batch)
+                if len(kept) != len(batch.job_results or []):
+                    _recount_apply_top(batch, kept)
+                    db.add(batch)
+                    db.commit()
+                done = len(kept)
+
+            jobs = _apply_top_remaining_jobs(db, batch, resume)
+            # The original plan's size: what was already done plus what is left to do.
+            batch.total_count = done + len(jobs)
+            batch.current_index = done
             db.add(batch)
             db.commit()
 
@@ -2223,19 +2282,22 @@ def _run_apply_top_batch(batch_id: str) -> None:
                 ),
             }
             stopped = False
-            for index, job in enumerate(jobs, start=1):
+            # `position` walks the remaining jobs; `index` is the job's place in the batch as a
+            # whole, so a resumed run continues 28, 29, 30 rather than restarting at 1.
+            for position, job in enumerate(jobs, start=1):
+                index = done + position
                 # Checkpoint 1: before starting the next job. Everything already applied for is
                 # keeping its result; this job and every job after it are recorded as stopped.
                 if token is not None and token.cancelled:
                     stopped = True
-                    _record_stopped_jobs(db, batch.id, jobs[index - 1:], index)
+                    _record_stopped_jobs(db, batch.id, jobs[position - 1:], index)
                     break
                 started = datetime.utcnow()
                 batch.current_index = index
                 batch.current_job_id = job.id
                 batch.current_title = job.title
                 batch.current_company = job.company
-                batch.latest_status_message = f"Processing {index}/{len(jobs)}: {job.title} at {job.company}"
+                batch.latest_status_message = f"Processing {index}/{batch.total_count}: {job.title} at {job.company}"
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
@@ -2257,7 +2319,7 @@ def _run_apply_top_batch(batch_id: str) -> None:
                     # not failed: no application was submitted and no history row was written.
                     logger.info("Apply Top batch %s stopped at %s", batch.id, cancelled.checkpoint)
                     stopped = True
-                    _record_stopped_jobs(db, batch.id, jobs[index - 1:], index,
+                    _record_stopped_jobs(db, batch.id, jobs[position - 1:], index,
                                          checkpoint=cancelled.checkpoint)
                     break
                 except Exception as exc:
@@ -2283,14 +2345,42 @@ def _run_apply_top_batch(batch_id: str) -> None:
             logger.exception("Apply Top batch %s failed.", batch_id)
             batch = db.get(ApplyTopBatch, batch_id)
             if batch:
-                batch.status = "failed"
+                # A batch-level failure ends this ATTEMPT, not the batch's progress. Every
+                # result already recorded stays, every job never reached is still eligible, and
+                # "failed" is a resumable state -- so a defect here costs the user a click, not
+                # their work. Only a batch with nothing left to do stops offering Continue.
+                batch.status = BATCH_STATUS_FAILED
                 batch.error_message = str(exc)
                 batch.finished_at = datetime.utcnow()
-                batch.latest_status_message = f"Batch failed: {exc}"
+                batch.current_job_id = None
+                batch.current_title = None
+                batch.current_company = None
+                batch.latest_status_message = (
+                    f"Batch stopped by an error: {exc}. Continue Automation resumes it from the "
+                    "next unprocessed job."
+                )
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
         finally:
+            # Last line of defence, and the reason it lives in `finally` rather than in another
+            # `except`: this runs however the worker leaves -- a normal end, an exception, a
+            # BaseException that no `except Exception` can see, or a bug in the handler above.
+            # A batch must never be left claiming to be running with nobody running it, because
+            # that is the one state in which the user cannot continue their own work.
+            try:
+                leftover = db.get(ApplyTopBatch, batch_id)
+                if leftover and leftover.status in ACTIVE_BATCH_STATUSES:
+                    logger.warning(
+                        "Apply batch %s ended without recording a final state; marking it "
+                        "interrupted so it stays resumable.", batch_id,
+                    )
+                    _mark_interrupted(leftover)
+                    db.add(leftover)
+                    db.commit()
+                    _write_apply_top_debug(leftover)
+            except Exception:       # noqa: BLE001 - recovery must never mask the real failure
+                logger.exception("Could not record a final state for apply batch %s.", batch_id)
             # Always release the automation slot, or every later Apply Jobs run is blocked.
             controller.finish(batch_id)
 
@@ -2398,12 +2488,11 @@ def _batch_job_status(record: ApplicationRecord) -> str:
     return str(record.status.value if hasattr(record.status, "value") else record.status)
 
 
-def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
-    batch = db.get(ApplyTopBatch, batch_id)
-    if not batch:
-        return
-    results = list(batch.job_results or [])
-    results.append(result)
+def _recount_apply_top(batch: ApplyTopBatch, results: list[dict]) -> None:
+    """Re-derive every counter from the job_results list.
+
+    One place, so appending a result and dropping the stopped placeholders on resume can never
+    disagree about what the counters mean."""
     batch.job_results = results
     batch.completed_count = len(results)
     batch.skipped_count = sum(1 for item in results if item.get("status") in {"skipped", "reached_review"})
@@ -2412,10 +2501,192 @@ def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
     # action, not an outcome of the application. It is reported on its own (stopped_count).
     batch.needs_review_count = sum(1 for item in results if item.get("status") == "needs_review")
     batch.timed_out_count = sum(1 for item in results if item.get("status") == "timed_out")
+
+
+def _append_apply_top_result(db: Session, batch_id: str, result: dict) -> None:
+    batch = db.get(ApplyTopBatch, batch_id)
+    if not batch:
+        return
+    results = list(batch.job_results or [])
+    results.append(result)
+    _recount_apply_top(batch, results)
     batch.latest_status_message = f"Completed {batch.completed_count}/{batch.total_count}: {result['title']} - {result['status']}"
     db.add(batch)
     db.commit()
     _write_apply_top_debug(batch)
+
+
+# ======================================================================================
+# Continue Automation
+#
+# Resuming re-enters the SAME batch row. No batch is created, no search is re-run, nothing is
+# re-ranked or re-allocated: _apply_top_jobs_statement is deterministic SQL over columns that
+# were persisted when the jobs were first collected (variation_index, freshness, match and
+# priority scores, id), so running it again restores the original order, the original
+# allocation and the original duplicate ownership rather than recomputing them.
+#
+# What a resume must NOT do is offer a job that has already been processed. Job status alone
+# cannot answer that: _process_application leaves a job MATCHED in dry run, so a status-only
+# filter would re-apply to every dry-run job in the batch. job_results is the authoritative
+# per-job record and is used instead.
+# ======================================================================================
+
+def _processed_results(batch: ApplyTopBatch) -> list[dict]:
+    """Results for jobs that genuinely ran. A `stopped` entry is a placeholder for a job that
+    never started, so it is not progress and must not block a later attempt."""
+    return [item for item in (batch.job_results or []) if item.get("status") != JOB_RESULT_STOPPED]
+
+
+def _processed_job_ids(batch: ApplyTopBatch) -> set[int]:
+    return {
+        item["job_id"] for item in _processed_results(batch)
+        if item.get("job_id") is not None
+    }
+
+
+def _apply_top_remaining_jobs(
+    db: Session, batch: ApplyTopBatch, resume: ResumeProfile
+) -> list[JobOpportunity]:
+    """The jobs this batch still has to process, in the batch's original order.
+
+    For a batch that has never run this is exactly today's query and today's result -- nothing
+    has been processed, so nothing is excluded and the whole limit is available."""
+    processed = _processed_job_ids(batch)
+    # The limit is the batch's budget, not a per-attempt budget: a batch of 20 that stopped
+    # after 5 has 15 left, never another 20.
+    remaining_budget = max(0, batch.limit - len(_processed_results(batch)))
+    if remaining_budget == 0:
+        return []
+    statement = _apply_top_jobs_statement(resume.id, batch.search_batch_id, portal=batch.portal)
+    if processed:
+        statement = statement.where(JobOpportunity.id.notin_(processed))
+    return list(db.scalars(statement.limit(remaining_budget)).all())
+
+
+def _resume_blocker(db: Session, batch: ApplyTopBatch) -> str | None:
+    """Why this batch cannot be continued, or None if it can.
+
+    Every validation the feature promises lives here, so the button, the endpoint and the
+    tests all agree on one definition of "resumable"."""
+    if batch.status not in RESUMABLE_BATCH_STATUSES:
+        return f"This batch is {batch.status}, not an interrupted run."
+    resume = db.get(ResumeProfile, batch.resume_id)
+    if not resume:
+        return "The resume this batch was built from no longer exists."
+    # Only the newest batch may be continued: an older interrupted batch was superseded the
+    # moment a newer one was started, and resuming it would interleave two runs.
+    newest = db.scalar(
+        select(ApplyTopBatch)
+        .where(ApplyTopBatch.resume_id == batch.resume_id)
+        .where(ApplyTopBatch.portal == batch.portal)
+        .order_by(desc(ApplyTopBatch.created_at))
+        .limit(1)
+    )
+    if newest is not None and newest.id != batch.id:
+        return "A newer apply batch has replaced this one."
+    # A new Find Matches produces a different result set, and this batch's order, allocation
+    # and duplicate ownership all belong to the old one. Continuing across that boundary would
+    # apply the old plan to new jobs, so the batch is retired instead.
+    latest_search = latest_search_batch(db, resume.id, batch.portal)
+    latest_search_id = latest_search.id if latest_search else None
+    if batch.search_batch_id != latest_search_id:
+        return "A newer job search has replaced the one this batch was built from."
+    if not _apply_top_remaining_jobs(db, batch, resume):
+        return "No eligible jobs remain in this batch."
+    return None
+
+
+def _decorate_resumability(db: Session, batch: ApplyTopBatch | None) -> ApplyTopBatch | None:
+    """Attach the resume verdict to a batch on its way out to the dashboard.
+
+    Set as plain instance attributes rather than columns: they are derived from data the batch
+    already holds, so storing them would create a second source of truth that could go stale."""
+    if batch is None:
+        return None
+    # An orphaned batch is adopted here, so the Continue button appears on the next poll rather
+    # than only after a restart.
+    batch = _reconcile_batch_state(db, batch)
+    blocker = _resume_blocker(db, batch)
+    batch.resumable = blocker is None
+    batch.resume_blocked_reason = blocker
+    resume = db.get(ResumeProfile, batch.resume_id)
+    batch.remaining_count = (
+        len(_apply_top_remaining_jobs(db, batch, resume)) if resume is not None else 0
+    )
+    return batch
+
+
+# How long a batch may sit in an active state with no worker before it is treated as orphaned.
+# It only exists to cover the microseconds between _create_apply_top_batch writing the row and
+# _claim_automation_slot claiming it, during which the controller is legitimately idle. Any
+# real worker holds the slot for its whole run, so this is never reached by a live batch.
+_ORPHAN_GRACE_SECONDS = 30
+
+
+def _mark_interrupted(batch: ApplyTopBatch) -> None:
+    """Move a batch whose worker is gone into the interrupted state.
+
+    Only the batch's own lifecycle fields change. Job results, counters, application history and
+    every job's status are untouched, which is what makes the progress recoverable."""
+    batch.status = BATCH_STATUS_INTERRUPTED
+    batch.finished_at = batch.finished_at or datetime.utcnow()
+    batch.current_job_id = None
+    batch.current_title = None
+    batch.current_company = None
+    batch.latest_status_message = (
+        "Automation was interrupted before it finished. Continue Automation resumes it "
+        "from the next unprocessed job."
+    )
+
+
+def _adopt_interrupted_batches() -> None:
+    """Mark every batch whose worker never finished as interrupted.
+
+    Runs at startup. A fresh process cannot have inherited a live worker, so anything still
+    recorded as queued, running or stopping was cut short by the application closing, a crash
+    or the machine going away -- exactly the cases Continue Automation exists for."""
+    with database.SessionLocal() as db:
+        orphans = list(
+            db.scalars(
+                select(ApplyTopBatch).where(ApplyTopBatch.status.in_(ACTIVE_BATCH_STATUSES))
+            ).all()
+        )
+        for batch in orphans:
+            _mark_interrupted(batch)
+            db.add(batch)
+        if orphans:
+            db.commit()
+            logger.info("Marked %d unfinished apply batch(es) as interrupted.", len(orphans))
+
+
+def _reconcile_batch_state(db: Session, batch: ApplyTopBatch | None) -> ApplyTopBatch | None:
+    """Adopt an orphaned batch immediately, without waiting for a restart.
+
+    Startup adoption handles a process that died. This handles the case that does NOT restart
+    the process: a worker that vanished while the application kept running -- a bug raising
+    something the batch-level `except Exception` cannot catch, a thread killed underneath us, an
+    error escaping the handler itself. Without this the batch would read as `running` for ever,
+    the Continue button would never appear, and the user's progress would be stranded behind the
+    very defect they are waiting to have fixed.
+
+    The controller is the authority: it holds the single automation slot for a worker's entire
+    run, so "no slot held for this batch" means "no worker for this batch"."""
+    if batch is None or batch.status not in ACTIVE_BATCH_STATUSES:
+        return batch
+    if get_automation_controller().active_batch_id == batch.id:
+        return batch                              # genuinely being worked right now
+    stamp = batch.updated_at or batch.created_at
+    if stamp and (datetime.utcnow() - stamp).total_seconds() < _ORPHAN_GRACE_SECONDS:
+        return batch                              # just created; the slot is about to be claimed
+    logger.warning(
+        "Apply batch %s is %s with no worker behind it; adopting it as interrupted so its "
+        "progress can be continued.", batch.id, batch.status,
+    )
+    _mark_interrupted(batch)
+    db.add(batch)
+    db.commit()
+    db.refresh(batch)
+    return batch
 
 
 def _record_stopped_jobs(

@@ -105,6 +105,20 @@ export function useStopApplyTop() {
   });
 }
 
+/** Continue an interrupted batch. Resumes the EXISTING batch id -- never starts a new one. */
+export function useResumeApplyTop() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (batchId: string) =>
+      apiRequest<ApplyTopBatch>("POST", `/applications/apply-top/${batchId}/resume`),
+    onSuccess: (batch) => {
+      queryClient.setQueryData(["apply-top-batch", batch.id], batch);
+      queryClient.invalidateQueries({ queryKey: ["apply-top-latest"] });
+      queryClient.invalidateQueries({ queryKey: ["automation-state"] });
+    },
+  });
+}
+
 /** Backend automation state, polled while something is active. */
 export function useAutomationState() {
   return useQuery({

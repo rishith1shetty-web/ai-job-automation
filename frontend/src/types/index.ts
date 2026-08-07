@@ -17,7 +17,11 @@ export type ApplicationStatus =
 // "stopping" and "stopped" come from Stop Automation: the batch is finishing its current
 // step, then ends with its summary intact. Both are terminal-ish for the UI -- "stopping"
 // still polls, "stopped" does not.
-export type BatchStatus = "queued" | "running" | "stopping" | "stopped" | "completed" | "failed";
+// "interrupted" is a batch whose worker never reached an ending -- the application or the
+// machine went away mid-run. The backend adopts it at startup; like "stopped" it is a
+// terminal state that Continue Automation can resume.
+export type BatchStatus =
+  | "queued" | "running" | "stopping" | "stopped" | "interrupted" | "completed" | "failed";
 export type ScreeningMode = "safe" | "aggressive";
 
 export interface PortalStatus {
@@ -214,6 +218,10 @@ export interface ApplyTopBatch {
   timed_out_count: number;
   /** Jobs ended by Stop Automation: the interrupted one plus every job that never started. */
   stopped_count: number;
+  /** Continue Automation. Decided by the backend per request, never stored. */
+  resumable: boolean;
+  remaining_count: number;
+  resume_blocked_reason: string | null;
   latest_status_message: string | null;
   error_message: string | null;
   debug_path: string | null;
