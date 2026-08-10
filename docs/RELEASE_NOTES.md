@@ -1,5 +1,66 @@
 # Rising Path Recruiters — release notes
 
+## 1.2.0
+
+A recovery release. **Install it over 1.1.0 or 1.0.0 — do not uninstall first.** The database
+schema is unchanged from both, so there is no migration to run and nothing to convert; every
+existing resume, matched job, application record, profile, employment-history entry, screening
+answer, portal session and stored credential is carried over untouched.
+
+**Installer SHA256**
+
+```
+PENDING_SHA256
+```
+
+### What is new
+
+- **Continue Automation.** An apply run that ends before processing every eligible job can be
+  continued from the exact job it stopped at. The button replaces Apply Jobs whenever an
+  unfinished batch exists, and returns to Apply Jobs once the batch is done.
+- **The same batch is resumed, never a new one.** No search is re-run, no job list is
+  regenerated, and nothing already processed is revisited. The original ordering, allocation,
+  duplicate ownership, priorities, counters, progress and timestamps are all preserved, because
+  they are read back from what was stored rather than recalculated.
+- **Every recoverable interruption stays resumable** — Stop Automation, a portal or browser
+  failure, a network drop, the application being closed mid-run, a machine going away, and a
+  defect in the automation itself. A batch stops being resumable only when it completes, when
+  no eligible job is left, when its resume is gone, or when a new Find Matches supersedes it.
+- **Interrupted runs are recovered without a restart.** A batch left behind by a worker that
+  vanished is adopted automatically, so the Continue button appears on the next refresh rather
+  than only after the application is restarted.
+- **Already-finished jobs keep their outcome for ever.** Applied stays applied, failed stays
+  failed, skipped stays skipped; only jobs that never ran are picked up again.
+
+### Unchanged from 1.1.0
+
+- LinkedIn and Dice automation, Easy Apply handling, screening, resume handling and status
+  mapping.
+- Stop Automation, which is extended by this release rather than replaced.
+- Dry run still starts OFF, and a resumed run keeps the mode its batch began with.
+- The top-five search roles, Find 20/50/100 behaviour, and the two-tab navigation.
+- The local PostgreSQL deployment model: database `linkedin_auto_apply`, role
+  `ai_job_automation_app`, port 5432, PostgreSQL 16 installed by hand beforehand.
+- Installation directory, Start-menu group, `AppId`, executable name and the
+  `%LOCALAPPDATA%\AIJobAutomation` data layout.
+
+### Upgrading from 1.1.0
+
+Close the application, run `RisingPathRecruiters-Setup-1.2.0.exe` as administrator, and accept
+the same installation directory. Setup detects the existing database and keeps it — it does not
+recreate the role, rotate the credential or drop anything. Nothing under
+`%LOCALAPPDATA%\AIJobAutomation` is read or written by the installer, and the uninstaller still
+removes only the program directory.
+
+### Known limitations
+
+Unchanged from 1.1.0: PostgreSQL 16 installed by hand, manual updates, no code signing,
+`localhost:5432` only, Windows x64 only.
+
+A batch that fails immediately every time will keep offering Continue Automation. That is
+deliberate — the error is shown in full each time and the user decides when to stop; there is
+no automatic retry loop.
+
 ## 1.1.0
 
 A feature and usability release. **Install it over 1.0.0 — do not uninstall first.** The

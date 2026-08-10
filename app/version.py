@@ -21,7 +21,7 @@ from __future__ import annotations
 # --------------------------------------------------------------------------------------
 
 # Semantic version of the application. Bump this ONE value for a release.
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 # Windows file-version metadata needs exactly four numeric components.
 VERSION_TUPLE = tuple(int(part) for part in VERSION.split(".")) + (0,)
