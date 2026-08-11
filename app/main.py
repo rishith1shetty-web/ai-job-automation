@@ -2,6 +2,7 @@ import json
 import logging
 import re
 import threading
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -2007,13 +2008,36 @@ def stop_apply_top_batch(batch_id: str, db: Session = Depends(get_db)) -> ApplyT
     batch = db.get(ApplyTopBatch, batch_id)
     if not batch:
         raise HTTPException(status_code=404, detail="Apply batch not found.")
-    if batch.status in {"completed", "failed", BATCH_STATUS_STOPPED}:
+
+    # RECONCILE BEFORE JUDGING. A batch whose worker has already died still reads as running,
+    # and that is exactly the state the user is looking at when they press Stop. Asking the
+    # controller first and refusing with "not the active automation run" told the user their
+    # own batch was somehow not theirs, and left the row claiming to run. Adopting it here
+    # turns that dead end into the resumable state the batch actually deserves.
+    batch = _reconcile_batch_state(db, batch, explicit=True)
+
+    if batch.status == BATCH_STATUS_INTERRUPTED:
+        # There is nothing left to stop -- the run already ended. Reported as success rather
+        # than as an error: the user asked for it to be stopped and it is stopped, and the
+        # reply carries resumable=true so Continue Automation appears.
+        return _decorate_resumability(db, batch)
+    if batch.status in {"completed", BATCH_STATUS_FAILED, BATCH_STATUS_STOPPED}:
         raise HTTPException(status_code=409, detail=f"Apply batch is already {batch.status}.")
+
     if not get_automation_controller().request_stop(batch_id):
-        # Either it is not the active batch, or a stop is already in flight. Both are fine to
-        # report as the current state rather than as an error the user must act on.
+        # Either a stop is already in flight for this batch, or no worker owns it. The second
+        # case is unreachable after the reconciliation above unless the worker died between the
+        # two statements -- so treat it the same way rather than leaving the user stuck.
         if get_automation_controller().active_batch_id != batch_id:
-            raise HTTPException(status_code=409, detail="Apply batch is not the active automation run.")
+            logger.warning(
+                "Stop requested for apply batch %s, whose worker is gone; recording it as "
+                "interrupted so it can be continued.", batch_id,
+            )
+            _mark_interrupted(batch)
+            db.add(batch)
+            db.commit()
+            db.refresh(batch)
+            return _decorate_resumability(db, batch)
     batch.status = BATCH_STATUS_STOPPING
     batch.latest_status_message = "Stopping after the current step; no further job will be submitted."
     db.add(batch)
@@ -2282,6 +2306,14 @@ def _run_apply_top_batch(batch_id: str, resuming: bool = False) -> None:
                 ),
             }
             stopped = False
+            # A portal whose browser or session has died fails EVERY job it is handed, instantly.
+            # Without a circuit breaker the batch races to the end of the queue turning each
+            # remaining job into a permanent FAILED -- consuming a hundred jobs in seconds and
+            # leaving nothing to continue. Counting consecutive failures distinguishes "this
+            # job could not be applied to" from "the portal is gone"; the run then ends with
+            # every untouched job still eligible, which is what makes it resumable.
+            consecutive_failures = 0
+            portal_lost = False
             # `position` walks the remaining jobs; `index` is the job's place in the batch as a
             # whole, so a resumed run continues 28, 29, 30 rather than restarting at 1.
             for position, job in enumerate(jobs, start=1):
@@ -2327,61 +2359,106 @@ def _run_apply_top_batch(batch_id: str, resuming: bool = False) -> None:
                     result = _apply_top_failure_result(index, job, started, exc)
                 _append_apply_top_result(db, batch.id, result)
 
+                health = result.get("portal_health", "neutral")
+                if health == "failure":
+                    consecutive_failures += 1
+                    if consecutive_failures >= CONSECUTIVE_PORTAL_FAILURE_LIMIT:
+                        # Stop consuming the queue. The jobs already attempted keep their failed
+                        # result; everything after this point is left untouched and eligible.
+                        logger.error(
+                            "Apply Top batch %s: %d consecutive failures on %s; the portal "
+                            "session looks lost. Ending the run with %d job(s) untouched so it "
+                            "can be continued.",
+                            batch.id, consecutive_failures, batch.portal, len(jobs) - position,
+                        )
+                        portal_lost = True
+                        break
+                elif health == "healthy":
+                    consecutive_failures = 0
+                # "neutral" deliberately leaves the counter alone: a skip proves nothing about
+                # the portal in either direction.
+
             batch = db.get(ApplyTopBatch, batch.id)
             if batch:
                 # A stopped batch is a finished batch with its summary intact -- completed,
                 # stopped, skipped and failed counts all survive, and so does every application
                 # that was already submitted.
-                batch.status = BATCH_STATUS_STOPPED if stopped else "completed"
+                if stopped:
+                    batch.status = BATCH_STATUS_STOPPED
+                elif portal_lost:
+                    # Not "completed": jobs remain, and the run ended because the portal did.
+                    batch.status = BATCH_STATUS_FAILED
+                else:
+                    batch.status = "completed"
                 batch.finished_at = datetime.utcnow()
                 batch.current_job_id = None
                 batch.current_title = None
                 batch.current_company = None
-                batch.latest_status_message = _apply_top_summary_message(batch, stopped=stopped)
+                if portal_lost:
+                    batch.error_message = (
+                        f"{CONSECUTIVE_PORTAL_FAILURE_LIMIT} consecutive failures; the "
+                        f"{batch.portal} session was lost."
+                    )
+                    batch.latest_status_message = (
+                        f"Automation stopped after {CONSECUTIVE_PORTAL_FAILURE_LIMIT} consecutive "
+                        f"failures -- the {batch.portal} session was lost. Continue Automation "
+                        "resumes it from the next unprocessed job."
+                    )
+                else:
+                    batch.latest_status_message = _apply_top_summary_message(batch, stopped=stopped)
                 db.add(batch)
                 db.commit()
                 _write_apply_top_debug(batch)
         except Exception as exc:
             logger.exception("Apply Top batch %s failed.", batch_id)
-            batch = db.get(ApplyTopBatch, batch_id)
-            if batch:
+            # The failure may well BE a database failure, which leaves this session refusing
+            # every further statement. Roll it back and record the outcome on a fresh session,
+            # or the batch is left claiming to run with nobody running it.
+            _safe_rollback(db)
+
+            def _mark_failed(target: ApplyTopBatch) -> bool:
                 # A batch-level failure ends this ATTEMPT, not the batch's progress. Every
                 # result already recorded stays, every job never reached is still eligible, and
                 # "failed" is a resumable state -- so a defect here costs the user a click, not
                 # their work. Only a batch with nothing left to do stops offering Continue.
-                batch.status = BATCH_STATUS_FAILED
-                batch.error_message = str(exc)
-                batch.finished_at = datetime.utcnow()
-                batch.current_job_id = None
-                batch.current_title = None
-                batch.current_company = None
-                batch.latest_status_message = (
+                target.status = BATCH_STATUS_FAILED
+                target.error_message = str(exc)
+                target.finished_at = datetime.utcnow()
+                target.current_job_id = None
+                target.current_title = None
+                target.current_company = None
+                target.latest_status_message = (
                     f"Batch stopped by an error: {exc}. Continue Automation resumes it from the "
                     "next unprocessed job."
                 )
-                db.add(batch)
-                db.commit()
-                _write_apply_top_debug(batch)
+                return True
+
+            _finalize_batch(batch_id, _mark_failed)
         finally:
             # Last line of defence, and the reason it lives in `finally` rather than in another
             # `except`: this runs however the worker leaves -- a normal end, an exception, a
             # BaseException that no `except Exception` can see, or a bug in the handler above.
             # A batch must never be left claiming to be running with nobody running it, because
             # that is the one state in which the user cannot continue their own work.
-            try:
-                leftover = db.get(ApplyTopBatch, batch_id)
-                if leftover and leftover.status in ACTIVE_BATCH_STATUSES:
-                    logger.warning(
-                        "Apply batch %s ended without recording a final state; marking it "
-                        "interrupted so it stays resumable.", batch_id,
-                    )
-                    _mark_interrupted(leftover)
-                    db.add(leftover)
-                    db.commit()
-                    _write_apply_top_debug(leftover)
-            except Exception:       # noqa: BLE001 - recovery must never mask the real failure
-                logger.exception("Could not record a final state for apply batch %s.", batch_id)
+            #
+            # Both steps deliberately avoid the worker's own session: by this point it may be
+            # unusable, and an unusable session is exactly when this matters most.
+            _safe_rollback(db)
+
+            def _adopt_if_still_active(target: ApplyTopBatch) -> bool:
+                if target.status not in ACTIVE_BATCH_STATUSES:
+                    return False
+                logger.warning(
+                    "Apply batch %s ended without recording a final state; marking it "
+                    "interrupted so it stays resumable.", batch_id,
+                )
+                _mark_interrupted(target)
+                return True
+
+            _finalize_batch(batch_id, _adopt_if_still_active)
             # Always release the automation slot, or every later Apply Jobs run is blocked.
+            # Released LAST, so the batch already carries a final state before anything else
+            # can observe the controller as idle.
             controller.finish(batch_id)
 
 
@@ -2436,6 +2513,8 @@ def _apply_top_job_result(index: int, job: JobOpportunity, record: ApplicationRe
         "title": job.title,
         "company": job.company,
         "status": status,
+        "portal_health": _portal_health(status, record.current_step, record.error_message,
+                                        record.run_log),
         "application_record_id": record.id,
         "current_step": record.current_step,
         "duration": duration,
@@ -2455,6 +2534,8 @@ def _apply_top_failure_result(index: int, job: JobOpportunity, started: datetime
         "title": job.title,
         "company": job.company,
         "status": status,
+        # The exception path is always a portal failure: nothing reached a job-level outcome.
+        "portal_health": "failure",
         "application_record_id": None,
         "current_step": status,
         "duration": duration,
@@ -2622,6 +2703,62 @@ def _decorate_resumability(db: Session, batch: ApplyTopBatch | None) -> ApplyTop
 # real worker holds the slot for its whole run, so this is never reached by a live batch.
 _ORPHAN_GRACE_SECONDS = 30
 
+# How many consecutive PORTAL failures mean "the session is gone" rather than "these jobs could
+# not be applied to". See _portal_health: the counter measures the health of the portal
+# interaction, not whether a job ended in Applied.
+CONSECUTIVE_PORTAL_FAILURE_LIMIT = 3
+
+# Outcomes that PROVE the portal was reached, loaded and interacted with. Each of these can only
+# be produced after the job page opened and its form was inspected, so they clear the counter
+# even if the run log mentions a timeout that was handled along the way.
+PORTAL_HEALTHY_RESULTS = frozenset({"applied", "reached_review", "needs_review"})
+
+# Outcomes that ARE portal failures. "timed_out" belongs here, not with the neutral outcomes: a
+# hung or dead browser produces a timeout on every job, so treating it as neutral would reset
+# the breaker at exactly the moment it is needed.
+PORTAL_FAILURE_RESULTS = frozenset({"failed", "timed_out"})
+
+# Fragments that mean the portal interaction itself did not happen or did not complete, whatever
+# the job-level status ended up being. Checked against the step, the error and the adapter's own
+# run log -- which is how a SKIP caused by a page that never opened is told apart from a skip
+# that was a legitimate data decision.
+PORTAL_FAILURE_MARKERS = (
+    "job_open_failed", "load_failed", "navigation", "net::", "err_",
+    "target closed", "target_closed", "browser_closed", "browser has been closed",
+    "page_closed", "page closed", "context_closed", "context closed",
+    "session_verification_failed", "connection refused", "crash",
+    "timeout", "timed out",
+)
+
+
+def _portal_health(status: str, current_step, error, run_log) -> str:
+    """Did this job prove the portal is working, prove it is broken, or neither?
+
+    The breaker counts consecutive PORTAL failures. Classifying by job outcome alone is wrong in
+    both directions, and both mistakes were live in the first version of this code:
+
+      * ``timed_out`` was treated as a non-failure and RESET the counter. A hung browser times
+        out on every job, so the breaker could never trip on the most common way a session dies.
+      * ``skipped`` was treated as a non-failure and RESET the counter. Dice returns SKIPPED for
+        a legitimate data decision (``URL_UNRESOLVED``, decided without opening anything) AND for
+        a job whose page failed to open and so failed its identity check. From what is persisted
+        those two are indistinguishable, so a skip must never be read as evidence of health.
+
+    Hence three answers, not two. A skip is ``neutral``: it neither clears a genuine failure
+    streak nor starts one."""
+    if status in PORTAL_HEALTHY_RESULTS:
+        return "healthy"
+    if status in PORTAL_FAILURE_RESULTS:
+        return "failure"
+    parts = [str(current_step or ""), str(error or "")]
+    for entry in run_log or []:
+        if isinstance(entry, dict):
+            parts.append(f"{entry.get('step', '')} {entry.get('status', '')} {entry.get('error', '')}")
+    blob = " ".join(parts).lower()
+    if any(marker in blob for marker in PORTAL_FAILURE_MARKERS):
+        return "failure"
+    return "neutral"
+
 
 def _mark_interrupted(batch: ApplyTopBatch) -> None:
     """Move a batch whose worker is gone into the interrupted state.
@@ -2659,7 +2796,42 @@ def _adopt_interrupted_batches() -> None:
             logger.info("Marked %d unfinished apply batch(es) as interrupted.", len(orphans))
 
 
-def _reconcile_batch_state(db: Session, batch: ApplyTopBatch | None) -> ApplyTopBatch | None:
+def _safe_rollback(db: Session) -> None:
+    """Return a session to a usable state, whatever happened to it.
+
+    A failed statement leaves a Session with an aborted transaction, and EVERY later statement
+    on it raises until it is rolled back -- including the ones whose whole job is to record that
+    something went wrong. Recovery code must never assume the session it inherited still works."""
+    try:
+        db.rollback()
+    except Exception:           # noqa: BLE001 - a session too broken to roll back is still fine
+        logger.exception("Could not roll back the worker session; continuing on a fresh one.")
+
+
+def _finalize_batch(batch_id: str, apply: Callable[[ApplyTopBatch], bool]) -> None:
+    """Record a batch's final state on a SESSION OF ITS OWN.
+
+    The worker's session may be unusable by the time this runs -- that is precisely the case
+    this exists for. Opening a fresh one means a poisoned transaction cannot stop the batch from
+    being finalised, which is what previously left a row claiming to be running for ever while
+    the controller had already released the slot.
+
+    ``apply`` mutates the batch and returns whether anything needs committing."""
+    try:
+        with database.SessionLocal() as fresh:
+            batch = fresh.get(ApplyTopBatch, batch_id)
+            if batch is None or not apply(batch):
+                return
+            fresh.add(batch)
+            fresh.commit()
+            _write_apply_top_debug(batch)
+    except Exception:           # noqa: BLE001 - recovery must never mask the real failure
+        logger.exception("Could not record a final state for apply batch %s.", batch_id)
+
+
+def _reconcile_batch_state(
+    db: Session, batch: ApplyTopBatch | None, *, explicit: bool = False
+) -> ApplyTopBatch | None:
     """Adopt an orphaned batch immediately, without waiting for a restart.
 
     Startup adoption handles a process that died. This handles the case that does NOT restart
@@ -2675,9 +2847,14 @@ def _reconcile_batch_state(db: Session, batch: ApplyTopBatch | None) -> ApplyTop
         return batch
     if get_automation_controller().active_batch_id == batch.id:
         return batch                              # genuinely being worked right now
-    stamp = batch.updated_at or batch.created_at
-    if stamp and (datetime.utcnow() - stamp).total_seconds() < _ORPHAN_GRACE_SECONDS:
-        return batch                              # just created; the slot is about to be claimed
+    # The grace window exists only for the moment between a batch row being written and the
+    # slot being claimed, where the controller is legitimately idle. It must not delay an
+    # EXPLICIT request about a batch that has demonstrably started running: the user pressing
+    # Stop should not be told to wait 30 seconds to hear that the worker is already gone.
+    if not (explicit and batch.started_at is not None):
+        stamp = batch.updated_at or batch.created_at
+        if stamp and (datetime.utcnow() - stamp).total_seconds() < _ORPHAN_GRACE_SECONDS:
+            return batch                          # just created; the slot is about to be claimed
     logger.warning(
         "Apply batch %s is %s with no worker behind it; adopting it as interrupted so its "
         "progress can be continued.", batch.id, batch.status,

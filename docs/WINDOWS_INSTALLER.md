@@ -1,6 +1,6 @@
 # Rising Path Recruiters — Windows installation guide
 
-Version 1.1.0
+Version 1.2.0
 
 This is the complete, supported process for installing, upgrading, running and removing
 Rising Path Recruiters on Windows.
@@ -107,13 +107,13 @@ The setup file is not code-signed yet, so Windows SmartScreen will warn you the 
 you run it. Check the checksum before you do.
 
 ```powershell
-Get-FileHash .\RisingPathRecruiters-Setup-1.1.0.exe -Algorithm SHA256
+Get-FileHash .\RisingPathRecruiters-Setup-1.2.0.exe -Algorithm SHA256
 ```
 
-Expected for version 1.1.0:
+Expected for version 1.2.0:
 
 ```
-5E5A6A8CE9191A1E59F610CB994B2F69EB30AAC1042918DB48FC5F2D4D7DD889
+D1F650B396B6C888D7600E0563D272AE78B6AFAFECBB2AC8CDE9FCCFD41DDA88
 ```
 
 `SHA256.txt` in the release folder carries the same value. **If it does not match, do not run
@@ -126,7 +126,7 @@ At the SmartScreen prompt choose **More info → Run anyway**. See
 
 ## 4. Fresh installation
 
-1. Right-click `RisingPathRecruiters-Setup-1.1.0.exe` and choose **Run as administrator**.
+1. Right-click `RisingPathRecruiters-Setup-1.2.0.exe` and choose **Run as administrator**.
 
 2. **Setup checks PostgreSQL before it installs anything.** It verifies, in order, that a
    PostgreSQL 16 (or newer) installation is registered, that its Windows service is running,
@@ -493,7 +493,7 @@ and nowhere else.
 powershell -ExecutionPolicy Bypass -File .\scripts\test_packaged_build.ps1 -DatabaseUrl "<url>"
 
 # The installer and runtime, on a separate clean computer, one stage at a time.
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_clean_machine.ps1 -Stage preflight -Installer .\RisingPathRecruiters-Setup-1.1.0.exe
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_clean_machine.ps1 -Stage preflight -Installer .\RisingPathRecruiters-Setup-1.2.0.exe
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_clean_machine.ps1 -Stage install-verify
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_clean_machine.ps1 -Stage runtime
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_clean_machine.ps1 -Stage postuninstall
