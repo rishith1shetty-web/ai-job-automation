@@ -113,7 +113,7 @@ Get-FileHash .\RisingPathRecruiters-Setup-1.2.0.exe -Algorithm SHA256
 Expected for version 1.2.0:
 
 ```
-PENDING_SHA256
+D1F650B396B6C888D7600E0563D272AE78B6AFAFECBB2AC8CDE9FCCFD41DDA88
 ```
 
 `SHA256.txt` in the release folder carries the same value. **If it does not match, do not run

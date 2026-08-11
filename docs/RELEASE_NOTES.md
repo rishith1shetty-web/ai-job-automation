@@ -10,7 +10,7 @@ answer, portal session and stored credential is carried over untouched.
 **Installer SHA256**
 
 ```
-PENDING_SHA256
+D1F650B396B6C888D7600E0563D272AE78B6AFAFECBB2AC8CDE9FCCFD41DDA88
 ```
 
 ### What is new
