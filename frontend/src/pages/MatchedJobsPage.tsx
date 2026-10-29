@@ -310,7 +310,15 @@ export function MatchedJobsPage() {
   }, [liveBatch?.status, queryClient]);
 
   const selectedJob = jobs.find((j) => jobRadioLabel(j) === selectedLabel) ?? null;
-  const searchDisabled = resume == null || startSearch.isPending;
+  // Every backend start resets the session to active_portal: null, and runSearch needs a portal,
+  // so the buttons must not look clickable until one is chosen (they used to do nothing at all).
+  const searchDisabled = resume == null || portal == null || startSearch.isPending;
+  const searchBlockedReason =
+    portalStatus && portal == null
+      ? "No portal is active. Choose LinkedIn or Dice in the sidebar and connect it, then use Find Matches."
+      : resume === null
+        ? "No analyzed resume yet. Upload and analyze a resume before using Find Matches."
+        : null;
   // A second Apply Jobs batch cannot start while one is running or stopping. The backend
   // refuses it with 409 regardless; disabling the buttons just stops the user from trying.
   const automationBusy =
@@ -483,6 +491,7 @@ export function MatchedJobsPage() {
           </div>
         </div>
       </div>
+      {searchBlockedReason && <Alert variant="warn">{searchBlockedReason}</Alert>}
       {startSearch.isPending && (
         <Alert variant="info">
           <Loader2 className="mr-1 inline size-4 animate-spin" /> Starting background search…

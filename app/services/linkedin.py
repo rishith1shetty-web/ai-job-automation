@@ -22,6 +22,7 @@ from app.services.find_matches import per_variation_limits
 from app.services.posting_time import extract_posted_phrase
 from app.services.reasoning import AIReasoningEngine
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
+from app.services.seniority_filter import senior_level_reason
 
 logger = logging.getLogger(__name__)
 
@@ -185,9 +186,13 @@ class LinkedInAutomation:
                 "ul.jobs-search__results-list li, .jobs-search-results__list-item"
             )
             cards = page.locator(card_selector)
-            count = min(cards.count(), limit)
+            count = cards.count()
             job_urls: list[str] = []
+            senior_skipped = 0
             for index in range(count):
+                # A skipped senior-level card does not use a slot of the limit.
+                if index >= limit + senior_skipped:
+                    break
                 try:
                     cards = page.locator(card_selector)
                     if index >= cards.count():
@@ -200,6 +205,9 @@ class LinkedInAutomation:
                         continue
                     href = links.first.get_attribute("href")
                     if href:
+                        if self._card_is_senior_level(links.first):
+                            senior_skipped += 1
+                            continue
                         job_url = urljoin("https://www.linkedin.com", href).split("?")[0]
                         if collect_card_diagnostics:
                             linkedin_job_id = self._linkedin_job_id(job_url, card)
@@ -224,6 +232,8 @@ class LinkedInAutomation:
                             page.wait_for_timeout(1500)
                 except Exception as exc:
                     logger.warning("Skipping LinkedIn result link %s: %s", index, exc)
+            if senior_skipped:
+                logger.info("LinkedIn search %r: skipped %d senior-level job cards.", query, senior_skipped)
 
             for job_url in list(dict.fromkeys(job_urls))[:limit]:
                 try:
@@ -437,9 +447,15 @@ class LinkedInAutomation:
             "ul.jobs-search__results-list li, .jobs-search-results__list-item"
         )
         cards = page.locator(card_selector)
-        count = min(cards.count(), limit)
+        count = cards.count()
         job_urls: list[str] = []
+        senior_skipped = 0
         for index in range(count):
+            # A skipped senior-level card does not use a slot of the limit, so the next card on
+            # the page is inspected in its place. With no senior cards this is exactly the
+            # previous "first `limit` cards" scan.
+            if index >= limit + senior_skipped:
+                break
             try:
                 cards = page.locator(card_selector)
                 if index >= cards.count():
@@ -452,6 +468,9 @@ class LinkedInAutomation:
                     continue
                 href = links.first.get_attribute("href")
                 if href:
+                    if self._card_is_senior_level(links.first):
+                        senior_skipped += 1
+                        continue
                     job_url = urljoin("https://www.linkedin.com", href).split("?")[0]
                     if collect_card_diagnostics:
                         linkedin_job_id = self._linkedin_job_id(job_url, card)
@@ -476,6 +495,8 @@ class LinkedInAutomation:
                         page.wait_for_timeout(500)
             except Exception as exc:
                 logger.warning("Skipping LinkedIn result link %s: %s", index, exc)
+        if senior_skipped:
+            logger.info("LinkedIn search %r: skipped %d senior-level job cards.", query, senior_skipped)
 
         for job_url in list(dict.fromkeys(job_urls))[:limit]:
             try:
@@ -1778,6 +1799,17 @@ class LinkedInAutomation:
             "current_url": page.url,
             "captured_at": datetime.utcnow().isoformat(),
         }
+
+    def _card_is_senior_level(self, link) -> bool:
+        """True when a search-result card's job link names a senior-level title. The card's
+        /jobs/view/ link carries the job title (aria-label, else its visible text). An
+        unreadable title is NOT treated as senior: the job is opened as before, and the shared
+        Find Matches gate still checks the title read from its details page."""
+        try:
+            title = link.get_attribute("aria-label", timeout=2000) or link.inner_text(timeout=2000)
+        except Exception:
+            return False
+        return senior_level_reason(title) is not None
 
     def _linkedin_job_id(self, job_url: str, card=None) -> str:
         if card is not None:

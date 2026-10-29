@@ -57,6 +57,7 @@ from app.schemas import (
 from app.services.linkedin import AutomationResult, LinkedInAutomation
 from app.services.find_matches import FindMatchesEngine
 from app.services.role_selection import MAX_SEARCH_ROLES
+from app.services.seniority_filter import senior_level_job_reason
 from app.services.application_outcome import (
     DRY_RUN_COMPLETE_STEPS,
     SUCCESS_APPLICATION_STATUSES,
@@ -1557,6 +1558,24 @@ def _search_jobs_sync(
                             "company": raw.get("company"),
                             "job_url": raw.get("job_url"),
                             "reason": "Not Easy Apply / external application",
+                            "search_query_used": variation.query,
+                            "search_role": variation.search_role,
+                            "role_priority": variation.role_priority,
+                        }
+                    )
+                    continue
+                # Senior-level roles (Senior, Lead, Principal, Staff, Architect, engineering
+                # management, executives) never enter the batch, for every portal and domain.
+                # Rejected BEFORE the weighted allocation below, so they never consume a slot of
+                # the requested total, and -- like a non-Easy-Apply job -- not marked seen.
+                senior_reason = senior_level_job_reason(raw)
+                if senior_reason:
+                    ineligible_jobs.append(
+                        {
+                            "title": raw.get("title"),
+                            "company": raw.get("company"),
+                            "job_url": raw.get("job_url"),
+                            "reason": f"Senior-level role excluded ({senior_reason})",
                             "search_query_used": variation.query,
                             "search_role": variation.search_role,
                             "role_priority": variation.role_priority,

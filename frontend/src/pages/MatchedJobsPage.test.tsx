@@ -286,6 +286,81 @@ describe("MatchedJobsPage search keyword parity", () => {
   });
 });
 
+describe("MatchedJobsPage Find Matches buttons", () => {
+  async function renderReady() {
+    const view = renderWithProviders(<MatchedJobsPage />);
+    await waitFor(() => {
+      expect(view.queryClient.getQueryData(["resume", "latest"])).toBeTruthy();
+      expect(view.queryClient.getQueryData(["portal", "active"])).toBeTruthy();
+    });
+    return view;
+  }
+
+  function captureSearchBodies() {
+    const bodies: Record<string, unknown>[] = [];
+    server.use(
+      http.post(`${BASE}/jobs/search`, async ({ request }) => {
+        bodies.push((await request.json()) as Record<string, unknown>);
+        return HttpResponse.json({ id: `b${bodies.length}`, status: "queued" });
+      }),
+    );
+    return bodies;
+  }
+
+  it("sends the requested limit for Find 20, Find 50, Find 100 and Find custom", async () => {
+    const bodies = captureSearchBodies();
+    await renderReady();
+
+    for (const [name, limit] of [["Find 20", 20], ["Find 50", 50], ["Find 100", 100]] as const) {
+      await userEvent.click(screen.getByRole("button", { name }));
+      await waitFor(() => expect(bodies.at(-1)?.limit).toBe(limit));
+      await waitFor(() => expect(screen.getByRole("button", { name })).toBeEnabled());
+    }
+
+    const custom = screen.getByRole("spinbutton");
+    await userEvent.clear(custom);
+    await userEvent.type(custom, "35");
+    await userEvent.click(screen.getByRole("button", { name: "Find custom" }));
+    await waitFor(() => expect(bodies.at(-1)?.limit).toBe(35));
+    expect(bodies.map((b) => b.portal)).toEqual(["linkedin", "linkedin", "linkedin", "linkedin"]);
+  });
+
+  it("does not look clickable when no portal is active, and says what to do", async () => {
+    // Every backend start resets the session to active_portal: null. The buttons used to stay
+    // enabled and silently do nothing; they must be disabled with a visible explanation.
+    const bodies = captureSearchBodies();
+    server.use(
+      http.get(`${BASE}/portal/active`, () =>
+        HttpResponse.json({ active_portal: null, linkedin_connected: false, dice_connected: false }),
+      ),
+    );
+    await renderReady();
+
+    for (const name of ["Find 20", "Find 50", "Find 100", "Find custom"]) {
+      expect(screen.getByRole("button", { name })).toBeDisabled();
+    }
+    expect(screen.getByText(/Choose LinkedIn or Dice in the sidebar/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Find 20" }));
+    expect(bodies).toEqual([]);
+  });
+
+  it("shows the backend's reason when the search request is refused", async () => {
+    server.use(
+      http.post(`${BASE}/jobs/search`, () =>
+        HttpResponse.json(
+          { detail: "Dice is the active search portal, but the saved Dice session is missing or not verified." },
+          { status: 409 },
+        ),
+      ),
+    );
+    await renderReady();
+
+    await userEvent.click(screen.getByRole("button", { name: "Find 20" }));
+    expect(await screen.findByText(/saved Dice session is missing or not verified/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Find 20" })).toBeEnabled();
+  });
+});
+
 describe("MatchedJobsPage CSV export parity", () => {
   it("exports matched_jobs.csv with the Streamlit column order", async () => {
     let csv = "";

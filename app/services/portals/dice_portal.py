@@ -23,6 +23,7 @@ from app.services.browser_focus import focus_browser_window
 from app.services.linkedin import AutomationResult
 from app.services.posting_time import parse_posted_text
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
+from app.services.seniority_filter import senior_level_job_reason
 
 
 class DicePortalAdapter:
@@ -520,7 +521,7 @@ class DicePortalAdapter:
             "extraction_path": None,
         }
 
-        fresh_eligible = [job for job in fresh_jobs if job.get("easy_apply")]
+        fresh_eligible = [job for job in fresh_jobs if self._counts_toward_quota(job)]
         diag["fresh_eligible_before_fallback"] = len(fresh_eligible)
 
         # A login/challenge blocker is session-fatal, so the fallback cannot help -- but anything
@@ -550,14 +551,14 @@ class DicePortalAdapter:
             )
             diag["cards_inspected_fallback_pass"] = fallback_cards
             diag["fallback_cards_collected"] = len(fallback_jobs)
-            diag["fallback_eligible"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
+            diag["fallback_eligible"] = sum(1 for job in fallback_jobs if self._counts_toward_quota(job))
             diag["fallback_posted_filter_cleared"] = filter_cleared
             diag["final_browser_url"] = self._safe_page_url(page)
 
         # --- Bounded same-role alias retry: only when the generated title produced nothing at
         # all across both passes. Uses the variation's own registered synonyms (never a new or
         # unrelated role) and stops at the first alias that returns anything. ---
-        if not fresh_eligible and not any(job.get("easy_apply") for job in fallback_jobs):
+        if not fresh_eligible and not any(self._counts_toward_quota(job) for job in fallback_jobs):
             alias_jobs, aliases_tried = self._run_alias_passes(
                 page, variation, limit, scan_limit, debug_dir, search_index
             )
@@ -565,7 +566,7 @@ class DicePortalAdapter:
             if alias_jobs:
                 fallback_jobs = list(fallback_jobs) + alias_jobs
                 diag["fallback_cards_collected"] = len(fallback_jobs)
-                diag["fallback_eligible"] = sum(1 for job in fallback_jobs if job.get("easy_apply"))
+                diag["fallback_eligible"] = sum(1 for job in fallback_jobs if self._counts_toward_quota(job))
                 diag["final_browser_url"] = self._safe_page_url(page)
 
         # --- Merge on canonical Dice identity; the fresh copy owns any duplicate. ---
@@ -793,7 +794,7 @@ class DicePortalAdapter:
             )
             if blocker in {"load_failed", self.NO_RESULTS_BLOCKER}:
                 continue
-            if any(job.get("easy_apply") for job in jobs):
+            if any(self._counts_toward_quota(job) for job in jobs):
                 collected = jobs
                 break
         return collected, tried
@@ -906,17 +907,35 @@ class DicePortalAdapter:
             return True, "native_badge_text"
         return False, "no_easy_apply_signal"
 
+    def _counts_toward_quota(self, job: dict) -> bool:
+        """A job that may fill a variation's share: native Easy Apply AND not senior-level.
+        Every early-stop and pass decision counts with this, so senior cards never stand in
+        for the eligible jobs the bounded scan is still looking for."""
+        return bool(job.get("easy_apply")) and senior_level_job_reason(job) is None
+
     def _filter_easy_apply_only(
         self, jobs: list[dict], debug_dir: Path | None, search_index: int
     ) -> list[dict]:
         """Find Matches returns ONLY native Dice Easy Apply jobs, mirroring
         LinkedIn's Easy Apply-only search. External/plain-Apply jobs are dropped
-        here so ranking and Apply Top N never operate on them."""
+        here so ranking and Apply Top N never operate on them. Senior-level roles
+        are dropped here too, before the caller takes this variation's share."""
         kept: list[dict] = []
         excluded: list[dict] = []
+        senior_excluded: list[dict] = []
         for job in jobs:
             meta = job.get("job_description_metadata") or {}
-            if job.get("easy_apply"):
+            senior_reason = senior_level_job_reason(job) if job.get("easy_apply") else None
+            if senior_reason:
+                senior_excluded.append(
+                    {
+                        "title": job.get("title"),
+                        "company": job.get("company"),
+                        "job_url": job.get("job_url"),
+                        "reason": f"senior_level_role: {senior_reason}",
+                    }
+                )
+            elif job.get("easy_apply"):
                 kept.append(job)
             else:
                 excluded.append(
@@ -938,6 +957,8 @@ class DicePortalAdapter:
                     "easy_apply_kept": len(kept),
                     "external_or_apply_filtered": len(excluded),
                     "excluded_jobs": excluded,
+                    "senior_level_filtered": len(senior_excluded),
+                    "senior_level_excluded_jobs": senior_excluded,
                 },
             )
         return kept
@@ -1276,6 +1297,9 @@ class DicePortalAdapter:
                 parsed += 1
                 if job.get("easy_apply"):
                     easy_apply += 1
+                # A senior-level Easy Apply card is parsed but does not count toward the
+                # target, so scanning continues to find a replacement within the scan budget.
+                if self._counts_toward_quota(job):
                     eligible += 1
                 real_job_detail_url += 1
                 # Stop as soon as this query has produced enough eligible (Easy Apply) jobs to
