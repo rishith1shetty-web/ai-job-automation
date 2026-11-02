@@ -50,3 +50,6 @@ phase6-*.log
 .pgpass
 
 .vscode/
+
+# Local assistant instructions. Kept on this computer, never published.
+CLAUDE.md

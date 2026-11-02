@@ -1,5 +1,69 @@
 # Rising Path Recruiters — release notes
 
+## 1.3.0
+
+A matching-quality release. **Install it over 1.2.0 — do not uninstall first.** The database
+schema is unchanged from 1.2.0, so there is no migration to run and nothing to convert; every
+existing resume, matched job, application record, profile, employment-history entry, screening
+answer, portal session and stored credential is carried over untouched.
+
+**Installer SHA256**
+
+```
+84A5F6DE0D01105A6BE1CCBFDA9E9EE83E0FD3164AD50BA9432B7AFF0C70F4A5
+```
+
+### What is new
+
+- **Senior-level roles are excluded from Find Matches**, for LinkedIn and Dice and in every
+  domain. Senior, Sr., Lead, Principal, Staff (on a technical ladder), Architect, engineering
+  management and executive titles are left out; junior, entry-level, associate and ordinary
+  individual-contributor roles are kept. The decision is made from the job title — a
+  description that merely mentions senior colleagues or leadership never excludes a job.
+  Excluded jobs are rejected before the requested total is shared out, so they never take a
+  place in Find 20, 50 or 100.
+- **Dice jobs need a Dice Job Match Score of 60% or higher.** Find Matches reads the genuine
+  score from each Dice job's own page and returns a Dice job only when that score is verified at
+  60% or above. A missing, still-loading or unreadable score never qualifies. The search reads
+  further Dice results when too few jobs qualify, opening at most 150 job pages per run; when
+  fewer jobs than requested qualify, the finished search says how many were found, how many
+  were requested and whether the 150-page limit was reached. The verified score is saved with
+  each job. LinkedIn jobs have no Dice score and are not affected.
+- **Find Matches progress is visible while Dice scores are read**, with the number of job pages
+  inspected and jobs qualifying so far.
+- **The Find buttons explain themselves when no portal is active.** After the application
+  starts, no portal is active until one is chosen and connected in the sidebar; Find 20, 50, 100
+  and Find custom are now disabled with a message saying so, instead of appearing to do
+  nothing.
+
+### Unchanged from 1.2.0
+
+- Easy Apply eligibility, ranking and freshness, duplicate handling, the already-applied
+  exclusion, Continue Automation and Stop Automation.
+- LinkedIn and Dice connection, search, screening, resume handling and status mapping, apart
+  from the Find Matches filters above.
+- The local PostgreSQL deployment model: database `linkedin_auto_apply`, role
+  `ai_job_automation_app`, port 5432, PostgreSQL 16 installed by hand beforehand.
+- Installation directory, Start-menu group, `AppId`, executable name and the
+  `%LOCALAPPDATA%\AIJobAutomation` data layout.
+
+### Upgrading from 1.2.0
+
+Close the application, run `RisingPathRecruiters-Setup-1.3.0.exe` as administrator, and accept
+the same installation directory. Setup detects the existing database and keeps it — it does not
+recreate the role, rotate the credential or drop anything. Nothing under
+`%LOCALAPPDATA%\AIJobAutomation` is read or written by the installer, and the uninstaller still
+removes only the program directory.
+
+### Known limitations
+
+Unchanged from 1.2.0: PostgreSQL 16 installed by hand, manual updates, no code signing,
+`localhost:5432` only, Windows x64 only.
+
+The Dice score check opens each candidate job's page, so a Dice search can take several
+minutes longer, and Find 50 or Find 100 will often stop at the 150-page limit with fewer jobs
+than requested. The score is Dice's own, calculated from the Dice account's Ideal Job profile.
+
 ## 1.2.0
 
 A recovery release. **Install it over 1.1.0 or 1.0.0 — do not uninstall first.** The database
