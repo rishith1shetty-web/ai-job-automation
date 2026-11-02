@@ -1,14 +1,28 @@
-# Rising Path Recruiters
+# JobApply Automation
 
-Resume-driven job search and application automation for LinkedIn and Dice, built as a local
-full-stack application with FastAPI, React, PostgreSQL and Playwright.
+**LinkedIn & Dice Job Search and Easy Apply Automation**
+
+A local full-stack application that searches LinkedIn and Dice for jobs that fit a candidate's
+resume and completes Easy Apply applications in a real browser session. Built with FastAPI,
+React, PostgreSQL and Playwright.
 
 ## Project Overview
 
-Rising Path Recruiters takes a candidate's resume, works out which roles it supports, searches
+JobApply Automation takes a candidate's resume, works out which roles it supports, searches
 LinkedIn and Dice for matching Easy Apply jobs, filters and ranks the results, and fills in the
 application forms in a real browser session. Every search, match and application attempt is
 stored in PostgreSQL, so the application history survives restarts and upgrades.
+
+The main capabilities are:
+
+- **Resume-based job matching:** target roles are derived from the resume, and every job is
+  scored against it.
+- **Seniority filtering:** senior, lead, principal, staff, architect, engineering-management and
+  executive roles are excluded from the results.
+- **Dice Job Match Score filtering:** Dice jobs are returned only when Dice's own match score
+  for the job is verified at 60% or higher.
+- **Easy Apply automation:** application forms, screening questions and the resume upload are
+  completed automatically, with a dry-run mode that stops before the final submit.
 
 The application runs entirely on the user's Windows computer. The backend listens on
 `127.0.0.1` only, portal sessions and resumes stay in local storage, and the database credential
@@ -26,6 +40,21 @@ A few rules shape the design:
 
 ## Key Features
 
+**LinkedIn and Dice integration**
+
+Each portal is a separate adapter that drives a Playwright-controlled Chromium browser. Only one
+portal is active at a time.
+
+- **Sign-in:** a browser window opens and the user signs in to the portal themselves. The
+  application saves the resulting browser session locally and reuses it; it never stores
+  portal passwords.
+- **LinkedIn:** searches with LinkedIn's Easy Apply filter, opens each job page to confirm the
+  Easy Apply button is present, and completes the multi-step Easy Apply form.
+- **Dice:** searches with Dice's Easy Apply filter and its last-24-hours posting filter, and
+  identifies each job by its canonical job-detail URL. It reads the Dice Job Match Score from the
+  job page, checks before applying that the page is the expected job, and completes Dice's
+  application wizard.
+
 **Resume analysis**
 
 - Parses PDF, DOCX and plain-text resumes.
@@ -36,7 +65,7 @@ A few rules shape the design:
 
 **Job search (Find Matches)**
 
-- Searches LinkedIn and Dice for Easy Apply jobs. One portal is active at a time.
+- Searches LinkedIn and Dice for Easy Apply jobs.
 - Find 20, Find 50, Find 100 or a custom count (up to 100). Every preset searches the same
   top-five roles; the preset changes only how many jobs are returned.
 - On Dice, jobs posted in the last 24 hours are searched first, with a relevance search as a
@@ -111,6 +140,11 @@ A Streamlit dashboard (`dashboard.py`) is kept as an optional fallback interface
 
 The installer bundles the backend, the built React interface and Chromium, so the target
 computer needs no Python, Node.js or browser download.
+
+The Windows application still uses its original internal name, so the installer, executable,
+Start-menu entry and installation folder appear as "Rising Path Recruiters": for example
+`RisingPathRecruiters-Setup-<version>.exe`, `RisingPathRecruiters.exe` and
+`C:\Program Files\Rising Path Recruiters`.
 
 1. Install **PostgreSQL 16 for Windows x86-64** first, keeping the default port `5432`, and note
    the `postgres` administrator password you choose.
