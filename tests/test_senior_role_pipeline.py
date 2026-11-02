@@ -20,6 +20,7 @@ from app.main import _create_search_batch, _run_find_matches_batch, set_active_p
 from app.models import JobOpportunity, JobSearchBatch, ResumeProfile
 from app.schemas import SearchRequest
 from app.services.find_matches import per_variation_limits
+from app.services.portals.dice_portal import DiceMatchScoreRun
 from app.services.seniority_filter import senior_level_reason
 
 SENIOR_TITLES = ("Senior DevOps Engineer", "Lead Cloud Engineer", "Principal Platform Engineer",
@@ -63,17 +64,25 @@ class FakeMixedLinkedIn:
 
 
 class FakeMixedDice:
+    """Like the real adapter, every job it returns carries a verified Dice Job Match Score."""
+
+    def __init__(self) -> None:
+        self.last_match_score_run = DiceMatchScoreRun(minimum=60, cap=150)
+
     def is_connected(self) -> bool:
         return True
 
-    def search_jobs_many(self, _resume, variations, limit_per_query, progress_callback=None, global_target=None):
+    def search_jobs_many(self, _resume, variations, limit_per_query, progress_callback=None, global_target=None,
+                         **_kwargs):
         variations = list(variations)
         limits = per_variation_limits(limit_per_query, len(variations))
-        return [
-            (variation, _mixed_jobs(index + 1, limits[index],
-                                    "https://www.dice.com/job-detail/00000000-0000-4000-8000-"))
-            for index, variation in enumerate(variations)
-        ]
+        results = []
+        for index, variation in enumerate(variations):
+            jobs = _mixed_jobs(index + 1, limits[index], "https://www.dice.com/job-detail/00000000-0000-4000-8000-")
+            for job in jobs:
+                job["job_description_metadata"] = {"dice_match_score": 75, "dice_match_score_status": "verified"}
+            results.append((variation, jobs))
+        return results
 
 
 class FakeDuplicateLinkedIn:

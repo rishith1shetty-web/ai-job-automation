@@ -235,8 +235,10 @@ export function SearchBatchBar() {
       {showStatusCard && effective && <SearchBatchStatusCard batch={effective} />}
       {shortfall && effective && (
         <Alert variant="warn">
-          Found {effective.jobs_collected} jobs out of requested {effective.requested_limit} based on current
-          results.
+          {/* The backend's completion message carries the counts plus why the search stopped
+              (e.g. the Dice Job Match Score page cap); the fixed text is only a fallback. */}
+          {effective.latest_status_message ||
+            `Found ${effective.jobs_collected} jobs out of requested ${effective.requested_limit} based on current results.`}
         </Alert>
       )}
     </section>

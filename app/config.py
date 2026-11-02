@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     max_applications_per_run: int = 100
     find_matches_default_limit: int = 100
     find_matches_max_results: int = 100
+    # Dice-only Find Matches quality gate: a Dice job is returned only when the genuine Dice Job
+    # Match Score on its job-detail page is verified at or above this percentage. The score is
+    # read from Dice, never estimated; other portals have no such score and are unaffected.
+    dice_min_match_score: int = 60
+    # Upper bound on Dice job-detail pages opened to read that score in ONE Find Matches run.
+    dice_match_score_max_pages: int = 150
     # Dry run starts OFF: an apply run that does not say what it wants performs a NORMAL live
     # application, the behaviour the user asked for by default. Only the DEFAULT changed -- the
     # toggle keeps its name and meaning (ON = dry run, final submission blocked), and an explicit

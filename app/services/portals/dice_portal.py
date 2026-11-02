@@ -5,8 +5,9 @@ import json
 import re
 import time
 import traceback
+from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus, urljoin
@@ -17,13 +18,95 @@ from playwright.sync_api import sync_playwright
 from app.config import Settings
 from app.models import ApplicationStatus, CandidateProfile, JobOpportunity, ResumeProfile
 from app.services.automation_control import CancellationToken, check_cancelled
-from app.services.find_matches import SearchVariation, per_variation_limits
+from app.services.find_matches import FindMatchesEngine, SearchVariation, per_variation_limits
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.browser_focus import focus_browser_window
 from app.services.linkedin import AutomationResult
 from app.services.posting_time import parse_posted_text
 from app.services.screening_engine import ScreeningAnswerEngine, ScreeningQuestion
 from app.services.seniority_filter import senior_level_job_reason
+
+# --- Dice Job Match Score -----------------------------------------------------------------
+# Dice shows a per-account "Dice Job Match Score" in a "Fitment" card on each job-detail page:
+#   "Your Dice Job Match score is 18%. Here's where it meets based on your Ideal Job."
+# The card loads after the page ("Crunching numbers..." first), and the search-results page
+# carries the score only for the one job open in its side panel -- so every candidate's
+# detail page has to be opened. Only a whole number 0-100 read from that sentence is a
+# verified score; anything else never qualifies.
+DICE_MATCH_SCORE_RE = re.compile(r"Your Dice Job Match score is\s*([^\s%]*)\s*%", re.IGNORECASE)
+DICE_MATCH_SCORE_PENDING_TEXT = "crunching numbers"
+DICE_MATCH_SCORE_CARD_TEXT = "dice job match score"
+MATCH_SCORE_VERIFIED = "verified"
+MATCH_SCORE_INVALID = "invalid_score"
+MATCH_SCORE_PENDING = "score_pending"
+MATCH_SCORE_UNREADABLE = "score_unreadable"
+MATCH_SCORE_NOT_SHOWN = "score_not_shown"
+MATCH_SCORE_NO_URL = "no_job_detail_url"
+MATCH_SCORE_LOAD_FAILED = "page_load_failed"
+MATCH_SCORE_BLOCKED = "session_blocked"
+
+
+def parse_dice_match_score(text: str | None) -> tuple[int | None, str]:
+    """(score, status) from a Dice job-detail page's visible text. The score is an int only
+    when the status is MATCH_SCORE_VERIFIED."""
+    body = str(text or "")
+    match = DICE_MATCH_SCORE_RE.search(body)
+    if match:
+        value = match.group(1)
+        if value.isdigit() and 0 <= int(value) <= 100:
+            return int(value), MATCH_SCORE_VERIFIED
+        return None, MATCH_SCORE_INVALID
+    lowered = body.lower()
+    if DICE_MATCH_SCORE_PENDING_TEXT in lowered:
+        return None, MATCH_SCORE_PENDING
+    if DICE_MATCH_SCORE_CARD_TEXT in lowered:
+        return None, MATCH_SCORE_UNREADABLE
+    return None, MATCH_SCORE_NOT_SHOWN
+
+
+def dice_match_score_rejection(job: dict, minimum: int) -> str | None:
+    """Why a Dice job may not enter Find Matches, or None when its saved score qualifies.
+    A missing, pending, invalid or unverified score never qualifies."""
+    metadata = job.get("job_description_metadata") or {}
+    score = metadata.get("dice_match_score")
+    status = metadata.get("dice_match_score_status") or "not_retrieved"
+    if status != MATCH_SCORE_VERIFIED or isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 100:
+        return f"Dice Job Match Score not verified ({status})"
+    if score < minimum:
+        return f"Dice Job Match Score {score}% is below the {minimum}% minimum"
+    return None
+
+
+@dataclass
+class DiceMatchScoreRun:
+    """State shared by every variation of ONE Find Matches run: the page cap, the scores
+    already read (so no job page is opened twice), and the jobs that already qualified."""
+
+    minimum: int
+    cap: int
+    exclude_job: Callable[[dict], bool] | None = None
+    report: Callable[[str], None] | None = None
+    total_variations: int = 0
+    pages_inspected: int = 0
+    blocked: bool = False
+    # identity -> (score, status, checked_at): each job page is read at most once per run.
+    scores: dict[str, tuple[int | None, str, str]] = field(default_factory=dict)
+    qualified_ids: set[str] = field(default_factory=set)
+    tab: object | None = None
+
+    @property
+    def cap_reached(self) -> bool:
+        return self.pages_inspected >= self.cap
+
+    def summary(self) -> dict:
+        return {
+            "minimum": self.minimum,
+            "cap": self.cap,
+            "pages_inspected": self.pages_inspected,
+            "cap_reached": self.cap_reached,
+            "qualified": len(self.qualified_ids),
+            "session_blocked": self.blocked,
+        }
 
 
 class DicePortalAdapter:
@@ -104,6 +187,13 @@ class DicePortalAdapter:
     # no infinite scroll, capped pages, capped card inspection, and a wall-clock timeout.
     FRESH_MAX_PAGES = 3
     FRESH_MAX_CARDS = 90
+    # Dice Job Match Score retrieval. How long one job page may show "Crunching numbers..."
+    # before its score counts as unverified, and how many further relevance-result pages one
+    # variation may read when too few of its candidates qualify. The per-run job-page cap is
+    # settings.dice_match_score_max_pages.
+    MATCH_SCORE_WAIT_SECONDS = 12
+    MATCH_SCORE_POLL_MS = 500
+    MATCH_SCORE_MAX_EXTRA_PAGES = 5
     FRESH_PASS_TIMEOUT_MS = 45000
     # Dice's confirmed last-24h recency facet value ("Today" radio == last 24 hours).
     DICE_POSTED_WITHIN_24H = "ONE"
@@ -362,13 +452,32 @@ class DicePortalAdapter:
         limit_per_query: int | list[int],
         progress_callback=None,
         global_target: int | None = None,
+        exclude_job: Callable[[dict], bool] | None = None,
+        status_callback: Callable[[str], None] | None = None,
     ) -> list[tuple[SearchVariation, list[dict]]]:
+        """Find Matches for Dice. Every returned job has a verified Dice Job Match Score of at
+        least settings.dice_min_match_score, read from its job-detail page within a per-run cap
+        of settings.dice_match_score_max_pages pages. `exclude_job` names jobs the caller will
+        never accept (already applied for this resume); they are skipped without opening their
+        page. `status_callback` receives human-readable progress while scores are read. The
+        run's totals are left in self.last_match_score_run for the caller to report."""
         debug_dir = self._debug_dir()
         results: list[tuple[SearchVariation, list[dict]]] = []
         search_events: list[dict] = []
         # limit_per_query may be uniform (int) or a per-variation list, so the top variations
         # can inspect a larger candidate budget than later ones.
         limits = per_variation_limits(limit_per_query, len(variations))
+        match_run = DiceMatchScoreRun(
+            minimum=int(self.settings.dice_min_match_score),
+            cap=int(self.settings.dice_match_score_max_pages),
+            exclude_job=exclude_job,
+            report=status_callback,
+            total_variations=len(variations),
+        )
+        self.last_match_score_run = match_run
+        match_targets = self._match_score_targets(limits, global_target)
+        page_shares = self._match_score_page_shares(limits, match_run.cap)
+        carried_pages = 0
         if not self.storage_state.exists():
             self._write_debug(
                 debug_dir,
@@ -399,6 +508,11 @@ class DicePortalAdapter:
             # Find Matches begins -- once for the whole multi-variation run, never per page load.
             focus_browser_window(page, headless=self.settings.linkedin_headless, reason="dice_search")
             for index, variation in enumerate(variations, start=1):
+                # A variation may use its share of the page cap plus whatever earlier
+                # variations left unused, so the strongest role is searched first but cannot
+                # spend the whole cap alone.
+                allowance = page_shares[index - 1] + carried_pages
+                pages_before = match_run.pages_inspected
                 raw_jobs = self.search_jobs(
                     page,
                     variation,
@@ -406,7 +520,14 @@ class DicePortalAdapter:
                     debug_dir=debug_dir,
                     search_index=index,
                     global_target=global_target,
+                    match_run=match_run,
+                    match_target=match_targets[index - 1],
+                    page_allowance=allowance,
                 )
+                carried_pages = max(0, allowance - (match_run.pages_inspected - pages_before))
+                # Qualifying shortfall moves on to the next variation's target.
+                if index < len(match_targets):
+                    match_targets[index] += max(0, match_targets[index - 1] - len(raw_jobs))
                 results.append((variation, raw_jobs))
                 event = {
                     "portal": self.portal_name,
@@ -435,9 +556,31 @@ class DicePortalAdapter:
                 "portal": self.portal_name,
                 "variation_count": len(variations),
                 "jobs_found": sum(len(items) for _, items in results),
+                "dice_match_score": match_run.summary(),
             },
         )
         return results
+
+    def _match_score_targets(self, limits: list[int], global_target: int | None) -> list[int]:
+        """How many QUALIFYING jobs each variation looks for: its weighted share of the run's
+        requested total (the same weighting Find Matches allocates with), never more than its
+        own per-query limit. Without a run total, each variation keeps its own limit."""
+        if not global_target:
+            return [max(1, int(limit)) for limit in limits]
+        shares = FindMatchesEngine(self.settings).soft_allocation(int(global_target), len(limits))
+        shares = (shares + [0] * len(limits))[: len(limits)]
+        return [min(max(1, int(limit)), share) for limit, share in zip(limits, shares)]
+
+    def _match_score_page_shares(self, limits: list[int], cap: int) -> list[int]:
+        """Split the run's job-page cap across variations in proportion to their search
+        limits; any remainder goes to the highest-priority variations first."""
+        if not limits or cap <= 0:
+            return [0] * len(limits)
+        total = sum(max(1, int(limit)) for limit in limits)
+        shares = [cap * max(1, int(limit)) // total for limit in limits]
+        for i in range(cap - sum(shares)):
+            shares[i % len(shares)] += 1
+        return shares
 
     def search_url(
         self,
@@ -469,6 +612,9 @@ class DicePortalAdapter:
         debug_dir: Path | None = None,
         search_index: int = 1,
         global_target: int | None = None,
+        match_run: DiceMatchScoreRun | None = None,
+        match_target: int | None = None,
+        page_allowance: int | None = None,
     ) -> list[dict]:
         """Two-pass Dice search that prioritizes jobs posted within the last 24 hours.
 
@@ -478,8 +624,19 @@ class DicePortalAdapter:
         eligible jobs. Both passes are merged on canonical Dice identity (Pass A first, so the
         fresher copy wins within a variation); cross-variation ownership and the per-variation
         weighted final limits are enforced unchanged by the caller. Easy Apply classification,
-        canonical identity, and the final application ordering are untouched."""
+        canonical identity, and the final application ordering are untouched.
+
+        With `match_run` (Find Matches), only jobs with a verified Dice Job Match Score at or
+        above match_run.minimum are returned -- up to `match_target` of them, opening at most
+        `page_allowance` job pages -- and further relevance pages are read when too few of the
+        collected candidates qualify. Without it, behavior is exactly as described above."""
         return_target = max(1, int(limit or 1))
+        if match_run is not None:
+            match_target = return_target if match_target is None else max(0, int(match_target))
+            page_allowance = match_run.cap if page_allowance is None else max(0, int(page_allowance))
+            if match_target == 0:
+                # This variation's share of the requested total is zero: no Dice request at all.
+                return []
         scan_limit = self._dice_scan_limit(limit)
         # Diagnostics-only reference clock; ordering always uses the run-wide reference in enrich.
         reference = datetime.utcnow()
@@ -534,6 +691,12 @@ class DicePortalAdapter:
                 {"url": self._safe_page_url(page), "query": variation.query, "location": variation.location},
             )
             kept = self._filter_easy_apply_only(fresh_jobs, debug_dir, search_index)[:return_target]
+            if match_run is not None:
+                # A login wall or bot check would also hide every job's score, so nothing from
+                # this session can be verified -- no job page is opened and nothing qualifies.
+                match_run.blocked = True
+                kept = []
+                diag["match_score_skipped"] = "search_blocked"
             diag["extraction_path"] = "dom_partial_blocked" if kept else "none"
             diag["easy_apply_retained"] = len(kept)
             diag["final_jobs_accepted"] = len(kept)
@@ -578,7 +741,15 @@ class DicePortalAdapter:
         if merged:
             # Preserve the per-variation cap (weighted final limits): keep only this variation's
             # allotted share. Fresh jobs sit first, so the share is drawn from the freshest pool.
-            kept = self._filter_easy_apply_only(merged, debug_dir, search_index)[:return_target]
+            kept = self._filter_easy_apply_only(merged, debug_dir, search_index)
+            if match_run is not None:
+                kept = self._qualify_by_match_score(
+                    page, variation, kept, match_run, match_target, page_allowance,
+                    limit, scan_limit, debug_dir, search_index, diag,
+                    next_relevance_page=2 if diag["fallback_pass_ran"] else 1,
+                )
+            else:
+                kept = kept[:return_target]
             diag["extraction_path"] = "dom"
             diag["easy_apply_retained"] = len(kept)
             diag["final_jobs_accepted"] = len(kept)
@@ -589,6 +760,11 @@ class DicePortalAdapter:
         fallback_locators = self._extract_jobs_from_locators(page, variation, limit)
         if fallback_locators:
             kept = self._filter_easy_apply_only(fallback_locators, debug_dir, search_index)
+            if match_run is not None:
+                kept = self._qualify_by_match_score(
+                    page, variation, kept, match_run, match_target, page_allowance,
+                    limit, scan_limit, debug_dir, search_index, diag, next_relevance_page=None,
+                )
             diag["extraction_path"] = "locators"
             diag["easy_apply_retained"] = len(kept)
             diag["final_jobs_accepted"] = len(kept)
@@ -906,6 +1082,198 @@ class DicePortalAdapter:
         if self.NATIVE_APPLY_CTA_RE.search(card_text or ""):
             return True, "native_badge_text"
         return False, "no_easy_apply_signal"
+
+    def _qualify_by_match_score(
+        self,
+        page,
+        variation: SearchVariation,
+        candidates: list[dict],
+        match_run: DiceMatchScoreRun,
+        target: int,
+        page_allowance: int,
+        limit: int,
+        scan_limit: int,
+        debug_dir: Path | None,
+        search_index: int,
+        diag: dict,
+        next_relevance_page: int | None,
+    ) -> list[dict]:
+        """Keep, in order, the candidates whose genuine Dice Job Match Score is verified at or
+        above match_run.minimum, until `target` qualify.
+
+        Candidates are already Easy Apply and not senior. Already-applied jobs and jobs that
+        qualified for an earlier variation are skipped WITHOUT opening their page, and no job
+        page is opened twice in a run. When the collected candidates run out, further
+        relevance-result pages are read (starting at `next_relevance_page`, at most
+        MATCH_SCORE_MAX_EXTRA_PAGES), until the target is met, Dice has no more results, this
+        variation's `page_allowance` is used, or the run's page cap is reached."""
+        qualified: list[dict] = []
+        checked: list[dict] = []
+        seen: set[str] = set()
+        pages_before = match_run.pages_inspected
+
+        def budget_left() -> bool:
+            return (
+                not match_run.blocked
+                and not match_run.cap_reached
+                and match_run.pages_inspected - pages_before < page_allowance
+            )
+
+        def consider(jobs: list[dict]) -> None:
+            for job in jobs:
+                if len(qualified) >= target:
+                    return
+                key = self._identity_key(job)
+                if not key or key in seen:
+                    continue
+                seen.add(key)
+                if match_run.exclude_job is not None and match_run.exclude_job(job):
+                    checked.append(self._match_score_record(job, None, "already_applied", False))
+                    continue
+                if key in match_run.qualified_ids:
+                    continue  # owned by an earlier, higher-priority variation
+                opened = key not in match_run.scores
+                if opened:
+                    if not budget_left():
+                        return
+                    match_run.scores[key] = (*self._read_dice_match_score(page, match_run, job),
+                                             datetime.utcnow().isoformat())
+                score, status, checked_at = match_run.scores[key]
+                self._stamp_match_score(job, score, status, checked_at)
+                accepted = dice_match_score_rejection(job, match_run.minimum) is None
+                checked.append(self._match_score_record(job, score, status, accepted))
+                if accepted:
+                    qualified.append(job)
+                    match_run.qualified_ids.add(key)
+                if opened:
+                    self._report_match_score_progress(match_run, variation, search_index)
+
+        consider(candidates)
+        listed = {self._identity_key(job) for job in candidates}
+        extra_pages = 0
+        page_number = next_relevance_page
+        while (
+            page_number is not None
+            and len(qualified) < target
+            and budget_left()
+            and extra_pages < self.MATCH_SCORE_MAX_EXTRA_PAGES
+        ):
+            jobs, blocker, _page_diag = self._load_and_extract_page(
+                page, self.search_url(variation, page_number=page_number), variation, limit, scan_limit,
+                stop_at_target=False, debug_dir=debug_dir, search_index=search_index,
+                suffix=f"score_p{page_number}",
+            )
+            extra_pages += 1
+            page_number += 1
+            if blocker in {"not_logged_in", "captcha_or_blocked"}:
+                match_run.blocked = True
+            if blocker or not jobs:
+                break
+            unseen = [job for job in jobs if self._identity_key(job) not in listed]
+            if not unseen:
+                break  # Dice repeated a page: its results are exhausted
+            listed.update(self._identity_key(job) for job in unseen)
+            consider(self._filter_easy_apply_only(unseen, None, search_index))
+
+        diag["match_score"] = {
+            "minimum": match_run.minimum,
+            "target": target,
+            "page_allowance": page_allowance,
+            "pages_inspected": match_run.pages_inspected - pages_before,
+            "run_pages_inspected": match_run.pages_inspected,
+            "run_cap": match_run.cap,
+            "cap_reached": match_run.cap_reached,
+            "session_blocked": match_run.blocked,
+            "extra_result_pages": extra_pages,
+            "qualified": len(qualified),
+        }
+        if debug_dir is not None:
+            self._write_debug(
+                debug_dir, f"search_{search_index}_match_scores.json", {**diag["match_score"], "jobs": checked}
+            )
+        return qualified
+
+    def _read_dice_match_score(self, page, match_run: DiceMatchScoreRun, job: dict) -> tuple[int | None, str]:
+        """Open the job's own detail page (in a second tab, so the results page stays put) and
+        wait for its Dice Job Match Score. Counts toward the run's page cap only when a page is
+        actually opened."""
+        url = str(job.get("job_url") or "")
+        if not self.is_canonical_job_url(url):
+            return None, MATCH_SCORE_NO_URL
+        tab = self._match_score_tab(page, match_run)
+        match_run.pages_inspected += 1
+        try:
+            tab.goto(url, wait_until="domcontentloaded", timeout=45000)
+        except Exception:
+            return None, MATCH_SCORE_LOAD_FAILED
+        # A redirect to sign-in hides every score from here on: stop opening pages this run.
+        if any(marker in self._safe_page_url(tab).lower() for marker in ("login", "sign-in", "signin")):
+            match_run.blocked = True
+            return None, MATCH_SCORE_BLOCKED
+        # Bounded poll: at most MATCH_SCORE_WAIT_SECONDS of re-reads while the card says
+        # "Crunching numbers..." (or has not rendered yet).
+        deadline = time.monotonic() + self.MATCH_SCORE_WAIT_SECONDS
+        max_polls = int(self.MATCH_SCORE_WAIT_SECONDS * 1000 // self.MATCH_SCORE_POLL_MS) + 1
+        score, status = None, MATCH_SCORE_NOT_SHOWN
+        for _poll in range(max_polls):
+            try:
+                text = tab.locator("body").inner_text(timeout=5000)
+            except Exception:
+                text = ""
+            score, status = parse_dice_match_score(text)
+            if status in {MATCH_SCORE_VERIFIED, MATCH_SCORE_INVALID} or time.monotonic() >= deadline:
+                break
+            tab.wait_for_timeout(self.MATCH_SCORE_POLL_MS)
+        return score, status
+
+    def _match_score_tab(self, page, match_run: DiceMatchScoreRun):
+        if match_run.tab is None:
+            match_run.tab = page.context.new_page()
+            try:
+                # The score is text: images, media and fonts are not needed to read it.
+                match_run.tab.route(
+                    "**/*",
+                    lambda route: route.abort()
+                    if route.request.resource_type in {"image", "media", "font"}
+                    else route.continue_(),
+                )
+            except Exception:
+                pass
+        return match_run.tab
+
+    def _stamp_match_score(self, job: dict, score: int | None, status: str, checked_at: str) -> None:
+        """Record the score on the job so it is saved with it and can be inspected later."""
+        metadata = dict(job.get("job_description_metadata") or {})
+        metadata["dice_match_score"] = score
+        metadata["dice_match_score_status"] = status
+        metadata["dice_match_score_checked_at"] = checked_at
+        job["job_description_metadata"] = metadata
+
+    @staticmethod
+    def _match_score_record(job: dict, score: int | None, status: str, qualified: bool) -> dict:
+        return {
+            "title": job.get("title"),
+            "company": job.get("company"),
+            "job_url": job.get("job_url"),
+            "dice_match_score": score,
+            "status": status,
+            "qualified": qualified,
+        }
+
+    def _report_match_score_progress(
+        self, match_run: DiceMatchScoreRun, variation: SearchVariation, search_index: int
+    ) -> None:
+        # Reporting must never stop or fail the search.
+        if match_run.report is None:
+            return
+        try:
+            match_run.report(
+                f"Dice search {search_index}/{match_run.total_variations}: {variation.query} -- "
+                f"checking Dice Job Match Scores: {match_run.pages_inspected}/{match_run.cap} job pages "
+                f"inspected, {len(match_run.qualified_ids)} qualifying (>= {match_run.minimum}%)."
+            )
+        except Exception:
+            pass
 
     def _counts_toward_quota(self, job: dict) -> bool:
         """A job that may fill a variation's share: native Easy Apply AND not senior-level.

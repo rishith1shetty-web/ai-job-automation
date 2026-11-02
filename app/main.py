@@ -88,7 +88,7 @@ from app.services.form_learning import FormLearningEngine
 from app.services.generalized_form_engine import GeneralizedFieldInput, GeneralizedFormEngine
 from app.services.matcher import MatchScorer
 from app.services.performance import PerformanceRecorder, latest_performance_summary
-from app.services.portals.dice_portal import DicePortalAdapter
+from app.services.portals.dice_portal import DicePortalAdapter, dice_match_score_rejection
 from app.services.reasoning import AIReasoningEngine
 from app.services.resume_intelligence import ResumeIntelligenceEngine
 from app.services.resume_parser import ResumeParser, apply_role_profile_compat
@@ -1196,7 +1196,10 @@ def _run_find_matches_batch(batch_id: str) -> None:
                 limit=batch.requested_limit,
                 portal=batch.portal,
             )
-            ranked = _search_jobs_sync(request, db, batch=batch, batch_debug_dir=debug_dir)
+            completion_notes: list[str] = []
+            ranked = _search_jobs_sync(
+                request, db, batch=batch, batch_debug_dir=debug_dir, completion_notes=completion_notes
+            )
             _update_search_batch(
                 db,
                 batch,
@@ -1204,10 +1207,13 @@ def _run_find_matches_batch(batch_id: str) -> None:
                 current_search_variation="",
                 jobs_collected=len(ranked),
                 easy_apply_count=sum(1 for job in ranked if job.easy_apply),
-                latest_status_message=(
-                    f"Found {len(ranked)} jobs out of requested {batch.requested_limit} based on current {batch.portal.title()} results."
-                    if len(ranked) < int(batch.requested_limit or 0)
-                    else f"Search complete. Saved {len(ranked)} ranked jobs."
+                latest_status_message=" ".join(
+                    [
+                        f"Found {len(ranked)} jobs out of requested {batch.requested_limit} based on current {batch.portal.title()} results."
+                        if len(ranked) < int(batch.requested_limit or 0)
+                        else f"Search complete. Saved {len(ranked)} ranked jobs.",
+                        *completion_notes,
+                    ]
                 ),
                 finished_at=datetime.utcnow(),
             )
@@ -1245,6 +1251,7 @@ def _search_jobs_sync(
     *,
     batch: JobSearchBatch | None = None,
     batch_debug_dir: Path | None = None,
+    completion_notes: list[str] | None = None,
 ) -> list[JobOpportunity]:
     recorder = PerformanceRecorder(
         settings,
@@ -1469,6 +1476,20 @@ def _search_jobs_sync(
 
             return progress_callback
 
+        def make_status_callback():
+            # Free-text progress from inside a variation (Dice Job Match Score checks), so a long
+            # search visibly keeps moving. Like progress, it must never stop or fail the search.
+            def status_callback(message: str) -> None:
+                if batch is None:
+                    return
+                try:
+                    _update_search_batch(db, batch, latest_status_message=message)
+                except Exception as exc:  # pragma: no cover - defensive
+                    logger.warning("Dice status reporting failed: %s", exc)
+
+            return status_callback
+
+        dice_match_summary: dict | None = None
         for portal in portals:
             adapter = LinkedInAutomation(settings) if portal == "linkedin" else dice_adapter()
             with recorder.stage(
@@ -1510,13 +1531,21 @@ def _search_jobs_sync(
                                 raw_jobs = adapter.search_jobs(resume, variation.location, variation.query, per_variation_limit)
                             portal_results.append((variation, raw_jobs))
                 else:
+                    excluded_for_dice = excluded_success_keys_by_portal.get("dice", set())
                     portal_results = adapter.search_jobs_many(
                         resume,
                         selected_variations,
                         search_limits,
                         progress_callback=make_progress_callback("Dice"),
                         global_target=target_count,
+                        # Same identity keys as the already-applied gate below, so an applied job
+                        # never costs a Dice Job Match Score page or counts as qualifying.
+                        exclude_job=lambda raw: any(
+                            key in excluded_for_dice for key in engine.duplicate_key(raw) if key
+                        ),
+                        status_callback=make_status_callback(),
                     )
+                    dice_match_summary = adapter.last_match_score_run.summary()
             for variation, raw_jobs in portal_results:
                 variation_results.append((portal, variation, raw_jobs))
         # Pass 1 -- canonical dedup in variation-PRIORITY order. The first (highest-priority)
@@ -1576,6 +1605,25 @@ def _search_jobs_sync(
                             "company": raw.get("company"),
                             "job_url": raw.get("job_url"),
                             "reason": f"Senior-level role excluded ({senior_reason})",
+                            "search_query_used": variation.query,
+                            "search_role": variation.search_role,
+                            "role_priority": variation.role_priority,
+                        }
+                    )
+                    continue
+                # Dice only: a genuine, verified Dice Job Match Score at or above the minimum.
+                # Missing, pending, invalid or unverified scores never qualify. Other portals have
+                # no such score and are not affected.
+                score_reason = (
+                    dice_match_score_rejection(raw, settings.dice_min_match_score) if portal == "dice" else None
+                )
+                if score_reason:
+                    ineligible_jobs.append(
+                        {
+                            "title": raw.get("title"),
+                            "company": raw.get("company"),
+                            "job_url": raw.get("job_url"),
+                            "reason": score_reason,
                             "search_query_used": variation.query,
                             "search_role": variation.search_role,
                             "role_priority": variation.role_priority,
@@ -1866,9 +1914,24 @@ def _search_jobs_sync(
                 for index, job in enumerate(ranked, start=1)
             ],
         )
+        if dice_match_summary is not None:
+            engine.write_debug(debug_dir, "dice_match_score_summary.json", dice_match_summary)
+            if completion_notes is not None:
+                completion_notes.append(_dice_match_score_note(dice_match_summary))
         return ranked[:target_count]
     finally:
         recorder.save()
+
+
+def _dice_match_score_note(summary: dict) -> str:
+    """The Dice Job Match Score part of a finished search's status message."""
+    minimum, cap, inspected = summary["minimum"], summary["cap"], summary["pages_inspected"]
+    note = f"Every Dice job saved has a verified Dice Job Match Score of at least {minimum}%."
+    if summary.get("session_blocked"):
+        return f"{note} Dice stopped showing scores (sign-in or bot check) after {inspected} job pages."
+    if summary.get("cap_reached"):
+        return f"{note} Stopped after the {cap} job-detail page cap was reached ({inspected} pages inspected)."
+    return f"{note} {inspected} of {cap} job-detail pages inspected."
 
 
 @app.get("/jobs", response_model=list[JobOut])

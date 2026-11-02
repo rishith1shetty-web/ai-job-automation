@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/test/render";
 import { BASE, fixtures, server } from "@/test/server";
-import { DetectedProfilePanel } from "./HeaderPanels";
+import type { SearchBatch } from "@/types";
+import { DetectedProfilePanel, SearchBatchBar } from "./HeaderPanels";
 
 // A role profile now contains a Primary Role plus up to four Strong Fit roles. The Related and
 // Stretch tiers are no longer produced, so their summary groups must disappear rather than sit
@@ -115,5 +117,52 @@ describe("DetectedProfilePanel — role summary groups", () => {
     expect(within(rows[0]).getByText("Primary Role")).toBeInTheDocument();
     expect(within(rows[4]).getByText("5")).toBeInTheDocument();
     expect(within(rows[4]).getByText("Revenue / Profitability Analyst")).toBeInTheDocument();
+  });
+});
+
+describe("SearchBatchBar — shortfall message", () => {
+  const shortBatch: SearchBatch = {
+    id: "batch-short",
+    resume_id: 6493,
+    search_query: "DevOps Engineer",
+    location: "Remote",
+    portal: "dice",
+    status: "completed",
+    requested_limit: 50,
+    current_search_variation: null,
+    jobs_collected: 14,
+    easy_apply_count: 14,
+    duplicates_removed: 0,
+    latest_status_message:
+      "Found 14 jobs out of requested 50 based on current Dice results. Every Dice job saved has a verified " +
+      "Dice Job Match Score of at least 60%. Stopped after the 150 job-detail page cap was reached (150 pages inspected).",
+    error_message: null,
+    debug_path: null,
+    created_at: "2026-10-30T15:00:00",
+    job_count: 14,
+  };
+
+  async function selectBatch(batch: SearchBatch) {
+    server.use(
+      http.get(`${BASE}/jobs/search-batches`, () => HttpResponse.json([batch])),
+      http.get(`${BASE}/jobs/search-batches/${batch.id}`, () => HttpResponse.json(batch)),
+    );
+    renderWithProviders(<SearchBatchBar />);
+    await waitFor(() => expect(screen.getAllByRole("option")).toHaveLength(2));
+    await userEvent.selectOptions(screen.getByRole("combobox"), screen.getAllByRole("option")[1]);
+  }
+
+  it("shows the counts and why the search stopped (the Dice page cap)", async () => {
+    await selectBatch(shortBatch);
+    const alert = await screen.findByText(/150 job-detail page cap was reached/);
+    expect(alert).toHaveTextContent("Found 14 jobs out of requested 50");
+    expect(alert).toHaveTextContent("at least 60%");
+  });
+
+  it("falls back to the plain counts when the batch carries no message", async () => {
+    await selectBatch({ ...shortBatch, latest_status_message: null });
+    expect(
+      await screen.findByText("Found 14 jobs out of requested 50 based on current results."),
+    ).toBeInTheDocument();
   });
 });
