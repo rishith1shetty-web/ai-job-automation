@@ -53,3 +53,6 @@ phase6-*.log
 
 # Local assistant instructions. Kept on this computer, never published.
 CLAUDE.md
+
+# Local Claude Code configuration and skills. Kept on this computer, never published.
+.claude/
